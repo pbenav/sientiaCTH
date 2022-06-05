@@ -59,6 +59,20 @@
             <x-jet-input-error for="name" class="mt-2" />
         </div>
 
+         <!-- Familyname 1 -->
+         <div class="col-span-6 sm:col-span-4">
+            <x-jet-label for="familyname1" value="{{ __('Family Name 1') }}" />
+            <x-jet-input id="familyname1" type="text" class="mt-1 block w-full" wire:model.defer="state.familyname1" autocomplete="familyname1" />
+            <x-jet-input-error for="familyname1" class="mt-2" />
+        </div>
+
+        <!-- Familyname 2 -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-jet-label for="familyname2" value="{{ __('Family Name 2') }}" />
+            <x-jet-input id="familyname2" type="text" class="mt-1 block w-full" wire:model.defer="state.familyname2" autocomplete="familyname2" />
+            <x-jet-input-error for="familyname2" class="mt-2" />
+        </div>
+
         <!-- Email -->
         <div class="col-span-6 sm:col-span-4">
             <x-jet-label for="email" value="{{ __('Email') }}" />

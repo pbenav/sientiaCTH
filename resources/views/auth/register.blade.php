@@ -15,6 +15,16 @@
             </div>
 
             <div class="mt-4">
+                <x-jet-label for="familyname1" value="{{ __('Family Name 1') }}" />
+                <x-jet-input id="familyname1" class="block mt-1 w-full" type="text" name="familyname1" :value="old('familyname1')" required autofocus autocomplete="familyname1" />
+            </div>
+
+            <div class="mt-4">
+                <x-jet-label for="familyname2" value="{{ __('Family Name 2') }}" />
+                <x-jet-input id="familyname2" class="block mt-1 w-full" type="text" name="familyname2" :value="old('familyname2')" required autofocus autocomplete="familyname2" />
+            </div>
+
+            <div class="mt-4">
                 <x-jet-label for="email" value="{{ __('Email') }}" />
                 <x-jet-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
             </div>

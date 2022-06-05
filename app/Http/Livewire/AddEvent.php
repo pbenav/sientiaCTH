@@ -58,7 +58,7 @@ class AddEvent extends Component
             'description'
         ]);
 
-        $this->emitTo('get-local-time','render');
+        $this->emitTo('get-time-registers','render');
         $this->emit('alert', 'Event added!');
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\GetLocalTime;
+use App\Http\Livewire\GetTimeRegisters;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,5 +23,8 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
-    Route::get('/dashboard', GetLocalTime::class)->name('dashboard');
+    Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('front');
 });

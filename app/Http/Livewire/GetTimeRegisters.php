@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
 
-class GetLocalTime extends Component {
+class GetTimeRegisters extends Component {
 
     public $search;
     public $sort = 'startTime';
@@ -15,12 +15,12 @@ class GetLocalTime extends Component {
     protected $listeners = ['render'];
 
     // TODO Show register in a per user rol basis
-    public function render() {
+    public function render() {     
         $events = Event::where('description', 'like', '%' . $this->search . '%')
                 ->where('userId', '=', Auth::user()->id)
                 ->orderBy($this->sort, $this->direction)
                 ->get();
-        return view('livewire.get-local-time', compact('events'));
+        return view('livewire.get-time-registers', compact('events'));
     }
 
     public function order($sort){
@@ -36,7 +36,5 @@ class GetLocalTime extends Component {
             $this->sort = $sort;
             $this->direction = 'asc';
         }
-        
-        
     }
 }
