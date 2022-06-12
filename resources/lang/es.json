@@ -48,5 +48,8 @@
     "Create Event": "Crear nuevo evento",
     "Time Stamp": "Marca de tiempo",
     "End date": "Fecha final",
-    "Description": "Descripción"
+    "Description": "Descripción",
+    "Insert code": "Ingresa el código",
+    "Reset": "Resetear",
+    "Delete": "Borrar"
 }

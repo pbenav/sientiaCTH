@@ -15,8 +15,8 @@ use App\Http\Livewire\GetTimeRegisters;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+        return view('welcome');
+    })->name('front');
 
 Route::middleware([
     'auth:sanctum',
@@ -24,7 +24,5 @@ Route::middleware([
     'verified'
 ])->group(function () {
     Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('front');
+    
 });

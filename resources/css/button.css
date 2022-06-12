@@ -13,3 +13,15 @@
 .btn-green{
     @apply bg-green-600 hover:bg-green-500;
 }
+
+.btn-pad{
+    @apply bg-gray-300 text-2xl px-10 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700;
+}
+
+.btn-code{
+    @apply w-full bg-green-500 py-3 text-white text-2xl uppercase font-black rounded-lg hover:bg-green-600 transition-all duration-700;
+}
+
+.btn-aux{
+    @apply bg-gray-300 text-gray-600 text-2xl px-10 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700 focus:outline-none;
+}
