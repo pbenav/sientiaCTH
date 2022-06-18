@@ -4,10 +4,10 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 
-class ComponenteLivewire extends Component
+class ConfirmEvent extends Component
 {
     public function render()
     {
-        return view('livewire.componente-livewire');
+        return view('livewire.confirm-event');
     }
 }

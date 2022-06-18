@@ -1,5 +1,5 @@
 <div>
-    <a class="btn btn-green" wire:click="$set('open', true)">
+    <a class="btn btn-blue" wire:click="$set('open', true)">
         <i class="fas fa-edit"></i>
     </a>
 
@@ -30,7 +30,7 @@
                 Cancel
             </x-jet-secondary-button>
 
-            <x-jet-danger-button wire:click="save" wire:loading.attr="disabled" class="disabled:opacity-60">
+            <x-jet-danger-button class="ml-2" wire:click="save" wire:loading.attr="disabled" class="disabled:opacity-60">
                 Update
             </x-jet-danger-button>
         </x-slot>

@@ -80,8 +80,8 @@
                             Actions</th>
                     </tr>
                 </thead>
-                <tbody class="block md:table-row-group">
 
+                <tbody class="block md:table-row-group">
                     @foreach ($events as $event)
                         <tr class="bg-gray-300 border border-grey-500 md:border-none block md:table-row">
                             <td class="p-2 md:border md:border-grey-500 text-left block md:table-cell"><span
@@ -98,8 +98,12 @@
                                     class="inline-block w-1/3 md:hidden font-bold">Description</span>{{ $event->description }}
                             </td>
                             <td class="p-2 md:border md:border-grey-500 block md:table-cell">
-                                <span class="inline-block w-1/3 md:hidden font-bold">Actions</span>                                
-                                @livewire('edit-event', ['event' => $event], key($event->id))                                
+                                <span class="inline-block w-1/3 md:hidden font-bold">Actions</span>
+                                <div class="flex flex-row max-w-fit mx-auto m-0 p-0">
+                                    @livewire('edit-event', ['event' => $event], key($event->id))
+                                    @livewire('remove-event', ['event' => $event], key($event->id))
+                                    @livewire('confirm-event', ['event' => $event], key($event->id))
+                                </div>
                             </td>
                         </tr>
                     @endforeach

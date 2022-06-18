@@ -5,7 +5,7 @@
                 {{ $user_code }}
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div id="buttons" class="grid grid-cols-3 gap-4">
             <button wire:click="addCode('1')" class="btn-pad">1</button>
             <button wire:click="addCode('2')" class="btn-pad">2</button>
             <button wire:click="addCode('3')" class="btn-pad">3</button>
