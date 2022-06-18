@@ -25,7 +25,6 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'usercode' => $this->faker->randomElement(['12345678', '87654321']),
             'name' => $this->faker->name(),
             'familyname1' => $this->faker->surname(),
             'familyname2' => $this->faker->surname(),

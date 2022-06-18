@@ -15,12 +15,10 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('userId');
-            $table->bigInteger('userCode');
-            $table->dateTime('startTime');
+            $table->dateTime('startTime')->nullable();
             $table->dateTime('endTime')->nullable();
+            $table->bigInteger('userId')->nullable();
             $table->string('description')->nullable();
-            $table->boolean('isOpen');
             $table->timestamps();
         });
     }
