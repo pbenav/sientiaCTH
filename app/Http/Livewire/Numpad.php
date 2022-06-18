@@ -8,10 +8,10 @@ class Numpad extends Component
 {
     public $user_code = '';    
 
-    public function addNumber($number)
+    public function addCode($code)
     {
         if (strlen($this->user_code) <= 10) {
-            $this->user_code .= $number;
+            $this->user_code .= $code;
         }
     }
 
@@ -25,6 +25,11 @@ class Numpad extends Component
         if (strlen($this->user_code) > 0) {
             $this->user_code = substr($this->user_code, 0, -1);
         }
+    }
+
+    public function insertCode(){
+        echo "Insertando código" . $this->user_code;
+
     }
 
     public function render()

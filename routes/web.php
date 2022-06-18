@@ -24,5 +24,7 @@ Route::middleware([
     'verified'
 ])->group(function () {
     Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');
-    
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('front');
 });
