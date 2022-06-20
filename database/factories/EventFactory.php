@@ -16,11 +16,21 @@ class EventFactory extends Factory
      */
     public function definition()
     {
+        $startime = $this->faker->dateTime();
+        $isopen = $this->faker->boolean();
+        if (! $isopen){
+            $endtime = $startime;
+            $endtime->modify('+8 hours');
+        } else {
+            $endtime = null;
+        }
         return [
-            'startTime' => $this->faker->dateTime(),
-            'endTime' => $this->faker->dateTime(),
-            'userId' => $this->faker->randomDigitNotNull(),
+            'userId' => 1,
+            'userCode' => $this->faker->randomElement(['12345678', '87654321']),
+            'startTime' => $startime,
+            'endTime' => $endtime, 
             'description' => $this->faker->sentence(),
+            'isOpen' => $isopen,
         ];
     }
 }

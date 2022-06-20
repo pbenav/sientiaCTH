@@ -23,6 +23,7 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input)
     {
         Validator::make($input, [
+            'usercode' => ['required', 'min:8', 'max:10', 'unique:users'],
             'name' => ['required', 'string', 'max:255'],
             'familyname1' => ['nullable', 'string', 'max:255'],
             'familyname2' => ['nullable', 'string', 'max:255'],
@@ -33,6 +34,7 @@ class CreateNewUser implements CreatesNewUsers
 
         return DB::transaction(function () use ($input) {
             return tap(User::create([
+                'usercode' => $input['usercode'],
                 'name' => $input['name'],
                 'familyname1' => $input['familyname1'],
                 'familyname2' => $input['familyname2'],

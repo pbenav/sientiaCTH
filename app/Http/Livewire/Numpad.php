@@ -28,8 +28,9 @@ class Numpad extends Component
     }
 
     public function insertCode(){
-        echo "Insertando código" . $this->user_code;
 
+        $this->resetDialer();
+        $this->render();
     }
 
     public function render()
