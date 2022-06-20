@@ -30,7 +30,7 @@
                 Cancel
             </x-jet-secondary-button>
 
-            <x-jet-danger-button wire:click="save" wire:loading.attr="disabled" class="disabled:opacity-60">
+            <x-jet-danger-button class="ml-2" wire:click="save" wire:loading.attr="disabled" class="disabled:opacity-60">
                 Update
             </x-jet-danger-button>
         </x-slot>

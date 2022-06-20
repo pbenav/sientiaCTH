@@ -79,6 +79,13 @@
             <x-jet-input id="email" type="email" class="mt-1 block w-full" wire:model.defer="state.email" />
             <x-jet-input-error for="email" class="mt-2" />
         </div>
+
+        <!-- UserCode -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-jet-label for="usercode" value="{{ __('User Code') }}" />
+            <x-jet-input id="usercode" type="text" class="mt-1 block w-full" wire:model.defer="state.usercode" />
+            <x-jet-input-error for="usercode" class="mt-2" />
+        </div>
     </x-slot>
 
     <x-slot name="actions">

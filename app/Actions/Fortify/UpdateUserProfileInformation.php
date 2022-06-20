@@ -23,6 +23,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             'familyname1' => ['required', 'string', 'max:255'],
             'familyname2' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'usercode' => ['required', 'max:10', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
         ])->validateWithBag('updateProfileInformation');
 
@@ -39,6 +40,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'familyname1' => $input['familyname1'],
                 'familyname2' => $input['familyname2'],
                 'email' => $input['email'],
+                'usercode' => $input['usercode'],
             ])->save();
         }
     }
