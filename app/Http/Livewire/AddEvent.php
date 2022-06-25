@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AddEvent extends Component
 {
-    public $showAddEventModal = false;
+    public $open = false;
 
     public $now;
     public $start_date;
@@ -17,12 +17,10 @@ class AddEvent extends Component
     public $user_id;
     public $description;
 
-    protected $listeners = ['render', 'add'];
-
     protected $rules = [
         'start_date' => 'required',
         'start_time' => 'required',
-        'description' => 'required'
+        'description' => 'required|string|max:150'
     ];
 
     public function updated($propertyName){
@@ -31,13 +29,10 @@ class AddEvent extends Component
 
     public function mount()
     {
+        date_default_timezone_set(env('APP_TIMEZONE'));
         $this->start_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
         $this->description = '';
-    }   
-
-    public function add(){
-        $this->showAddEventModal = true;
     }
 
     public function save()
@@ -45,8 +40,8 @@ class AddEvent extends Component
         $this->validate();
 
         Event::create([
-            'start' => $this->start_date . ' ' . $this->start_time,
-            'end' => null,
+            'start_time' => $this->start_date . ' ' . $this->start_time,
+            'end_time' => null,
             'user_id' => Auth::user()->id,
             'user_code' => Auth::user()->user_code,
             'description' => $this->description,
@@ -54,7 +49,7 @@ class AddEvent extends Component
         ]);
 
         $this->reset([
-            'showAddEventModal',
+            'open',
 
         ]);
 
@@ -65,5 +60,5 @@ class AddEvent extends Component
     public function render()
     {
         return view('livewire.add-event');
-    }   
+    }
 }

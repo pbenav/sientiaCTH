@@ -43,8 +43,6 @@
     "Dashboard": "Escritorio",
     "Search": "Buscar",
     "Add event": "Añadir evento",
-    "Edit event": "Editar evento",
-    "Update event": "Actualizar evento",
     "Add new event": "Añadir nuevo evento",
     "Cancel": "Cancelar",
     "Create Event": "Crear nuevo evento",
@@ -57,10 +55,5 @@
     "Insert code": "Ingresa el código",
     "Reset": "Resetear",
     "Delete": "Borrar",
-    "Add a description": "Añade una descripción",
-    "Workday": "Jornada de trabajo",
-    "Actions": "Acciones",
-    "Good job": "¡Bien hecho!",
-    "Start" : "Inicio",
-    "End" : "Fin"
+    "Add a description": "Añade una descripción"
 }

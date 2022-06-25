@@ -1,7 +1,4 @@
-
-<div>    
-    @livewire('add-event')
-    <div class="mx-auto max-w-lg">
+<div class="mx-auto max-w-lg">
     <div class="p-4 rounded-lg shadow-lg">
         <div class="py-4 mb-4 text-4xl text-center tracking-wider bg-gray-200 rounded-lg shadow-lg">
             <div class="h-8 ">
@@ -28,5 +25,4 @@
             <button wire:click="delete" class="btn-aux sm:mt-4">{{ __('Delete') }}</button>
         </div>
     </div>
-</div>
 </div>
