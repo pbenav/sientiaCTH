@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'family_name2' => '***REMOVED***',
             'email' => '***REMOVED***',
             'email_verified_at' => now(),
-            'password' => Hash::make('test_passwd'), // password
+            'password' => Hash::make('***REMOVED***'), // password
             'remember_token' => Str::random(10),
         ];
         /* return [

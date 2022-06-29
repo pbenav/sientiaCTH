@@ -3,10 +3,9 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
-use Brick\Math\BigInteger;
 use DateTime;
+use Illuminate\Support\Facades\Auth;
 
 use function PHPUnit\Framework\isNull;
 
@@ -15,12 +14,11 @@ class GetTimeRegisters extends Component
 
     public $search;
     public $event;
-    public $events;
     public $open_edit = false;
     public $sort = 'start';
     public $direction = 'desc';
 
-    protected $listeners = ['render', 'remove', 'edit'];
+    protected $listeners = ['render'];
 
     protected $rules = [
         'event.start' => 'required',
@@ -28,20 +26,25 @@ class GetTimeRegisters extends Component
         'event.description' => 'required',
     ];
 
-    protected $queryString = [
-        'sort', 'direction'
-    ];
-
     public function mount()
     {
-        $this->event = new Event();        
+        $this->event = new Event();
     }
 
     public function startToday()
     {
         $this->event->start = date('Y/m/d H:i:s');
         $this->event->end = date('Y/m/d H:i:s');
-    }    
+    }
+
+    public function render()
+    {
+        $events = Event::where('description', 'like', '%' . $this->search . '%')
+            ->where('user_id', '=', Auth::user()->id)
+            ->orderBy($this->sort, $this->direction)
+            ->get();
+        return view('livewire.get-time-registers', compact('events'));
+    }
 
     public function order($sort)
     {
@@ -57,61 +60,24 @@ class GetTimeRegisters extends Component
         };
     }
 
-    public function add(){
-        $this->open_edit = true;
-    }    
-
     public function edit(Event $ev)
     {
-        if ($ev->is_open == 1) {
-            $ev->end = date('Y/m/d H:i:s');
-            $this->event = $ev;
-            $this->open_edit = true;
-        } else {
-            $this->emit('alert', 'Register is confirmed. Can\'t be changed.'); 
-            $this->reset(["open_edit"]);
+        if($ev->is_open == 1){
+            $ev->end = date('Y/m/d H:i:s');                                
         }
+        
+        $this->event = $ev;
+        $this->open_edit = true;
     }
 
     public function update()
-    {
+    {        
+        //dd($this->event);
         $this->validate();
         $this->event->save();
+
         $this->reset(["open_edit"]);
+        
         $this->emit('alert', 'Event updated!');
-    }
-
-    public function confirm(Event $ev)
-    {
-        # Before modification there is an event for Sweet alert2 to confirm.
-        $this->event = $ev ;
-        if ($this->event->is_open == 1){
-            $this->event->is_open = 0;
-            $this->event->save();
-        };
-        $this->reset(["open_edit"]);
-
-    }
-
-    public function remove(Event $ev)
-    {
-        # Before deletion there is an event for Sweet alert2 to confirm.
-        $this->event = $ev;
-        $this->event->delete();
-        $this->reset(["open_edit"]);
-    }
-
-    public function getAll()
-    {
-        return Event::where('description', 'like', '%' . $this->search . '%')
-            ->where('user_id', '=', Auth::user()->id)
-            ->orderBy($this->sort, $this->direction)
-            ->get();
-    }
-
-    public function render()
-    {
-        $this->events = $this->getAll();
-        return view('livewire.get-time-registers');
     }
 }
