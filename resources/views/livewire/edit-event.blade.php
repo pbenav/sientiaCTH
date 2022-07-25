@@ -16,7 +16,7 @@
         <x-slot name='content'>
             <div class="mb-4">
                 <x-jet-label value="Event End" />
-                <x-jet-input wire:model="event.endTime" type="text" value="{{ $now }}" class="w-full" />                
+                <x-jet-input wire:model="event.end_time" type="text" value="{{ $now }}" class="w-full" />                
             </div>
 
             <div>

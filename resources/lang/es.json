@@ -43,13 +43,21 @@
     "Dashboard": "Escritorio",
     "Search": "Buscar",
     "Add event": "Añadir evento",
+    "Edit event": "Editar evento",
+    "Update event": "Actualizar evento",
     "Add new event": "Añadir nuevo evento",
     "Cancel": "Cancelar",
     "Create Event": "Crear nuevo evento",
     "Time Stamp": "Marca de tiempo",
-    "End date": "Fecha final",
+    "Start date": "Fecha de inicio del evento",
+    "End date": "Fecha de fin del evento",
+    "Start time": "Hora de inicio del evento",
+    "End time": "Hora de fin del evento",
     "Description": "Descripción",
     "Insert code": "Ingresa el código",
     "Reset": "Resetear",
-    "Delete": "Borrar"
+    "Delete": "Borrar",
+    "Add a description": "Añade una descripción",
+    "Workday": "Jornada de trabajo",
+    "Actions": "Acciones"
 }

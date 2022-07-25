@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,21 +17,22 @@ class EventFactory extends Factory
      */
     public function definition()
     {
-        $startime = $this->faker->dateTime();
+        $startime = $this->faker->dateTimeThisYear();
+        $date = $startime->format('d-m-Y');
+        $time = $startime->format('H:m:s');
         $isopen = $this->faker->boolean();
-        if (! $isopen){
+        if (!$isopen) {
             $endtime = $startime;
             $endtime->modify('+8 hours');
         } else {
             $endtime = null;
         }
         return [
-            'userId' => 1,
-            'userCode' => $this->faker->randomElement(['12345678', '87654321']),
-            'startTime' => $startime,
-            'endTime' => $endtime, 
+            'user_id' => 1,
+            'start' => $startime,
+            'end' => $endtime,
             'description' => $this->faker->sentence(),
-            'isOpen' => $isopen,
+            'is_open' => $isopen,
         ];
     }
 }

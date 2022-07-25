@@ -26,7 +26,7 @@ class User extends Authenticatable
      * @var string[]
      */
     protected $fillable = [
-        'usercode', 'name', 'familyname1','familyname2' , 'email', 'password',
+        'user_code', 'name', 'family_name1','family_name2' , 'email', 'password',
     ];
 
     /**
@@ -58,4 +58,9 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 }

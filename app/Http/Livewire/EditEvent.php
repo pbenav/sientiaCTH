@@ -12,7 +12,7 @@ class EditEvent extends Component
     public $open = false;
 
     protected $rules = [
-        'event.endTime' => 'required',
+        'event.end_time' => 'required',
         'event.description' => 'required',
     ];
 
@@ -31,7 +31,7 @@ class EditEvent extends Component
     }
 
     public function render()
-    {
+    {        
         return view('livewire.edit-event');
     }
 }

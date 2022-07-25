@@ -12,50 +12,44 @@ class AddEvent extends Component
     public $open = false;
 
     public $now;
-    public $startTime;
-    public $startDate;
-    public $endTime;
-    public $userId;
+    public $start_date;
+    public $start_time;
+    public $user_id;
     public $description;
 
     protected $rules = [
-        'startTime' => 'required',
-        'endTime' => 'required',
+        'start_date' => 'required',
+        'start_time' => 'required',
+        'description' => 'required'
     ];
 
     public function updated($propertyName){
         $this->validateOnly($propertyName);
     }
 
-
-    public function init()
+    public function mount()
     {
-        $this->startDate = date('Y-m-d');
-        $this->startTime = date('H:i:s');
-        $this->endTime = date('Y-m-d');
-        $this->description = 'Add a description';
+        $this->start_date = date('Y-m-d');
+        $this->start_time = date('H:i:s');
+        $this->description = '';
     }
-
 
     public function save()
     {
         $this->validate();
 
         Event::create([
-            'startTime' => $this->startDate . ' ' . $this->startTime,
-            'endTime' => $this->endTime,
-            'userId' => Auth::user()->id,
-            'description' => $this->description
+            'start' => $this->start_date . ' ' . $this->start_time,
+            'end' => null,
+            'user_id' => Auth::user()->id,
+            'user_code' => Auth::user()->user_code,
+            'description' => $this->description,
+            'is_open' => true
         ]);
-
 
         $this->reset([
             'open',
-            'startDate',
-            'startTime',
-            'endTime',
-            'userId',
-            'description'
+
         ]);
 
         $this->emitTo('get-time-registers','render');

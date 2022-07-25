@@ -6,6 +6,8 @@ use Livewire\Component;
 
 class ConfirmEvent extends Component
 {
+    public $open = false;
+
     public function render()
     {
         return view('livewire.confirm-event');

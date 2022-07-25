@@ -15,13 +15,13 @@
             </div>
 
             <div class="mt-4">
-                <x-jet-label for="familyname1" value="{{ __('Family Name 1') }}" />
-                <x-jet-input id="familyname1" class="block mt-1 w-full" type="text" name="familyname1" :value="old('familyname1')" required autofocus autocomplete="familyname1" />
+                <x-jet-label for="family_name1" value="{{ __('Family Name 1') }}" />
+                <x-jet-input id="family_name1" class="block mt-1 w-full" type="text" name="family_name1" :value="old('family_name1')" required autofocus autocomplete="familyname1" />
             </div>
 
             <div class="mt-4">
-                <x-jet-label for="familyname2" value="{{ __('Family Name 2') }}" />
-                <x-jet-input id="familyname2" class="block mt-1 w-full" type="text" name="familyname2" :value="old('familyname2')" required autofocus autocomplete="familyname2" />
+                <x-jet-label for="family_name2" value="{{ __('Family Name 2') }}" />
+                <x-jet-input id="family_name2" class="block mt-1 w-full" type="text" name="family_name2" :value="old('family_name2')" required autofocus autocomplete="familyname2" />
             </div>
 
             <div class="mt-4">
@@ -40,8 +40,8 @@
             </div>
 
             <div class="mt-4">
-                <x-jet-label for="usercode" value="{{ __('Choose a User Code') }}" />
-                <x-jet-input id="usercode" class="block mt-1 w-full" type="text" name="usercode" required />
+                <x-jet-label for="user_code" value="{{ __('Choose a User Code') }}" />
+                <x-jet-input id="user_code" class="block mt-1 w-full" type="text" name="user_code" required />
             </div>
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())

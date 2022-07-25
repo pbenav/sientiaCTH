@@ -146,6 +146,10 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'start_date' => 'fecha de inicio',
+        'start_time' => 'hora de inicio',
+        'description' => 'descripción',
+    ],
 
 ];

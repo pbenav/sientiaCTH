@@ -3,6 +3,9 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
+Use App\Models\Event;
+Use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class Numpad extends Component
 {
@@ -28,6 +31,21 @@ class Numpad extends Component
     }
 
     public function insertCode(){
+
+        $event = null;
+
+        $user = DB::table('users')->where('user_code', $this->user_code);
+        //$user = User::where('user_code', $this->user_code)->get();
+        if ($user === 1) {
+            echo 'Buscando eventos...';
+            $event = DB::table('event')
+            ->where('is_open', '=', '1')
+            ->get();
+            dd($event);
+        } else {
+            dump($event);
+            dd($user);
+        }
 
         $this->resetDialer();
         $this->render();

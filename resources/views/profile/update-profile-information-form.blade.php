@@ -61,16 +61,16 @@
 
          <!-- Familyname 1 -->
          <div class="col-span-6 sm:col-span-4">
-            <x-jet-label for="familyname1" value="{{ __('Family Name 1') }}" />
-            <x-jet-input id="familyname1" type="text" class="mt-1 block w-full" wire:model.defer="state.familyname1" autocomplete="familyname1" />
-            <x-jet-input-error for="familyname1" class="mt-2" />
+            <x-jet-label for="family_name1" value="{{ __('Family Name 1') }}" />
+            <x-jet-input id="family_name1" type="text" class="mt-1 block w-full" wire:model.defer="state.family_name1" autocomplete="family_name1" />
+            <x-jet-input-error for="family_name1" class="mt-2" />
         </div>
 
         <!-- Familyname 2 -->
         <div class="col-span-6 sm:col-span-4">
-            <x-jet-label for="familyname2" value="{{ __('Family Name 2') }}" />
-            <x-jet-input id="familyname2" type="text" class="mt-1 block w-full" wire:model.defer="state.familyname2" autocomplete="familyname2" />
-            <x-jet-input-error for="familyname2" class="mt-2" />
+            <x-jet-label for="family_name2" value="{{ __('Family Name 2') }}" />
+            <x-jet-input id="family_name2" type="text" class="mt-1 block w-full" wire:model.defer="state.family_name2" autocomplete="family_name2" />
+            <x-jet-input-error for="family_name2" class="mt-2" />
         </div>
 
         <!-- Email -->
@@ -82,9 +82,9 @@
 
         <!-- UserCode -->
         <div class="col-span-6 sm:col-span-4">
-            <x-jet-label for="usercode" value="{{ __('User Code') }}" />
-            <x-jet-input id="usercode" type="text" class="mt-1 block w-full" wire:model.defer="state.usercode" />
-            <x-jet-input-error for="usercode" class="mt-2" />
+            <x-jet-label for="user_code" value="{{ __('User Code') }}" />
+            <x-jet-input id="user_code" type="text" class="mt-1 block w-full" wire:model.defer="state.user_code" />
+            <x-jet-input-error for="user_code" class="mt-2" />
         </div>
     </x-slot>
 

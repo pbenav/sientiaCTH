@@ -1,58 +1,53 @@
 <div>
     <x-jet-danger-button wire:click="$set('open', 'true')">
-        Add event
+        {{ __('Add event') }}
     </x-jet-danger-button>
 
     <x-jet-dialog-modal wire:model="open">
 
         <x-slot name="title">
-            Add new event
+            {{ __('Add new event') }}
         </x-slot>
 
         <x-slot name="content">
 
-            <div class="mb-4 flex">
-                <x-jet-label value="Start Date" class="mt-3 mr-2" wire:init='init' />
-                <x-jet-input type="date" disabled class="mr-2" wire:model.defer='startDate' />
-                <x-jet-input type="time" disabled class="" wire:model.defer='startTime' />
-
-                <x-jet-input-error for='startTime' />
+            <div class="mb-4">
+                <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2" />
+                <x-jet-input type="date" class="mr-2" wire:model.defer='start_date' />                
+                <x-jet-input-error for='start_date' />
+                <x-jet-input type="time" class="" wire:model.defer='start_time' />
+                <x-jet-input-error for='start_time' />
             </div>
 
             <div class="mb-4">
-                <x-jet-label value="End Date" />
-                <x-jet-input type="date" class="w-full" wire:model.defer="endTime" />
-
-                <x-jet-input-error for='endTime' />
+                <x-jet-label value="{{ __('Description') }}" />
+                <select class="custom-textarea w-full" wire:model="description" name="description"
+                    class="mt-2 text-sm sm:text-base pl-2 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
+                    required>
+                    <option selected value="{{ __('Workday')}}">{{ __('Workday') }}</option>
+                    <option value="{{ __('Lunch') }}">{{ __('Lunch') }}</option>
+                    <option value="{{ __('Others') }}">{{ __('Others') }}</option>
+                </select>
+                {{-- <textarea rows="4" class="custom-textarea w-full" placeholder="{{ __('Add a description like Workday') }}"
+                    wire:model.defer="description"></textarea> --}}
+                <x-jet-input-error for='description' />
             </div>
 
             <div class="mb-4">
-                <x-jet-label value="Description" />
-                <textarea rows="4" class="custom-textarea w-full" wire:model.defer="description"></textarea>
-            </div>
-
-            <div class="mb-4">
-                <input type="hidden" id="userId" name="UserId" wire:model.defer="userId">
+                <input type="hidden" id="user_id" name="user_id" wire:model.defer="user_id">
             </div>
 
         </x-slot>
 
         <x-slot name="footer">
             <x-jet-secondary-button wire:click="$set('open', false)">
-                Cancel
+                {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-
-            <!-- wire:loading.class="bg-blue-500"
-                 wire:loading.remove
-                 wire:loading.attr="disabled" class="disabled:bg-blue-500" -->
-            <x-jet-danger-button wire:click="save" wire:loading.attr="disabled" class="disabled:bg-blue-500" wire_target="save">
-                Create Event
+            <x-jet-danger-button wire:click="save" wire:loading.attr="disabled" class="disabled:bg-blue-500 ml-2"
+                wire_target="save">
+                {{ __('Create Event') }}
             </x-jet-danger-button>
-
-            {{-- <span wire:loading.flex wire_target="save">
-                Cargando...
-            </span> --}}
         </x-slot>
 
     </x-jet-dialog-modal>
