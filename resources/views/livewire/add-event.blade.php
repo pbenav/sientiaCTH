@@ -24,12 +24,11 @@
                 <select class="custom-textarea w-full" wire:model="description" name="description"
                     class="mt-2 text-sm sm:text-base pl-2 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
                     required>
-                    <option selected value="{{ __('Workday')}}">{{ __('Workday') }}</option>
+                    <option value="{{ __('Choose a description') }}">{{ __('Elige una descripción') }}</option>
+                    <option value="{{ __('Workday') }}">{{ __('Workday') }}</option>
                     <option value="{{ __('Lunch') }}">{{ __('Lunch') }}</option>
                     <option value="{{ __('Others') }}">{{ __('Others') }}</option>
                 </select>
-                {{-- <textarea rows="4" class="custom-textarea w-full" placeholder="{{ __('Add a description like Workday') }}"
-                    wire:model.defer="description"></textarea> --}}
                 <x-jet-input-error for='description' />
             </div>
 
@@ -51,5 +50,4 @@
         </x-slot>
 
     </x-jet-dialog-modal>
-
 </div>

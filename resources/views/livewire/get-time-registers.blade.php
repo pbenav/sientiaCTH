@@ -83,19 +83,15 @@
                             <td class="p-2 md:border md:border-grey-500 block md:table-cell">
                                 <span class="inline-block w-1/3 md:hidden font-bold">{{ __('Actions') }}</span>
                                 <div class="flex flex-row max-w-fit mx-auto m-0 p-0 float-right">
-                                    {{ $ev->id }}
                                     <a class="btn btn-blue" wire:click="edit({{ $ev }})">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a class="btn btn-green" wire:click="confirm()">
+                                    <a class="btn btn-green" wire:click="confirm({{ $ev }})">
                                         <i class="fas fa-check"></i>
                                     </a>
-                                    <a class="btn btn-red" wire:click="remove()">
+                                    <a class="btn btn-red" wire:click="remove({{ $ev }})">
                                         <i class="fas fa-trash"></i>
                                     </a>
-                                    {{-- <ul>
-                                    <li class="float-right">@livewire('edit-event', ['event' => $event], key($key))</li>                                   
-                                    </ul> --}}
                                 </div>
                             </td>
                         </tr>
@@ -108,56 +104,55 @@
 
     </div>
 
-    <!-- Event detail. Modal table -->
-    <x-jet-dialog-modal wire:model="open_edit">
-
-        <x-slot name='title'>
-            {{ __('Edit event') }}: <span wire:model.defer='event.id'></span>
-        </x-slot>
-
-        <x-slot name='content'>
-
-            <div class="mb-4">
-                {{-- datepicker --}}
-                <x-datepicker label="Start date" wire:model="event.start">
-                </x-datepicker>
-                <x-jet-input-error for='event.start' />
-                <x-datepicker label="End date" wire:model="event.end">
-                </x-datepicker>
-                <x-jet-input-error for='event.end' />
-            </div>
-
-
-            {{-- end-datepicker --}}
-
-
-            <div>
-                <x-jet-label value="{{ __('Description') }}" />
-                <select class="custom-textarea w-full" wire:model.defer="event.description" name="event.description"
-                    class="mt-2 text-sm sm:text-base pl-2 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
-                    required>
-                    <option value="{{ __('Choose a description') }}">{{ __('Elige una descripción') }}</option>
-                    <option value="{{ __('Workday') }}">{{ __('Workday') }}</option>
-                    <option value="{{ __('Lunch') }}">{{ __('Lunch') }}</option>
-                    <option value="{{ __('Others') }}">{{ __('Others') }}</option>
-                </select>
-                {{-- <textarea rows="4" class="custom-textarea w-full" placeholder="{{ __('Add a description') }}"
-                    wire:model.defer="event.description"></textarea> --}}
-                <x-jet-input-error for='event.description' />
-            </div>
-        </x-slot>
-
-        <x-slot name='footer'>
-            <x-jet-secondary-button wire:click="$set('open_edit', false)">
-                {{ __('Cancel') }}
-            </x-jet-secondary-button>
-
-            <x-jet-danger-button wire:click="update" wire:loading.attr="disabled" class="disabled:bg-blue-500 ml-2"
-                wire_target="update">
-                {{ __('Update event') }}
-            </x-jet-danger-button>
-        </x-slot>
-
-    </x-jet-dialog-modal>
+    <div>
+        <!-- Event detail. Modal table -->
+        <x-jet-dialog-modal wire:model="open_edit">
+    
+            <x-slot name='title'>
+                {{ __('Edit event') }}: <span wire:model.defer='event.id'></span>
+            </x-slot>
+    
+            <x-slot name='content'>
+    
+                <div class="mb-4">
+                    {{-- datepicker --}}
+                    <x-datepicker label="Start date" wire:model="event.start">
+                    </x-datepicker>
+                    <x-jet-input-error for='event.start' />
+                    <x-datepicker label="End date" wire:model="event.end">
+                    </x-datepicker>
+                    <x-jet-input-error for='event.end' />
+                </div>
+                {{-- end-datepicker --}}
+    
+                <div>
+                    <x-jet-label value="{{ __('Description') }}" />
+                    <select class="custom-textarea w-full" wire:model.defer="event.description" name="event.description"
+                        class="mt-2 text-sm sm:text-base pl-2 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
+                        required>
+                        {{-- TODO Integrate causes as new model --}}
+                        <option value="{{ __('Choose a description') }}">{{ __('Choose a description') }}</option>
+                        <option value="{{ __('Workday') }}">{{ __('Workday') }}</option>
+                        <option value="{{ __('Lunch') }}">{{ __('Lunch') }}</option>
+                        <option value="{{ __('Others') }}">{{ __('Others') }}</option>
+                    </select>
+                    <x-jet-input-error for='event.description' />
+                </div>
+            </x-slot>
+    
+            <x-slot name='footer'>
+                <x-jet-secondary-button wire:click="$set('open_edit', false)">
+                    {{ __('Cancel') }}
+                </x-jet-secondary-button>
+    
+                <x-jet-danger-button wire:click="update" wire:loading.attr="disabled" class="disabled:bg-blue-500 ml-2"
+                    wire_target="update">
+                    {{ __('Update event') }}
+                </x-jet-danger-button>
+            </x-slot>
+    
+        </x-jet-dialog-modal>
+    </div>
+       
 
 </div>

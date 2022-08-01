@@ -26,6 +26,10 @@ class GetTimeRegisters extends Component
         'event.description' => 'required',
     ];
 
+    protected $queryString = [
+        'sort', 'direction'
+    ];
+
     public function mount()
     {
         $this->event = new Event();
@@ -62,6 +66,7 @@ class GetTimeRegisters extends Component
 
     public function edit(Event $ev)
     {
+        
         if($ev->is_open == 1){
             $ev->end = date('Y/m/d H:i:s');                                
         }
@@ -71,13 +76,33 @@ class GetTimeRegisters extends Component
     }
 
     public function update()
-    {        
-        //dd($this->event);
+    {   
         $this->validate();
         $this->event->save();
 
         $this->reset(["open_edit"]);
         
         $this->emit('alert', 'Event updated!');
+    }
+
+    public function confirm(Event $ev)
+    {
+        $this->event = $ev;
+        $this->event->is_open = 0;
+        $this->event->save();
+
+        $this->reset(["open_edit"]);
+        
+        $this->emit('alert', 'Event confirmed!. You won\'t be able to change this record.');
+    }
+
+    public function remove(Event $ev)
+    {
+        $this->event = $ev;
+        $this->event->delete();
+
+        $this->reset(["open_edit"]);
+        
+        $this->emit('alert', 'Event deleted!');
     }
 }
