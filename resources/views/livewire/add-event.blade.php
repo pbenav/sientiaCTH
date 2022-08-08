@@ -1,8 +1,5 @@
 <div>
-    <x-jet-danger-button wire:click="$set('open', 'true')">
-        {{ __('Add event') }}
-    </x-jet-danger-button>
-
+   
     <x-jet-dialog-modal wire:model="open">
 
         <x-slot name="title">

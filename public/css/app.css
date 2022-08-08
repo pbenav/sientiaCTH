@@ -11498,6 +11498,12 @@ select {
 .w-40 {
   width: 10rem;
 }
+.w-1\/4 {
+  width: 25%;
+}
+.w-96 {
+  width: 24rem;
+}
 .min-w-0 {
   min-width: 0px;
 }
@@ -13268,9 +13274,6 @@ span.flatpickr-weekday {
 }
 .disabled\:opacity-25:disabled {
   opacity: 0.25;
-}
-.disabled\:opacity-60:disabled {
-  opacity: 0.6;
 }
 .group:hover .group-hover\:text-red-300 {
   --tw-text-opacity: 1;

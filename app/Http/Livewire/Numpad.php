@@ -3,16 +3,16 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use App\Models\Event;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 class Numpad extends Component
 {
     public $user_code = '';
-    public $show_Numpad_Modal = false;
+    public $open = true;
 
     public function addCode($code)
     {
@@ -39,8 +39,14 @@ class Numpad extends Component
         if ($user) {
             Auth::loginUsingId($user->id);
             $events = DB::table('events')->where('user_id', $user->id)->where('is_open', "1")->get();
-            return redirect()->to('/dashboard');            
+            # If theres no open events call to AddEvent
+            if ($events->count()) {
+                return redirect()->route('dashboard');
+            } else {
+                $this->emitTo('add-event', 'add', 1);
+            }
         } else {
+            $this->emit('alert', '!Código erróneo!');
             error_log('No se ha encontrado el código de usuario');
         }
 

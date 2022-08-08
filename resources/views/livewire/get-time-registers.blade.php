@@ -7,11 +7,15 @@
     </x-slot>
 
     <!-- Event list. Main table -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">      
 
-        <div class="px-6 py-4 flex items-center">
-            <x-jet-input class="flex-1 mr-4" placeholder="Search" type="text" wire:model="search" />
+        <div class="flex px-6 py-4 items-center">
             @livewire('add-event')
+            <x-jet-danger-button class="flex-1 w-3/4" wire:click="$emitTo('add-event', 'add', open=true)">
+                {{ __('Add event') }}
+            </x-jet-danger-button>
+            <x-jet-input class="flex-1 ml-4 w-1/4" placeholder="Search" type="text" wire:model="search" />
+        
         </div>
 
         @if ($events->count())
@@ -86,10 +90,10 @@
                                     <a class="btn btn-blue" wire:click="edit({{ $ev }})">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a class="btn btn-green" wire:click="confirm({{ $ev }})">
+                                    <a class="btn btn-green" wire:click="$emit('confirmConfirmation', {{ $ev }})">
                                         <i class="fas fa-check"></i>
                                     </a>
-                                    <a class="btn btn-red" wire:click="remove({{ $ev }})">
+                                    <a class="btn btn-red" wire:click="$emit('confirmDeletion', {{ $ev }})">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
@@ -152,7 +156,6 @@
             </x-slot>
     
         </x-jet-dialog-modal>
-    </div>
-       
+    </div>       
 
 </div>
