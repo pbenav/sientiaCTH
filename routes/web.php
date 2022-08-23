@@ -28,3 +28,5 @@ Route::middleware([
         return view('welcome');
     })->name('front');
 });
+
+Route::view('access', 'access');

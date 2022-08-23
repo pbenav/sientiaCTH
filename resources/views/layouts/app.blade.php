@@ -48,6 +48,7 @@
 
     @livewireScripts
 
+    <!-- To throw notifications -->
     <script>
         Livewire.on('alert', function(message) {
             Swal.fire(
@@ -55,6 +56,48 @@
                 message,
                 'success'
             )
+        })
+
+        Livewire.on('confirmDeletion', event => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) { 
+                    Livewire.emitTo('get-time-registers', 'remove', event);
+                    Swal.fire(
+                        'Deleted!',
+                        'Your event has been deleted.',
+                        'success'
+                    )
+                }
+            })
+        })
+
+        Livewire.on('confirmConfirmation', event => {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, confirm it!'
+            }).then((result) => {
+                if (result.isConfirmed) { 
+                    Livewire.emitTo('get-time-registers', 'confirm', event);
+                    Swal.fire(
+                        'confirmed!',
+                        'Your event has been confirmed.',
+                        'success'
+                    )
+                }
+            })
         })
     </script>
 

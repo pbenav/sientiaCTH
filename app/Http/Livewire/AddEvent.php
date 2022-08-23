@@ -9,13 +9,15 @@ use Illuminate\Support\Facades\Auth;
 
 class AddEvent extends Component
 {
-    public $open = false;
+    public $showAddEventModal = false;
 
     public $now;
     public $start_date;
     public $start_time;
     public $user_id;
     public $description;
+
+    protected $listeners = ['render', 'add'];
 
     protected $rules = [
         'start_date' => 'required',
@@ -32,6 +34,10 @@ class AddEvent extends Component
         $this->start_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
         $this->description = '';
+    }   
+
+    public function add(){
+        $this->showAddEventModal = true;
     }
 
     public function save()
@@ -48,7 +54,7 @@ class AddEvent extends Component
         ]);
 
         $this->reset([
-            'open',
+            'showAddEventModal',
 
         ]);
 
@@ -59,5 +65,5 @@ class AddEvent extends Component
     public function render()
     {
         return view('livewire.add-event');
-    }
+    }   
 }
