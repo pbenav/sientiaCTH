@@ -3,56 +3,37 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-Use App\Models\Event;
-Use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use App\Models\Event;
+use App\Models\User;
 
 class Numpad extends Component
 {
-    public $user_code = '';    
+    public $user_code = '';
+    public $open = true; 
 
-    public function addCode($code)
+    public function insertCode()
     {
-        if (strlen($this->user_code) <= 10) {
-            $this->user_code .= $code;
-        }
-    }
-
-    public function resetDialer()
-    {
-        $this->user_code = '';
-    }
-
-    public function delete()
-    {
-        if (strlen($this->user_code) > 0) {
-            $this->user_code = substr($this->user_code, 0, -1);
-        }
-    }
-
-    public function insertCode(){
-
-        $event = null;
-
-        $user = DB::table('users')->where('user_code', $this->user_code);
-        //$user = User::where('user_code', $this->user_code)->get();
-        if ($user === 1) {
-            echo 'Buscando eventos...';
-            $event = DB::table('event')
-            ->where('is_open', '=', '1')
-            ->get();
-            dd($event);
+        $user = DB::table('users')->where('user_code', $this->user_code)->first();
+        if ($user) {
+            Auth::loginUsingId($user->id);
+            $events = DB::table('events')->where('user_id', $user->id)->where('is_open', "1")->get();
+            # If there are no open events call to AddEvent
+            if ($events->count()) {
+                return redirect()->route('dashboard');
+            } else {
+                $this->emitTo('add-event', 'add', 'numpad');                
+            }
         } else {
-            dump($event);
-            dd($user);
+            return redirect()->route('front')->with('info', 'E_ERRORCODE');
         }
-
-        $this->resetDialer();
-        $this->render();
+        $this->reset('user_code');        
     }
 
     public function render()
-    {
+    {        
         return view('livewire.numpad');
     }
 }

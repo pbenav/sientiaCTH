@@ -1,7 +1,6 @@
-<div class="w-98 owrflow-hidden p-2 border-1">
-    <div class="flex justify-center mt-2 mx-auto">
-        <div><h2 class="mx-1 text-sm md:text-sm lg:text-sm uppercase">Hora del sistema</h2></div>
-        <div id="ct7" class="px-1 text-sm md:text-sm lg:text-sm bg-blue-500 text-gray-100 rounded"></div>
+<div class="p-2 overflow-hidden w-98 border-1">
+    <div class="flex justify-center mx-auto mt-2">
+        <div id="ct7" class="w-full text-2xl text-center bg-white rounded text-black-100 md:text-2xl lg:text-2xl"></div>
     </div>
 </div>
 

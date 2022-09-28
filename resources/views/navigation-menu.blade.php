@@ -11,7 +11,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                <div class="space-x-8 ml-1 flex sm:ml-10">
                     <x-jet-nav-link href="{{ route('front') }}" :active="request()->routeIs('front')">
                         {{ __('FrontOffice') }} 
                     </x-jet-nav-link>

@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\GetTimeRegisters;
+use App\Http\Controllers\UserController;
+use App\View\Components\Dash;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -13,11 +16,15 @@ use App\Http\Livewire\GetTimeRegisters;
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Route for location
+Route::get('userloc', [UserController::class, 'index']);
 
+// This route renders a view without the need of a controller
 Route::get('/', function () {
-        return view('welcome');
-    })->name('front');
+    return view('welcome');
+})->name('front');
 
+// This route calls a component whose default template is layouts.app.blade.php
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -28,3 +35,4 @@ Route::middleware([
         return view('welcome');
     })->name('front');
 });
+

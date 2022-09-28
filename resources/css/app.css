@@ -4,3 +4,6 @@
 
 @import 'form.css';
 @import 'button.css';
+@import 'normalize.css';
+
+@import 'flatpickr/dist/flatpickr.css';

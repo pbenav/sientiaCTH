@@ -3,33 +3,32 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use App\Models\Event;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
+
+use function PHPUnit\Framework\isNull;
 
 class GetTimeRegisters extends Component
 {
 
+    use WithPagination;
+
+    protected $events;
+    public $showModalGetTimeRegisters = false;
     public $search;
-    public $event;
-    public $open_edit = false;
-    public $sort = 'start_time';
+    public $sort = 'start';
     public $direction = 'desc';
+    public $qtytoshow = '10';
+    public $readyonload = false;
 
-    protected $listeners = ['render'];   
-    
-    protected $rules = [
-        'event.end_time' => 'required',
-        'event.description' => 'required',
+    protected $listeners = ['render', 'confirm', 'remove'];
+
+    protected $queryString = [
+        'sort' => ['except' => 'start'],
+        'direction' => ['except' => 'desc'],
+        'qtytoshow' => ['except' => '10']
     ];
-
-    public function render()
-    {
-        $events = Event::where('description', 'like', '%' . $this->search . '%')
-        ->where('user_id', '=', Auth::user()->id)
-        ->orderBy($this->sort, $this->direction)
-        ->get();
-        return view('livewire.get-time-registers', compact('events'));
-    }
 
     public function order($sort)
     {
@@ -45,18 +44,50 @@ class GetTimeRegisters extends Component
         };
     }
 
-    public function edit($event){
-        $this->event = $event;
-        $this->open_edit = true;
+    public function confirm(Event $ev)
+    {
+        # Before modification there is an event for Sweet alert2 to confirm.
+        $this->event = $ev;        
+        $this->event->confirm();
     }
 
-    public function update(){
-        $this->validate();
-        $this->event->save();
-
-        $this->reset(["open_edit"]);
-
-        $this->emitTo('get-time-registers','render');
-        $this->emit('alert', 'Event updated!');
+    public function remove(Event $ev)
+    {
+        # Before deletion there is an event for Sweet alert2 to confirm.
+        $this->event = $ev;
+        $this->event->delete();
     }
+
+    public function getEvents()
+    {
+        if ($this->readyonload) {
+            $this->events = Event::where('description', 'like', '%' . $this->search . '%')
+                ->where('user_id', '=', Auth::user()->id)
+                ->orderBy($this->sort, $this->direction)
+                ->paginate($this->qtytoshow);
+        } else {
+            $this->events = [];
+        }
+    }
+
+    public function render()
+    {
+        $this->getEvents();
+        return view('livewire.get-time-registers')->with('events', $this->events);
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingQtytoshow()
+    {
+        $this->resetPage();
+    }
+
+    public function loadEvents(){
+        $this->readyonload = true;
+    }
+    
 }
