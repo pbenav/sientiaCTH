@@ -6,14 +6,15 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
-
-use function PHPUnit\Framework\isNull;
+use App\Models\User;
+use Laravel\Jetstream\HasTeams;
 
 class GetTimeRegisters extends Component
 {
-
+    
     use WithPagination;
-
+    use HasTeams;
+    
     protected $events;
     public $showModalGetTimeRegisters = false;
     public $search;
@@ -21,6 +22,9 @@ class GetTimeRegisters extends Component
     public $direction = 'desc';
     public $qtytoshow = '10';
     public $readyonload = false;
+    public $user;
+    public $team;
+    public $is_admin;
 
     protected $listeners = ['render', 'confirm', 'remove'];
 
@@ -29,6 +33,12 @@ class GetTimeRegisters extends Component
         'direction' => ['except' => 'desc'],
         'qtytoshow' => ['except' => '10']
     ];
+
+    public function mount(){
+        $this->user = Auth::user();
+        $this->team = $this->user->currentTeam;
+        $this->is_admin = $this->user->hasTeamRole($this->team, 'admin');
+    }
 
     public function order($sort)
     {
@@ -43,39 +53,34 @@ class GetTimeRegisters extends Component
             $this->direction = 'asc';
         };
     }
-
+    
     public function confirm(Event $ev)
     {
-        # Before modification there is an event for Sweet alert2 to confirm.
-        $this->event = $ev;        
+        #Before modification there is an event for Sweet alert2 to confirm.
+        $this->event = $ev;
         $this->event->confirm();
     }
 
     public function remove(Event $ev)
     {
-        # Before deletion there is an event for Sweet alert2 to confirm.
+        #Before deletion there is an event for Sweet alert2 to confirm.
         $this->event = $ev;
         $this->event->delete();
     }
 
     public function getEvents()
     {
-        $team = Auth::user()->personalTeam()->name;
-        dd($team);
-        switch (1) {
-            case 0:
-                echo "i equals 0";
-                break;
-            case 1:
-                echo "i equals 1";
-                break;
-            case 2:
-                echo "i equals 2";
-                break;
+        $where_clause = array();
+        if ($this->is_admin) {
+            foreach ($this->team->allUsers() as $us) {
+                    array_push($where_clause, $us->id);
+            }
+        } else {            
+            array_push($where_clause, $this->user->id);
         }
         if ($this->readyonload) {
             $this->events = Event::where('description', 'like', '%' . $this->search . '%')
-                ->where('user_id', '=', Auth::user()->id)
+                ->WhereIn('user_id', $where_clause)
                 ->orderBy($this->sort, $this->direction)
                 ->paginate($this->qtytoshow);
         } else {
@@ -86,7 +91,7 @@ class GetTimeRegisters extends Component
     public function render()
     {
         $this->getEvents();
-        return view('livewire.get-time-registers')->with('events', $this->events);
+        return view('livewire.get-time-registers')->with('events', $this->events)->with('isAdmin', $this->is_admin);
     }
 
     public function updatingSearch()
@@ -99,8 +104,8 @@ class GetTimeRegisters extends Component
         $this->resetPage();
     }
 
-    public function loadEvents(){
+    public function loadEvents()
+    {
         $this->readyonload = true;
     }
-    
 }

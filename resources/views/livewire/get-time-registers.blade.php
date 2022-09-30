@@ -44,7 +44,7 @@
                 type="text" wire:model="search" />
         </div>
 
-        <!-- Instead of using method count() beacuse of deferred loading of events-->
+        <!-- Instead of using method count() because of deferred loading of events-->
         @if (count($events))
             <!-- component -->
             <table class="block min-w-full border-collapse md:table">
@@ -56,7 +56,13 @@
                             class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                             {{ __('Status') }}
                         </th>
-
+                        {{-- TODO: This should be showed only in roles like admin or inspect --}}
+                        @if ($isAdmin)
+                            <th
+                                class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
+                                {{ __('Worker') }}
+                            </th>
+                        @endif
                         <th class="block p-1 font-bold text-left text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
                             wire:click="order('start')">
                             {{ __('Start') }}
@@ -120,6 +126,12 @@
                                     <i class="fa-regular fa-square-check"></i>
                                 @endif
                             </td>
+                            @if ($isAdmin)
+                                <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user->name . ' ' . $ev->user->family_name1 }}
+                                </td>
+                            @endif
+
                             <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
                                     class="mr-2 inline-block font-bold md:hidden">{{ __('Start') }}</span>{{ $ev->start }}
                             </td>
@@ -161,7 +173,7 @@
                 </div>
             @endif
         @else
-            <div class="px-4 shadow p-x6">No records found</div>
+            <div class="px-4 shadow p-x6">{{ __('No records found already...') }}</div>
         @endif
     </div>
 
@@ -245,6 +257,6 @@
                     Livewire.emit('alertFail', 'Something went wrong! Check data');
                 }
             })
-    </script>
+        </script>
     @endpush
 </div>

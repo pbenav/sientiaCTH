@@ -215,6 +215,7 @@
     "Use a recovery code": "Use un código de recuperación",
     "Use an authentication code": "Use un código de autenticación",
     "User": "Usuario",
+    "Inspector": "Inspector",
     "User Code": "Código de usuario",
     "We were unable to find a registered with this email address.": "No pudimos encontrar un usuario registrado con esta dirección de correo electrónico.",
     "We won't ask for your password again for a few hours.": "No pediremos su contraseña de nuevo por unas horas.",
@@ -231,5 +232,7 @@
     "E_ERRORCODE": "Código erróneo",
     "E_SUCCESS": "La operación se ha realizado con éxito",
     "ERRORMSG": "Ups!. Se ha producido un error",
-    "Duration": "Duración"
+    "Duration": "Duración",
+    "Worker": "Trabajador",
+    "No records found already...": "Aún no hay registros..."
 }
