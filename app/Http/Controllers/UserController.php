@@ -2,8 +2,8 @@
 namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Event;
+use Exception;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Exception;
 use Stevebauman\Location\Facades\Location;
 
 class UserController extends Controller

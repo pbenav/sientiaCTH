@@ -5,43 +5,51 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use PhpParser\Node\Expr\Cast\String_;
 
 class Event extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'user_id',
         'start',
         'end',
         'is_open',
-        'description'];
+        'description'
+    ];
 
-        public function user()
-        {
-            return $this->belongsTo(Users::class);
-        }  
+    protected $options = [
+        'join' => ', ',
+        'parts' => 2,
+        'syntax' => CarbonInterface::DIFF_ABSOLUTE,
+    ];
 
-    public function get_period(){
-        //Set the start date
-        $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $this->start);
-        //Set the end date
-        if($this->end != null){
-            $end_date = Carbon::createFromFormat('Y-m-d H:i:s', $this->end);
-        } else {
-            $end_date = $this->start;
-        }
-     //Count the difference in Hours     
-     return $start_date->diffInHours($end_date);
+    public function user()
+    {
+        return $this->belongsTo(Users::class);
     }
 
-    public function confirm(){
+    public function get_period()
+    {
+        //Set the start date
+        $start_date = Carbon::parse($this->start);
+        $end_date = Carbon::parse($this->end);
+        //Set the end date
+        if ($this->end != null) {
+            //Count the difference in Hours and minutes
+            return $end_date->diffForHumans($start_date, $this->options);
+        } else {
+            return $this->start;
+        }
+    }
+
+    public function confirm()
+    {
         if ($this->is_open == 1) {
             $this->is_open = 0;
             $this->save();
         };
     }
-
-    
 }

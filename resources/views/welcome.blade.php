@@ -18,11 +18,6 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @livewireStyles
-    <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-        }
-    </style>
 </head>
 
 <body class="antialiased">

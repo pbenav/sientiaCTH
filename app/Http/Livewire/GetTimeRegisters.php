@@ -60,6 +60,19 @@ class GetTimeRegisters extends Component
 
     public function getEvents()
     {
+        $team = Auth::user()->personalTeam()->name;
+        dd($team);
+        switch (1) {
+            case 0:
+                echo "i equals 0";
+                break;
+            case 1:
+                echo "i equals 1";
+                break;
+            case 2:
+                echo "i equals 2";
+                break;
+        }
         if ($this->readyonload) {
             $this->events = Event::where('description', 'like', '%' . $this->search . '%')
                 ->where('user_id', '=', Auth::user()->id)
