@@ -11,10 +11,10 @@ use Laravel\Jetstream\HasTeams;
 
 class GetTimeRegisters extends Component
 {
-    
+
     use WithPagination;
     use HasTeams;
-    
+
     protected $events;
     public $showModalGetTimeRegisters = false;
     public $search;
@@ -34,7 +34,8 @@ class GetTimeRegisters extends Component
         'qtytoshow' => ['except' => '10']
     ];
 
-    public function mount(){
+    public function mount()
+    {
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
         $this->is_admin = $this->user->hasTeamRole($this->team, 'admin');
@@ -53,7 +54,7 @@ class GetTimeRegisters extends Component
             $this->direction = 'asc';
         };
     }
-    
+
     public function confirm(Event $ev)
     {
         #Before modification there is an event for Sweet alert2 to confirm.
@@ -65,7 +66,11 @@ class GetTimeRegisters extends Component
     {
         #Before deletion there is an event for Sweet alert2 to confirm.
         $this->event = $ev;
-        $this->event->delete();
+        if ($this->is_admin) {
+            $this->event->delete();
+        } else if ($this->event->is_open){
+            $this->event->delete();
+        }
     }
 
     public function getEvents()
@@ -73,9 +78,9 @@ class GetTimeRegisters extends Component
         $where_clause = array();
         if ($this->is_admin) {
             foreach ($this->team->allUsers() as $us) {
-                    array_push($where_clause, $us->id);
+                array_push($where_clause, $us->id);
             }
-        } else {            
+        } else {
             array_push($where_clause, $this->user->id);
         }
         if ($this->readyonload) {

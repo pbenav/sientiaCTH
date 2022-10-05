@@ -32,9 +32,9 @@
                 {{-- When user_code is ready, then we call insertCode method --}}
                 <button wire:click="insertCode" class="btn-code">{{ __('Insert code') }}</button>
             </div>
-            <div class="w-full mt-4 text-center">
-                <button @click="resetCode()" class="btn-aux">{{ __('Reset') }}</button>
-                <button @click="deleteCode()" class="btn-aux sm:mt-4">{{ __('Delete') }}</button>
+            <div class="mt-0 text-center content-center">
+                <button @click="resetCode()" class="mt-4 btn-aux w-min">{{ __('Reset') }}</button>
+                <button @click="deleteCode()" class="mt-4 btn-aux w-min sm:ml-4 sm:mt-0 ">{{ __('Delete') }}</button>
             </div>
         </div>
 

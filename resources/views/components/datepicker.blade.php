@@ -12,11 +12,7 @@
     </div>
 </div>
 
-@once
-    {{-- Datepicker import. --}}
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
+@once  
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('datepicker', (model) => ({

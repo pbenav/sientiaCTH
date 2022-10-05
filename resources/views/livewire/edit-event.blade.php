@@ -3,7 +3,7 @@
     <x-jet-dialog-modal wire:model="showModalGetTimeRegisters">
 
         <x-slot name='title'>
-            {{ __('Edit event') }}: <span wire:model.defer='event.id'></span>
+            {{ __('Edit event') }}: <span wire:model='event.id'></span>
         </x-slot>
 
         <x-slot name='content'>
@@ -13,7 +13,7 @@
                 <x-datepicker label="Start date" wire:model="event.start">
                 </x-datepicker>
                 <x-jet-input-error for='event.start' />
-                <x-datepicker label="End date" wire:model="event.end">
+                <x-datepicker label="End date" wire:model.defer="event.end">
                 </x-datepicker>
                 <x-jet-input-error for='event.end' />
             </div>

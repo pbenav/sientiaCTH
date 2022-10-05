@@ -234,5 +234,7 @@
     "ERRORMSG": "Ups!. Se ha producido un error",
     "Duration": "Duración",
     "Worker": "Trabajador",
-    "No records found already...": "Aún no hay registros..."
+    "No records found already...": "Aún no hay registros...",
+    "Register is confirmed. Can't be changed.": "El registro está confirmado. No se puede cambiar.",
+    "Event updated!": "¡Evento confirmado correctamente!"
 }

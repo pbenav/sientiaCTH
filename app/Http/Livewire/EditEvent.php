@@ -25,14 +25,8 @@ class EditEvent extends Component
         $this->event = new Event();
     }
 
-    public function startToday()
-    {
-        $this->event->start = date('Y/m/d H:i:s');
-        $this->event->end = date('Y/m/d H:i:s');
-    }
-
     public function edit(Event $ev)
-    {
+    {       
         // Modification is permitted only if event is open
         if ($ev->is_open == 1) {
             // and end date is empty
@@ -43,7 +37,7 @@ class EditEvent extends Component
             $this->showModalGetTimeRegisters = true;
             $this->emit('render');
         } else {
-            $this->emit('alertFail', 'Register is confirmed. Can\'t be changed.');
+            $this->emit('alertFail', __('Register is confirmed. Can\'t be changed.'));
             $this->reset(["showModalGetTimeRegisters"]);
         }
     }
@@ -53,7 +47,7 @@ class EditEvent extends Component
         $this->validate();
         $this->event->save();
         $this->reset(["showModalGetTimeRegisters"]);
-        $this->emit('alert', 'Event updated!');
+        $this->emit('alert', __('Event updated!'));
         $this->emitUp('render');
     }
 
