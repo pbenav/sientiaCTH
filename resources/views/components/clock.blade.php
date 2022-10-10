@@ -1,7 +1,5 @@
-<div class="p-2 overflow-hidden w-98 border-1">
-    <div class="flex justify-center mx-auto mt-2">
-        <div id="ct7" class="w-full text-2xl text-center bg-white rounded text-black-100 md:text-2xl lg:text-2xl"></div>
-    </div>
+<div class="mb-4">
+        <div id="ct7" class="btn-pad"></div>
 </div>
 
 <script>

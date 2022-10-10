@@ -11805,9 +11805,6 @@ select {
 .p-0 {
   padding: 0px;
 }
-.p-4 {
-  padding: 1rem;
-}
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -11938,9 +11935,6 @@ select {
 }
 .text-xl {
   font-size: 1.25rem;
-}
-.text-4xl {
-  font-size: 2.25rem;
 }
 .font-medium {
   font-weight: 500;
@@ -12212,20 +12206,27 @@ select {
   border-radius: 0.5rem;
   --tw-bg-opacity: 1;
   background-color: rgb(209 213 219 / var(--tw-bg-opacity));
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   font-size: 1.5rem;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 700ms;
+    text-align: center;
 }
 .btn-pad:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity));
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+@media (min-width: 640px) {
+
+  .btn-pad {
+    font-size: 2.25rem;
+  }
 }
 .btn-code {
   width: 100%;
@@ -13580,10 +13581,6 @@ span.flatpickr-weekday {
     margin-bottom: 0.5rem;
   }
 
-  .sm\:mt-4 {
-    margin-top: 1rem;
-  }
-
   .sm\:ml-0 {
     margin-left: 0px;
   }
@@ -13834,10 +13831,6 @@ span.flatpickr-weekday {
   .md\:text-center {
     text-align: center;
   }
-
-  .md\:text-2xl {
-    font-size: 1.5rem;
-  }
 }
 @media (min-width: 1024px) {
 
@@ -13852,9 +13845,5 @@ span.flatpickr-weekday {
   .lg\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-
-  .lg\:text-2xl {
-    font-size: 1.5rem;
   }
 }

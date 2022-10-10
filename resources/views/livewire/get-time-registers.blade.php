@@ -186,7 +186,7 @@
             Livewire.on('alert', function(message) {
                 Swal.fire({
                     icon: 'success',
-                    title: '¡Perfecto, buen trabajo!',
+                    title: "{{ __('OK, perfect!') }}",
                     text: message,
                     timer: 1500,
                     footer: ''
@@ -196,7 +196,7 @@
             Livewire.on('alertFail', function(message) {
                 Swal.fire({
                     icon: 'info',
-                    title: '¡Se ha producido un error!',
+                    title: "{{ __('Ups!. Something happened. Chek your data!') }}",
                     text: message,
                     timer: 1500,
                     footer: ''
@@ -208,20 +208,20 @@
                 if (event.is_open) {
 
                     Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: "¡No podrás deshacer esta acción!",
+                        title: "{{ __('Are you sure?') }}",
+                        text: "{{ __('You won\'t be able to undo this action!') }}",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, delete it!'
+                        confirmButtonText: "{{ __('Yes, delete it!') }}"
                     }).then((result) => {
                         if (result.isConfirmed) {
                             Livewire.emitTo('get-time-registers', 'remove', event);
                             Swal.fire({
                                 icon: 'success',
-                                title: '¡Eliminado!',
-                                text: 'Se ha eliminado el evento',
+                                title: "{{ __('Removed!') }}",
+                                text: "{{ __('Event has been removed!') }}",
                                 timer: 1500,
                                 footer: ''
                             })
@@ -230,7 +230,7 @@
                     })
                     Livewire.emit('render');
                 } else {
-                    Livewire.emit('alertFail', 'El evento está confirmadio. No se puede eliminar.');
+                    Livewire.emit('alertFail',  "{{__('Event is confirmed.')}}" );
                 }
             })
 
@@ -239,20 +239,20 @@
                 if (event.is_open && (event.end !== null)) {
 
                     Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: "¡No podrás deshacer esta acción!",
+                        title: "{{ __('Are you sure?') }}",
+                        text: "{{ __('You won\'t be able to undo this action!') }}",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, ¡quiero confirmarlo!'
+                        confirmButtonText: "{{ __('Yes, confirm it!') }}"
                     }).then((result) => {
                         if (result.isConfirmed) {
                             Livewire.emitTo('get-time-registers', 'confirm', event);
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Confirmed!',
-                                text: 'El evento ha sido confirmado',
+                                title: "{{ __('Confirmed!') }}",
+                                text: "{{ __('Event has been confirmed!') }}",
                                 timer: 1500,
                                 footer: ''
                             })

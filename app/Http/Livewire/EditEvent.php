@@ -37,7 +37,7 @@ class EditEvent extends Component
             $this->showModalGetTimeRegisters = true;
             $this->emit('render');
         } else {
-            $this->emit('alertFail', __('Register is confirmed. Can\'t be changed.'));
+            $this->emit('alertFail', __("Event is confirmed."));
             $this->reset(["showModalGetTimeRegisters"]);
         }
     }
