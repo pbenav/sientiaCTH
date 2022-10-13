@@ -19,7 +19,7 @@
         month = month.length == 1 ? 0 + month : month;
         var dt = x.getDate().toString();
         dt = dt.length == 1 ? 0 + dt : dt;
-        var x1 = month + "/" + dt + "/" + x.getFullYear();
+        var x1 = dt + "/" + month + "/" + x.getFullYear();
         x1 = x1 + " - " + hours + ":" + minutes + ":" + seconds // + " " + ampm;
         document.getElementById('ct7').innerHTML = x1;
         display_c7();

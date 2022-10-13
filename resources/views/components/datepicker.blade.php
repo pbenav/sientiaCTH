@@ -19,8 +19,17 @@
                 value: model,
                 init() {
                     this.pickr = flatpickr(this.$refs.datepicker, {
+                        locale: "es",/login
                         enableTime: true,
-                        dateFormat: "Y-m-d H:i",
+                        dateFormat: "Y-m-d H:i:s",
+                        minDate: "2020-01",
+                        maxDate: "today",
+                        time_24hr: true,
+                        minTime: "08:00",
+                        maxTime: "20:00",
+                        dateFormat: "d.m.Y H:i",
+                        disableMobile: "true",
+                        static: false,
                     })
                     this.$watch('value', function(newValue) {
                         this.pickr.setDate(newValue);
@@ -31,5 +40,6 @@
                 }
             }))
         })
+        
     </script>
 @endonce
