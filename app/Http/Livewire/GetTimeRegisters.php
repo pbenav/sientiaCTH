@@ -85,6 +85,13 @@ class GetTimeRegisters extends Component
         }
         if ($this->readyonload) {
             $this->events = Event::where('description', 'like', '%' . $this->search . '%')
+                ->orWhereIn('user_id', function($query) {
+                    $query->select('id')
+                    ->from('users')
+                    ->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('Family_name1', 'like', '%' . $this->search . '%')
+                    ->orWhere('Family_name2', 'like', '%' . $this->search . '%');
+            })
                 ->WhereIn('user_id', $where_clause)
                 ->orderBy($this->sort, $this->direction)
                 ->paginate($this->qtytoshow);

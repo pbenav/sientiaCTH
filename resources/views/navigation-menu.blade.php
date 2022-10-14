@@ -28,10 +28,8 @@
                         <x-jet-dropdown align="right" width="60">
                             <x-slot name="trigger">
                                 <span class="inline-flex rounded-md">
-                                    <button type="button"
-                                        class="text-formatted">
+                                    <button type="button" class="text-formatted">
                                         {{ Auth::user()->currentTeam->name }}
-
                                         <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd"
@@ -40,8 +38,6 @@
                                         </svg>
                                     </button>
                                 </span>
-                                <p
-                                    class="text-formatted">{{ Auth::user()->name . ' ' . Auth::user()->family_name1 }}</p>
                             </x-slot>
 
                             <x-slot name="content">
@@ -84,11 +80,16 @@
                     <x-jet-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                <button
-                                    class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                    <img class="h-8 w-8 rounded-full object-cover"
-                                        src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-                                </button>
+                                <span class="inline-flex rounded-md">
+                                    <p class="text-formatted">
+                                        {{ Auth::user()->name . ' ' . Auth::user()->family_name1 }}</p>
+                                    <button
+                                        class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
+                                        <img class="h-8 w-8 rounded-full object-cover"
+                                            src="{{ Auth::user()->profile_photo_url }}"
+                                            alt="{{ Auth::user()->name }}" />
+                                    </button>
+                                </span>
                             @else
                                 <span class="inline-flex rounded-md">
                                     <button type="button"

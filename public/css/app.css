@@ -11249,6 +11249,9 @@ select {
 .visible {
   visibility: visible;
 }
+.static {
+  position: static;
+}
 .fixed {
   position: fixed;
 }
@@ -12255,7 +12258,7 @@ select {
   padding-right: 0.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 700ms;
@@ -12270,7 +12273,7 @@ select {
 @media (min-width: 640px) {
 
   .btn-pad {
-    font-size: 2.25rem;
+    font-size: 1.5rem;
   }
 }
 .btn-code {
@@ -12639,6 +12642,10 @@ video {
         color: #6b7280;
         color: rgba(107, 114, 128, var(--tw-text-opacity))
     }
+}
+.required:after {
+  content: " *";
+  color: red;
 }
 .flatpickr-calendar {
   background: transparent;

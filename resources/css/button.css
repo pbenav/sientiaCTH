@@ -15,7 +15,7 @@
 }
 
 .btn-pad{
-    @apply bg-gray-300 text-2xl sm:text-4xl text-center px-2 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700;
+    @apply bg-gray-300 text-xl sm:text-2xl text-center px-2 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700;
 }
 
 .btn-code{

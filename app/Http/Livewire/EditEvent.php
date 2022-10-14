@@ -3,8 +3,11 @@
 namespace App\Http\Livewire;
 
 use App\Models\Event;
-
+use Carbon\Carbon;
+use DateTime;
 use Livewire\Component;
+
+use function PHPUnit\Framework\isNull;
 
 class EditEvent extends Component
 {
@@ -24,16 +27,17 @@ class EditEvent extends Component
     {
         $this->event = new Event();
     }
-
+    
     public function edit(Event $ev)
+
     {       
+        $this->event = $ev;        
         // Modification is permitted only if event is open
-        if ($ev->is_open == 1) {
+        if ($this->event->is_open == 1) {
             // and end date is empty
-            if ($ev->end == "") {
-                $ev->end = date('Y/m/d H:i:s');
+            if (isNull($this->event->end)) {
+                $this->event->end = date('Y-m-d H:i:s');
             }
-            $this->event = $ev;
             $this->showModalGetTimeRegisters = true;
             $this->emit('render');
         } else {

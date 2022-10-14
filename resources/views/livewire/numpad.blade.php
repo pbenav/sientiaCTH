@@ -18,7 +18,7 @@
             <x-clock>Reloj</x-clock>
             <div id="buttons" class="grid grid-cols-3 gap-4">
             <input type="password" id="user_code" x-model="user_code"
-                class="col-span-3 mb-4 btn-pad" />
+                class="col-span-3 btn-pad" />
 
                 <button @click="addCode('1')" class="btn-pad">1</button>
                 <button @click="addCode('2')" class="btn-pad">2</button>

@@ -18,8 +18,6 @@ class EventFactory extends Factory
     public function definition()
     {
         $startime = $this->faker->dateTimeThisYear();
-        $date = $startime->format('d-m-Y');
-        $time = $startime->format('H:m:s');
         $isopen = $this->faker->boolean();
         if (!$isopen) {
             $endtime = $startime;
@@ -31,7 +29,7 @@ class EventFactory extends Factory
             'user_id' => 1,
             'start' => $startime,
             'end' => $endtime,
-            'description' => $this->faker->sentence(),
+            'description' => 'Workday',
             'is_open' => $isopen,
         ];
     }
