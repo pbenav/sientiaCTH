@@ -19,6 +19,9 @@ use App\View\Components\Dash;
 // Route for location
 Route::get('userloc', [UserController::class, 'index']);
 
+// Route for location
+Route::get('charts', [UserStats::class, 'charts']);
+
 // This route renders a view without the need of a controller
 Route::get('/', function () {
     return view('welcome');

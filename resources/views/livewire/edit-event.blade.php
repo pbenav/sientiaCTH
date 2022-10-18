@@ -7,20 +7,22 @@
         </x-slot>
 
         <x-slot name='content'>
+
             <div class="mb-4">
                 {{-- New Datepicker HTML5 --}}
-                 <x-jet-label value="{{ __('Start date') }}" class="required" />
+                 <x-jet-label value="{{ __('Start date') }}" />
                 <input type="datetime-local" wire:model="event.start" />
                 <x-jet-input-error for='event.start' />
             </div>
             <div class="mb-4">
-                <x-jet-label value="{{ __('End date') }}" class="required" />
+                <x-jet-label value="{{ __('End date') }}" />
                 <input type="datetime-local" wire:model="event.end" min="{{ $event->start }}" />
                 <x-jet-input-error for='event.end' />
             </div>
+            {{-- end-datepicker --}}
 
             <div>
-                <x-jet-label value="{{ __('Description') }}" class="required" />
+                <x-jet-label value="{{ __('Description') }}" />
                 <select class="w-full form-control " wire:model.defer="event.description" name="event.description"
                     class="w-full py-2 pl-2 pr-4 mt-2 text-sm border border-gray-400 rounded-lg sm:text-base focus:outline-none focus:border-blue-400"
                     required>
