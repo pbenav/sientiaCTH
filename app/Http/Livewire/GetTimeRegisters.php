@@ -68,7 +68,7 @@ class GetTimeRegisters extends Component
         $this->event = $ev;
         if ($this->is_admin) {
             $this->event->delete();
-        } else if ($this->event->is_open){
+        } else if ($this->event->is_open) {
             $this->event->delete();
         }
     }
@@ -83,16 +83,19 @@ class GetTimeRegisters extends Component
         } else {
             array_push($where_clause, $this->user->id);
         }
+
         if ($this->readyonload) {
-            $this->events = Event::where('description', 'like', '%' . $this->search . '%')
-                ->orWhereIn('user_id', function($query) {
-                    $query->select('id')
+            $this->events = Event::whereIn('user_id', function ($query) use ($where_clause) {
+                $query->select('id')
                     ->from('users')
-                    ->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('Family_name1', 'like', '%' . $this->search . '%')
-                    ->orWhere('Family_name2', 'like', '%' . $this->search . '%');
+                    ->whereIn('id', $where_clause)
+                    ->where(function ($query) {
+                        $query->orWhere('description', 'like', '%' . $this->search . '%')
+                            ->orWhere('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('Family_name1', 'like', '%' . $this->search . '%')
+                            ->orWhere('Family_name2', 'like', '%' . $this->search . '%');
+                    });
             })
-                ->WhereIn('user_id', $where_clause)
                 ->orderBy($this->sort, $this->direction)
                 ->paginate($this->qtytoshow);
         } else {

@@ -33,7 +33,7 @@ class AddEvent extends Component
     {
         $this->start_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
-        $this->description = 'Workday';
+        $this->description = __('Workday');
     }
 
     public function add($origin)

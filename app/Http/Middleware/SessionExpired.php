@@ -21,8 +21,8 @@ class SessionExpired {
             $this->session->put('lastActivityTime', time());
         elseif(time() - $this->session->get('lastActivityTime') > $this->timeout){
             $this->session->forget('lastActivityTime');
-            $cookie = cookie('intend', $isLoggedIn ? url()->current() : 'dashboard');
-            auth()->logout();
+            $cookie = cookie('intend', $isLoggedIn ? url()->current() : 'front');
+            auth()->guard('web')->logout();
         }
         $isLoggedIn ? $this->session->put('lastActivityTime', time()) : $this->session->forget('lastActivityTime');
         return $next($request);
