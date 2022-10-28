@@ -19,8 +19,8 @@ class AddEvent extends Component
     protected $listeners = ['add'];
 
     protected $rules = [
-        'start_date' => 'required',
-        'start_time' => 'required',
+        'start_date' => 'required|after:yesterday', // no more than one day before
+        'start_time' => 'required', // |after_or_equal:now', When needed!!!
         'description' => 'required'
     ];
 

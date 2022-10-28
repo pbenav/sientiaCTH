@@ -12,16 +12,16 @@ use App\Models\User;
 class Numpad extends Component
 {
     public $user_code = '';
-    public $open = true; 
+    public $open = true;   
 
     public function insertCode()
-    {
-        $user = DB::table('users')->where('user_code', $this->user_code)->first();
-        if ($user) {
+    {        
+        $user = User::where('user_code', $this->user_code)->first();
+        if ($user) {            
             Auth::loginUsingId($user->id);
             $events = DB::table('events')->where('user_id', $user->id)->where('is_open', "1")->get();
             # If there are no open events call to AddEvent
-            if ($events->count()) {
+            if ($events->count() || $user->isTeamAdmin()) {
                 return redirect()->route('dashboard');
             } else {
                 $this->emitTo('add-event', 'add', 'numpad');                

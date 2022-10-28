@@ -18,8 +18,8 @@ class EditEvent extends Component
     protected $listeners = ['edit'];
 
     protected $rules = [
-        'event.start' => 'required|date',
-        'event.end' => 'required|date|after_or_equal:start_date',
+        'event.start' => 'required|date|after_or_equal:today',
+        'event.end' => 'required|date|after_or_equal:event.start',
         'event.description' => 'required',
     ];
 
@@ -29,13 +29,13 @@ class EditEvent extends Component
     }
     
     public function edit(Event $ev)
-
     {       
-        $this->event = $ev;        
+        error_log('Evento' . $ev->id);
+        $this->event = Event::where('id', $ev->id)->first();        
         // Modification is permitted only if event is open
         if ($this->event->is_open == 1) {
             // and end date is empty
-            if (isNull($this->event->end)) {
+            if (!$this->event->end) {
                 $this->event->end = date('Y-m-d H:i:s');
             }
             $this->showModalGetTimeRegisters = true;

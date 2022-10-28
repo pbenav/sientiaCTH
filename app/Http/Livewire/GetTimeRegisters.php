@@ -24,7 +24,7 @@ class GetTimeRegisters extends Component
     public $readyonload = false;
     public $user;
     public $team;
-    public $is_admin;
+    public $is_team_admin;
 
     protected $listeners = ['render', 'confirm', 'remove'];
 
@@ -38,7 +38,7 @@ class GetTimeRegisters extends Component
     {
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
-        $this->is_admin = $this->user->hasTeamRole($this->team, 'admin');
+        $this->is_team_admin = $this->user->isTeamAdmin();        
     }
 
     public function order($sort)
@@ -66,18 +66,19 @@ class GetTimeRegisters extends Component
     {
         #Before deletion there is an event for Sweet alert2 to confirm.
         $this->event = $ev;
-        if ($this->is_admin) {
+        if ($this->is_team_admin) {
             $this->event->delete();
         } else if ($this->event->is_open) {
             $this->event->delete();
         }
+        $this->emitSelf('render');
     }
 
     public function getEvents()
     {
         // Check if user is admin
         $where_clause = array();
-        if ($this->is_admin) {
+        if ($this->is_team_admin) {
             foreach ($this->team->allUsers() as $us) {
                 array_push($where_clause, $us->id);
             }
@@ -85,7 +86,7 @@ class GetTimeRegisters extends Component
             array_push($where_clause, $this->user->id);
         }
 
-        // Get events taking account of isadmin and search strings
+        // Get events taking account of is_team_admin and search strings
         if ($this->readyonload) {
             $this->events = Event::whereIn('user_id', function ($query) use ($where_clause) {
                 $query->select('id')
@@ -107,7 +108,7 @@ class GetTimeRegisters extends Component
     public function render()
     {
         $this->getEvents();
-        return view('livewire.get-time-registers')->with('events', $this->events)->with('isAdmin', $this->is_admin);
+        return view('livewire.get-time-registers')->with('events', $this->events)->with('isTeamAdmin', $this->is_team_admin);
     }
 
     public function updatingSearch()

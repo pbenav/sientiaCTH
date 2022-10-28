@@ -11273,14 +11273,14 @@ select {
 .right-0 {
   right: 0px;
 }
-.top-0 {
-  top: 0px;
-}
 .-top-full {
   top: -100%;
 }
 .-left-full {
   left: -100%;
+}
+.top-0 {
+  top: 0px;
 }
 .z-0 {
   z-index: 0;
@@ -11377,14 +11377,14 @@ select {
 .mb-4 {
   margin-bottom: 1rem;
 }
-.mt-0 {
-  margin-top: 0px;
-}
 .mb-2 {
   margin-bottom: 0.5rem;
 }
 .-mt-px {
   margin-top: -1px;
+}
+.mt-0 {
+  margin-top: 0px;
 }
 .block {
   display: block;
@@ -12258,7 +12258,7 @@ select {
   padding-right: 0.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  font-size: 1.25rem;
+  font-size: 1rem;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 700ms;
@@ -12281,9 +12281,11 @@ select {
   border-radius: 0.5rem;
   --tw-bg-opacity: 1;
   background-color: rgb(34 197 94 / var(--tw-bg-opacity));
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 900;
   text-transform: uppercase;
   --tw-text-opacity: 1;
@@ -12291,6 +12293,7 @@ select {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 700ms;
+    text-align: center;
 }
 .btn-code:hover {
   --tw-bg-opacity: 1;
@@ -12304,7 +12307,7 @@ select {
   padding-right: 2.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   --tw-text-opacity: 1;
   color: rgb(75 85 99 / var(--tw-text-opacity));
   transition-property: all;
@@ -13629,12 +13632,12 @@ span.flatpickr-weekday {
     margin-left: 1.5rem;
   }
 
-  .sm\:ml-0 {
-    margin-left: 0px;
-  }
-
   .sm\:mb-2 {
     margin-bottom: 0.5rem;
+  }
+
+  .sm\:ml-0 {
+    margin-left: 0px;
   }
 
   .sm\:block {

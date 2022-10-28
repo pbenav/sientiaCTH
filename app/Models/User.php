@@ -110,4 +110,9 @@ class User extends Authenticatable
             set: fn ($value) => ucfirst(strtolower($value)),
         );
     }
+
+    public function isTeamAdmin(){
+        $current_team = $this->currentTeam;
+        return $this->hasTeamRole($current_team, 'admin');
+    }
 }
