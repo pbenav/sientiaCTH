@@ -75,6 +75,7 @@ class GetTimeRegisters extends Component
 
     public function getEvents()
     {
+        // Check if user is admin
         $where_clause = array();
         if ($this->is_admin) {
             foreach ($this->team->allUsers() as $us) {
@@ -84,16 +85,16 @@ class GetTimeRegisters extends Component
             array_push($where_clause, $this->user->id);
         }
 
+        // Get events taking account of isadmin and search strings
         if ($this->readyonload) {
             $this->events = Event::whereIn('user_id', function ($query) use ($where_clause) {
                 $query->select('id')
                     ->from('users')
                     ->whereIn('id', $where_clause)
                     ->where(function ($query) {
-                        $query->orWhere('description', 'like', '%' . $this->search . '%')
-                            ->orWhere('name', 'like', '%' . $this->search . '%')
-                            ->orWhere('Family_name1', 'like', '%' . $this->search . '%')
-                            ->orWhere('Family_name2', 'like', '%' . $this->search . '%');
+                        $query->orWhere('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('description', 'like', '%' . $this->search . '%')
+                            ->orWhere('Family_name1', 'like', '%' . $this->search . '%');
                     });
             })
                 ->orderBy($this->sort, $this->direction)
