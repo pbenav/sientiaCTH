@@ -2,9 +2,11 @@
 /public/hot
 /public/storage
 /storage/*.key
-*.log
 /storage/view/
+*.log
 /vendor
+app.js
+app.css
 .env
 .env.backup
 .phpunit.result.cache
@@ -16,5 +18,6 @@ yarn-error.log
 /.vscode
 /nbproject
 .editorconfig
-actsrv.sh
+*.sh
+db.sql
 _ide_helper.php

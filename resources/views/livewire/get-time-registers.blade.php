@@ -125,7 +125,7 @@
                                 @else
                                     <i class="fa-regular fa-square-check"></i>
                                 @endif
-                                {{ $ev->id }}
+                                 {{--// For debuggin purposes $ev->id --}}
                             </td>
                             @if ($isTeamAdmin)
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
