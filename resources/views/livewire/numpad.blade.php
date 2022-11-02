@@ -14,12 +14,17 @@
     @endif
 
     <div class="max-w-lg mx-auto">
-        <div class="py-4 rounded-lg shadow-lg content-center">
-            <x-clock>Reloj</x-clock>
-            <div id="buttons" class="grid grid-cols-3 gap-4">
-            <input type="password" id="user_code" x-model="user_code"
-                class="col-span-3 btn-pad" />
+        <div class="content-center">
+            <div class="mt-2">
+                <x-clock>Reloj</x-clock>
+            </div>
+            <div class="w-auto mb-4 text-center">
+                <form wire:submit.prevent="insertCode">
+                    <input type="password" id="user_code" x-model="user_code" class="btn btn-pad"/>
+                </form>
+            </div>
 
+            <div id="buttons" class="grid grid-cols-3 gap-4">
                 <button @click="addCode('1')" class="btn-pad">1</button>
                 <button @click="addCode('2')" class="btn-pad">2</button>
                 <button @click="addCode('3')" class="btn-pad">3</button>
@@ -32,7 +37,7 @@
                 <button @click="addCode('0')" class="col-span-3 btn-pad">0</button>
             </div>
             <div class="mt-4">
-                <button wire:click="insertCode" class="btn-code">{{ __('Insert code') }}</button>
+                <button type="submit" wire:click="insertCode" class="btn-code">{{ __('Insert code') }}</button>
             </div>
             <div class="mt-0 text-center content-center">
                 <button @click="resetCode()" class="mt-4 btn-aux w-min">{{ __('Reset') }}</button>

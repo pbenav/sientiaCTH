@@ -1,5 +1,5 @@
 <div class="mb-4">
-        <div id="ct7" class="btn-pad"></div>
+        <div id="ct7" class="btn-aux"></div>
 </div>
 
 <script>

@@ -1,27 +1,27 @@
 .btn {
-    @apply font-bold text-white py-1 px-2 mx-2 rounded cursor-pointer;
+    @apply w-full font-bold rounded cursor-pointer;
 }
 
 .btn-red{
-    @apply bg-red-600 hover:bg-red-500;
+    @apply px-2 py-1 mx-1 text-base bg-red-600 text-white hover:bg-red-500;
 }
 
 .btn-blue{
-    @apply bg-blue-600 hover:bg-blue-500;
+    @apply px-2 py-1 mx-1 text-base bg-blue-600 text-white hover:bg-blue-500;
 }
 
 .btn-green{
-    @apply bg-green-600 hover:bg-green-500;
+    @apply px-2 py-1 mx-1 text-base bg-green-600 text-white hover:bg-green-500;
 }
 
 .btn-pad{
     @apply bg-gray-300 text-base sm:text-2xl text-center px-2 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700;
 }
 
-.btn-code{
-    @apply w-full bg-green-500 px-2 text-center py-3 text-white text-base uppercase font-black rounded-lg hover:bg-green-600 transition-all duration-700;
+.btn-aux{
+    @apply bg-gray-300 text-gray-900 text-center text-xl mb-2 px-10 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700 focus:outline-none;
 }
 
-.btn-aux{
-    @apply bg-gray-300 text-gray-600 text-xl px-10 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700 focus:outline-none;
+.btn-code{
+    @apply w-full bg-green-500 px-2 text-center py-3 text-white text-base uppercase font-black rounded-lg hover:bg-green-600 transition-all duration-700;
 }
