@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\UserStats;
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\GetTimeRegisters;
 use App\Http\Controllers\UserController;
-use App\View\Components\Dash;
 
 
 /*
@@ -19,9 +19,6 @@ use App\View\Components\Dash;
 // Route for location
 Route::get('userloc', [UserController::class, 'index']);
 
-// Route for location
-Route::get('charts', [UserStats::class, 'charts']);
-
 // This route renders a view without the need of a controller
 Route::get('/', function () {
     return view('welcome');
@@ -33,6 +30,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
-    Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');    
+    Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');  
+    Route::get('/userstats', [UserStats::class, 'index'])->name('stats');  
 });
 
