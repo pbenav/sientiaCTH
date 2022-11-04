@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use PhpParser\Node\Expr\Cast\String_;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Event extends Model
 {
@@ -44,12 +46,30 @@ class Event extends Model
             return $this->start;
         }
     }
-
     public function confirm()
     {
         if ($this->is_open == 1) {
             $this->is_open = 0;
             $this->save();
         };
+    }
+
+    public function scopeEventsPerUser(Builder $query, $user_id, $month){
+        return $query->selectRaw('ANY_VALUE(user_id) as user_id, DAY(start) as day, ANY_VALUE(MONTH(start)) as month, ANY_VALUE(SUM(TIMESTAMPDIFF(minute, start, end))/60) as hours')
+        ->where('user_id', $user_id)
+        ->whereMonth('start', $month)
+        ->groupByRaw(DB::raw('DAY(start)'))          
+        ->get()
+        ->pluck('hours', 'day'); 
+    }   
+
+    /**
+     * Scope a query to only include events that are in open state
+     *
+     * @param $query
+     */
+    public function scopeIsOpen($query)
+    {
+        $query->where('is_open', '=', 1);
     }
 }

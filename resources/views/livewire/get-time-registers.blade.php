@@ -125,6 +125,7 @@
                                 @else
                                     <i class="fa-regular fa-square-check"></i>
                                 @endif
+                                {{ $ev->id }}
                                  {{--// For debuggin purposes $ev->id --}}
                             </td>
                             @if ($isTeamAdmin)

@@ -4,7 +4,7 @@ use App\Http\Controllers\UserStats;
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\GetTimeRegisters;
 use App\Http\Controllers\UserController;
-
+use App\Http\Livewire\StatsGraph;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +31,6 @@ Route::middleware([
     'verified'
 ])->group(function () {
     Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');  
-    Route::get('/userstats', [UserStats::class, 'index'])->name('stats');  
+    Route::get('/userstats', StatsGraph::class)->name('stats');  
 });
 

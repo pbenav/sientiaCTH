@@ -11273,14 +11273,14 @@ select {
 .right-0 {
   right: 0px;
 }
-.top-0 {
-  top: 0px;
-}
 .-top-full {
   top: -100%;
 }
 .-left-full {
   left: -100%;
+}
+.top-0 {
+  top: 0px;
 }
 .z-0 {
   z-index: 0;
@@ -11377,14 +11377,17 @@ select {
 .mb-4 {
   margin-bottom: 1rem;
 }
-.mt-0 {
-  margin-top: 0px;
+.ml-10 {
+  margin-left: 2.5rem;
 }
 .mb-2 {
   margin-bottom: 0.5rem;
 }
 .-mt-px {
   margin-top: -1px;
+}
+.mt-0 {
+  margin-top: 0px;
 }
 .block {
   display: block;
@@ -13654,12 +13657,12 @@ span.flatpickr-weekday {
     margin-left: 1.5rem;
   }
 
-  .sm\:ml-0 {
-    margin-left: 0px;
-  }
-
   .sm\:mb-2 {
     margin-bottom: 0.5rem;
+  }
+
+  .sm\:ml-0 {
+    margin-left: 0px;
   }
 
   .sm\:block {
