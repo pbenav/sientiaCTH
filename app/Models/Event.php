@@ -33,7 +33,7 @@ class Event extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function get_period()
+    public function getPeriod()
     {
         //Set the start date
         $start_date = Carbon::parse($this->start);
@@ -61,8 +61,8 @@ class Event extends Model
         ->groupByRaw(DB::raw('DAY(start)'))          
         ->get()
         ->pluck('hours', 'day'); 
-    }   
-
+    }
+    
     /**
      * Scope a query to only include events that are in open state
      *

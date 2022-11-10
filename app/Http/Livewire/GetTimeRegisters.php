@@ -16,6 +16,8 @@ class GetTimeRegisters extends Component
     use HasTeams;
 
     protected $events;
+
+    public $event;
     public $showModalGetTimeRegisters = false;
     public $search;
     public $sort = 'start';
@@ -72,6 +74,29 @@ class GetTimeRegisters extends Component
             $this->event->delete();
         }
         $this->emitSelf('render');
+    }   
+
+    public function getEventsByTeam($filter){
+        return Event::whereIn('user_id', function ($query) use ($filter) {
+            $query->select('id')
+            ->from('users')
+                ->whereIn('id', $filter)
+                ->where(function ($query) {
+                    $query->orWhere('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('description', 'like', '%' . $this->search . '%')
+                        ->orWhere('Family_name1', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->orderBy($this->sort, $this->direction)
+                ->paginate($this->qtytoshow);
+              
+    }
+
+    public function getEventsPerUser(){
+        return User::find(Auth::user()->id)->events()
+            ->where('description', 'like', '%' . $this->search . '%')
+            ->orderBy($this->sort, $this->direction)
+            ->paginate($this->qtytoshow);
     }
 
     public function getEvents()
@@ -88,18 +113,10 @@ class GetTimeRegisters extends Component
 
         // Get events taking account of is_team_admin and search strings
         if ($this->readyonload) {
-            $this->events = Event::whereIn('user_id', function ($query) use ($where_clause) {
-                $query->select('id')
-                    ->from('users')
-                    ->whereIn('id', $where_clause)
-                    ->where(function ($query) {
-                        $query->orWhere('name', 'like', '%' . $this->search . '%')
-                            ->orWhere('description', 'like', '%' . $this->search . '%')
-                            ->orWhere('Family_name1', 'like', '%' . $this->search . '%');
-                    });
-            })
-                ->orderBy($this->sort, $this->direction)
-                ->paginate($this->qtytoshow);
+            // Funcionando
+            //$this->events = $this->getEventsByTeam($where_clause);            
+            $this->events = $this->getEventsPerUser();
+
         } else {
             $this->events = [];
         }

@@ -42,6 +42,9 @@
             </x-jet-danger-button>
             <x-jet-input class="w-full h-12 sm:w-3/4 sm:mx-2 mb-2 sm:mb-2 pr-2" placeholder="{{ __('Search') }}"
                 type="text" wire:model="search" />
+            @if ($isTeamAdmin)
+                <x-jet-checkbox class="h-8 w-8" wire:model="is_team_admin" />
+            @endif
         </div>
 
         <!-- Instead of using method count() because of deferred loading of events-->
@@ -56,13 +59,26 @@
                             class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                             {{ __('Status') }}
                         </th>
+
                         {{-- TODO: This should be showed only in roles like admin or inspect --}}
+
                         @if ($isTeamAdmin)
-                            <th
-                                class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
+                            <th class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
+                                wire:click="order('name')">
                                 {{ __('Worker') }}
+                                <!-- Sort icon -->
+                                @if ($sort == 'name')
+                                    @if ($direction == 'asc')
+                                        <i class="float-right mt-1 fa-solid fa-arrow-down-1-9"></i>
+                                    @else
+                                        <i class="float-right mt-1 fa-solid fa-arrow-down-9-1"></i>
+                                    @endif
+                                @else
+                                    <i class='float-right mt-1 fa-solid fa-sort'></i>
+                                @endif
                             </th>
                         @endif
+
                         <th class="block p-1 font-bold text-left text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
                             wire:click="order('start')">
                             {{ __('Start') }}
@@ -77,6 +93,7 @@
                                 <i class='float-right mt-1 fa-solid fa-sort'></i>
                             @endif
                         </th>
+
                         <th class="block p-1 font-bold text-left text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
                             wire:click="order('end')">
                             {{ __('End') }}
@@ -126,11 +143,11 @@
                                     <i class="fa-regular fa-square-check"></i>
                                 @endif
                                 {{ $ev->id }}
-                                 {{--// For debuggin purposes $ev->id --}}
+                                {{-- // For debuggin purposes $ev->id --}}
                             </td>
                             @if ($isTeamAdmin)
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user->name . ' ' . $ev->user->family_name1 }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user->id . ' ' . $ev->user->name . ' ' . $ev->user->family_name1 }}
                                 </td>
                             @endif
 
@@ -145,7 +162,7 @@
                             </td>
                             <td class="block p-1 text-left md:text-center md:border md:border-grey-500 md:table-cell">
                                 <span
-                                    class="mr-2 inline-block font-bold md:hidden">{{ __('Duration') }}</span>{{ $ev->get_period() }}
+                                    class="mr-2 inline-block font-bold md:hidden">{{ __('Duration') }}</span>{{ $ev->getPeriod() }}
                             </td>
                             <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
                                 {{-- <span class="inline-block pb-2 font-bold md:hidden">{{ __('Actions') }}</span> --}}
@@ -232,7 +249,7 @@
                     })
                     Livewire.emit('render');
                 } else {
-                    Livewire.emit('alertFail',  "{{__('Event is confirmed.')}}" );
+                    Livewire.emit('alertFail', "{{ __('Event is confirmed.') }}");
                 }
             })
 

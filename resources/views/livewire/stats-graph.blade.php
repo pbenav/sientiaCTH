@@ -1,19 +1,9 @@
-<div>
-    <h1 class="ml-10">{{ __('Charts & Stats by month') }}</h1>
-    <div class="flex ml-10">{{ __('Total worked hours: ') }} {{ $totalHours }}</div>
     <div>
-        <select name="selectedMonth" id="selectedMonth" class="border ml-10" wire:model="selectedMonth">
-            @foreach ($availableMonths as $month)
-                <option value="{{ $month }}">{{ $month }}</option>
-            @endforeach
-        </select>
-    </div>
-    <div class="flex">
-        <div class="w-1/2">
-            {!! $chart->container() !!}
+        <div class="container mx-auto space-y-4 p-4 sm:p-0 mt-8">
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <div class="shadow rounded p-4 border bg-white flex-1" style="height: 32rem;">
+                    <livewire:livewire-column-chart :column-chart-model="$cCM" />
+                </div>
+            </div>
         </div>
     </div>
-
-
-    {!! $chart->script() !!}
-</div>
