@@ -122,8 +122,7 @@
                                 <i class='float-right mt-1 fa-solid fa-sort'></i>
                             @endif
                         </th>
-                        <th class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
-                            wire:click="order('duration')">
+                        <th class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                             {{ __('Duration') }}
                         </th>
                         <th
@@ -137,17 +136,17 @@
                         <tr class="block bg-gray-300 border border-grey-500 md:border-none md:table-row">
                             <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
                                     class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
+                                {{ $ev->id }}
+                                {{-- // For debuggin purposes $ev->id --}}
                                 @if ($ev->is_open)
                                     <i class="fa-regular fa-square"></i>
                                 @else
                                     <i class="fa-regular fa-square-check"></i>
                                 @endif
-                                {{ $ev->id }}
-                                {{-- // For debuggin purposes $ev->id --}}
                             </td>
                             @if ($isTeamAdmin)
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user->id . ' ' . $ev->user->name . ' ' . $ev->user->family_name1 }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user_id . '-' . $ev->name . ' ' . $ev->family_name1 }}
                                 </td>
                             @endif
 
@@ -167,15 +166,16 @@
                             <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
                                 {{-- <span class="inline-block pb-2 font-bold md:hidden">{{ __('Actions') }}</span> --}}
                                 <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
-                                    <a class="btn btn-blue"
+                                    <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
                                         wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a class="btn btn-green"
+                                    <a class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
                                         wire:click="$emit('confirmConfirmation', {{ $ev }})">
                                         <i class="fas fa-check"></i>
                                     </a>
-                                    <a class="btn btn-red" wire:click="$emit('confirmDeletion', {{ $ev }})">
+                                    <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}" 
+                                        wire:click="$emit('confirmDeletion', {{ $ev }})">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>

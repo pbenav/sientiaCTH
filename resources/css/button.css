@@ -14,6 +14,10 @@
     @apply px-2 py-1 mx-1 text-base bg-green-600 text-white hover:bg-green-500;
 }
 
+.btn-gray{
+    @apply px-2 py-1 mx-1 text-base bg-gray-600 text-white hover:bg-gray-500;
+}
+
 .btn-pad{
     @apply bg-gray-300 text-base sm:text-2xl text-center px-2 py-3 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-700;
 }

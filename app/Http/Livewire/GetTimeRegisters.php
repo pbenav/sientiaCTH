@@ -2,12 +2,12 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\User;
+use App\Models\Event;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Event;
-use App\Models\User;
 use Laravel\Jetstream\HasTeams;
+use Illuminate\Support\Facades\Auth;
 
 class GetTimeRegisters extends Component
 {
@@ -40,7 +40,7 @@ class GetTimeRegisters extends Component
     {
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
-        $this->is_team_admin = $this->user->isTeamAdmin();        
+        $this->is_team_admin = $this->user->isTeamAdmin();
     }
 
     public function order($sort)
@@ -74,29 +74,24 @@ class GetTimeRegisters extends Component
             $this->event->delete();
         }
         $this->emitSelf('render');
-    }   
-
-    public function getEventsByTeam($filter){
-        return Event::whereIn('user_id', function ($query) use ($filter) {
-            $query->select('id')
-            ->from('users')
-                ->whereIn('id', $filter)
-                ->where(function ($query) {
-                    $query->orWhere('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%')
-                        ->orWhere('Family_name1', 'like', '%' . $this->search . '%');
-                    });
-                })
-                ->orderBy($this->sort, $this->direction)
-                ->paginate($this->qtytoshow);
-              
     }
 
-    public function getEventsPerUser(){
-        return User::find(Auth::user()->id)->events()
-            ->where('description', 'like', '%' . $this->search . '%')
+    public function getEventsPerUser($wc){
+        $datos = Event::select('events.id', 'events.user_id', 'users.name', 'users.family_name1',
+                               'events.start', 'events.end', 'events.description', 'events.is_open')
+            ->join('users', 'events.user_id', '=', 'users.id')  
+            ->whereIn('events.user_id', $wc)
+            ->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('family_name1', 'like', '%' . $this->search . '%')
+                      ->orWhere('family_name2', 'like', '%' . $this->search . '%')
+                      ->orWhere('description',  'like', '%' . $this->search . '%');
+                    })
             ->orderBy($this->sort, $this->direction)
             ->paginate($this->qtytoshow);
+
+            //dd($datos);
+            return $datos;
     }
 
     public function getEvents()
@@ -113,9 +108,7 @@ class GetTimeRegisters extends Component
 
         // Get events taking account of is_team_admin and search strings
         if ($this->readyonload) {
-            // Funcionando
-            //$this->events = $this->getEventsByTeam($where_clause);            
-            $this->events = $this->getEventsPerUser();
+            $this->events = $this->getEventsPerUser($where_clause);
 
         } else {
             $this->events = [];
