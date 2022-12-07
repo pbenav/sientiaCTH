@@ -252,5 +252,7 @@
     "Yes, confirm it!": "Sí. ¡Confírmalo!",
     "Event has been confirmed!": "¡Se ha confirmado el evento!",
     "Stats": "Estadísticas",
-    "Worked hours": "Horas trabajadas"
+    "Worked hours": "Horas trabajadas",
+    "records": "registros",
+    "Not confirmed": "No confirmados"
 }

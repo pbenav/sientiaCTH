@@ -23,9 +23,7 @@
 
             <div>
                 <x-jet-label value="{{ __('Description') }}" />
-                <select class="w-full form-control " wire:model.defer="event.description" name="event.description"
-                    class="w-full py-2 pl-2 pr-4 mt-2 text-sm border border-gray-400 rounded-lg sm:text-base focus:outline-none focus:border-blue-400"
-                    required>
+                <select class="sl-select" wire:model.defer="event.description" name="event.description" required>
                     {{-- TODO Integrate causes as new model --}}
                     <option value="{{ __('Workday') }}" selected="selected">{{ __('Workday') }}</option>
                     <option value="{{ __('Pause') }}">{{ __('Pause') }}</option>

@@ -22,8 +22,20 @@
     <!-- Event list. Main table -->
     <div class="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8" wire:init="loadEvents">
 
+        <!-- Livewire component to filter time registers" -->
+        @if ($isTeamAdmin or $isInspector)
+            <div class="sm:flex items-center mx-auto sm:px-6 sm:py-4">
+                @livewire('set-time-register-filters')
+                <x-jet-danger-button class="w-full h-12 sm:w-1/4 mb-2 sm:mb-2 sm:my-0"
+                    wire:click="$emitTo('set-time-register-filters', 'open')">
+                    {{ __('Set filters') }}
+                </x-jet-danger-button>
+            </div>
+        @endif
+
+        <!-- Livewire component to show time regisres -->
+        <!-- Select no. of register to show -->
         <div class="sm:flex items-center mx-auto sm:px-6 sm:py-4">
-            @livewire('add-event')
             <div class="w-full h-12 mb-2 mr-2 sm:my-2 sm:flex sm:items-center sm:w-1/4">
                 <span>Mostrar</span>
                 <span>
@@ -34,17 +46,30 @@
                         <option value="100">100</option>
                     </select>
                 </span>
-                <span class="visible sm:invisible lg:visible">registros</span>
+                <span class="visible sm:invisible lg:visible">{{ __('records') }}</span>
             </div>
-            <x-jet-danger-button class="w-full h-12 sm:w-1/4 mb-2 sm:mb-2 sm:my-0"
-                wire:click="$emitTo('add-event', 'add', '1')">
-                {{ __('Add event') }}
-            </x-jet-danger-button>
-            <x-jet-input class="w-full h-12 sm:w-3/4 sm:mx-2 mb-2 sm:mb-2 pr-2" placeholder="{{ __('Search') }}"
-                type="text" wire:model="search" />
-            @if ($isTeamAdmin)
-                <x-jet-checkbox class="h-8 w-8" wire:model="is_team_admin" />
-            @endif
+
+            <!-- Show Add event button component -->
+            @livewire('add-event')
+            <span class="whitespace-nowrap">
+                <x-jet-danger-button class="w-full h-12 mb-2 sm:mb-2 sm:my-0"
+                    wire:click="$emitTo('add-event', 'add', '1')">
+                    {{ __('Add event') }}
+                </x-jet-danger-button>
+            </span>
+
+            <!-- Show search bar -->
+            <div class="flex">
+                <span class="whitespace-nowrap">
+                    <span>
+                        <x-jet-input class="h-12 sm:mx-2 mb-2 pr-2" placeholder="{{ __('Search') }}" type="text"
+                            wire:model="search" />
+                    </span>
+                    <span class="w-auto whitespace-nowrap mx-2 pt-2 sm:visible lg:visible">{{ __('Not confirmed') }}
+                        <x-jet-checkbox class="h-8 w-8 text-gray-600 checked:text-green-600" wire:model="confirmed" />
+                    </span>
+                </span>
+            </div>
         </div>
 
         <!-- Instead of using method count() because of deferred loading of events-->
@@ -57,12 +82,11 @@
 
                         <th
                             class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
-                            {{ __('Status') }}
+                            {{ __('Id') }}
                         </th>
 
                         {{-- TODO: This should be showed only in roles like admin or inspect --}}
-
-                        @if ($isTeamAdmin)
+                        @if ($is_team_admin or $is_inspector)
                             <th class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
                                 wire:click="order('name')">
                                 {{ __('Worker') }}
@@ -122,7 +146,8 @@
                                 <i class='float-right mt-1 fa-solid fa-sort'></i>
                             @endif
                         </th>
-                        <th class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
+                        <th
+                            class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                             {{ __('Duration') }}
                         </th>
                         <th
@@ -136,17 +161,17 @@
                         <tr class="block bg-gray-300 border border-grey-500 md:border-none md:table-row">
                             <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
                                     class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
-                                {{ $ev->id }}
                                 {{-- // For debuggin purposes $ev->id --}}
-                                @if ($ev->is_open)
+                                {{ $ev->id }}
+                                {{-- @if ($ev->is_open)
                                     <i class="fa-regular fa-square"></i>
                                 @else
                                     <i class="fa-regular fa-square-check"></i>
-                                @endif
+                                @endif --}}
                             </td>
                             @if ($isTeamAdmin)
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user_id . '-' . $ev->name . ' ' . $ev->family_name1 }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user_id . ' - ' . $ev->name . ' ' . $ev->family_name1 }}
                                 </td>
                             @endif
 
@@ -174,7 +199,7 @@
                                         wire:click="$emit('confirmConfirmation', {{ $ev }})">
                                         <i class="fas fa-check"></i>
                                     </a>
-                                    <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}" 
+                                    <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
                                         wire:click="$emit('confirmDeletion', {{ $ev }})">
                                         <i class="fas fa-trash"></i>
                                     </a>
@@ -224,7 +249,7 @@
 
             Livewire.on('confirmDeletion', event => {
 
-                if (event.is_open) {
+                if (event.is_open || {{ $is_team_admin }}) {
 
                     Swal.fire({
                         title: "{{ __('Are you sure?') }}",

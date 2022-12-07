@@ -29,3 +29,7 @@
 .btn-code{
     @apply w-full bg-green-500 px-2 text-center py-3 text-white text-base uppercase font-black rounded-lg hover:bg-green-600 transition-all duration-700;
 }
+
+.sl-select{
+    @apply form-control w-full py-2 pl-2 pr-4 mt-2 text-sm border border-gray-400 rounded-lg sm:text-base focus:outline-none focus:border-blue-400
+}

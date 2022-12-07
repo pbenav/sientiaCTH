@@ -76,11 +76,11 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
-    protected function Name(): Attribute
+    protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ucfirst($value),
-            set: fn ($value) => ucfirst(strtolower($value)),
+            get: fn ($value) => ucwords($value),
+            set: fn ($value) => ucwords(strtolower($value)),
         );
     }
 
@@ -93,8 +93,8 @@ class User extends Authenticatable
     protected function familyName1(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ucfirst($value),
-            set: fn ($value) => ucfirst(strtolower($value)),
+            get: fn ($value) => ucwords($value),
+            set: fn ($value) => ucwords(strtolower($value)),
         );
     }
 
@@ -106,13 +106,18 @@ class User extends Authenticatable
     protected function familyName2(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ucfirst($value),
-            set: fn ($value) => ucfirst(strtolower($value)),
+            get: fn ($value) => ucwords($value),
+            set: fn ($value) => ucwords(strtolower($value)),
         );
     }
 
     public function isTeamAdmin(){
         $current_team = $this->currentTeam;
         return $this->hasTeamRole($current_team, 'admin');
+    }
+
+    public function isInspector(){
+        $current_team = $this->currentTeam;
+        return $this->hasTeamRole($current_team, 'inspector');
     }
 }

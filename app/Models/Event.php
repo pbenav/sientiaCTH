@@ -55,7 +55,9 @@ class Event extends Model
     }
 
     public function scopeEventsPerUser(Builder $query, $user_id, $month){
-        return $query->selectRaw('ANY_VALUE(user_id) as user_id, DAY(start) as day, ANY_VALUE(MONTH(start)) as month, ANY_VALUE(SUM(TIMESTAMPDIFF(minute, start, end))/60) as hours')
+        return $query->selectRaw('ANY_VALUE(user_id) as user_id, DAY(start) as day,
+                                    ANY_VALUE(MONTH(start)) as month,
+                                    ANY_VALUE(SUM(TIMESTAMPDIFF(minute, start, end))/60) as hours')
         ->where('user_id', $user_id)
         ->whereMonth('start', $month)
         ->groupByRaw(DB::raw('DAY(start)'))          
@@ -70,6 +72,17 @@ class Event extends Model
      */
     public function scopeIsOpen($query)
     {
-        $query->where('is_open', '=', 1);
+       return $query->where('is_open', '=', 1)->get();
+    }
+
+    public function scopefilterEvents(Builder $query, $start, $end, $user_id, $is_open )
+    {        
+        return $query->selectRaw('id, user_id, start, end, is_open')
+        ->where('start', '>=', Carbon::parse($start))
+        ->where('end', '<=', Carbon::parse($end))
+        ->where('user_id', $user_id)
+        ->where('is_open', $is_open)
+        ->orderBy('start', 'asc')
+        ->get();
     }
 }
