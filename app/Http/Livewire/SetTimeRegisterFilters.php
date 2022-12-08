@@ -5,30 +5,33 @@ namespace App\Http\Livewire;
 use Carbon\Carbon;
 use App\Models\Event;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
 class SetTimeRegisterFilters extends Component
 {
     public $showFiltersModal = false;
     public Event $filter;
 
-
     protected $listeners = ['open', 'setFilters'];
 
     protected $rules = [
-        'filter.start' => 'date',
-        'filter.end' => 'date',
-        'filter.name' => 'string',
-        'filter.family_name1' => 'string',
+        'filter.start' => 'nullable|date',
+        'filter.end' => 'nullable|date|after:filter.start',
+        'filter.name' => 'nullable|string',
+        'filter.family_name1' => 'nullable|string',
         'filter.is_open' => 'boolean',
-        'filter.description' => 'string',
+        'filter.description' => 'nullable|string',
     ];
     
     public function mount()
-    {
+    {        
         $this->filter = new Event();
-        $this->filter->start = Carbon::today();
-        $this->filter->end = Carbon::today();
-        $this->filter->description = __('All');
+        $this->filter->start = date('Y-m-01');
+        $this->filter->end = date('Y-m-t');
+        $this->filter->name = "";
+        $this->filter->family_name1 = "";
+        $this->filter->is_open = false;
+        $this->filter->description = __('All');        
     }
 
     public function open(){
@@ -38,8 +41,13 @@ class SetTimeRegisterFilters extends Component
     public function setFilters()
     {           
         $this->reset(['showFiltersModal']);
-        $this->emitTo('get-time-registers', 'filter', 'filter');
-    }
+        $this->emitTo('get-time-registers', 'filter', $this->filter->toJson());
+    } 
+        public function unSetFilters()
+    {           
+        $this->reset(['showFiltersModal']);
+        $this->emitTo('get-time-registers', 'filter', null);
+    } 
 
     public function render()
     {

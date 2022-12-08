@@ -31,8 +31,9 @@ class GetTimeRegisters extends Component
     public $is_team_admin;
     public $is_inspector;
     public $confirmed;
+    public $filtered = false;
 
-    protected $listeners = ['filter','render', 'confirm', 'remove'];
+    protected $listeners = ['filter', 'render', 'confirm', 'remove'];
 
     protected $queryString = [
         'sort' => ['except' => 'start'],
@@ -83,8 +84,19 @@ class GetTimeRegisters extends Component
         $this->emitSelf('render');
     }
 
-    public function filter(Event $filter){
-        $this->filter = $filter;
+    public function filter($filter){
+        if(!is_null($filter)){
+        $f = json_decode($filter);
+        $this->filter->start = $f->start;
+        $this->filter->end = $f->end;
+        $this->filter->name = $f->name;
+        $this->filter->family_name1 = $f->family_name1;
+        $this->filter->is_open = $f->is_open;
+        $this->filter->description = $f->description;
+        $this->filtered = true;
+        } else {
+            $this->filtered = false;
+        }
     }
 
     public function getEventsPerUser($wc){
@@ -101,25 +113,34 @@ class GetTimeRegisters extends Component
             ->join('users', 'events.user_id', '=', 'users.id')
             ->whereIn('events.user_id', $wc)
             ->where(function ($query) {
-                if($this->confirmed){
-                $query->where('is_open', '=', '1');
+                if ($this->confirmed) {
+                    $query->where('is_open', '=', '1');
                 }
-            })
+            })           
             ->where(function ($query) {
-                if (!is_null($this->filter->start)) {
-                    $query->whereDate('start', '>=', Carbon::parse($this->filter->start))
-                    ->whereDate('end', '<=', Carbon::parse($this->filter->end))
-                    ->where('name', '=', $this->filter->name)
-                    ->where('family_name1', '=', $this->filter->family_name1)
-                    ->where('description',  '=', $this->filter->description);
-                } else {
+                if ($this->filtered) {
+                    $query->whereDate('start', '>=', $this->filter->start)
+                    ->whereDate('end', '<=', $this->filter->end);               
+
+                    if(!empty($this->filter->name)){
+                        $query->where('name', 'like', $this->filter->name);
+                    }
+                    
+                    if (!empty($this->filter->family_name1)) {
+                        $query->where('family_name1', $this->filter->family_name1);
+                    }
+                    // if ($this->filter->description == __('All')) {
+                    //     $query->where('descirption', 'like', '%' . $this->filter->description . '%');
+                    // };                    
+                    //dd($query);
+                } else {                    
                     $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('user_id', $this->search)
                     ->orWhere('family_name1', 'like', '%' . $this->search . '%')
                     ->orWhere('family_name2', 'like', '%' . $this->search . '%')
                     ->orWhere('description',  'like', '%' . $this->search . '%');
                 }
-                    })
+            })
             ->orderBy($this->sort, $this->direction)
             ->paginate($this->qtytoshow);
 

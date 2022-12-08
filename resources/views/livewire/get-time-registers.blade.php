@@ -35,11 +35,11 @@
 
         <!-- Livewire component to show time regisres -->
         <!-- Select no. of register to show -->
-        <div class="sm:flex items-center mx-auto sm:px-6 sm:py-4">
-            <div class="w-full h-12 mb-2 mr-2 sm:my-2 sm:flex sm:items-center sm:w-1/4">
+        <div class="mb-2 sm:flex items-center mx-auto sm:px-6 sm:py-0">
+            <div class="w-full h-8 mb-2 mr-2 sm:flex sm:items-center sm:w-1/4">
                 <span>Mostrar</span>
                 <span>
-                    <select wire:model='qtytoshow' class="mx-2 form-control">
+                    <select wire:model='qtytoshow' class="mx-2 pt-1 h-8 form-control">
                         <option value="10">10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
@@ -51,23 +51,22 @@
 
             <!-- Show Add event button component -->
             @livewire('add-event')
-            <span class="whitespace-nowrap">
-                <x-jet-danger-button class="w-full h-12 mb-2 sm:mb-2 sm:my-0"
-                    wire:click="$emitTo('add-event', 'add', '1')">
+            <x-jet-danger-button class="min-w-min h-8 ml-0 sm:ml-2 mb-2 sm:mb-2 sm:my-0"
+                wire:click="$emitTo('add-event', 'add', '1')">
+                <span class="whitespace-nowrap">
                     {{ __('Add event') }}
-                </x-jet-danger-button>
-            </span>
+                </span>
+            </x-jet-danger-button>
 
             <!-- Show search bar -->
-            <div class="flex">
-                <span class="whitespace-nowrap">
-                    <span>
-                        <x-jet-input class="h-12 sm:mx-2 mb-2 pr-2" placeholder="{{ __('Search') }}" type="text"
-                            wire:model="search" />
-                    </span>
-                    <span class="w-auto whitespace-nowrap mx-2 pt-2 sm:visible lg:visible">{{ __('Not confirmed') }}
-                        <x-jet-checkbox class="h-8 w-8 text-gray-600 checked:text-green-600" wire:model="confirmed" />
-                    </span>
+            <div class="flex w-full">
+                <span class="sm:whitespace-nowrap inline-block">
+                    <x-jet-input class="w-full h-8 sm:mx-2 mb-2 pr-2" placeholder="{{ __('Search') }}" type="text"
+                        wire:model="search" />
+                </span>
+                <span class="w-auto ml-4 sm:whitespace-nowrap pt-2">
+                    {{ __('Not confirmed') }}
+                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600" wire:model='filtered' wire:model="confirmed" />
                 </span>
             </div>
         </div>

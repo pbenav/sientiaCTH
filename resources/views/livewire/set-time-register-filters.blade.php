@@ -9,11 +9,11 @@
             <div class="mb-4">
                 <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2" />
                 <x-jet-input type="date" class="mr-2" wire:model.defer='filter.start' />
-                <x-jet-input-error for='start_date' />
+                <x-jet-input-error for='filter.start' />
 
                 <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2" />
                 <x-jet-input type="date" class="mr-2" wire:model.defer='filter.end' />
-                <x-jet-input-error for='end_date' />
+                <x-jet-input-error for='filter.end' />
             </div>
 
             <div class="mb-4 flex">
@@ -57,6 +57,11 @@
                 wire_target="setFilters">
                 {{ __('Set filters') }}
             </x-jet-danger-button>
+
+            <x-jet-button wire:click="unSetFilters" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500"
+            wire_target="unSetFilters">
+            {{ __('Unset filters') }}
+        </x-jet-button>
         </x-slot>
 
     </x-jet-dialog-modal>
