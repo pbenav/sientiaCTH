@@ -20,18 +20,29 @@
     @endif
 
     <!-- Event list. Main table -->
-    <div class="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8" wire:init="loadEvents">
+    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8" wire:init="loadEvents">
 
         <!-- Livewire component to filter time registers" -->
-        @if ($isTeamAdmin or $isInspector)
-            <div class="sm:flex items-center mx-auto sm:px-6 sm:py-4">
-                @livewire('set-time-register-filters')
-                <x-jet-danger-button class="w-full h-12 sm:w-1/4 mb-2 sm:mb-2 sm:my-0"
-                    wire:click="$emitTo('set-time-register-filters', 'open')">
-                    {{ __('Set filters') }}
+        {{-- @if ($isTeamAdmin or $isInspector) --}}
+        @livewire('set-time-register-filters')
+        <div class="flex flex-row sm:px-6 sm:py-4">
+            <div>
+                <x-jet-danger-button wire:click="$emitTo('set-time-register-filters', 'open')"
+                    class="w-auto h-8 ml-0 mb-2">
+                    {{ __('Set filter') }}
                 </x-jet-danger-button>
             </div>
-        @endif
+            <div>
+                <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2"
+                    wire:model="isfiltered">
+                    {{ __('Unset filters') }}
+                </x-jet-button>
+            </div>
+            <div>
+                <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}"> {{ __('Filtered records') }}</h1>
+            </div>
+        </div>
+        {{-- @endif --}}
 
         <!-- Livewire component to show time regisres -->
         <!-- Select no. of register to show -->
@@ -66,13 +77,15 @@
                 </span>
                 <span class="w-auto ml-4 sm:whitespace-nowrap pt-2">
                     {{ __('Not confirmed') }}
-                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600" wire:model='filtered' wire:model="confirmed" />
+                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600"
+                        wire:model="confirmed" wire:click="$set('filtered', false)"/>
                 </span>
             </div>
         </div>
 
         <!-- Instead of using method count() because of deferred loading of events-->
-        @if (count($events))
+        {{-- <p>------|{{ dump($events) }}|-----</p> --}}
+                @if (count($events))
             <!-- component -->
             <table class="block min-w-full border-collapse md:table">
                 <thead class="block md:table-header-group">

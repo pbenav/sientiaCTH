@@ -254,5 +254,12 @@
     "Stats": "Estadísticas",
     "Worked hours": "Horas trabajadas",
     "records": "registros",
-    "Not confirmed": "No confirmados"
+    "Is confirmed": "Confirmado",
+    "Not confirmed": "No confirmados",
+    "Set filter": "Filtrar",
+    "Unset filter": "Desactivar filtro",
+    "All" : "Todos",
+    "Set filters to get time register":"Selecciona los filtros para obtener los registros de tiempo",
+    "Filtered records": "Registros filtrados"
+
 }

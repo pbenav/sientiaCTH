@@ -26,7 +26,7 @@ class SetTimeRegisterFilters extends Component
     public function mount()
     {        
         $this->filter = new Event();
-        $this->filter->start = date('Y-m-01');
+        $this->filter->start = date('Y-01-01');
         $this->filter->end = date('Y-m-t');
         $this->filter->name = "";
         $this->filter->family_name1 = "";
@@ -41,12 +41,12 @@ class SetTimeRegisterFilters extends Component
     public function setFilters()
     {           
         $this->reset(['showFiltersModal']);
-        $this->emitTo('get-time-registers', 'filter', $this->filter->toJson());
+        $this->emitTo('get-time-registers', 'setFilter', $this->filter->toJson());
     } 
         public function unSetFilters()
     {           
         $this->reset(['showFiltersModal']);
-        $this->emitTo('get-time-registers', 'filter', null);
+        $this->emitTo('get-time-registers', 'unsetfilter');
     } 
 
     public function render()

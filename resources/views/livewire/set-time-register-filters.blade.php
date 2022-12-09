@@ -24,7 +24,7 @@
                         <x-jet-input-error for='name' />
                     </div>
                     <div class="mb-4 ml-2">
-                        <x-jet-label value="{{ __('Family name 1') }}" />
+                        <x-jet-label value="{{ __('Family Name 1') }}" />
                         <x-jet-input type="text" wire:model.defer='filter.family_name1' />
                         <x-jet-input-error for='family_name1' />
                     </div>
@@ -53,15 +53,15 @@
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-danger-button wire:click="setFilters" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500"
-                wire_target="setFilters">
-                {{ __('Set filters') }}
+            <x-jet-danger-button wire:click="$set('filtered', 'true')" wire:click="setFilters" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500"
+                wire_target="setFilter">
+                {{ __('Set filter') }}
             </x-jet-danger-button>
 
             <x-jet-button wire:click="unSetFilters" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500"
-            wire_target="unSetFilters">
-            {{ __('Unset filters') }}
-        </x-jet-button>
+                wire_target="unSetFilter">
+                {{ __('Unset filter') }}
+            </x-jet-button>
         </x-slot>
 
     </x-jet-dialog-modal>
