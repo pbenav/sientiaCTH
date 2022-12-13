@@ -15,6 +15,7 @@ class GetTimeRegisters extends Component
     use HasTeams;
 
     public $event;
+    protected $events;
     public $showModalGetTimeRegisters = false;
     public $search;
     public $filter;
@@ -45,6 +46,7 @@ class GetTimeRegisters extends Component
         $this->is_team_admin = $this->user->isTeamAdmin();
         $this->is_inspector = $this->user->isInspector();
         $this->confirmed = false;
+        $this->filtered = false;
     }
 
     public function order($sort)
@@ -96,61 +98,8 @@ class GetTimeRegisters extends Component
         $this->filter->is_open = $f->is_open;
         $this->filter->description = $f->description;
         $this->filtered = true;
-    }
-
-    public function getEventsPerUser($wc)
-    {
-        return Event::select(
-            'events.id',
-            'events.user_id',
-            'users.name',
-            'users.family_name1',
-            'events.start',
-            'events.end',
-            'events.description',
-            'events.is_open'
-        )
-            ->join('users', 'events.user_id', '=', 'users.id')
-            ->whereIn('events.user_id', $wc)
-            ->where(function ($query) {
-                if ($this->confirmed) {
-                    $query->where('is_open', '1');
-                }            
-                if ($this->filtered) {
-                    if (!is_null($this->filter->start)) {
-                        $query->whereDate('start', '>=', $this->filter->start);
-                    }
-
-                    if (!is_null($this->filter->start)) {
-                        $query->whereDate('end', '<=', $this->filter->end);
-                    }
-
-                    if (!empty($this->filter->name)) {
-                        $query->where('name', 'like', $this->filter->name);
-                    }
-
-                    if (!empty($this->filter->family_name1)) {
-                        $query->where('family_name1', $this->filter->family_name1);
-                    }
-
-                    if ($this->filter->is_open) {
-                        $query->where('is_open', '1');
-                    }
-
-                    if ($this->filter->description != __('All')) {
-                        $query->where('description', $this->filter->description);
-                    }
-                } else {
-                    $query->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('user_id', $this->search)
-                        ->orWhere('family_name1', 'like', '%' . $this->search . '%')
-                        ->orWhere('family_name2', 'like', '%' . $this->search . '%')
-                        ->orWhere('description', 'like', '%' . $this->search . '%');
-                }
-            })
-            ->orderBy($this->sort, $this->direction)
-            ->paginate($this->qtytoshow);
-    }
+        $this->confirmed = false;
+    }   
 
     public function getEvents()
     {
@@ -166,27 +115,33 @@ class GetTimeRegisters extends Component
 
         // Get events taking account of is_team_admin and search strings
         if ($this->readyonload) {
+            if ($this->filtered) {
+                //public function getEventsFiltered($teamusers, $filtered, Event $filter, $sort, $direction, $qtytoshow)
+                $this->events = $this->filter->getEventsFiltered($teamUsers, $this->filtered, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
+            } else {
+                //public function getEventsPerUser($teamusers, $search, $confirmed, $sort, $direction, $qtytoshow)
+                $this->events = $this->filter->getEventsPerUser($teamUsers, $this->search, $this->confirmed, $this->sort, $this->direction, $this->qtytoshow);
+            }
+        } else {
+            $this->events = [];
         }
-        return $this->getEventsPerUser($teamUsers);
     }
 
     public function render()
-    {          
-        //return view('livewire.get-time-registers', compact('events', 'isTeamAdmin', 'isInspector'));
-        // return view('livewire.get-time-registers',)
-        //     ->with('events', $this->getEvents())
-        //     ->with('isTeamAdmin', $this->is_team_admin)
-        //     ->with('isInspector', $this->is_inspector);
-
-            return view('livewire.get-time-registers',[
-                'events' => $this->getEvents(),
-                'isTeamAdmin' => $this->is_team_admin,
-                'isInspector' => $this->is_inspector,
-             ]);
-
+    {
+        $this->getEvents();
+        return view('livewire.get-time-registers', )
+            ->with('events', $this->events)
+            ->with('isTeamAdmin', $this->is_team_admin)
+            ->with('isInspector', $this->is_inspector);
     }
 
     public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingEvents()
     {
         $this->resetPage();
     }

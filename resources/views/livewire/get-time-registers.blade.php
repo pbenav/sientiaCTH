@@ -169,17 +169,14 @@
                 </thead>
 
                 <tbody class="block md:table-row-group">
+                    {{-- {{ dump($events) }} --}}
+                    <p>Filtrados {{ $filtered ? 'Si' : 'No' }} &nbsp; Confirmados {{ $confirmed ? 'Si' : 'No' }}</p>
+                    {{-- {{ dump($confirmed) }} --}}
                     @foreach ($events as $ev)
                         <tr class="block bg-gray-300 border border-grey-500 md:border-none md:table-row">
                             <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
-                                    class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
-                                {{-- // For debuggin purposes $ev->id --}}
+                                    class="inline-block font-bold md:hidden">{{ __('Status') }}</span>                                
                                 {{ $ev->id }}
-                                {{-- @if ($ev->is_open)
-                                    <i class="fa-regular fa-square"></i>
-                                @else
-                                    <i class="fa-regular fa-square-check"></i>
-                                @endif --}}
                             </td>
                             @if ($isTeamAdmin)
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
@@ -203,15 +200,15 @@
                             <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
                                 {{-- <span class="inline-block pb-2 font-bold md:hidden">{{ __('Actions') }}</span> --}}
                                 <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
-                                    <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
+                                    <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
                                         wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
+                                    <a class="btn {{ $ev['is_open'] ? 'btn-green' : 'btn-gray' }}"
                                         wire:click="$emit('confirmConfirmation', {{ $ev }})">
                                         <i class="fas fa-check"></i>
                                     </a>
-                                    <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
+                                    <a class="btn {{ $ev['is_open'] ? 'btn-red' : 'btn-gray' }}"
                                         wire:click="$emit('confirmDeletion', {{ $ev }})">
                                         <i class="fas fa-trash"></i>
                                     </a>
