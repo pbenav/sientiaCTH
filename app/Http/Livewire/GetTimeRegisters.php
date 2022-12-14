@@ -114,7 +114,7 @@ class GetTimeRegisters extends Component
             array_push($teamUsers, $this->user->id);
         }
 
-        if (!$this->readyonload) {
+        if ($this->readyonload) {
             // Get events taking account of is_team_admin and search strings
             if ($this->filtered) {
                 //public function getEventsFiltered($teamusers, $filtered, Event $filter, $sort, $direction, $qtytoshow)
