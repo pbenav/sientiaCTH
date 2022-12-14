@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class SetTimeRegisterFilters extends Component
 {
     public $showFiltersModal = false;
-    public Event $filter;
+    public $filt;
 
     protected $listeners = ['open', 'setFilters'];
 
@@ -24,24 +24,25 @@ class SetTimeRegisterFilters extends Component
     ];
     
     public function mount()
-    {        
-        $this->filter = new Event();
-        $this->filter->start = date('Y-01-01');
-        $this->filter->end = date('Y-m-t');
-        $this->filter->name = "";
-        $this->filter->family_name1 = "";
-        $this->filter->is_open = false;
-        $this->filter->description = __('All');        
+    {
+        $this->filt = [
+            "start" => date('Y-01-01'),
+            "end" => date('Y-m-t'),
+            "name" => "",
+            "family_name1" => "",
+            "is_open" => false,
+            "description" => __('All'),
+        ];  
     }
-
+    
     public function open(){
         $this->showFiltersModal = true;
     }
-
+    
     public function setFilters()
     {           
         $this->reset(['showFiltersModal']);
-        $this->emitTo('get-time-registers', 'setFilter', $this->filter->toJson());
+        $this->emitTo('get-time-registers', 'setFilter', $this->filt);
     } 
         public function unSetFilters()
     {           
@@ -50,7 +51,7 @@ class SetTimeRegisterFilters extends Component
     } 
 
     public function render()
-    {
-        return view('livewire.set-time-register-filters')->with('filter', $this->filter);
+    {  
+        return view('livewire.set-time-register-filters');
     }
 }

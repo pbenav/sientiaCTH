@@ -115,7 +115,7 @@ class Event extends Model
                 }
             })
             ->orderBy($sort, $direction)
-            ->simplePaginate($qtytoshow);
+            ->Paginate($qtytoshow);
     }
 
     public function getEventsFiltered($teamusers, $filtered, Event $filter, $sort, $direction, $qtytoshow)

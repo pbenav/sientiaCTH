@@ -1,6 +1,5 @@
 <div>
     <!-- The wire directive connects page loading with the function loadEvents to get events deferred -->
-
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Dashboard') }}
@@ -24,25 +23,30 @@
 
         <!-- Livewire component to filter time registers" -->
         {{-- @if ($isTeamAdmin or $isInspector) --}}
+
         @livewire('set-time-register-filters')
-        <div class="flex flex-row sm:px-6 sm:py-4">
-            <div>
-                <x-jet-danger-button wire:click="$emitTo('set-time-register-filters', 'open')"
-                    class="w-auto h-8 ml-0 mb-2">
-                    {{ __('Set filter') }}
-                </x-jet-danger-button>
+        @if ($is_team_admin or $is_inspector)
+            <div class="flex flex-row sm:px-6 sm:py-4">
+                <div>
+                    <x-jet-danger-button wire:click="$emitTo('set-time-register-filters', 'open')"
+                        class="w-auto h-8 ml-0 mb-2">
+                        {{ __('Set filter') }}
+                    </x-jet-danger-button>
+                </div>
+                <div>
+                    <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2"
+                        wire:model="isfiltered">
+                        {{ __('Unset filters') }}
+                    </x-jet-button>
+                </div>
+                <div>
+                    <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}">
+                        {{ __('Filtered records') }}</h1>
+                </div>
+                <span>Date from {{ $filter->start }}</span>
+                <span class="ml-4">Date from {{ $filter->end }}</span>
             </div>
-            <div>
-                <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2"
-                    wire:model="isfiltered">
-                    {{ __('Unset filters') }}
-                </x-jet-button>
-            </div>
-            <div>
-                <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}"> {{ __('Filtered records') }}</h1>
-            </div>
-        </div>
-        {{-- @endif --}}
+        @endif
 
         <!-- Livewire component to show time regisres -->
         <!-- Select no. of register to show -->
@@ -77,15 +81,18 @@
                 </span>
                 <span class="w-auto ml-4 sm:whitespace-nowrap pt-2">
                     {{ __('Not confirmed') }}
-                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600"
-                        wire:model="confirmed" wire:click="$set('filtered', false)"/>
+                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600" wire:model="confirmed"
+                        wire:click="$set('filtered', false)" />
+                </span>
+                <span class="w-auto ml-4 sm:whitespace-nowrap pt-2 text-red-600">
+                    <p class="{{ $filtered ? 'visible' : 'hidden' }}">{{ __('Filtered') }}</p>
+                    <p class="{{ $confirmed ? 'visible' : 'hidden' }}">{{ __('Confirmed') }}</p>
                 </span>
             </div>
         </div>
 
         <!-- Instead of using method count() because of deferred loading of events-->
-        {{-- <p>------|{{ dump($events) }}|-----</p> --}}
-                @if (count($events))
+        @if (count($events))
             <!-- component -->
             <table class="block min-w-full border-collapse md:table">
                 <thead class="block md:table-header-group">
@@ -169,13 +176,11 @@
                 </thead>
 
                 <tbody class="block md:table-row-group">
-                    {{-- {{ dump($events) }} --}}
-                    <p>Filtrados {{ $filtered ? 'Si' : 'No' }} &nbsp; Confirmados {{ $confirmed ? 'Si' : 'No' }}</p>
-                    {{-- {{ dump($confirmed) }} --}}
+                    {{-- <p>------|{{ dump($events) }}|-----</p> --}}
                     @foreach ($events as $ev)
                         <tr class="block bg-gray-300 border border-grey-500 md:border-none md:table-row">
                             <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
-                                    class="inline-block font-bold md:hidden">{{ __('Status') }}</span>                                
+                                    class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
                                 {{ $ev->id }}
                             </td>
                             @if ($isTeamAdmin)
@@ -236,6 +241,9 @@
     @push('scripts')
         <!-- To throw notifications -->
         <script>
+            //
+            // Inespecific alert
+            //
             Livewire.on('alert', function(message) {
                 Swal.fire({
                     icon: 'success',
@@ -245,7 +253,9 @@
                     footer: ''
                 })
             })
-
+            //
+            // Fail alert 
+            //
             Livewire.on('alertFail', function(message) {
                 Swal.fire({
                     icon: 'info',
@@ -256,10 +266,11 @@
                 })
             })
 
+            //
+            // Deletion confirmation alert 
+            //
             Livewire.on('confirmDeletion', event => {
-
                 if (event.is_open || {{ $is_team_admin }}) {
-
                     Swal.fire({
                         title: "{{ __('Are you sure?') }}",
                         text: "{{ __('You won\'t be able to undo this action!') }}",
@@ -278,7 +289,6 @@
                                 timer: 1500,
                                 footer: ''
                             })
-
                         }
                     })
                     Livewire.emit('render');
@@ -287,10 +297,11 @@
                 }
             })
 
+            //
+            // Event confirmation alert 
+            //
             Livewire.on('confirmConfirmation', event => {
-
                 if (event.is_open && (event.end !== null)) {
-
                     Swal.fire({
                         title: "{{ __('Are you sure?') }}",
                         text: "{{ __('You won\'t be able to undo this action!') }}",

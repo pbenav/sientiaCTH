@@ -7,6 +7,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Laravel\Jetstream\HasTeams;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Collection;
+use Nette\Utils\Paginator;
 
 class GetTimeRegisters extends Component
 {
@@ -88,18 +90,17 @@ class GetTimeRegisters extends Component
         $this->filtered = false;
     }
 
-    public function setFilter($filter)
-    {
-        $f = json_decode($filter);
-        $this->filter->start = $f->start;
-        $this->filter->end = $f->end;
-        $this->filter->name = $f->name;
-        $this->filter->family_name1 = $f->family_name1;
-        $this->filter->is_open = $f->is_open;
-        $this->filter->description = $f->description;
+    public function setFilter($f)
+    {        
+        $this->filter->start = $f["start"];
+        $this->filter->end = $f["end"];
+        $this->filter->name = $f["name"];
+        $this->filter->family_name1 = $f["family_name1"];
+        $this->filter->is_open = $f["is_open"];
+        $this->filter->description = $f["description"];
         $this->filtered = true;
         $this->confirmed = false;
-    }   
+    }
 
     public function getEvents()
     {
@@ -113,14 +114,15 @@ class GetTimeRegisters extends Component
             array_push($teamUsers, $this->user->id);
         }
 
-        // Get events taking account of is_team_admin and search strings
-        if ($this->readyonload) {
+        if (!$this->readyonload) {
+            // Get events taking account of is_team_admin and search strings
             if ($this->filtered) {
                 //public function getEventsFiltered($teamusers, $filtered, Event $filter, $sort, $direction, $qtytoshow)
                 $this->events = $this->filter->getEventsFiltered($teamUsers, $this->filtered, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
             } else {
-                //public function getEventsPerUser($teamusers, $search, $confirmed, $sort, $direction, $qtytoshow)
+                //public function getEventsPerUser($teamusers, $search, $confirmed, $sort, $direction, $qtytoshow)                
                 $this->events = $this->filter->getEventsPerUser($teamUsers, $this->search, $this->confirmed, $this->sort, $this->direction, $this->qtytoshow);
+                //dump($this->events);
             }
         } else {
             $this->events = [];
@@ -137,11 +139,6 @@ class GetTimeRegisters extends Component
     }
 
     public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingEvents()
     {
         $this->resetPage();
     }
