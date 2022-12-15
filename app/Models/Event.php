@@ -5,7 +5,6 @@ namespace App\Models;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -52,7 +51,6 @@ class Event extends Model
             $this->is_open = 0;
             $this->save();
         }
-        ;
     }
 
     public function scopeEventsPerUser(Builder $query, $user_id, $month)

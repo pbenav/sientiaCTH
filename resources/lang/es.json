@@ -261,7 +261,9 @@
     "All" : "Todos",
     "Set filters to get time register":"Selecciona los filtros para obtener los registros de tiempo",
     "Filtered records": "Registros filtrados",
-    "Filtered": "Filtrados",
-    "Confirmed": "Confirmados"
+    "Showing only filtered": "Mostrando solo filtrados",
+    "not filtered": "No filtrados",
+    "Confirmed": "Confirmados",
+    "Showing only not confirmed": "Mostrando solo no confirmados"
 
 }

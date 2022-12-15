@@ -85,8 +85,8 @@
                         wire:click="$set('filtered', false)" />
                 </span>
                 <span class="w-auto ml-4 sm:whitespace-nowrap pt-2 text-red-600">
-                    <p class="{{ $filtered ? 'visible' : 'hidden' }}">{{ __('Filtered') }}</p>
-                    <p class="{{ $confirmed ? 'visible' : 'hidden' }}">{{ __('Confirmed') }}</p>
+                    <p class="{{ $filtered ? 'visible' : 'hidden' }}">{{ __('Showing only filtered') }}</p>
+                    <p class="{{ $confirmed ? 'visible' : 'hidden' }}">{{ __('Showing only not confirmed') }}</p>
                 </span>
             </div>
         </div>
@@ -176,14 +176,13 @@
                 </thead>
 
                 <tbody class="block md:table-row-group">
-                    {{-- <p>------|{{ dump($events) }}|-----</p> --}}
                     @foreach ($events as $ev)
                         <tr class="block bg-gray-300 border border-grey-500 md:border-none md:table-row">
                             <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
                                     class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
                                 {{ $ev->id }}
                             </td>
-                            @if ($isTeamAdmin)
+                            @if ($isTeamAdmin or $isInspector)
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
                                         class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user_id . ' - ' . $ev->name . ' ' . $ev->family_name1 }}
                                 </td>
@@ -203,7 +202,6 @@
                                     class="mr-2 inline-block font-bold md:hidden">{{ __('Duration') }}</span>{{ $ev->getPeriod() }}
                             </td>
                             <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
-                                {{-- <span class="inline-block pb-2 font-bold md:hidden">{{ __('Actions') }}</span> --}}
                                 <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
                                     <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
                                         wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
@@ -270,7 +268,7 @@
             // Deletion confirmation alert 
             //
             Livewire.on('confirmDeletion', event => {
-                if (event.is_open || {{ $is_team_admin }}) {
+                if (event.is_open || {{ $is_team_admin ? 1 : 0 }}) {
                     Swal.fire({
                         title: "{{ __('Are you sure?') }}",
                         text: "{{ __('You won\'t be able to undo this action!') }}",
@@ -301,7 +299,7 @@
             // Event confirmation alert 
             //
             Livewire.on('confirmConfirmation', event => {
-                if (event.is_open && (event.end !== null)) {
+                if ((event.is_open && event.end !== null)) {
                     Swal.fire({
                         title: "{{ __('Are you sure?') }}",
                         text: "{{ __('You won\'t be able to undo this action!') }}",

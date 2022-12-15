@@ -7,7 +7,6 @@
         </x-slot>
 
         <x-slot name='content'>
-
             <div class="mb-4">
                 {{-- New Datepicker HTML5 --}}
                  <x-jet-label value="{{ __('Start date') }}" />
