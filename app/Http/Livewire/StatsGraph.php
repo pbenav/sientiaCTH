@@ -6,54 +6,41 @@ use App\Models\Event;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Asantibanez\LivewireCharts\Facades\LivewireCharts;
-use Asantibanez\LivewireCharts\Models\ColumnChartModel;
 
 class StatsGraph extends Component
 {
     public $totalHours;
-    public $selectedMonth = 10;
+    public $selectedMonth = 11;
 
     public $firstRun = true;
 
-    public $showDataLabels = false;
+    public $showDataLabels = true;
 
     public function render()
     {
-        $data = Event::query()->EventsPerUser(Auth::user()->id, $this->selectedMonth);
+        $events = Event::query()->EventsPerUserMonth(Auth::user()->id, $this->selectedMonth);
 
-        $this->totalHours = array_sum($data->values()->toArray());
+        $this->totalHours = array_sum($events->pluck('hours')->values()->toArray());
 
-        //dd($data->keys()->toArray());
+        $columnChartModel = $events->groupBy('day')
+            ->reduce(
+                function ($columnChartModel, $data) {
+                    $day = $data->first()->day;
+                    $hours = $data->first()->hours;
+                return $columnChartModel->addColumn($day, $hours, '#f66665');
+                }, LivewireCharts::columnChartModel()
+                    ->setTitle('Horas trabajadas')
+                    ->setAnimated($this->firstRun)
+                    ->setLegendVisibility(false)
+                    ->setDataLabelsEnabled($this->showDataLabels)
+                    ->setColumnWidth(90)
+                    ->withGrid()
+            );
 
-        $cCM =
-            (new ColumnChartModel())
-                ->setTitle(
-                    'Expenses by Type'
-                )
-                ->addColumn(
-                    'Food',
-                    100,
-                    '#f6ad55'
-                )
-                ->addColumn(
-                    'Shopping',
-                    200,
-                    '#fc8181'
-                )
-                ->addColumn(
-                    'Travel',
-                    300,
-                    '#90cdf4'
-                )
-            ;
-
-        $this->firstRun = false;
 
         return view('livewire.stats-graph')
-            ->with(
-                [
-                    'cCM' => $cCM,
-                ]
-            );
+        ->with([
+                'columnChartModel' => $columnChartModel,
+            ]);
     }
 }

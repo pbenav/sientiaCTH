@@ -53,7 +53,7 @@ class Event extends Model
         }
     }
 
-    public function scopeEventsPerUser(Builder $query, $user_id, $month)
+    public function scopeEventsPerUserMonth(Builder $query, $user_id, $month)
     {
         return $query->selectRaw('ANY_VALUE(user_id) as user_id, DAY(start) as day,
                                     ANY_VALUE(MONTH(start)) as month,
@@ -61,8 +61,7 @@ class Event extends Model
             ->where('user_id', $user_id)
             ->whereMonth('start', $month)
             ->groupByRaw(DB::raw('DAY(start)'))
-            ->get()
-            ->pluck('hours', 'day');
+            ->get();
     }
 
     /**
