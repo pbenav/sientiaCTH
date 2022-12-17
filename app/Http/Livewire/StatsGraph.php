@@ -11,16 +11,14 @@ class StatsGraph extends Component
 {
     public $totalHours;
     public $selectedMonth = 11;
-
+    public $description;
     public $firstRun = true;
-
     public $showDataLabels = true;
 
     public function render()
     {
-        $events = Event::query()->EventsPerUserMonth(Auth::user()->id, $this->selectedMonth);
-
-        $this->totalHours = array_sum($events->pluck('hours')->values()->toArray());
+        $events = Event::EventsPerUserMonth(Auth::user()->id, $this->selectedMonth, $this->description);        
+        $this->totalHours = $events->sum('hours');
 
         $columnChartModel = $events->groupBy('day')
             ->reduce(

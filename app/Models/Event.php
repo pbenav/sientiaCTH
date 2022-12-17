@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,26 +52,53 @@ class Event extends Model
         }
     }
 
-    public function scopeEventsPerUserMonth(Builder $query, $user_id, $month)
+    public function scopeUserId(Builder $query, $scope)
     {
-        return $query->selectRaw('ANY_VALUE(user_id) as user_id, DAY(start) as day,
-                                    ANY_VALUE(MONTH(start)) as month,
-                                    ANY_VALUE(SUM(TIMESTAMPDIFF(minute, start, end))/60) as hours')
-            ->where('user_id', $user_id)
-            ->whereMonth('start', $month)
-            ->groupByRaw(DB::raw('DAY(start)'))
-            ->get();
+        return $query->where('user_id', $scope);
+
     }
 
+    public function scopeMonth(Builder $query, $scope)
+    {
+        return $query->whereMonth('start', $scope);
+
+    }
+
+    public function scopeDay(Builder $query, $scope)
+    {
+        return $query->whereDay('start', $scope);
+
+    }
+
+    public function scopeDescription(Builder $query, $scope)
+    {
+        return $query->where('description', $scope);
+
+    }
+   
     /**
      * Scope a query to only include events that are in open state
      *
      * @param $query
      */
-    public function scopeIsOpen($query)
+    public function scopeIsOpen(Builder $query)
     {
-        return $query->where('is_open', '=', 1)->get();
+        return $query->where('is_open', '=', 1);
     }
+
+    public function scopeEventsPerUserMonth(Builder $query, $user_id, $month, $description)
+    {
+        return $query->selectRaw('user_id as user_id, DAY(start) as day,
+                                    MONTH(start) as month,
+                                    SUM(TIMESTAMPDIFF(minute, start, end))/60 as hours,
+                                    description as description')
+            ->where('user_id', $user_id)
+            ->where('description', 'like', '%' . $description . '%')
+            ->whereMonth('start', $month)
+            ->groupBy('user_id', 'start', 'description')
+            ->get();
+    }
+
 
     public function scopefilterEvents(Builder $query, $start, $end, $user_id, $is_open)
     {
@@ -106,7 +132,7 @@ class Event extends Model
                     ->orWhere('users.family_name2', 'like', '%' . $search . '%')
                     ->orWhere('events.description', 'like', '%' . $search . '%');
             })
-            ->where(function ($query) use ($confirmed){
+            ->where(function ($query) use ($confirmed) {
                 if ($confirmed) {
                     $query->where('events.is_open', '=', '1');
                 }
