@@ -22,8 +22,6 @@
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8" wire:init="loadEvents">
 
         <!-- Livewire component to filter time registers" -->
-        {{-- @if ($isTeamAdmin or $isInspector) --}}
-
         @livewire('set-time-register-filters')
         @if ($is_team_admin or $is_inspector)
             <div class="flex flex-row sm:px-6 sm:py-4">
@@ -43,9 +41,6 @@
                     <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}">
                         {{ __('Filtered records') }}</h1>
                 </div>
-                <span>Date from {{ $filter->start }}</span>
-                <span class="ml-4">Date from {{ $filter->end }}</span>
-            </div>
         @endif
 
         <!-- Livewire component to show time regisres -->
@@ -65,28 +60,24 @@
             </div>
 
             <!-- Show Add event button component -->
+            <div class="w-auto mx-auto">
+                <x-jet-danger-button class="whitespace-nowrap h-8 ml-0 sm:ml-2 mb-2 sm:mb-2 sm:my-0"
+                    wire:click="$emitTo('add-event', 'add', '1')">
+                        {{ __('Add event') }}
+                </x-jet-danger-button>
+            </div>
             @livewire('add-event')
-            <x-jet-danger-button class="min-w-min h-8 ml-0 sm:ml-2 mb-2 sm:mb-2 sm:my-0"
-                wire:click="$emitTo('add-event', 'add', '1')">
-                <span class="whitespace-nowrap">
-                    {{ __('Add event') }}
-                </span>
-            </x-jet-danger-button>
 
             <!-- Show search bar -->
-            <div class="flex w-full">
-                <span class="sm:whitespace-nowrap inline-block">
+            <div class="w-auto mx-auto">
                     <x-jet-input class="w-full h-8 sm:mx-2 mb-2 pr-2" placeholder="{{ __('Search') }}" type="text"
                         wire:model="search" />
-                </span>
+            </div>
+            <div>
                 <span class="w-auto ml-4 sm:whitespace-nowrap pt-2">
                     {{ __('Not confirmed') }}
                     <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600" wire:model="confirmed"
                         wire:click="$set('filtered', false)" />
-                </span>
-                <span class="w-auto ml-4 sm:whitespace-nowrap pt-2 text-red-600">
-                    <p class="{{ $filtered ? 'visible' : 'hidden' }}">{{ __('Showing only filtered') }}</p>
-                    <p class="{{ $confirmed ? 'visible' : 'hidden' }}">{{ __('Showing only not confirmed') }}</p>
                 </span>
             </div>
         </div>

@@ -32,7 +32,7 @@
         </x-slot>
 
         <x-slot name="footer">
-            <x-jet-secondary-button wire:click="$set('showAddEventModal', false)">
+            <x-jet-secondary-button wire:click="cancel">
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 

@@ -16,7 +16,7 @@ class AddEvent extends Component
     public $description;
     public $origin;
 
-    protected $listeners = ['add'];
+    protected $listeners = ['add', 'cancel' => '$refresh'];
 
     protected $rules = [
         'start_date' => 'required|after:yesterday', // no more than one day before
@@ -40,6 +40,12 @@ class AddEvent extends Component
     {
         $this->origin = $origin;
         $this->showAddEventModal = true;
+    }
+
+    public function cancel()
+    {
+        $this->showAddEventModal = false;
+        $this->redirect('/');
     }
 
     public function save()
