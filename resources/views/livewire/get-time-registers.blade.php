@@ -32,7 +32,7 @@
                     </x-jet-danger-button>
                 </div>
                 <div>
-                    <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2"
+                    <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2 whitespace-nowrap "
                         wire:model="isfiltered">
                         {{ __('Unset filters') }}
                     </x-jet-button>
@@ -41,6 +41,7 @@
                     <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}">
                         {{ __('Filtered records') }}</h1>
                 </div>
+            </div>
         @endif
 
         <!-- Livewire component to show time regisres -->
