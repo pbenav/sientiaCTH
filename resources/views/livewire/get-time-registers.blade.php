@@ -23,7 +23,7 @@
 
         <!-- Livewire component to filter time registers" -->
         @livewire('set-time-register-filters')
-        @if ($is_team_admin or $is_inspector)
+        @if ($isTeamAdmin or $isInspector)
             <div class="flex flex-row sm:px-6 sm:py-4">
                 <div>
                     <x-jet-danger-button wire:click="$emitTo('set-time-register-filters', 'open')"
@@ -96,7 +96,7 @@
                         </th>
 
                         {{-- TODO: This should be showed only in roles like admin or inspect --}}
-                        @if ($is_team_admin or $is_inspector)
+                        @if ($isTeamAdmin or $isInspector)
                             <th class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell"
                                 wire:click="order('name')">
                                 {{ __('Worker') }}
@@ -259,7 +259,7 @@
             // Deletion confirmation alert 
             //
             Livewire.on('confirmDeletion', event => {
-                if (event.is_open || {{ $is_team_admin ? 1 : 0 }}) {
+                if (event.is_open || {{ $isTeamAdmin ? 1 : 0 }}) {
                     Swal.fire({
                         title: "{{ __('Are you sure?') }}",
                         text: "{{ __('You won\'t be able to undo this action!') }}",

@@ -27,8 +27,8 @@ class GetTimeRegisters extends Component
     public $readyonload = false;
     public $user;
     public $team;
-    public $is_team_admin;
-    public $is_inspector;
+    public $isTeamAdmin;
+    public $isInspector;
     public $confirmed;
     public $filtered;
 
@@ -45,8 +45,8 @@ class GetTimeRegisters extends Component
         $this->filter = new Event();
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
-        $this->is_team_admin = $this->user->isTeamAdmin();
-        $this->is_inspector = $this->user->isInspector();
+        $this->isTeamAdmin = $this->user->isTeamAdmin();
+        $this->isInspector = $this->user->isInspector();
         $this->confirmed = false;
         $this->filtered = false;
     }
@@ -77,7 +77,7 @@ class GetTimeRegisters extends Component
     {
         #Before deletion there is an event for Sweet alert2 to confirm.
         $this->event = $ev;
-        if ($this->is_team_admin) {
+        if ($this->isTeamAdmin) {
             $this->event->delete();
         } else if ($this->event->is_open) {
             $this->event->delete();
@@ -106,7 +106,7 @@ class GetTimeRegisters extends Component
     {
         // Check if user is admin
         $teamUsers = array();
-        if ($this->is_team_admin || $this->is_inspector) {
+        if ($this->isTeamAdmin || $this->isInspector) {
             foreach ($this->team->allUsers() as $us) {
                 array_push($teamUsers, $us->id);
             }
@@ -134,8 +134,8 @@ class GetTimeRegisters extends Component
         $this->getEvents();
         return view('livewire.get-time-registers', )
             ->with('events', $this->events)
-            ->with('isTeamAdmin', $this->is_team_admin)
-            ->with('isInspector', $this->is_inspector);
+            ->with('isTeamAdmin', $this->isTeamAdmin)
+            ->with('isInspector', $this->isInspector);
     }
 
     public function updatingSearch()

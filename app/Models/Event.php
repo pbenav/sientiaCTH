@@ -86,7 +86,7 @@ class Event extends Model
         return $query->where('is_open', '=', 1);
     }
 
-    public function scopeEventsPerUserMonth(Builder $query, $user_id, $month, $description)
+    public function scopeEventsPerUserMonth(Builder $query, $user_id, $month, $year, $description)
     {
         return $query->selectRaw('user_id as user_id, DAY(start) as day,
                                     MONTH(start) as month,
@@ -95,6 +95,7 @@ class Event extends Model
             ->where('user_id', $user_id)
             ->where('description', 'like', '%' . $description . '%')
             ->whereMonth('start', $month)
+            ->whereYear('start', $year)
             ->groupBy('user_id', 'start', 'description')
             ->get();
     }
