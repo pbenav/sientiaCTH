@@ -11303,16 +11303,15 @@ select {
 .m-5 {
   margin: 1.25rem;
 }
+.m-auto {
+  margin: auto;
+}
 .m-0 {
   margin: 0px;
 }
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
-}
-.my-2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
 }
 .mx-2 {
   margin-left: 0.5rem;
@@ -11452,26 +11451,6 @@ select {
 }
 .h-96 {
   height: 24rem;
-}
-.h-1 {
-  height: 0.25rem;
-}
-.h-32 {
-  height: 8rem;
-}
-.h-auto {
-  height: auto;
-}
-.h-screen {
-  height: 100vh;
-}
-.h-fit {
-  height: -webkit-fit-content;
-  height: -moz-fit-content;
-  height: fit-content;
-}
-.h-1\/2 {
-  height: 50%;
 }
 .min-h-screen {
   min-height: 100vh;
@@ -11749,6 +11728,10 @@ select {
   --tw-border-opacity: 1;
   border-color: rgb(243 244 246 / var(--tw-border-opacity));
 }
+.border-gray-800 {
+  --tw-border-opacity: 1;
+  border-color: rgb(31 41 55 / var(--tw-border-opacity));
+}
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
@@ -11929,6 +11912,9 @@ select {
 .pb-1 {
   padding-bottom: 0.25rem;
 }
+.pl-2 {
+  padding-left: 0.5rem;
+}
 .pr-2 {
   padding-right: 0.5rem;
 }
@@ -12052,6 +12038,10 @@ select {
   --tw-text-opacity: 1;
   color: rgb(34 197 94 / var(--tw-text-opacity));
 }
+.text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
 .underline {
   -webkit-text-decoration-line: underline;
           text-decoration-line: underline;
@@ -12167,12 +12157,10 @@ select {
   --tw-ring-opacity: 0.5;
 }
 .form-control {
-  border-radius: 0.375rem;
-  --tw-border-opacity: 1;
-  border-color: rgb(209 213 219 / var(--tw-border-opacity));
-  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  border-style: solid; border-width: 1px; border-radius: 0.375rem; --tw-border-opacity: 1; border-color: rgb(209 213 219 / var(--tw-border-opacity)); --tw-bg-opacity: 1; background-color: rgb(255 255 255 / var(--tw-bg-opacity)); --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    --bg-opacity: 1;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, var(--bg-opacity));
 }
 .form-control:focus {
   --tw-border-opacity: 1;
@@ -12384,19 +12372,16 @@ select {
 .sl-select {
   margin-top: 0.5rem;
   width: 100%;
-  border-width: 1px;
   border-color: rgb(156 163 175 / var(--tw-border-opacity));
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   padding-left: 0.5rem;
   padding-right: 1rem;
   font-size: .875rem;
-  border-radius: 0.375rem;
-  --tw-border-opacity: 1;
-  border-color: rgb(209 213 219 / var(--tw-border-opacity));
-  --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  border-style: solid; border-width: 1px; border-radius: 0.375rem; --tw-border-opacity: 1; border-color: rgb(209 213 219 / var(--tw-border-opacity)); --tw-bg-opacity: 1; background-color: rgb(255 255 255 / var(--tw-bg-opacity)); --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+    --bg-opacity: 1;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, var(--bg-opacity));
 }
 .sl-select:focus {
   --tw-border-opacity: 1;
@@ -13744,10 +13729,6 @@ span.flatpickr-weekday {
 
   .sm\:block {
     display: block;
-  }
-
-  .sm\:inline-block {
-    display: inline-block;
   }
 
   .sm\:flex {
