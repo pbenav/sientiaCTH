@@ -56,15 +56,19 @@
             <div class="whitespace-nowrap">
                 <x-jet-label>{{ __('Total hours worked in ') }}
                     {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
-                <x-jet-label style=""
-
-        <div class="">
-            <div class="w-auto h-96 shadow rounded p-4 border bg-white">
-                <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
+                <x-jet-label class="w-min h-8 p-1 form-control">{{ $totalHours }} {{ __('hours') }}
+                </x-jet-label>
             </div>
         </div>
 
-        @push('scripts')
-            @livewireChartsScripts
-        @endpush
+    <div class="">
+        <div class="w-auto h-96 shadow rounded p-4 border bg-white">
+            <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
+        </div>
+    </div>
+
+    @push('scripts')
+        @livewireChartsScripts
+    @endpush
+
     </div>
