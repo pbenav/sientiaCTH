@@ -16,9 +16,10 @@ class GetTimeRegisters extends Component
     use WithPagination;
     use HasTeams;
 
-    public $event;
+    
     protected $events;
     public $showModalGetTimeRegisters = false;
+    public $showFiltersModal = false;
     public $search;
     public $filter;
     public $sort = 'start';
@@ -32,7 +33,7 @@ class GetTimeRegisters extends Component
     public $confirmed;
     public $filtered;
 
-    protected $listeners = ['setFilter', 'unsetFilter', 'render', 'confirm', 'remove'];
+    protected $listeners = ['render', 'confirm', 'remove'];
 
     protected $queryString = [
         'sort' => ['except' => 'start'],
@@ -40,15 +41,32 @@ class GetTimeRegisters extends Component
         'qtytoshow' => ['except' => '10']
     ];
 
+    protected $rules = [
+        'filter.start' => 'nullable|date',
+        'filter.end' => 'nullable|date|after:filter.start',
+        'filter.name' => 'nullable|string',
+        'filter.family_name1' => 'nullable|string',
+        'filter.is_open' => 'boolean',
+        'filter.description' => 'nullable|string',
+    ];
+
     public function mount()
     {
-        $this->filter = new Event();
+        $this->filter = new Event([
+            "start" => date('2000-01-01'),
+            "end" => date('Y-m-t'),
+            "name" => "",
+            "family_name1" => "",
+            "is_open" => false,
+            "description" => __('All'),
+        ]);        
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
         $this->confirmed = false;
         $this->filtered = false;
+       
     }
 
     public function order($sort)
@@ -87,17 +105,14 @@ class GetTimeRegisters extends Component
 
     public function unsetFilter()
     {
+        $this->showFiltersModal = false;
         $this->filtered = false;
+        $this->confirmed = false;
     }
 
-    public function setFilter($f)
-    {        
-        $this->filter->start = $f["start"];
-        $this->filter->end = $f["end"];
-        $this->filter->name = $f["name"];
-        $this->filter->family_name1 = $f["family_name1"];
-        $this->filter->is_open = $f["is_open"];
-        $this->filter->description = $f["description"];
+    public function setFilter()
+    {
+        $this->showFiltersModal = true;
         $this->filtered = true;
         $this->confirmed = false;
     }
@@ -138,7 +153,7 @@ class GetTimeRegisters extends Component
             ->with('isInspector', $this->isInspector);
     }
 
-    public function updatingSearch()
+    public function updatingEvent()
     {
         $this->resetPage();
     }

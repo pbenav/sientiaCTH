@@ -22,11 +22,11 @@
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8" wire:init="loadEvents">
 
         <!-- Livewire component to filter time registers" -->
-        @livewire('set-time-register-filters')
+        <x-setfilters></x-setfilters>
         @if ($isTeamAdmin or $isInspector)
             <div class="flex flex-row sm:px-6 sm:py-4">
                 <div>
-                    <x-jet-danger-button wire:click="$emitTo('set-time-register-filters', 'open')"
+                    <x-jet-danger-button wire:click="setFilter"
                         class="w-auto h-8 ml-0 mb-2">
                         {{ __('Set filter') }}
                     </x-jet-danger-button>
@@ -34,7 +34,7 @@
                 <div>
                     <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2 whitespace-nowrap "
                         wire:model="isfiltered">
-                        {{ __('Unset filters') }}
+                        {{ __('Unset filter') }}
                     </x-jet-button>
                 </div>
                 <div>
