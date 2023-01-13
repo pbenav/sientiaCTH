@@ -2,7 +2,7 @@
     <!-- The wire directive connects page loading with the function loadEvents to get events deferred -->
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ __('Dashboard') }}
+            {{ __('Events') }}
         </h2>
 
     </x-slot>
@@ -21,28 +21,28 @@
     <!-- Event list. Main table -->
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8" wire:init="loadEvents">
 
-        <!-- Livewire component to filter time registers" -->
-        <x-setfilters></x-setfilters>
-        @if ($isTeamAdmin or $isInspector)
-            <div class="flex flex-row sm:px-6 sm:py-4">
-                <div>
-                    <x-jet-danger-button wire:click="setFilter"
-                        class="w-auto h-8 ml-0 mb-2">
-                        {{ __('Set filter') }}
-                    </x-jet-danger-button>
-                </div>
-                <div>
-                    <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="w-auto h-8 ml-2 mb-2 whitespace-nowrap "
-                        wire:model="isfiltered">
-                        {{ __('Unset filter') }}
-                    </x-jet-button>
-                </div>
-                <div>
-                    <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}">
-                        {{ __('Filtered records') }}</h1>
-                </div>
+        <!-- Modal component to filter time registers" -->
+        <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector"></x-setfilters>
+        {{-- Uncomment to filter for admin user only --}}
+        {{-- @if ($isTeamAdmin or $isInspector) --}}
+        <div class="flex flex-row sm:px-6 sm:py-4">
+            <div>
+                <x-jet-danger-button wire:click="setFilter" class="w-auto h-8 ml-0 mb-2">
+                    {{ __('Set filter') }}
+                </x-jet-danger-button>
             </div>
-        @endif
+            <div>
+                <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled"
+                    class="w-auto h-8 ml-2 mb-2 whitespace-nowrap " wire:model="isfiltered">
+                    {{ __('Unset filter') }}
+                </x-jet-button>
+            </div>
+            <div>
+                <h1 class="w-auto ml-4 text-2xl text-red-600 mr-4 {{ $filtered ? 'visible' : 'invisible' }}">
+                    {{ __('Filtered records') }}</h1>
+            </div>
+        </div>
+        {{-- @endif --}}
 
         <!-- Livewire component to show time regisres -->
         <!-- Select no. of register to show -->
@@ -61,18 +61,20 @@
             </div>
 
             <!-- Show Add event button component -->
-            <div class="w-auto mx-auto">
-                <x-jet-danger-button class="whitespace-nowrap h-8 ml-0 sm:ml-2 mb-2 sm:mb-2 sm:my-0"
-                    wire:click="$emitTo('add-event', 'add', '1')">
+            @if (!$isInspector || $isTeamAdmin)
+                <div class="w-auto mx-auto">
+                    <x-jet-danger-button class="whitespace-nowrap h-8 ml-0 sm:ml-2 mb-2 sm:mb-2 sm:my-0"
+                        wire:click="$emitTo('add-event', 'add', '1')">
                         {{ __('Add event') }}
-                </x-jet-danger-button>
-            </div>
-            @livewire('add-event')
+                    </x-jet-danger-button>
+                </div>
+                @livewire('add-event')
+            @endif
 
             <!-- Show search bar -->
             <div class="w-auto mx-auto">
-                    <x-jet-input class="w-full h-8 sm:mx-2 mb-2 pr-2" placeholder="{{ __('Search') }}" type="text"
-                        wire:model="search" />
+                <x-jet-input class="w-full h-8 sm:mx-2 mb-2 pr-2" placeholder="{{ __('Search') }}" type="text"
+                    wire:model="search" />
             </div>
             <div>
                 <span class="w-auto ml-4 sm:whitespace-nowrap pt-2">
@@ -88,9 +90,7 @@
             <!-- component -->
             <table class="block min-w-full border-collapse md:table">
                 <thead class="block md:table-header-group">
-                    <tr
-                        class="absolute block border border-grey-500 md:border-none md:table-row -top-full md:top-auto -left-full md:left-auto md:relative ">
-
+                    <tr class="absolute block border border-grey-500 md:border-none md:table-row -top-full md:top-auto -left-full md:left-auto md:relative ">
                         <th
                             class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                             {{ __('Id') }}
@@ -161,15 +161,17 @@
                             class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                             {{ __('Duration') }}
                         </th>
-                        <th
-                            class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
-                            {{ __('Actions') }}</th>
+                        @if (!$isInspector || $isTeamAdmin)
+                            <th
+                                class="block p-1 w-min font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
+                                {{ __('Actions') }}</th>
+                        @endif
                     </tr>
                 </thead>
 
                 <tbody class="block md:table-row-group">
                     @foreach ($events as $ev)
-                        <tr class="block bg-gray-300 border border-grey-500 md:border-none md:table-row">
+                        <tr class="block odd:bg-gray-300 even:bg-grey-400 border border-grey-500 md:border-none md:table-row">
                             <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
                                     class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
                                 {{ $ev->id }}
@@ -193,22 +195,24 @@
                                 <span
                                     class="mr-2 inline-block font-bold md:hidden">{{ __('Duration') }}</span>{{ $ev->getPeriod() }}
                             </td>
-                            <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
-                                <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
-                                    <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
-                                        wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a class="btn {{ $ev['is_open'] ? 'btn-green' : 'btn-gray' }}"
-                                        wire:click="$emit('confirmConfirmation', {{ $ev }})">
-                                        <i class="fas fa-check"></i>
-                                    </a>
-                                    <a class="btn {{ $ev['is_open'] ? 'btn-red' : 'btn-gray' }}"
-                                        wire:click="$emit('confirmDeletion', {{ $ev }})">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
+                            @if (!$isInspector || $isTeamAdmin)
+                                <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
+                                    <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
+                                        <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
+                                            wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a class="btn {{ $ev['is_open'] ? 'btn-green' : 'btn-gray' }}"
+                                            wire:click="$emit('confirmConfirmation', {{ $ev }})">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <a class="btn {{ $ev['is_open'] ? 'btn-red' : 'btn-gray' }}"
+                                            wire:click="$emit('confirmDeletion', {{ $ev }})">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>

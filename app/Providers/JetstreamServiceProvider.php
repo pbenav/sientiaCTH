@@ -67,6 +67,6 @@ class JetstreamServiceProvider extends ServiceProvider
 
         Jetstream::role('inspect', __('Inspector'), [
             'read',
-        ])->description('Users have the ability only to read.');
+        ])->description('Inspector has the ability only to read.');
     }
 }

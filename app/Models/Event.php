@@ -75,7 +75,7 @@ class Event extends Model
         return $query->where('description', $scope);
 
     }
-   
+
     /**
      * Scope a query to only include events that are in open state
      *
@@ -112,7 +112,7 @@ class Event extends Model
             ->get();
     }
 
-    public function getEventsPerUser($teamusers, $search, $confirmed, $sort, $direction, $qtytoshow)
+    public function getEventsPerUser($teamusers, $confirmed, $search, $sort, $direction, $qtytoshow)
     {
         return $this::select(
             'events.id',
@@ -158,34 +158,27 @@ class Event extends Model
             ->whereIn('events.user_id', $teamusers)
             ->where(function ($query) use ($filtered, $filter) {
                 if ($filtered) {
-                    error_log('Filtering...');
                     if (!is_null($filter->start)) {
-                        error_log('By name...');
                         $query->whereDate('events.start', '>=', $filter->start);
                     }
-                    if (!is_null($filter->start)) {
-                        error_log('By start date...');
+                    if (!is_null($filter->end)) {
                         $query->whereDate('events.end', '<=', $filter->end);
                     }
                     if (!empty($filter->name)) {
-                        error_log('By end date...');
-                        $query->where('users.name', 'like', $filter->name);
+                        $query->where('users.name', 'like', '%' . $filter->name . '%');
                     }
                     if (!empty($filter->family_name1)) {
-                        error_log('By family name...');
-                        $query->where('users.family_name1', $filter->family_name1);
+                        $query->where('users.family_name1', 'like', '%' . $filter->family_name1 . '%');
                     }
                     if ($filter->is_open) {
-                        error_log('By status...');
                         $query->where('events.is_open', '1');
                     }
                     if ($filter->description != __('All')) {
-                        error_log('By description...');
                         $query->where('events.description', $filter->description);
                     }
                 }
             })
             ->orderBy($sort, $direction)
-            ->paginate($qtytoshow)->withQueryString();
+            ->paginate($qtytoshow);
     }
 }

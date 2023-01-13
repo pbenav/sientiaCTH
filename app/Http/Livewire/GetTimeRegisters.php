@@ -53,8 +53,8 @@ class GetTimeRegisters extends Component
     public function mount()
     {
         $this->filter = new Event([
-            "start" => date('2000-01-01'),
-            "end" => date('Y-m-t'),
+            "start" => date('Y-m-01'),
+            "end" => null, //date('Y-m-t'),
             "name" => "",
             "family_name1" => "",
             "is_open" => false,
@@ -116,7 +116,7 @@ class GetTimeRegisters extends Component
         $this->filtered = true;
         $this->confirmed = false;
     }
-
+    
     public function getEvents()
     {
         // Check if user is admin
@@ -132,12 +132,9 @@ class GetTimeRegisters extends Component
         if ($this->readyonload) {
             // Get events taking account of is_team_admin and search strings
             if ($this->filtered) {
-                //public function getEventsFiltered($teamusers, $filtered, Event $filter, $sort, $direction, $qtytoshow)
                 $this->events = $this->filter->getEventsFiltered($teamUsers, $this->filtered, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
-            } else {
-                //public function getEventsPerUser($teamusers, $search, $confirmed, $sort, $direction, $qtytoshow)                
-                $this->events = $this->filter->getEventsPerUser($teamUsers, $this->search, $this->confirmed, $this->sort, $this->direction, $this->qtytoshow);
-                //dump($this->events);
+            } else {              
+                $this->events = $this->filter->getEventsPerUser($teamUsers, $this->confirmed, $this->search, $this->sort, $this->direction, $this->qtytoshow);
             }
         } else {
             $this->events = [];

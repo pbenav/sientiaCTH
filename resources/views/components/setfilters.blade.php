@@ -16,8 +16,8 @@
                 <x-jet-input-error for='filter.end' />
             </div>
             
-            <div class="mb-4 flex">
-                @if (true)
+            <div class="mb-4 flex">                
+                @if ($isteamadmin || $isinspector)
                     <div class="mb-4">
                         <x-jet-label value="{{ __('Name') }}" />
                         <x-jet-input type="text" wire:model.defer='filter.name' />
@@ -30,9 +30,10 @@
                     </div>
                 @endif
                 <div class="mb-4 ml-2 text-center">
-                    <x-jet-label class="w-auto" value="{{ __('Is confirmed') }}" />
-                    <x-jet-checkbox class="mt-2" wire:model.defer='filter.is_open' />
-                    <x-jet-input-error for='filter.is_confirmed' />
+                    <x-jet-label class="w-auto" value="{{ __('Not confirmed') }}" />
+                   
+                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600" wire:model.defer='filter.is_open'/>
+                    <x-jet-input-error for='filter.is_open' />
                 </div>
             </div>
 

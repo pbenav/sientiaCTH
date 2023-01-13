@@ -118,6 +118,6 @@ class User extends Authenticatable
 
     public function isInspector(){
         $current_team = $this->currentTeam;
-        return $this->hasTeamRole($current_team, 'inspector');
+        return $this->hasTeamRole($current_team, 'inspect');
     }
 }
