@@ -87,12 +87,11 @@
                 <div class="w-auto h-96 shadow rounded p-4 border bg-white">
                     <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
                 </div>
-            </div>
-
+            </div>           
         </div>
 
         @push('scripts')
-            @livewireChartsScripts
+            @livewireChartsScripts            
         @endpush
 
     </div>

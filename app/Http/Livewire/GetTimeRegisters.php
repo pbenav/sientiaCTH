@@ -42,8 +42,8 @@ class GetTimeRegisters extends Component
     ];
 
     protected $rules = [
-        'filter.start' => 'nullable|date',
-        'filter.end' => 'nullable|date|after:filter.start',
+        'filter.start' => 'date',
+        'filter.end' => 'date|after:filter.start',
         'filter.name' => 'nullable|string',
         'filter.family_name1' => 'nullable|string',
         'filter.is_open' => 'boolean',
@@ -54,7 +54,7 @@ class GetTimeRegisters extends Component
     {
         $this->filter = new Event([
             "start" => date('Y-m-01'),
-            "end" => null, //date('Y-m-t'),
+            "end" => date('Y-m-t'),
             "name" => "",
             "family_name1" => "",
             "is_open" => false,
@@ -132,7 +132,7 @@ class GetTimeRegisters extends Component
         if ($this->readyonload) {
             // Get events taking account of is_team_admin and search strings
             if ($this->filtered) {
-                $this->events = $this->filter->getEventsFiltered($teamUsers, $this->filtered, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
+                $this->events = $this->filter->getEventsFiltered($teamUsers, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
             } else {              
                 $this->events = $this->filter->getEventsPerUser($teamUsers, $this->confirmed, $this->search, $this->sort, $this->direction, $this->qtytoshow);
             }
@@ -152,6 +152,11 @@ class GetTimeRegisters extends Component
 
     public function updatingEvent()
     {
+        $this->resetPage();
+    }
+
+    public function updatingConfirmed()
+    {        
         $this->resetPage();
     }
 

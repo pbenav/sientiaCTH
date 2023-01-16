@@ -112,6 +112,30 @@ class Event extends Model
             ->get();
     }
 
+    public function getEventsFiltered($teamusers, Event $filter, $sort, $direction, $qtytoshow)
+    {
+        return $this::select(
+            'events.id',
+            'events.user_id',
+            'users.name',
+            'users.family_name1',
+            'events.start',
+            'events.end',
+            'events.description',
+            'events.is_open'
+        )
+            ->join('users', 'user_id', '=', 'users.id')
+            ->whereIn('events.user_id', $teamusers)
+            ->when(!is_null($filter->start), fn($query) => $query->whereDate('events.start', '>=', $filter->start))
+            ->when(!is_null($filter->end), fn($query) => $query->whereDate('events.end', '<=', $filter->end))
+            ->when(!empty($filter->name), fn($query) => $query->where('users.name', 'like', '%' . $filter->name . '%'))
+            ->when(!empty($filter->family_name1), fn($query) => $query->where('users.family_name1', 'like', '%' . $filter->family_name1 . '%'))
+            ->when($filter->is_open, fn($query) => $query->where('events.is_open', '1'))
+            ->when($filter->description != __('All'), fn($query) => $query->where('events.description', $filter->description))
+            ->orderBy($sort, $direction)
+            ->paginate($qtytoshow);
+    }
+
     public function getEventsPerUser($teamusers, $confirmed, $search, $sort, $direction, $qtytoshow)
     {
         return $this::select(
@@ -140,45 +164,5 @@ class Event extends Model
             })
             ->orderBy($sort, $direction)
             ->Paginate($qtytoshow);
-    }
-
-    public function getEventsFiltered($teamusers, $filtered, Event $filter, $sort, $direction, $qtytoshow)
-    {
-        return $this::select(
-            'events.id',
-            'events.user_id',
-            'users.name',
-            'users.family_name1',
-            'events.start',
-            'events.end',
-            'events.description',
-            'events.is_open'
-        )
-            ->join('users', 'user_id', '=', 'users.id')
-            ->whereIn('events.user_id', $teamusers)
-            ->where(function ($query) use ($filtered, $filter) {
-                if ($filtered) {
-                    if (!is_null($filter->start)) {
-                        $query->whereDate('events.start', '>=', $filter->start);
-                    }
-                    if (!is_null($filter->end)) {
-                        $query->whereDate('events.end', '<=', $filter->end);
-                    }
-                    if (!empty($filter->name)) {
-                        $query->where('users.name', 'like', '%' . $filter->name . '%');
-                    }
-                    if (!empty($filter->family_name1)) {
-                        $query->where('users.family_name1', 'like', '%' . $filter->family_name1 . '%');
-                    }
-                    if ($filter->is_open) {
-                        $query->where('events.is_open', '1');
-                    }
-                    if ($filter->description != __('All')) {
-                        $query->where('events.description', $filter->description);
-                    }
-                }
-            })
-            ->orderBy($sort, $direction)
-            ->paginate($qtytoshow);
     }
 }
