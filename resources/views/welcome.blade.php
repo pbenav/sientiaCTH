@@ -5,8 +5,8 @@
         @if (Route::has('login'))
             <div class="flex fixed top-0 right-0 px-6 py-4 sm:block">
                 @auth
-                    <a href="{{ url('dashboard') }}"
-                        class="text-sm text-gray-700 underline dark:text-gray-500">{{ __('Dashboard') }}</a>
+                    <a href="{{ url('events') }}"
+                        class="text-sm text-gray-700 underline dark:text-gray-500">{{ __('Events') }}</a>
                     <form class="inline-flex" method="POST" action="{{ route('logout') }}">
                         @csrf
                         <a href="#" class="ml-4 text-sm text-gray-700 underline dark:text-gray-500"

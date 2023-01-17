@@ -42,8 +42,8 @@ class GetTimeRegisters extends Component
     ];
 
     protected $rules = [
-        'filter.start' => 'date',
-        'filter.end' => 'date|after:filter.start',
+        'filter.start' => 'required|date',
+        'filter.end' => 'required|date|after:filter.start',
         'filter.name' => 'nullable|string',
         'filter.family_name1' => 'nullable|string',
         'filter.is_open' => 'boolean',

@@ -49,8 +49,8 @@ class StatsGraph extends Component
         $columnChartModel = $events->groupBy('day')
             ->reduce(
                 function ($columnChartModel, $data) {
-                    $day = $data->first()->day;
-                    $hours = $data->sum('hours');
+                    $day = $data->first()->day . '/' . $data->first()->month;
+                    $hours = number_format($data->sum('hours'), 2);
                     return $columnChartModel->addColumn($day, $hours, '#006600');
                 }, LivewireCharts::columnChartModel()
                     ->setTitle( __("Hours worked"))

@@ -30,7 +30,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
-    Route::get('/dashboard', GetTimeRegisters::class)->name('dashboard');  
+    Route::get('/events', GetTimeRegisters::class)->name('events');  
     Route::get('/userstats', StatsGraph::class)->name('stats');  
 });
 

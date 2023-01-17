@@ -7,16 +7,16 @@
 
         <x-slot name="content">
             <div class="mb-4">
-                <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2" />
+                <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
                 <x-jet-input type="date" class="mr-2" wire:model.defer='filter.start' />
                 <x-jet-input-error for='filter.start' />
                 
-                <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2" />
+                <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2 required" />
                 <x-jet-input type="date" class="mr-2" wire:model.defer='filter.end' />
                 <x-jet-input-error for='filter.end' />
             </div>
             
-            <div class="mb-4 flex">                
+            <div class="mb-4 flex flex-row flex-wrap gap-2">                
                 @if ($isteamadmin || $isinspector)
                     <div class="mb-4">
                         <x-jet-label value="{{ __('Name') }}" />

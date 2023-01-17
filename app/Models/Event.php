@@ -128,8 +128,8 @@ class Event extends Model
             ->whereIn('events.user_id', $teamusers)
             ->when(!is_null($filter->start), fn($query) => $query->whereDate('events.start', '>=', $filter->start))
             ->when(!is_null($filter->end), fn($query) => $query->whereDate('events.end', '<=', $filter->end))
-            ->when(!empty($filter->name), fn($query) => $query->where('users.name', 'like', '%' . $filter->name . '%'))
-            ->when(!empty($filter->family_name1), fn($query) => $query->where('users.family_name1', 'like', '%' . $filter->family_name1 . '%'))
+            ->when(!empty($filter->name), fn($query) => $query->where('users.name', $filter->name))
+            ->when(!empty($filter->family_name1), fn($query) => $query->where('users.family_name1', $filter->family_name1))
             ->when($filter->is_open, fn($query) => $query->where('events.is_open', '1'))
             ->when($filter->description != __('All'), fn($query) => $query->where('events.description', $filter->description))
             ->orderBy($sort, $direction)
@@ -151,11 +151,11 @@ class Event extends Model
             ->join('users', 'user_id', '=', 'users.id')
             ->whereIn('user_id', $teamusers)
             ->where(function ($query) use ($search, $confirmed) {
-                $query->where('users.name', 'like', '%' . $search . '%')
+                $query->where('users.name', $search)
                     ->orWhere('events.user_id', $search)
-                    ->orWhere('users.family_name1', 'like', '%' . $search . '%')
-                    ->orWhere('users.family_name2', 'like', '%' . $search . '%')
-                    ->orWhere('events.description', 'like', '%' . $search . '%');
+                    ->orWhere('users.family_name1', $search)
+                    ->orWhere('users.family_name2', $search)
+                    ->orWhere('events.description', $search);
             })
             ->where(function ($query) use ($confirmed) {
                 if ($confirmed) {

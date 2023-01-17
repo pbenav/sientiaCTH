@@ -22,7 +22,7 @@ class Numpad extends Component
             $events = DB::table('events')->where('user_id', $user->id)->where('is_open', "1")->get();
             # If there are no open events call to AddEvent
             if ($events->count() || $user->isTeamAdmin()) {
-                return redirect()->route('dashboard');
+                return redirect()->route('events');
             } else {
                 $this->emitTo('add-event', 'add', 'numpad');                
             }

@@ -45,7 +45,7 @@ class AddEvent extends Component
     public function cancel()
     {
         $this->showAddEventModal = false;
-        $this->redirect('/');
+        $this->redirect('/dashboard');
     }
 
     public function save()
