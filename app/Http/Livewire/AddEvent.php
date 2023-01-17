@@ -45,7 +45,7 @@ class AddEvent extends Component
     public function cancel()
     {
         $this->showAddEventModal = false;
-        $this->redirect('/dashboard');
+        $this->redirect('/events');
     }
 
     public function save()
@@ -66,7 +66,7 @@ class AddEvent extends Component
         ]);
 
         if ($this->origin == 'numpad') {
-            return redirect()->route('dashboard')->with('info', 'E_SUCCESS');
+            return redirect()->route('events')->with('info', 'E_SUCCESS');
         } else {
             $this->emitTo('get-time-registers', 'render');
         }

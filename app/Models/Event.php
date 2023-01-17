@@ -151,11 +151,11 @@ class Event extends Model
             ->join('users', 'user_id', '=', 'users.id')
             ->whereIn('user_id', $teamusers)
             ->where(function ($query) use ($search, $confirmed) {
-                $query->where('users.name', $search)
-                    ->orWhere('events.user_id', $search)
-                    ->orWhere('users.family_name1', $search)
-                    ->orWhere('users.family_name2', $search)
-                    ->orWhere('events.description', $search);
+                $query->where('users.name', 'like', '%' . $search . '%')
+                ->orWhere('events.user_id', $search)
+                ->orWhere('users.family_name1', 'like', '%' . $search . '%')
+                ->orWhere('users.family_name2', 'like', '%' . $search . '%')
+                ->orWhere('events.description', 'like', '%' . $search . '%');
             })
             ->where(function ($query) use ($confirmed) {
                 if ($confirmed) {

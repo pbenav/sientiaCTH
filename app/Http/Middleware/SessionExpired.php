@@ -16,7 +16,7 @@ class SessionExpired {
         $this->timeout = env('SESSION_LIFETIME');
     }
     public function handle($request, Closure $next){
-        $isLoggedIn = $request->path() != 'dashboard/logout';
+        $isLoggedIn = $request->path() != 'events/logout';
         if(! session('lastActivityTime'))
             $this->session->put('lastActivityTime', time());
         elseif(time() - $this->session->get('lastActivityTime') > $this->timeout){
