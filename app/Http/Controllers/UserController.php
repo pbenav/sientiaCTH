@@ -1,10 +1,13 @@
 <?php
 namespace App\Http\Controllers;
+use App\Exports\EventsExport;
 use Carbon\Carbon;
 use App\Models\Event;
 use Exception;
 use Illuminate\Http\Request;
 use Stevebauman\Location\Facades\Location;
+
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {  
@@ -29,4 +32,6 @@ class UserController extends Controller
 
         return view('user', compact('currentUserInfo','currentDate', 'period'));
     }
+
+    
 }

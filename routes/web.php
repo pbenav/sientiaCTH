@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\UserStats;
+use App\Http\Livewire\StatsGraph;
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\GetTimeRegisters;
 use App\Http\Controllers\UserController;
-use App\Http\Livewire\StatsGraph;
+use App\Http\Controllers\EventsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,8 +29,9 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified'
-])->group(function () {
-    Route::get('/events', GetTimeRegisters::class)->name('events');  
-    Route::get('/userstats', StatsGraph::class)->name('stats');  
+    ])->group(function () {
+        Route::get('/events', GetTimeRegisters::class)->name('events');  
+        Route::get('/userstats', StatsGraph::class)->name('stats');  
+        Route::get('/reports', [EventsController::class, 'export'])->name('reports');
 });
 
