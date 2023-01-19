@@ -7,8 +7,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Laravel\Jetstream\HasTeams;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Collection;
-use Nette\Utils\Paginator;
 
 class GetTimeRegisters extends Component
 {

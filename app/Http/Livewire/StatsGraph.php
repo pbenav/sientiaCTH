@@ -30,7 +30,7 @@ class StatsGraph extends Component
         $team = $this->actualUser->currentTeam;
         $this->isTeamAdmin = Auth::user()->isTeamAdmin();
         $this->isInspector = Auth::user()->isInspector();
-        if (1 || $this->isTeamAdmin || $this->isInspector) {
+        if ($this->isTeamAdmin || $this->isInspector) {
             $this->workers = $team->allUsers();
         }
     }
