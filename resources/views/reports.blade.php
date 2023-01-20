@@ -28,13 +28,13 @@
 
                     <div class="">
                         @if ($isTeamAdmin or $isInspector)
-                            <x-jet-label value="{{ __('Worker') }}"  />
+                            <x-jet-label value="{{ __('Worker') }}" />
                             <select class="form-control pt-1 h-8 whitespace-nowrap" name="worker" id="worker">
                                 @foreach ($workers as $w)
                                     <option value={{ $w->id }}>{{ $w->name . ' ' . $w->family_name1 }}</option>
                                 @endforeach
                             </select>
-                            <x-jet-input-error for='worker' />
+                            <x-jet-input-error for='worker' />                       
                         @endif
                     </div>
 
@@ -58,10 +58,10 @@
                             <x-jet-input-error for='month' />
                         </div>
                         <div class="ml-2">
-                            <x-jet-label value="{{ __('Year') }}" name="year" id="year" />
+                            <x-jet-label value="{{ __('Year') }}" />
                             <select class="form-control pt-1 h-8 whitespace-nowrap" name="year" id="year">
-                                <option value="2022">{{ __('2022') }}</option>
-                                <option value="2023">{{ __('2023') }}</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
                             </select>
                             <x-jet-input-error for='year' />
                         </div>
@@ -78,7 +78,16 @@
                         <x-jet-input-error for='description' />
                     </div>
 
-                    <x-jet-button class="mt-4">{{ __("Download") }}</x-jet-button>
+                    <div class="">
+                        <x-jet-label value="{{ __('Tipo') }}" />
+                        <select class="form-control pt-1 h-8 whitespace-nowrap" name="reporttype" id="reporttype">
+                            <option value="XLS">XLS</option>
+                            <option value="PDF">PDF</option>
+                        </select>
+                        <x-jet-input-error for='reporttype' />
+                    </div>
+
+                    <x-jet-button class="mt-4">{{ __('Download') }}</x-jet-button>
 
                 </div>
             </form>

@@ -18,27 +18,26 @@ class ReportsController extends Controller
     public $team;
     public $isTeamAdmin;
     public $isInspector;
-    public $actualUser;
-    public $browsedUser;
     public $workers = [];
    
     public function export(Request $r) 
-    {        
-        $fn = 'events' . date('ymdhms') . '.pdf';
-        //dd($r);
+    {
+        $fn = 'events' . date('ymdhms');
+
         $params = [
             "worker" => $r->worker,
             "month" => $r->month,
             "year" => $r->year,
-            "description" => $r->description
+            "description" => $r->description            
         ];
-        return Excel::download(new EventsExport($params), $fn, \Maatwebsite\Excel\Excel::DOMPDF);
+        return Excel::download(new EventsExport($params), $fn, 
+            $r->reporttype == "XLS" ? \Maatwebsite\Excel\Excel::XLS : \Maatwebsite\Excel\Excel::DOMPDF);
     }
 
     public function index()
     {
         $this->user = Auth::user();
-        $this->team = $this->user->currentTeam;
+        $this->team = $this->user->currentTeam->name;
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
         if ($this->isTeamAdmin || $this->isInspector) {

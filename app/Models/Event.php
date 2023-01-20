@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\TimeDiff;
 use Carbon\Carbon;
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Event extends Model
 {
     use HasFactory;
+    use TimeDiff;
 
     protected $fillable = [
         'user_id',
@@ -19,31 +20,17 @@ class Event extends Model
         'is_open',
         'description'
     ];
-
-    protected $options = [
-        'join' => ', ',
-        'parts' => 2,
-        'syntax' => CarbonInterface::DIFF_ABSOLUTE,
-    ];
-
+    
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
+    
     public function getPeriod()
     {
-        //Set the start date
-        $start_date = Carbon::parse($this->start);
-        $end_date = Carbon::parse($this->end);
-        //Set the end date
-        if ($this->end != null) {
-            //Count the difference in Hours and minutes
-            return $end_date->diffForHumans($start_date, $this->options);
-        } else {
-            return $this->start;
-        }
+        return $this->timeDiff($this->start, $this->end);
     }
+
     public function confirm()
     {
         if ($this->is_open == 1) {
