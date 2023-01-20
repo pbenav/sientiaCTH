@@ -2,44 +2,66 @@
 
 namespace App\Exports;
 
-use App\Invoice;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EventsExport implements FromQuery
+class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyles
 {
-
     use Exportable;
-
-
     public $worker;
     public $month;
     public $year;
     public $description;
+
     /**
      * @return \Illuminate\Support\Collection
      */
-    public function __construct(Request $r)
+    public function __construct($params)
     {
-        $this->worker = $r->worker;
-        $this->month = $r->month;
-        $this->year = $r->year;
-        $this->description = $r->description;
+        $this->worker = $params['worker'];
+        $this->month = $params['month'];
+        $this->year = $params['year'];
+        $this->description = $params['description'];
     }
 
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation|\Illuminate\Database\Query\Builder
-     */
     public function query()
     {
-
         return User::query()
-            ->join('events', 'users.id', 'events.user_id' )
+            ->join('events', 'users.id', 'events.user_id')
+            ->select('events.id', 'users.name', 'users.family_name1', 'events.start', 'events.end', 'events.description')
             ->where('users.id', $this->worker)
-            ->select('users.name', 'users.family_name1', 'events.id', 'events.start', 'events.end', 'events.description', 'events.is_open');
+            ->whereYear('start', $this->year)
+            ->whereMonth('start', $this->month)
+            ->where('description', 'like', $this->description)
+            ->orderBy('events.start');
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Event id',
+            'Name',
+            'LastName',
+            'Event Start',
+            'Event End',
+            'Event description'
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->getPageSetup()
+            ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
+        $sheet->getPageSetup()
+            ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A3);
+        return [
+            // Style the first row as bold text.
+            1    => ['font' => ['bold' => true]],
+        ];
     }
 }
