@@ -287,5 +287,8 @@
     "November": "Noviembre",
     "December": "Diciembre",
     "Reports": "Informes",
-    "Download": "Descargar"
+    "Download": "Descargar",
+    "Incomplete Event": "Evento incompleto",
+    "From date": "Fecha desde",
+    "To date": "Fecha hasta"
 }

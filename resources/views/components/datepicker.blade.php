@@ -1,45 +1,16 @@
-@props(['label'])
-<div x-data="datepicker(@entangle($attributes->wire('model')))" class="relative">
-    {{-- Anonymous component. No need to create a class component --}}
-    <div class="flex flex-col custom-textarea">
-        <label>{{ $label }}</label>
-        <div class="flex items-center gap-2">
-            <input type="text" x-ref="datepicker" x-model="value">
-            <span class="cursor-pointer underline" x-on:click="reset">
-                <i class="ml-2 fas fa-calendar-xmark"></i>
-            </span>
-        </div>
-    </div>
-</div>
+@once
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    @endpush
 
-@once  
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('datepicker', (model) => ({
-                value: model,
-                init() {
-                    this.pickr = flatpickr(this.$refs.datepicker, {
-                        locale: "es",/login
-                        enableTime: true,
-                        dateFormat: "Y-m-d H:i:s",
-                        minDate: "2020-01",
-                        maxDate: "today",
-                        time_24hr: true,
-                        minTime: "08:00",
-                        maxTime: "20:00",
-                        dateFormat: "d.m.Y H:i",
-                        disableMobile: "true",
-                        static: false,
-                    })
-                    this.$watch('value', function(newValue) {
-                        this.pickr.setDate(newValue);
-                    }.bind(this));
-                },
-                reset() {
-                    this.value = null;
-                }
-            }))
-        })
-        
-    </script>
+    @push('head_scripts')
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    @endpush
 @endonce
+
+@props(['options' => "{dateFormat:'Y-m-d', altFormat:'j F, Y', altInput:true, }"])
+
+<div wire:ignore>
+    <input x-data x-init="flatpickr($refs.input, {{ $options }});" x-ref="input" type="text" data-input
+        {{ $attributes->merge(['class' => 'block w-full disabled:bg-gray-200 pt-2 border border-gray-300 rounded-md focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ']) }} />
+</div>

@@ -4,21 +4,19 @@ namespace App\Exports;
 
 use App\Models\Event;
 use App\Traits\TimeDiff;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithProperties;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyles, WithMapping, WithProperties
+class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyles, WithMapping
 {
     use Exportable;
     use TimeDiff;
@@ -33,8 +31,8 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
     public function __construct($params)
     {
         $this->worker = $params['worker'];
-        $this->month = $params['month'];
-        $this->year = $params['year'];
+        $this->fromdate = $params['fromdate'];
+        $this->todate = $params['todate'];
         $this->description = $params['description'];
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
@@ -47,8 +45,8 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
             ->selectRaw('TIMESTAMPDIFF(hour, start, end) as duration')
             ->join('users', 'events.user_id', 'users.id')
             ->where('users.id', $this->worker)
-            ->whereYear('start', $this->year)
-            ->whereMonth('start', $this->month)
+            ->whereDate('start', '>=', $this->fromdate)
+            ->whereDate('end', '<=', $this->todate)
             ->where('description', 'like', $this->description)
             ->orderBy('events.start');
         return $data;
@@ -77,15 +75,10 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
             $event->family_name1,
             $event->id,
             $event->start,
-            $event->end,
-            $this->getPeriod($event),
+            $event->end,            
+            $this->timeDiff($event->start, $event->end, true),
             $event->description
         ];
-    }
-
-    public function title(): string
-    {
-        return 'Month ' . $this->month;
     }
 
     public function styles(Worksheet $sheet)
@@ -94,14 +87,18 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
         $sheet->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         $sheet->getHeaderFooter()->setFirstHeader('&C&HPlease treat this document as confidential!');
         $sheet->getHeaderFooter()->setFirstFooter('&L&B' . $sheet->getTitle() . '&RPage &P of &N');
+        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Verdana');
+        $sheet->getParent()->getDefaultStyle()->getFont()->setSize('10');        
+        $sheet->getParent()->getDefaultStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         return [
             'A1:H1' => [
                 'font' => [
+                    'name' => 'Arial',
                     'bold' => true,
                     'size' => 10,
-                    'name' => 'Times',
-                    'color' => ['argb' => 'FFFFFFFF']
+                    'color' => ['argb' => 'FFFFFFFF'],
+                    'underline' => true
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -124,24 +121,4 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
             ]
         ];
     }
-
-    public function getPeriod($event)
-    {
-        return $this->timeDiff($event->start, $event->end);
-    }
-
-    public function properties(): array
-    {
-        return [
-            'creator' => 'CTH',
-            'lastModifiedBy' => $this->user,
-            'title' => __('Events Export'),
-            'description' => __('Latest Events'),
-            'subject' => __('Events'),
-            'category' => 'Invoices',
-            'manager' => $this->user,
-            'company' => $this->team,
-        ];
-    }
-
 }

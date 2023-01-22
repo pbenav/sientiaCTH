@@ -5,6 +5,7 @@ namespace App\Traits;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
 
 trait TimeDiff
 {
@@ -15,17 +16,21 @@ trait TimeDiff
         'syntax' => CarbonInterface::DIFF_ABSOLUTE,
     ];
 
-    public function timeDiff($start, $end)
+    public function timeDiff($start, $end, $forHuman)
     {
         //Set the start date
         $start_date = Carbon::parse($start);
         $end_date = Carbon::parse($end);
         //Set the end date
-        if ($end != null) {
+        if ($start_date < $end_date && $end != null) {
             //Count the difference in Hours and minutes
-            return $end_date->diffForHumans($start_date, $this->options);
+            if($forHuman){
+                return $end_date->diffForHumans($start_date, $this->options);
+            } else {
+                return $end_date->diffInMinutes($start_date, true);
+            }
         } else {
-            return $start;
+            return __('Incomplete Event');
         }
     }
 }

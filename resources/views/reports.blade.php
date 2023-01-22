@@ -34,36 +34,19 @@
                                     <option value={{ $w->id }}>{{ $w->name . ' ' . $w->family_name1 }}</option>
                                 @endforeach
                             </select>
-                            <x-jet-input-error for='worker' />                       
+                            <x-jet-input-error for='worker' />
                         @endif
                     </div>
 
                     <div class="flex">
-                        <div class="">
-                            <x-jet-label value="{{ __('Month') }}" />
-                            <select class="form-control pt-1 h-8 whitespace-nowrap" name="month" id="month">
-                                <option value="1">{{ __('January') }}</option>
-                                <option value="2">{{ __('February') }}</option>
-                                <option value="3">{{ __('March') }}</option>
-                                <option value="4">{{ __('April') }}</option>
-                                <option value="5">{{ __('May') }}</option>
-                                <option value="6">{{ __('June') }}</option>
-                                <option value="7">{{ __('July') }}</option>
-                                <option value="8">{{ __('August') }}</option>
-                                <option value="9">{{ __('September') }}</option>
-                                <option value="10">{{ __('October') }}</option>
-                                <option value="11">{{ __('November') }}</option>
-                                <option value="12">{{ __('December') }}</option>
-                            </select>
-                            <x-jet-input-error for='month' />
+                        <div>
+                            <x-jet-label value="{{ __('From date') }}" />
+                            <x-datepicker class="form-control h-8" value="{{ today() }}" name="fromdate" id="fromdate" />
                         </div>
+
                         <div class="ml-2">
-                            <x-jet-label value="{{ __('Year') }}" />
-                            <select class="form-control pt-1 h-8 whitespace-nowrap" name="year" id="year">
-                                <option value="2023">2023</option>
-                                <option value="2022">2022</option>
-                            </select>
-                            <x-jet-input-error for='year' />
+                            <x-jet-label value="{{ __('To date') }}" />
+                            <x-datepicker class="form-control h-8" value="{{ today() }}" name="todate" id="todate" />
                         </div>
                     </div>
 
@@ -79,12 +62,16 @@
                     </div>
 
                     <div class="">
-                        <x-jet-label value="{{ __('Tipo') }}" />
-                        <select class="form-control pt-1 h-8 whitespace-nowrap" name="reporttype" id="reporttype">
+                        <x-jet-label value="{{ __('Type') }}" />
+                        <select class="form-control pt-1 h-8 whitespace-nowrap" name="rtype" id="rtype">
                             <option value="XLS">XLS</option>
                             <option value="PDF">PDF</option>
+                            <option value="CSV">CSV</option>
+                            <option value="ODS">ODS</option>
+                            <option value="HTML">HTML</option>
+                            <option value="DOMPDF">DOMPDF</option>
                         </select>
-                        <x-jet-input-error for='reporttype' />
+                        <x-jet-input-error for='rtype' />
                     </div>
 
                     <x-jet-button class="mt-4">{{ __('Download') }}</x-jet-button>
@@ -92,4 +79,5 @@
                 </div>
             </form>
         </div>
+    </div>
 </x-app-layout>
