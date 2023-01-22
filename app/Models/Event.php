@@ -28,7 +28,7 @@ class Event extends Model
     
     public function getPeriod()
     {
-        return $this->timeDiff($this->start, $this->end);
+        return $this->timeDiff($this->start, $this->end, true);
     }
 
     public function confirm()
