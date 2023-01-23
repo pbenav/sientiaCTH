@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-auto">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
@@ -11,7 +11,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="space-x-8 ml-1 flex sm:ml-10">
+                <div class="align-middle ml-1 flex flex-wrap gap-4 py-4">
                     <x-jet-nav-link href="{{ route('front') }}" :active="request()->routeIs('front')">
                         {{ __('Start') }}
                     </x-jet-nav-link>
