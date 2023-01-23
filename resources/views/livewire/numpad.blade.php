@@ -13,7 +13,7 @@
         </div>
     @endif
 
-    <div class="max-w-lg mx-auto">
+    <div class="max-w-lg">
         <div class="content-center">
             <div class="mt-2">
                 <x-clock>Reloj</x-clock>

@@ -3,7 +3,7 @@
         class="login flex justify-center min-h-screen py-4 bg-gray-100 flexrelative items-top dark:bg-gray-900 sm:items-center sm:pt-0">
         <!-- Topbar login and register links -->
         @if (Route::has('login'))
-            <div class="flex fixed top-0 right-0 px-6 py-4 sm:block">
+            <div class="flex fixed top-0 right-0 px-6 py-4 ">
                 @auth
                     <a href="{{ url('events') }}"
                         class="text-sm text-gray-700 underline dark:text-gray-500">{{ __('Events') }}</a>
@@ -31,33 +31,50 @@
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
 
             <!-- Numpad -->
-            <div class="px-4 mt-8 overflow-hidden bg-white shadow dark:bg-gray-800 sm:rounded-lg">
+            <div class="p-4 mt-8 bg-gray-500 shadow dark:bg-gray-800 sm:rounded-lg">
                 @livewire('numpad')
-            </div>
+                <!-- Footer -->
+                <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
+                    <!-- Bottom links -->
+                    <div class="text-sm text-center text-gray-500 sm:text-left">
+                        <div class="flex items-center">
 
-            <!-- Footer -->
-            <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
-                <!-- Bottom links -->
-                <div class="text-sm text-center text-gray-500 sm:text-left">
-                    <div class="flex items-center">
+                            @if (Route::has('login'))
+                                <a href="{{ route('events') }}" class="ml-1">
+                                    <i class="ml-1 fas fa-sign-in"></i>
+                                    {{ __('Events') }}
+                                </a>
 
-                        <a href="/login" class="ml-1">
-                            <i class="ml-1 fas fa-sign-in"></i>
-                            {{ __('Login') }}
-                        </a>
+                                <a href="{{ route('logout') }}" class="ml-3">
+                                    <i class="ml-1 fas fa-user-plus"></i>
+                                    {{ __('Logout') }}
+                                </a>
+                            @else
+                                <a href="{{ route('login') }}" class="ml-1">
+                                    <i class="ml-1 fas fa-sign-in"></i>
+                                    {{ __('Login') }}
+                                </a>
 
-                        <a href="/register" class="ml-3">
-                            <i class="ml-1 fas fa-user-plus"></i>
-                            {{ __('Register') }}
-                        </a>
+                                <a href="{{ route('register') }}" class="ml-3">
+                                    <i class="ml-1 fas fa-user-plus"></i>
+                                    {{ __('Register') }}
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Versions -->
+                    <div class="ml-4 text-sm text-center text-gray-500">
+                        {{ config('app.name') }} v{{ env('APP_VER') }} {{-- (PHP v{{ PHP_VERSION }}) --}}
                     </div>
                 </div>
-
-                <!-- Versions -->
-                <div class="ml-4 text-sm text-center text-gray-500 sm:text-right sm:ml-0">
-                    {{ config('app.name') }} v{{ env('APP_VER') }} (PHP v{{ PHP_VERSION }})
-                </div>
             </div>
+
+        </div>
+        <div>
+            <a class="hidden"
+                href="https://www.freepik.es/foto-gratis/mujer-joven-emocionada-gran-reloj-mano-esperando-fiesta-cumpleanos-comienza-pie-pared-decorada-retrato-primer-plano-nina-alegre-regocija-al-final-jornada-laboral_10214113.htm#query=jornada%20laboral&position=0&from_view=search">Imagen
+                de lookstudio en Freepik</a>
         </div>
     </div>
 </x-guest-layout>
