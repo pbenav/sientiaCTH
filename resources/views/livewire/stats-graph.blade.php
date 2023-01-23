@@ -18,13 +18,11 @@
         @endif
 
         {{-- Stats main div --}}
-        <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="">
+            <div class="w-auto flex flex-row flex-wrap gap-2 mb-4">
 
-
-            <div class="w-auto m-auto flex flex-row flex-wrap gap-2 ml-2 mb-4">
-
-                <div class="">
-                    @if ($isTeamAdmin or $isInspector)
+                @if ($isTeamAdmin or $isInspector)
+                    <div class="">
                         <x-jet-label value="{{ __('Worker') }}" />
                         <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="browsedUser">
                             @foreach ($workers as $w)
@@ -32,11 +30,11 @@
                             @endforeach
                         </select>
                         <x-jet-input-error for='worker' />
-                    @endif
-                </div>
+                    </div>
+                @endif
 
-                <div class="flex">
-                    <div class="">
+                <div class="flex flex-row gap-2">
+                    <div>
                         <x-jet-label value="{{ __('Month') }}" />
                         <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="selectedMonth">
                             <option value="1">{{ __('January') }}</option>
@@ -54,7 +52,7 @@
                         </select>
                         <x-jet-input-error for='month' />
                     </div>
-                    <div class="ml-2">
+                    <div>
                         <x-jet-label value="{{ __('Year') }}" />
                         <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="selectedYear">
                             <option value="2022">{{ __('2022') }}</option>
@@ -78,7 +76,8 @@
                 <div class="whitespace-nowrap">
                     <x-jet-label>{{ __('Total hours worked in ') }}
                         {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
-                    <x-jet-label class="w-min text-black h-8 pt-1 px-2 form-control">{{ $totalHours }} {{ __('hours') }}
+                    <x-jet-label class="w-min text-black h-8 pt-1 px-2 form-control">{{ $totalHours }}
+                        {{ __('hours') }}
                     </x-jet-label>
                 </div>
             </div>
@@ -87,11 +86,11 @@
                 <div class="w-auto h-96 shadow rounded p-4 border bg-white">
                     <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
                 </div>
-            </div>           
+            </div>
         </div>
 
         @push('scripts')
-            @livewireChartsScripts            
+            @livewireChartsScripts
         @endpush
 
     </div>

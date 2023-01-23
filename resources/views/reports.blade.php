@@ -21,13 +21,12 @@
         {{-- Stats main div --}}
         <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
 
-
             <form action="{{ route('reports.export') }}" method="post">
                 @csrf
                 <div class="w-auto m-auto flex flex-row flex-wrap gap-2 ml-2 mb-4">
 
-                    <div class="">
-                        @if ($isTeamAdmin or $isInspector)
+                    @if ($isTeamAdmin or $isInspector)
+                        <div class="">
                             <x-jet-label value="{{ __('Worker') }}" />
                             <select class="form-control pt-1 h-8 whitespace-nowrap" name="worker" id="worker">
                                 @foreach ($workers as $w)
@@ -35,22 +34,24 @@
                                 @endforeach
                             </select>
                             <x-jet-input-error for='worker' />
-                        @endif
-                    </div>
+                        </div>
+                    @endif
 
-                    <div class="flex">
+                    <div class="flex flex-nowrap">
                         <div>
                             <x-jet-label value="{{ __('From date') }}" />
-                            <x-datepicker class="form-control h-8" value="{{ today() }}" name="fromdate" id="fromdate" />
+                            <x-datepicker class="form-control h-8" value="{{ date('Y-m-01') }}" name="fromdate"
+                                id="fromdate" />
                         </div>
 
                         <div class="ml-2">
                             <x-jet-label value="{{ __('To date') }}" />
-                            <x-datepicker class="form-control h-8" value="{{ today() }}" name="todate" id="todate" />
+                            <x-datepicker class="form-control h-8" value="{{ today() }}" name="todate"
+                                id="todate" />
                         </div>
                     </div>
 
-                    <div class="">
+                    <div>
                         <x-jet-label value="{{ __('Description') }}" />
                         <select class="form-control pt-1 h-8 whitespace-nowrap" name="description" id="description">
                             <option value="%">{{ __('All') }}</option>
@@ -61,7 +62,7 @@
                         <x-jet-input-error for='description' />
                     </div>
 
-                    <div class="">
+                    <div>
                         <x-jet-label value="{{ __('Type') }}" />
                         <select class="form-control pt-1 h-8 whitespace-nowrap" name="rtype" id="rtype">
                             <option value="XLS">XLS</option>
@@ -74,7 +75,9 @@
                         <x-jet-input-error for='rtype' />
                     </div>
 
-                    <x-jet-button class="mt-4">{{ __('Download') }}</x-jet-button>
+                    <div class="h-8 pt-1">
+                        <x-jet-button class="h-8 mt-4 bg-green-500">{{ __('Download') }}</x-jet-button>
+                    </div>
 
                 </div>
             </form>
