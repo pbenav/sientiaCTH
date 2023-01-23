@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div
-        class="flex justify-center min-h-screen py-4 bg-gray-100 flexrelative items-top dark:bg-gray-900 sm:items-center sm:pt-0">
+        class="login flex justify-center min-h-screen py-4 bg-gray-100 flexrelative items-top dark:bg-gray-900 sm:items-center sm:pt-0">
         <!-- Topbar login and register links -->
         @if (Route::has('login'))
             <div class="flex fixed top-0 right-0 px-6 py-4 sm:block">

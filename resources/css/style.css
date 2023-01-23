@@ -6,3 +6,10 @@
 .disabled {
   background: gray;
 }
+
+.login {
+  background-image: url('/images/login_bg.jpg');  
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left;
+}

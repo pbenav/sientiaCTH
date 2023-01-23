@@ -11252,9 +11252,6 @@ select {
 .invisible {
   visibility: hidden;
 }
-.static {
-  position: static;
-}
 .fixed {
   position: fixed;
 }
@@ -11401,9 +11398,6 @@ select {
 .mt-0 {
   margin-top: 0px;
 }
-.ml-10 {
-  margin-left: 2.5rem;
-}
 .block {
   display: block;
 }
@@ -11460,9 +11454,6 @@ select {
 }
 .h-auto {
   height: auto;
-}
-.h-32 {
-  height: 8rem;
 }
 .min-h-screen {
   min-height: 100vh;
@@ -11616,9 +11607,6 @@ select {
 .content-center {
   align-content: center;
 }
-.items-start {
-  align-items: flex-start;
-}
 .items-center {
   align-items: center;
 }
@@ -11660,11 +11648,6 @@ select {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
-}
-.space-x-0 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0px * var(--tw-space-x-reverse));
-  margin-left: calc(0px * calc(1 - var(--tw-space-x-reverse)));
 }
 .overflow-hidden {
   overflow: hidden;
@@ -11939,9 +11922,6 @@ select {
 }
 .pt-8 {
   padding-top: 2rem;
-}
-.pt-0 {
-  padding-top: 0px;
 }
 .text-left {
   text-align: left;
@@ -12772,6 +12752,12 @@ video {
 }
 .disabled {
   background: gray;
+}
+.login {
+  background-image: url('/images/login_bg.jpg');  
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left;
 }
 .flatpickr-calendar {
   background: transparent;
@@ -13790,10 +13776,6 @@ span.flatpickr-weekday {
     height: 2.5rem;
   }
 
-  .sm\:h-auto {
-    height: auto;
-  }
-
   .sm\:w-10 {
     width: 2.5rem;
   }
@@ -13867,12 +13849,6 @@ span.flatpickr-weekday {
     justify-content: space-between;
   }
 
-  .sm\:space-x-8 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(2rem * var(--tw-space-x-reverse));
-    margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
-  }
-
   .sm\:whitespace-nowrap {
     white-space: nowrap;
   }
@@ -13944,14 +13920,6 @@ span.flatpickr-weekday {
 
   .sm\:text-right {
     text-align: right;
-  }
-
-  .sm\:text-sm {
-    font-size: .875rem;
-  }
-
-  .sm\:leading-5 {
-    line-height: 1.25rem;
   }
 }
 @media (min-width: 768px) {
@@ -14048,12 +14016,6 @@ span.flatpickr-weekday {
 
   .lg\:col-span-4 {
     grid-column: span 4 / span 4;
-  }
-
-  .lg\:space-x-8 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(2rem * var(--tw-space-x-reverse));
-    margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
   .lg\:px-8 {
