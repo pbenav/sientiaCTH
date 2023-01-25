@@ -25,6 +25,7 @@
                         <div>
                             <x-jet-label value="{{ __('Worker') }}" />
                             <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model.lazy='worker'>
+                                <option value="%">{{ __('All') }}</option>
                                 @foreach ($workers as $w)
                                     <option value="{{ $w->id }}" {{ ($w->id == $worker) ? "selected" : ''  }}>{{ $w->name . ' ' . $w->family_name1 }}</option>
                                 @endforeach

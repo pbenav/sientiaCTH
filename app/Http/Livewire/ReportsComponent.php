@@ -20,7 +20,7 @@ class ReportsComponent extends Component
     public $todate;
     public $description;
     public $rtype;
-    public $rtypes = ["XLS" => "Xls", "PDF" => "Dompdf", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
+    public $rtypes = ["PDF" => "Dompdf", "XLS" => "Xls", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
     public $descriptions = ["All", "Workday", "Pause", "Others"];
 
     protected $rules = [
@@ -76,7 +76,7 @@ class ReportsComponent extends Component
         $this->fromdate = date('Y-m-01');
         $this->todate = date('Y-m-d');
         $this->description = 'All';
-        $this->rtype = 'XLS';
+        $this->rtype = 'PDF';
     }
 
     public function render()

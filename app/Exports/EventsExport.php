@@ -44,7 +44,7 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
         $data = Event::select('events.user_id', 'users.name', 'users.family_name1', 'events.id', 'events.start', 'events.end', 'events.description')
             ->selectRaw('TIMESTAMPDIFF(hour, start, end) as duration')
             ->join('users', 'events.user_id', 'users.id')
-            ->where('users.id', $this->worker)
+            ->when(($this->worker != "%"), fn ($query) => $query->where('users.id', $this->worker))
             ->whereDate('start', '>=', $this->fromdate)
             ->whereDate('end', '<=', $this->todate)
             ->where('description', 'like', $this->description)

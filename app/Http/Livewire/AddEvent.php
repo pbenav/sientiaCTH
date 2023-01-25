@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Livewire;
+
 use App\Models\Event;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;

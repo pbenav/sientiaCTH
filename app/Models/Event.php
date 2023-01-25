@@ -63,11 +63,6 @@ class Event extends Model
 
     }
 
-    /**
-     * Scope a query to only include events that are in open state
-     *
-     * @param $query
-     */
     public function scopeIsOpen(Builder $query)
     {
         return $query->where('is_open', '=', 1);
@@ -90,7 +85,7 @@ class Event extends Model
 
     public function scopefilterEvents(Builder $query, $start, $end, $user_id, $is_open)
     {
-        return $query->selectRaw('id, user_id, start, end, is_open')
+        return $query->select('id, user_id, start, end, is_open')
             ->where('start', '>=', Carbon::parse($start))
             ->where('end', '<=', Carbon::parse($end))
             ->where('user_id', $user_id)
@@ -137,7 +132,7 @@ class Event extends Model
         )
             ->join('users', 'user_id', '=', 'users.id')
             ->whereIn('user_id', $teamusers)
-            ->where(function ($query) use ($search, $confirmed) {
+            ->where(function ($query) use ($search) {
                 $query->where('users.name', 'like', '%' . $search . '%')
                 ->orWhere('events.user_id', $search)
                 ->orWhere('users.family_name1', 'like', '%' . $search . '%')
