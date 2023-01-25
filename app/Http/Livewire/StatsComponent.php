@@ -7,7 +7,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Asantibanez\LivewireCharts\Facades\LivewireCharts;
 
-class StatsGraph extends Component
+class StatsComponent extends Component
 {
     public $totalHours;
     public $selectedMonth;
@@ -21,8 +21,7 @@ class StatsGraph extends Component
     public $isInspector;
     public $workers = [];
 
-    public function mount()
-    {
+    public function mount(){
         $this->selectedMonth = date('m');
         $this->selectedYear = date('Y');
         $this->actualUser = Auth::user();
@@ -62,10 +61,7 @@ class StatsGraph extends Component
                     ->withGrid()
             );
 
-        //dd($columnChartModel);
-
-
-        return view('livewire.stats-graph')
+        return view('livewire.stats')
             ->with([
                 'columnChartModel' => $columnChartModel,
             ]);

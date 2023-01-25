@@ -23,16 +23,16 @@
                         <x-jet-input type="text" wire:model.defer='filter.name' />
                         <x-jet-input-error for='filter.name' />
                     </div>
-                    <div class="mb-4 ml-2">
+                    <div class="mb-4">
                         <x-jet-label value="{{ __('Family Name 1') }}" />
                         <x-jet-input type="text" wire:model.defer='filter.family_name1' />
                         <x-jet-input-error for='filter.family_name1' />
                     </div>
                 @endif
-                <div class="mb-4 ml-2 text-center">
-                    <x-jet-label class="w-auto" value="{{ __('Not confirmed') }}" />
+                <div class="mb-4 text-left sm:text-center">
+                    <x-jet-label class="whitespace-nowrap" value="{{ __('Not confirmed') }}" />
                    
-                    <x-jet-checkbox class="h-6 w-6 ml-2 text-gray-600 checked:text-green-600" wire:model.defer='filter.is_open'/>
+                    <x-jet-checkbox class="h-6 w-6 text-gray-600 checked:text-green-600" wire:model.defer='filter.is_open'/>
                     <x-jet-input-error for='filter.is_open' />
                 </div>
             </div>
@@ -59,10 +59,6 @@
                 wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500">
                 {{ __('Set filter') }}
             </x-jet-danger-button>
-
-            <x-jet-button wire:click="unsetFilter" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500">
-                {{ __('Unset filter') }}
-            </x-jet-button>
         </x-slot>
     </x-jet-dialog-modal>
 </div>

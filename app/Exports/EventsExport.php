@@ -21,8 +21,8 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
     use Exportable;
     use TimeDiff;
     public $worker;
-    public $month;
-    public $year;
+    public $fromdate;
+    public $todate;
     public $description;
     public $user;
     public $team;
@@ -33,7 +33,7 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
         $this->worker = $params['worker'];
         $this->fromdate = $params['fromdate'];
         $this->todate = $params['todate'];
-        $this->description = $params['description'];
+        $this->description = $params['description'] == __('All') ? '%' : __($params['description']);
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
     }
@@ -87,14 +87,14 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
         $sheet->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         $sheet->getHeaderFooter()->setFirstHeader('&C&HPlease treat this document as confidential!');
         $sheet->getHeaderFooter()->setFirstFooter('&L&B' . $sheet->getTitle() . '&RPage &P of &N');
-        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Verdana');
+        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Helvetica');
         $sheet->getParent()->getDefaultStyle()->getFont()->setSize('10');        
         $sheet->getParent()->getDefaultStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         return [
             'A1:H1' => [
                 'font' => [
-                    'name' => 'Arial',
+                    'name' => 'Helvetica',
                     'bold' => true,
                     'size' => 10,
                     'color' => ['argb' => 'FFFFFFFF'],

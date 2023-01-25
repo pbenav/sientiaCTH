@@ -1,5 +1,5 @@
 #!/bin/bash
-composer install --no-dev -o
+composer update --no-dev -w -o
 npm run prod
 php artisan optimize:clear
 php artisan storage:link

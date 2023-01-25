@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Livewire\StatsGraph;
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\GetTimeRegisters;
+use App\Http\Livewire\StatsComponent;
+use App\Http\Livewire\ReportsComponent;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ReportsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +31,7 @@ Route::middleware([
     'verified'
     ])->group(function () {
         Route::get('/events', GetTimeRegisters::class)->name('events');  
-        Route::get('/userstats', StatsGraph::class)->name('stats');  
-        Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
-        Route::post('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+        Route::get('/userstats', StatsComponent::class)->name('stats');  
+        Route::get('/reports', ReportsComponent::class)->name('reports');
 });
 
