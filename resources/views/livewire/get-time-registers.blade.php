@@ -1,4 +1,4 @@
-<div class="flex flex-col m-5 sm:m-10">
+<div>
     <!-- The wire directive connects page loading with the function loadEvents to get events deferred -->
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
@@ -19,34 +19,20 @@
     @endif
 
     <!-- Event list. Main table -->
-    <div class="mx-auto" wire:init="loadEvents">
+    <div class="px-4 py-8 mx-auto" wire:init="loadEvents">
 
         <!-- Modal component to filter time registers" -->
         <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector"></x-setfilters>
 
-        <div class="mt-2 mb-2">            
-            <!-- Modal for add-event -->
-            @livewire('add-event')
-            <!-- Show Add event button component -->
-            @if (!$isInspector || $isTeamAdmin)
-                <div class="w-48 mx-auto sm:mx-0">
-                    <x-jet-button class="w-full h-16 whitespace-nowrap bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
-                        wire:click="$emitTo('add-event', 'add', '1')">
-                        {{ __('Add event') }}
-                    </x-jet-button>
-                </div>
-            @endif
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-            <div class="w-48 mx-auto sm:mx-0">
-                <x-jet-button class="w-48 h-8 justify-center" wire:click="setFilter">
+        <div class="flex flex-row flex-wrap gap-2">
+            <div>
+                <x-jet-danger-button class="h-8" wire:click="setFilter">
                     {{ __('Set filter') }}
-                </x-jet-button>
+                </x-jet-danger-button>
             </div>
 
-            <div class="w-48 mx-auto sm:mx-0">
-                <x-jet-button class="w-48 h-8 justify-center whitespace-nowrap {{ $filtered ? 'bg-green-500' : 'disabled' }}"
+            <div>
+                <x-jet-button class="h-8 whitespace-nowrap {{ $filtered ? 'bg-green-500' : 'disabled' }}"
                     wire:click="unsetFilter">
                     {{ __('Unset filter') }}
                 </x-jet-button>
@@ -68,7 +54,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
+        <!-- Select no. of register to show -->
+        <div class="flex flex-wrap mt-2 mb-2 justify-around">
             <div class="h-8 mb-2 mr-2 flex flex-row flex-nowrap">
                 <div class="p-1">Mostrar</div>
                 <div>
@@ -81,8 +70,19 @@
                 </div>
                 <div class="p-1">{{ __('records') }}</div>
             </div>
-        </div>        
-        
+
+            <!-- Show Add event button component -->
+            @livewire('add-event')
+            @if (!$isInspector || $isTeamAdmin)
+                <div class="w-2/3 items-center">
+                    <x-jet-danger-button class="w-full whitespace-nowrap h-8"
+                        wire:click="$emitTo('add-event', 'add', '1')">
+                        {{ __('Add event') }}
+                    </x-jet-danger-button>
+                </div>
+            @endif
+        </div>
+
         <!-- Livewire component to show time regisres -->
         <div>
             <!-- Instead of using method count() because of deferred loading of events-->
@@ -185,10 +185,10 @@
                                 @endif
 
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Start') }}</span>{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Start') }}</span>{{ $ev->start }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ is_null($ev->end) ? "" : Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ $ev->end }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
                                         class="mr-2 inline-block font-bold md:hidden">{{ __('Description') }}</span>{{ __($ev->description) }}

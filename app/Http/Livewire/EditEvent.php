@@ -27,13 +27,14 @@ class EditEvent extends Component
     
     public function edit(Event $ev)
     {       
-        error_log('Modificando evento ' . $ev->id);       
+        error_log('Modificando evento ' . $ev->id);
+        $this->event = Event::where('id', $ev->id)->first();        
         // Modification is permitted only if event is open or if user is team admin
         // In this case, there must write a change event into log
-        if ($ev->is_open == 1 || Auth::user()->isTeamAdmin()) {
+        if ($this->event->is_open == 1 || Auth::user()->isTeamAdmin()) {
             // and end date is empty
-            if (!$ev->end) {
-                $ev->end = date('Y-m-d H:i:s');
+            if (!$this->event->end) {
+                $this->event->end = date('Y-m-d H:i:s');
             }
             $this->showModalGetTimeRegisters = true;
             $this->emit('render');
