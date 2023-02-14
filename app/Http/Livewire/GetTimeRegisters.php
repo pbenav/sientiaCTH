@@ -16,7 +16,6 @@ class GetTimeRegisters extends Component
 
     
     protected $events;
-    public $event;
     public $showModalGetTimeRegisters = false;
     public $showFiltersModal = false;
     public $search;
@@ -82,26 +81,20 @@ class GetTimeRegisters extends Component
         ;
     }
 
-    public function confirm($ev)    
+    public function confirm(Event $ev)
     {
         #Before modification there is an event for Sweet alert2 to confirm.
-        $this->event = Event::find($ev)->first();
-        if ($this->isTeamAdmin) {                    
-            $this->event->toggleConfirm();
-        } else if ($this->event->is_open) {
-            $this->event->Confirm();
-        }
     }
 
-    public function remove($ev)
-    {        
+    public function remove(Event $ev)
+    {
         #Before deletion there is an event for Sweet alert2 to confirm.
-        $this->event = Event::find($ev)->first();
         if ($this->isTeamAdmin) {
-            $this->event->delete();
-        } else if ($this->event->is_open) {
-            $this->event->delete();
+            $ev->confirm();
+        } else if ($ev->is_open) {
+            $ev->delete();
         }
+        $this->getEvents();
     }
 
     public function unsetFilter()
@@ -143,7 +136,7 @@ class GetTimeRegisters extends Component
     }
 
     public function render()
-    {
+    {        
         $this->getEvents();
         return view('livewire.get-time-registers', )
             ->with('events', $this->events)

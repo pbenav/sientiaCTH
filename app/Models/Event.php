@@ -20,12 +20,12 @@ class Event extends Model
         'is_open',
         'description'
     ];
-
+    
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
+    
     public function getPeriod()
     {
         return $this->timeDiff($this->start, $this->end, true);
@@ -33,39 +33,34 @@ class Event extends Model
 
     public function confirm()
     {
-        error_log('Confirm...');
         if ($this->is_open == 1) {
             $this->is_open = 0;
+            $this->save();
         }
-        $this->save();
     }
-
-    public function toggleConfirm()
-    {
-        error_log('Toggle confirm...');
-        $this->is_open = !$this->is_open;
-        $this->save();
-    }
-
 
     public function scopeUserId(Builder $query, $scope)
     {
         return $query->where('user_id', $scope);
+
     }
 
     public function scopeMonth(Builder $query, $scope)
     {
         return $query->whereMonth('start', $scope);
+
     }
 
     public function scopeDay(Builder $query, $scope)
     {
         return $query->whereDay('start', $scope);
+
     }
 
     public function scopeDescription(Builder $query, $scope)
     {
         return $query->where('description', $scope);
+
     }
 
     public function scopeIsOpen(Builder $query)
@@ -113,12 +108,12 @@ class Event extends Model
         )
             ->join('users', 'user_id', '=', 'users.id')
             ->whereIn('events.user_id', $teamusers)
-            ->when(!is_null($filter->start), fn ($query) => $query->whereDate('events.start', '>=', $filter->start))
-            ->when(!is_null($filter->end), fn ($query) => $query->whereDate('events.end', '<=', $filter->end))
-            ->when(!empty($filter->name), fn ($query) => $query->where('users.name', $filter->name))
-            ->when(!empty($filter->family_name1), fn ($query) => $query->where('users.family_name1', $filter->family_name1))
-            ->when($filter->is_open, fn ($query) => $query->where('events.is_open', '1'))
-            ->when($filter->description != __('All'), fn ($query) => $query->where('events.description', $filter->description))
+            ->when(!is_null($filter->start), fn($query) => $query->whereDate('events.start', '>=', $filter->start))
+            ->when(!is_null($filter->end), fn($query) => $query->whereDate('events.end', '<=', $filter->end))
+            ->when(!empty($filter->name), fn($query) => $query->where('users.name', $filter->name))
+            ->when(!empty($filter->family_name1), fn($query) => $query->where('users.family_name1', $filter->family_name1))
+            ->when($filter->is_open, fn($query) => $query->where('events.is_open', '1'))
+            ->when($filter->description != __('All'), fn($query) => $query->where('events.description', $filter->description))
             ->orderBy($sort, $direction)
             ->paginate($qtytoshow);
     }
@@ -139,10 +134,10 @@ class Event extends Model
             ->whereIn('user_id', $teamusers)
             ->where(function ($query) use ($search) {
                 $query->where('users.name', 'like', '%' . $search . '%')
-                    ->orWhere('events.user_id', $search)
-                    ->orWhere('users.family_name1', 'like', '%' . $search . '%')
-                    ->orWhere('users.family_name2', 'like', '%' . $search . '%')
-                    ->orWhere('events.description', 'like', '%' . $search . '%');
+                ->orWhere('events.user_id', $search)
+                ->orWhere('users.family_name1', 'like', '%' . $search . '%')
+                ->orWhere('users.family_name2', 'like', '%' . $search . '%')
+                ->orWhere('events.description', 'like', '%' . $search . '%');
             })
             ->where(function ($query) use ($confirmed) {
                 if ($confirmed) {
