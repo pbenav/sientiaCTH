@@ -21,8 +21,8 @@ class AddEvent extends Component
     protected $listeners = ['add', 'cancel' => '$refresh'];
 
     protected $rules = [
-        'start_date' => 'required|after:yesterday', // no more than one day before
-        'start_time' => 'required', // |after_or_equal:now', When needed!!!
+        'start_date' => 'required|after:-1 day|before:+1 day', // no more than one day before
+        'start_time' => 'required|after:-15 minutes|before:+15 minutes', // |after_or_equal:now', When needed!!!
         'description' => 'required'
     ];
 

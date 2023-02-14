@@ -16,7 +16,7 @@ class EditEvent extends Component
 
     protected $rules = [
         'event.start' => 'required|date', // Whenever is in production add: |after_or_equal:today',
-        'event.end' => 'required|date|after_or_equal:event.start',
+        'event.end' => 'required|date|after_or_equal:event.start|before_or_equal:+1 day',
         'event.description' => 'required',
     ];
 
