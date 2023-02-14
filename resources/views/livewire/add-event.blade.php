@@ -37,10 +37,10 @@
             </x-jet-secondary-button>
 
             {{-- Function save('') empty parameter to say that we are already in dashboard --}}
-            <x-jet-danger-button wire:click="save('')" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500"
+            <x-jet-button wire:click="save('')" wire:loading.attr="disabled" class="ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
                 wire_target="save">
                 {{ __('Create Event') }}
-            </x-jet-danger-button>
+            </x-jet-button>
         </x-slot>
 
     </x-jet-dialog-modal>

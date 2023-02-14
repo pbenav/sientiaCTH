@@ -16,6 +16,7 @@ class GetTimeRegisters extends Component
 
     
     protected $events;
+    public $event;
     public $showModalGetTimeRegisters = false;
     public $showFiltersModal = false;
     public $search;
@@ -81,23 +82,26 @@ class GetTimeRegisters extends Component
         ;
     }
 
-    public function confirm(Event $ev)
+    public function confirm($ev)    
     {
         #Before modification there is an event for Sweet alert2 to confirm.
-        $this->event = $ev;
-        $this->event->confirm();
+        $this->event = Event::find($ev)->first();
+        if ($this->isTeamAdmin) {                    
+            $this->event->toggleConfirm();
+        } else if ($this->event->is_open) {
+            $this->event->Confirm();
+        }
     }
 
-    public function remove(Event $ev)
-    {
+    public function remove($ev)
+    {        
         #Before deletion there is an event for Sweet alert2 to confirm.
-        $this->event = $ev;
+        $this->event = Event::find($ev)->first();
         if ($this->isTeamAdmin) {
             $this->event->delete();
         } else if ($this->event->is_open) {
             $this->event->delete();
         }
-        $this->emitSelf('render');
     }
 
     public function unsetFilter()
