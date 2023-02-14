@@ -252,7 +252,7 @@
     "Yes, delete it!": "Sí. ¡Eliminalo!",
     "Event has been removed!": "¡Se ha eliminado el evento!",
     "Confirmed!": "¡Confirmado!",
-    "Yes, confirm it!": "Sí. ¡Confírmalo!",
+    "Yes, I am sure. Do it!": "Sí. ¡Estoy seguro. Hazlo!",
     "Event has been confirmed!": "¡Se ha confirmado el evento!",
     "Stats": "Estadísticas",
     "Worked hours": "Horas trabajadas",
@@ -290,5 +290,7 @@
     "Download": "Descargar",
     "Incomplete Event": "Evento incompleto",
     "From date": "Fecha desde",
-    "To date": "Fecha hasta"
+    "To date": "Fecha hasta",
+    "From date must be from before than to date.": "La fecha desde debe ser anterior a hasta.",
+    "To date must be at the latest today": "La fecha hasta debe ser como máximo la de hoy."
 }

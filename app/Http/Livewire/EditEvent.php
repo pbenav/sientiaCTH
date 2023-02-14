@@ -25,10 +25,10 @@ class EditEvent extends Component
         $this->event = new Event();
     }
     
-    public function edit(Event $ev)
+    public function edit($ev)
     {       
-        error_log('Modificando evento ' . $ev->id);
-        $this->event = Event::where('id', $ev->id)->first();        
+        error_log('Modificando evento ' . $ev);
+        $this->event = Event::find($ev);        
         // Modification is permitted only if event is open or if user is team admin
         // In this case, there must write a change event into log
         if ($this->event->is_open == 1 || Auth::user()->isTeamAdmin()) {

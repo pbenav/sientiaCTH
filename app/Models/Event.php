@@ -39,6 +39,14 @@ class Event extends Model
         }
     }
 
+    public function unconfirm()
+    {
+        if ($this->is_open == 0) {
+            $this->is_open = 1;
+            $this->save();
+        }
+    }
+
     public function scopeUserId(Builder $query, $scope)
     {
         return $query->where('user_id', $scope);

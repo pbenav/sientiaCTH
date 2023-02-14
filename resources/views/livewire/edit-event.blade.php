@@ -37,10 +37,10 @@
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-danger-button wire:click="update" wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500"
+            <x-jet-button wire:click="update" wire:loading.attr="disabled" class="ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
                 wire_target="update">
                 {{ __('Update event') }}
-            </x-jet-danger-button>
+            </x-jet-button>
         </x-slot>
 
     </x-jet-dialog-modal>

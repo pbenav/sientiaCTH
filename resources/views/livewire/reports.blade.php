@@ -1,4 +1,5 @@
 <div class="flex flex-col m-5 sm:m-10">
+    
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Reports') }}
@@ -21,60 +22,61 @@
     <div class="mx-auto">
         <div class="w-auto flex flex-row flex-wrap gap-2 mb-4">
 
-                    @if ($isTeamAdmin or $isInspector)
-                        <div>
-                            <x-jet-label value="{{ __('Worker') }}" />
-                            <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model.lazy='worker'>
-                                <option value="%">{{ __('All') }}</option>
-                                @foreach ($workers as $w)
-                                    <option value="{{ $w->id }}" {{ ($w->id == $worker) ? "selected" : ''  }}>{{ $w->name . ' ' . $w->family_name1 }}</option>
-                                @endforeach
-                            </select>
-                            <x-jet-input-error for='worker' />
-                        </div>
-                    @endif
-
-                    <div class="flex flex-nowrap">
-                        <div>
-                            <x-jet-label value="{{ __('From date') }}" />
-                            <x-datepicker class="form-control h-8 pt-2" wire:model='fromdate' />
-                            <x-jet-input-error for='fromdate' />
-                        </div>
-
-                        <div class="ml-2">
-                            <x-jet-label value="{{ __('To date') }}" />
-                            <x-datepicker class="form-control h-8 pt-2" wire:model='todate' name="todate" id="todate" />
-                            <x-jet-input-error class="whitespace-pre-wrap" for='todate' />
-                        </div>
-                    </div>
-
-                    <div>
-                        <x-jet-label value="{{ __('Description') }}" />
-                        <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='description'>
-                            $@foreach ($descriptions as $description)
-                                <option value="{{ $description }}">
-                                    {{ __($description) }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <x-jet-input-error for='description' />
-                    </div>
-
-                    <div>
-                        <x-jet-label value="{{ __('Type') }}" />
-                        <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='rtype'>
-                            $@foreach ($rtypes as $rtype_key => $rtype_val)
-                                <option value="{{ $rtype_key }}">
-                                    {{ $rtype_key }}</option>
-                            @endforeach
-                        </select>
-                        <x-jet-input-error for='rtype' />
-                    </div>
-
-                    <div class="h-8 pt-1">
-                        <x-jet-button class="h-8 mt-4 bg-green-500" wire:click='export'>{{ __('Download') }}</x-jet-button>
-                    </div>
-
+            @if ($isTeamAdmin or $isInspector)
+                <div>
+                    <x-jet-label value="{{ __('Worker') }}" />
+                    <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model.lazy='worker'>
+                        <option value="%">{{ __('All') }}</option>
+                        @foreach ($workers as $w)
+                            <option value="{{ $w->id }}" {{ $w->id == $worker ? 'selected' : '' }}>
+                                {{ $w->name . ' ' . $w->family_name1 }}</option>
+                        @endforeach
+                    </select>
+                    <x-jet-input-error for='worker' />
                 </div>
+            @endif
+
+            <div class="flex flex-nowrap">
+                <div>
+                    <x-jet-label value="{{ __('From date') }}" />
+                    <x-datepicker class="form-control h-8 pt-2" wire:model='fromdate' />
+                    <x-jet-input-error for='fromdate' />
+                </div>
+
+                <div class="ml-2">
+                    <x-jet-label value="{{ __('To date') }}" />
+                    <x-datepicker class="form-control h-8 pt-2" wire:model='todate' name="todate" id="todate" />
+                    <x-jet-input-error class="whitespace-pre-wrap" for='todate' />
+                </div>
+            </div>
+
+            <div>
+                <x-jet-label value="{{ __('Description') }}" />
+                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='description'>
+                    $@foreach ($descriptions as $description)
+                        <option value="{{ $description }}">
+                            {{ __($description) }}
+                        </option>
+                    @endforeach
+                </select>
+                <x-jet-input-error for='description' />
+            </div>
+
+            <div>
+                <x-jet-label value="{{ __('Type') }}" />
+                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='rtype'>
+                    $@foreach ($rtypes as $rtype_key => $rtype_val)
+                        <option value="{{ $rtype_key }}">
+                            {{ $rtype_key }}</option>
+                    @endforeach
+                </select>
+                <x-jet-input-error for='rtype' />
+            </div>
+
+            <div class="h-8 pt-1">
+                <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center" wire:click='export'>{{ __('Download') }}</x-jet-button>
+            </div>
+
         </div>
     </div>
+</div>
