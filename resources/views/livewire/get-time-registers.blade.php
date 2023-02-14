@@ -188,7 +188,7 @@
                                         class="mr-2 inline-block font-bold md:hidden">{{ __('Start') }}</span>{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ is_null($ev->end) ? "" : Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
                                         class="mr-2 inline-block font-bold md:hidden">{{ __('Description') }}</span>{{ __($ev->description) }}
@@ -201,15 +201,15 @@
                                 @if (!$isInspector || $isTeamAdmin)
                                     <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
                                         <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
-                                            <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
+                                            <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
                                                 wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a class="btn {{ $ev['is_open'] ? 'btn-green' : 'btn-gray' }}"
+                                            <a class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
                                                 wire:click="$emit('confirmConfirmation', {{ $ev }})">
                                                 <i class="fas fa-check"></i>
                                             </a>
-                                            <a class="btn {{ $ev['is_open'] ? 'btn-red' : 'btn-gray' }}"
+                                            <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
                                                 wire:click="$emit('confirmDeletion', {{ $ev }})">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -288,7 +288,6 @@
                                 })
                             }
                         })
-                        Livewire.emit('render');
                     } else {
                         Livewire.emit('alertFail', "{{ __('Event is confirmed.') }}");
                     }
@@ -298,7 +297,7 @@
                 // Event confirmation alert 
                 //
                 Livewire.on('confirmConfirmation', event => {
-                    if ((event.is_open && event.end !== null)) {
+                    if ((event.is_open && event.end !== null)|| {{ $isTeamAdmin ? 1 : 0 }}) {
                         Swal.fire({
                             title: "{{ __('Are you sure?') }}",
                             text: "{{ __('You won\'t be able to undo this action!') }}",
@@ -306,7 +305,7 @@
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: "{{ __('Yes, confirm it!') }}"
+                            confirmButtonText: "{{ __('Yes, I am sure. Do it!') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 Livewire.emitTo('get-time-registers', 'confirm', event);
@@ -319,7 +318,6 @@
                                 })
                             }
                         })
-                        Livewire.emit('render');
                     } else {
                         Livewire.emit('alertFail', 'Algo ha ido mal. Comprueba los datos');
                     }
