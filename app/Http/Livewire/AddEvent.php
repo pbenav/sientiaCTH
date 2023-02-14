@@ -18,11 +18,11 @@ class AddEvent extends Component
     public $description;
     public $origin;
 
-    protected $listeners = ['add'];
+    protected $listeners = ['add', 'cancel' => '$refresh'];
 
     protected $rules = [
-        'start_date' => 'required|after:-1 day|before:+1 day', // no more than one day before
-        'start_time' => 'required|after:-15 minutes|before:+15 minutes', // |after_or_equal:now', When needed!!!
+        'start_date' => 'required|after:yesterday', // no more than one day before
+        'start_time' => 'required', // |after_or_equal:now', When needed!!!
         'description' => 'required'
     ];
 
@@ -69,8 +69,8 @@ class AddEvent extends Component
 
         if ($this->origin == 'numpad') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
-        } else { 
-            $this->emitTo('get-time-registers', 'render');        
+        } else {
+            $this->emitTo('get-time-registers', 'render');
         }
     }
 

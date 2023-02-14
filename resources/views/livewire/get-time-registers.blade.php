@@ -175,7 +175,7 @@
                             <tr
                                 class="block odd:bg-gray-300 even:bg-grey-400 border border-grey-500 md:border-none md:table-row">
                                 <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
-                                        class="inline-block font-bold md:hidden">{{ __('Event Id') }}</span>
+                                        class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
                                     {{ $ev->id }}
                                 </td>
                                 @if ($isTeamAdmin or $isInspector)
@@ -201,19 +201,16 @@
                                 @if (!$isInspector || $isTeamAdmin)
                                     <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
                                         <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
-                                            <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
-                                                wire:click="edit({{ $ev }})">
-                                                {{-- wire:click="$emitTo('edit-event', 'edit', {{ $ev }})"> --}}
+                                            <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
+                                                wire:click="$emitTo('edit-event', 'edit', {{ $ev }})">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
-                                                wire:click="alertConfirm({{ $ev }})">
-                                                {{-- wire:click="$emit('confirmConfirmation', {{ $ev }})"> --}}
+                                            <a class="btn {{ $ev['is_open'] ? 'btn-green' : 'btn-gray' }}"
+                                                wire:click="$emit('confirmConfirmation', {{ $ev }})">
                                                 <i class="fas fa-check"></i>
                                             </a>
-                                            <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
-                                                wire:click="alertDelete({{ $ev }})">
-                                                {{-- wire:click="$emit('confirmDeletion', {{ $ev }})"> --}}
+                                            <a class="btn {{ $ev['is_open'] ? 'btn-red' : 'btn-gray' }}"
+                                                wire:click="$emit('confirmDeletion', {{ $ev }})">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -267,36 +264,6 @@
                 })
 
                 //
-                // Event confirmation alert 
-                //
-                Livewire.on('confirmConfirmation', event => {
-                    if ((event.is_open && event.end !== null) || {{ $isTeamAdmin ? 1 : 0 }}) {
-                        Swal.fire({
-                            title: "{{ __('Are you sure?') }}",
-                            text: "{{ __('You won\'t be able to undo this action!') }}",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: "{{ __('Yes, I am sure. Do it!') }}"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Livewire.emitTo('get-time-registers', 'confirm', event);
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: "{{ __('Confirmed!') }}",
-                                    text: "{{ __('Event has been confirmed!') }}",
-                                    timer: 1500,
-                                    footer: ''
-                                })
-                            }
-                        })
-                    } else {
-                        Livewire.emit('alertFail', 'Algo ha ido mal. Comprueba los datos');
-                    }
-                })
-
-                //
                 // Deletion confirmation alert 
                 //
                 Livewire.on('confirmDeletion', event => {
@@ -311,7 +278,7 @@
                             confirmButtonText: "{{ __('Yes, delete it!') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                Livewire.emitTo('get-time-registers', 'delete', event);
+                                Livewire.emitTo('get-time-registers', 'remove', event);
                                 Swal.fire({
                                     icon: 'success',
                                     title: "{{ __('Removed!') }}",
@@ -321,8 +288,40 @@
                                 })
                             }
                         })
+                        Livewire.emit('render');
                     } else {
                         Livewire.emit('alertFail', "{{ __('Event is confirmed.') }}");
+                    }
+                })
+
+                //
+                // Event confirmation alert 
+                //
+                Livewire.on('confirmConfirmation', event => {
+                    if ((event.is_open && event.end !== null)) {
+                        Swal.fire({
+                            title: "{{ __('Are you sure?') }}",
+                            text: "{{ __('You won\'t be able to undo this action!') }}",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: "{{ __('Yes, confirm it!') }}"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Livewire.emitTo('get-time-registers', 'confirm', event);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: "{{ __('Confirmed!') }}",
+                                    text: "{{ __('Event has been confirmed!') }}",
+                                    timer: 1500,
+                                    footer: ''
+                                })
+                            }
+                        })
+                        Livewire.emit('render');
+                    } else {
+                        Livewire.emit('alertFail', 'Algo ha ido mal. Comprueba los datos');
                     }
                 })
             </script>
