@@ -1,16 +1,15 @@
 <div>
     <!-- Event detail. Modal table -->
-    <x-jet-dialog-modal wire:model="showModalEditEvent">
+    <x-jet-dialog-modal wire:model="showModalGetTimeRegisters">
 
         <x-slot name='title'>
-            {{ __('Edit event') }}: <span>{{ $event->id }}</span>
-            <p>{{ __('Worker')}}: {{ $user->name }} {{ $user->family_name1 }}</p>
+            {{ __('Edit event') }}: <span wire:model='event.id'></span>
         </x-slot>
 
         <x-slot name='content'>
-            {{-- New Datepicker HTML5 --}}
             <div class="mb-4">
-                <x-jet-label value="{{ __('Start date') }}" />
+                {{-- New Datepicker HTML5 --}}
+                 <x-jet-label value="{{ __('Start date') }}" />
                 <input type="datetime-local" wire:model="event.start" />
                 <x-jet-input-error for='event.start' />
             </div>
@@ -34,12 +33,12 @@
         </x-slot>
 
         <x-slot name='footer'>
-            <x-jet-secondary-button wire:click="$set('showModalEditEvent', false)" wire:target="GetTimeRegisters">
+            <x-jet-secondary-button wire:click="$set('showModalGetTimeRegisters', false)">
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-button wire:click="update" wire:loading.attr="disabled"
-                class="ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center">
+            <x-jet-button wire:click="update" wire:loading.attr="disabled" class="ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
+                wire_target="update">
                 {{ __('Update event') }}
             </x-jet-button>
         </x-slot>
