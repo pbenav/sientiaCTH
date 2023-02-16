@@ -52,6 +52,9 @@
     <!-- Tag to include scripts pushed from components with push -->
     @stack('scripts')
 
+    {{-- Include GDPR cookie management to this site --}}
+    @include('cookie-consent::index')
+
 </body>
 
 </html>
