@@ -2,33 +2,37 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\User;
 use App\Models\Event;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
 class EditEvent extends Component
 {
-    public $showModalGetTimeRegisters = false;
+    public $showModalEditEvent = false;
 
     public Event $event;
+    public User $user;
 
     protected $listeners = ['edit'];
 
     protected $rules = [
-        'event.start' => 'required|date', // Whenever is in production add: |after_or_equal:today',
-        'event.end' => 'required|date|after_or_equal:event.start|before_or_equal:+1 day',
+        'event.start' => 'required|date',
+        'event.end' => 'required|date',
         'event.description' => 'required',
     ];
 
     public function mount()
     {
         $this->event = new Event();
+        $this->user = new User();
     }
-    
+
     public function edit(Event $ev)
-    {   
-        error_log('Modificando evento ' . $ev);
-        $this->event = Event::find($ev->id);   
+    {
+        $this->event = $ev;
+        $this->user = User::find($ev->user_id);
+        error_log('Modificando evento ' . $this->event);
         // Modification is permitted only if event is open or if user is team admin
         // In this case, there must write a change event into log
         if ($this->event->is_open == 1 || Auth::user()->isTeamAdmin()) {
@@ -36,20 +40,21 @@ class EditEvent extends Component
             if (!$this->event->end) {
                 $this->event->end = date('Y-m-d H:i:s');
             }
-            $this->showModalGetTimeRegisters = true;
+            $this->showModalEditEvent = true;            
         } else {
             $this->emit('alertFail', __("Event is confirmed."));
-            $this->reset(["showModalGetTimeRegisters"]);
+            $this->reset(["showModalEditEvent"]);
         }
+        $this->emitTo('get-time-registers', 'render');
     }
 
     public function update()
     {
         $this->validate();
         $this->event->save();
-        $this->reset(["showModalGetTimeRegisters"]);
+        $this->reset(["showModalEditEvent"]);
         $this->emit('alert', __('Event updated!'));
-        $this->emitUp('render');
+        $this->emitTo('get-time-registers', 'render');
     }
 
     public function render()

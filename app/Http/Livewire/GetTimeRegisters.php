@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\User;
 use App\Models\Event;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -10,14 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class GetTimeRegisters extends Component
 {
-
     use WithPagination;
     use HasTeams;
 
-    
     protected $events;
-    public $event;
-    public $showModalGetTimeRegisters = false;
     public $showFiltersModal = false;
     public $search;
     public $filter;
@@ -27,12 +24,13 @@ class GetTimeRegisters extends Component
     public $readyonload = false;
     public $user;
     public $team;
+    public $teamUsers;
     public $isTeamAdmin;
     public $isInspector;
     public $confirmed;
     public $filtered;
 
-    protected $listeners = ['render', 'confirm', 'remove'];
+    protected $listeners = ['render', 'confirm', 'delete'];
 
     protected $queryString = [
         'sort' => ['except' => 'start'],
@@ -58,13 +56,23 @@ class GetTimeRegisters extends Component
             "family_name1" => "",
             "is_open" => false,
             "description" => __('All'),
-        ]);        
+        ]);
         $this->user = Auth::user();
+        $this->events = User::find($this->user->id)->events()->Paginate($this->qtytoshow);
         $this->team = $this->user->currentTeam;
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
         $this->confirmed = false;
-        $this->filtered = false;       
+        $this->filtered = false;
+
+        $this->teamUsers = array();
+        if ($this->isTeamAdmin || $this->isInspector) {
+            foreach ($this->team->allUsers() as $us) {
+                array_push($this->teamUsers, $us->id);
+            }
+        } else {
+            array_push($this->teamUsers, $this->user->id);
+        }
     }
 
     public function order($sort)
@@ -78,30 +86,39 @@ class GetTimeRegisters extends Component
         } else {
             $this->sort = $sort;
             $this->direction = 'asc';
-        }
-        ;
+        };
     }
 
-    public function confirm($ev)    
+    public function edit(Event $ev){
+        $this->emitTo('edit-event', 'edit', $ev);
+    }
+
+    public function alertConfirm(Event $ev)
     {
-        #Before modification there is an event for Sweet alert2 to confirm.
-        $this->event = Event::find($ev)->first();
-        if ($this->isTeamAdmin) {                    
-            $this->event->toggleConfirm();
-        } else if ($this->event->is_open) {
-            $this->event->Confirm();
+        $this->emit('confirmConfirmation', $ev);
+    }
+
+    public function confirm(Event $ev)
+    {
+        if ($this->isTeamAdmin) {
+            $ev->toggleConfirm();
+        } else if ($ev->is_open) {
+            $ev->Confirm();
         }
     }
 
-    public function remove($ev)
+    public function alertDelete(Event $ev)
+    {
+        $this->emit('confirmDeletion', $ev);
+    }
+
+    public function delete(Event $ev)
     {        
-        #Before deletion there is an event for Sweet alert2 to confirm.
-        $this->event = Event::find($ev)->first();
-        if ($this->isTeamAdmin) {
-            $this->event->delete();
-        } else if ($this->event->is_open) {
-            $this->event->delete();
+        if ($this->isTeamAdmin || $ev->is_open) {
+            $ev->delete();
         }
+        // This is to avoit not found error. When found remove with event to get.time.registers->render
+        return redirect()->route('events');
     }
 
     public function unsetFilter()
@@ -117,35 +134,70 @@ class GetTimeRegisters extends Component
         $this->filtered = true;
         $this->confirmed = false;
     }
-    
+
     public function getEvents()
     {
-        // Check if user is admin
-        $teamUsers = array();
-        if ($this->isTeamAdmin || $this->isInspector) {
-            foreach ($this->team->allUsers() as $us) {
-                array_push($teamUsers, $us->id);
-            }
-        } else {
-            array_push($teamUsers, $this->user->id);
-        }
-
         if ($this->readyonload) {
             // Get events taking account of is_team_admin and search strings
             if ($this->filtered) {
-                $this->events = $this->filter->getEventsFiltered($teamUsers, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
-            } else {              
-                $this->events = $this->filter->getEventsPerUser($teamUsers, $this->confirmed, $this->search, $this->sort, $this->direction, $this->qtytoshow);
+                //$this->events = $this->filter->getEventsFiltered($teamUsers, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
+                $this->events = Event::select(
+                    'events.id',
+                    'events.user_id',
+                    'users.name',
+                    'users.family_name1',
+                    'events.start',
+                    'events.end',
+                    'events.description',
+                    'events.is_open'
+                )
+                    ->join('users', 'user_id', '=', 'users.id')
+                    ->whereIn('events.user_id', $this->teamUsers)
+                    ->when(!is_null($this->filter->start), fn ($query) => $query->whereDate('events.start', '>=', $this->filter->start))
+                    ->when(!is_null($this->filter->end), fn ($query) => $query->whereDate('events.end', '<=', $this->filter->end))
+                    ->when(!empty($this->filter->name), fn ($query) => $query->where('users.name', $this->filter->name))
+                    ->when(!empty($this->filter->family_name1), fn ($query) => $query->where('users.family_name1', $this->filter->family_name1))
+                    ->when($this->filter->is_open == 1, fn ($query) => $query->where('events.is_open', '1'))
+                    ->when($this->filter->description != __('All'), fn ($query) => $query->where('events.description', $this->filter->description))
+                    ->orderBy($this->sort, $this->direction)
+                    ->paginate($this->qtytoshow);
+            } else {
+                $this->events = Event::select(
+                    'events.id',
+                    'events.user_id',
+                    'users.name',
+                    'users.family_name1',
+                    'events.start',
+                    'events.end',
+                    'events.description',
+                    'events.is_open'
+                )
+                    ->join('users', 'user_id', '=', 'users.id')
+                    ->whereIn('events.user_id', $this->teamUsers)
+                    // ->when(is_null($this->teamUsers),  fn($query) => $query->where('events.user_id', $this->user->id))
+                    // ->when(!is_null($this->teamUsers), fn($query) => $query->whereIn('user_id', $this->teamUsers))
+                    ->where(function ($query) {
+                        $query->where('users.name', 'like', '%' . $this->search . '%')
+                            ->orWhere('events.user_id', $this->search)
+                            ->orWhere('users.family_name1', 'like', '%' . $this->search . '%')
+                            ->orWhere('users.family_name2', 'like', '%' . $this->search . '%')
+                            ->orWhere('events.description', 'like', '%' . $this->search . '%');
+                    })
+                    ->where(function ($query) {
+                        if ($this->confirmed) {
+                            $query->where('events.is_open', '=', '1');
+                        }
+                    })
+                    ->orderBy($this->sort, $this->direction)
+                    ->Paginate($this->qtytoshow);
             }
-        } else {
-            $this->events = [];
         }
     }
 
     public function render()
     {
         $this->getEvents();
-        return view('livewire.get-time-registers', )
+        return view('livewire.get-time-registers',)
             ->with('events', $this->events)
             ->with('isTeamAdmin', $this->isTeamAdmin)
             ->with('isInspector', $this->isInspector);
@@ -157,7 +209,7 @@ class GetTimeRegisters extends Component
     }
 
     public function updatingConfirmed()
-    {        
+    {
         $this->resetPage();
     }
 
