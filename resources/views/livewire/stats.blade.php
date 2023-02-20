@@ -1,4 +1,4 @@
-<div class="flex flex-col m-5 sm:m-10">
+<div class="flex flex-col m-5 sm:m-10 w-">
     
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
@@ -19,7 +19,7 @@
     @endif
 
     {{-- Stats main div --}}
-    <div class="mx-auto">
+    <div class="w-full max-w-7xl mx-auto">
         <div class="w-auto flex flex-row flex-wrap gap-2 mb-4">
 
             @if ($isTeamAdmin or $isInspector)
