@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Team;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -112,12 +113,10 @@ class User extends Authenticatable
     }
 
     public function isTeamAdmin(){
-        $current_team = $this->currentTeam;
-        return $this->hasTeamRole($current_team, 'admin');
+        return $this->hasTeamRole($this->currentTeam, 'admin');
     }
 
     public function isInspector(){
-        $current_team = $this->currentTeam;
-        return $this->hasTeamRole($current_team, 'inspect');
+        return $this->hasTeamRole($this->currentTeam, 'inspect');
     }
 }

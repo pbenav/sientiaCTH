@@ -4,6 +4,15 @@
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Events') }}
         </h2>
+        @if (!$isInspector && !$isTeamAdmin)
+            <div class="bg-green-200 w-full mx-auto border-2 p-2 mt-2">
+                <p class="text-red-500 text-lg">¡IMPORTANTE!</p>
+                <p class="flex-auto">
+                    <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón verde,
+                    una vez que estés seguro de que las fechas y las horas son correctas.
+                </p>
+            </div>
+        @endif
 
     </x-slot>
 
@@ -19,26 +28,29 @@
     @endif
 
     <!-- Event list. Main table -->
-    <div class="mx-auto" wire:init="loadEvents">
+    <div class="w-full max-w-6xl mx-auto" wire:init="loadEvents">
 
         <!-- Modal component to filter time registers" -->
         <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector"></x-setfilters>
 
-        <div class="mt-2 mb-2">            
+        <div class="flex flex-row flex-wrap">
             <!-- Modal for add-event -->
             @livewire('add-event')
             <!-- Show Add event button component -->
             @if (!$isInspector || $isTeamAdmin)
-                <div class="w-48 mx-auto sm:mx-0">
-                    <x-jet-button class="w-full h-16 whitespace-nowrap bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
+                <div class="w-48 mx-auto sm:mx-0 pl-0">
+                    <x-jet-button
+                        class="w-full h-16 whitespace-nowrap bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
                         wire:click="$emitTo('add-event', 'add', '1')">
                         {{ __('Add event') }}
                     </x-jet-button>
                 </div>
             @endif
+
         </div>
 
-        <div class="flex flex-wrap gap-2">
+
+        <div class="flex flex-wrap gap-2 mt-2">
             <div class="w-48 mx-auto sm:mx-0">
                 <x-jet-button class="w-48 h-8 justify-center" wire:click="setFilter">
                     {{ __('Set filter') }}
@@ -46,7 +58,8 @@
             </div>
 
             <div class="w-48 mx-auto sm:mx-0">
-                <x-jet-button class="w-48 h-8 justify-center whitespace-nowrap {{ $filtered ? 'bg-green-500' : 'disabled' }}"
+                <x-jet-button
+                    class="w-48 h-8 justify-center whitespace-nowrap {{ $filtered ? 'bg-green-500' : 'disabled' }}"
                     wire:click="unsetFilter">
                     {{ __('Unset filter') }}
                 </x-jet-button>
@@ -60,7 +73,7 @@
 
                 <div class="w-auto flex flex-row-reverse flex-nowrap ml-4 pt-1">
                     <div>
-                        <x-jet-label class="pt-1 whitespace-nowrap" value="{{ __('Not confirmed') }}" />                    
+                        <x-jet-label class="pt-1 whitespace-nowrap" value="{{ __('Not confirmed') }}" />
                     </div>
                     <div>
                         <x-jet-checkbox class="h-6 w-6 mr-2 text-gray-600 checked:text-green-600" wire:model="confirmed"
@@ -81,8 +94,8 @@
                 </div>
                 <div class="p-1">{{ __('records') }}</div>
             </div>
-        </div>        
-        
+        </div>
+
         <!-- Livewire component to show time regisres -->
         <div>
             <!-- Instead of using method count() because of deferred loading of events-->
@@ -175,7 +188,7 @@
                             <tr
                                 class="block odd:bg-gray-300 even:bg-grey-400 border border-grey-500 md:border-none md:table-row">
                                 <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
-                                        class="inline-block font-bold md:hidden">{{ __('Status') }}</span>
+                                        class="inline-block font-bold md:hidden">{{ __('Event Id') }}</span>
                                     {{ $ev->id }}
                                 </td>
                                 @if ($isTeamAdmin or $isInspector)
@@ -188,7 +201,7 @@
                                         class="mr-2 inline-block font-bold md:hidden">{{ __('Start') }}</span>{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ is_null($ev->end) ? "" : Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
+                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ is_null($ev->end) ? '' : Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
                                         class="mr-2 inline-block font-bold md:hidden">{{ __('Description') }}</span>{{ __($ev->description) }}
@@ -201,16 +214,19 @@
                                 @if (!$isInspector || $isTeamAdmin)
                                     <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
                                         <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
-                                            <a class="btn {{ $ev['is_open'] ? 'btn-blue' : 'btn-gray' }}"
-                                                wire:click="$emitTo('edit-event', 'edit', {{ $ev->id }})">
-                                                <i class="fas fa-edit">{{ $ev->id }}</i>
+                                            <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
+                                                wire:click="edit({{ $ev }})">
+                                                {{-- wire:click="$emitTo('edit-event', 'edit', {{ $ev }})"> --}}
+                                                <i class="fas fa-edit"></i>
                                             </a>
-                                            <a class="btn {{ $ev['is_open'] ? 'btn-green' : 'btn-gray' }}"
-                                                wire:click="$emit('confirmConfirmation', {{ $ev }})">
+                                            <a class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
+                                                wire:click="alertConfirm({{ $ev }})">
+                                                {{-- wire:click="$emit('confirmConfirmation', {{ $ev }})"> --}}
                                                 <i class="fas fa-check"></i>
                                             </a>
-                                            <a class="btn {{ $ev['is_open'] ? 'btn-red' : 'btn-gray' }}"
-                                                wire:click="$emit('confirmDeletion', {{ $ev }})">
+                                            <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
+                                                wire:click="alertDelete({{ $ev }})">
+                                                {{-- wire:click="$emit('confirmDeletion', {{ $ev }})"> --}}
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -247,6 +263,7 @@
                         title: "{{ __('OK, perfect!') }}",
                         text: message,
                         timer: 1500,
+                        timerProgressBar: true,
                         footer: ''
                     })
                 })
@@ -259,8 +276,39 @@
                         title: "{{ __('Ups!. Something happened. Chek your data!') }}",
                         text: message,
                         timer: 1500,
+                        timerProgressBar: true,
                         footer: ''
                     })
+                })
+
+                //
+                // Event confirmation alert 
+                //
+                Livewire.on('confirmConfirmation', event => {
+                    if ((event.is_open && event.end !== null) || {{ $isTeamAdmin ? 1 : 0 }}) {
+                        Swal.fire({
+                            title: "{{ __('Are you sure?') }}",
+                            text: "{{ __('You won\'t be able to undo this action!') }}",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: "{{ __('Yes, I am sure. Do it!') }}"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Livewire.emitTo('get-time-registers', 'confirm', event);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: "{{ __('Confirmed!') }}",
+                                    text: "{{ __('Event has been confirmed!') }}",
+                                    timer: 1500,
+                                    footer: ''
+                                })
+                            }
+                        })
+                    } else {
+                        Livewire.emit('alertFail', 'Algo ha ido mal. Comprueba los datos');
+                    }
                 })
 
                 //
@@ -278,7 +326,7 @@
                             confirmButtonText: "{{ __('Yes, delete it!') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                Livewire.emitTo('get-time-registers', 'remove', event);
+                                Livewire.emitTo('get-time-registers', 'delete', event);
                                 Swal.fire({
                                     icon: 'success',
                                     title: "{{ __('Removed!') }}",
@@ -288,40 +336,8 @@
                                 })
                             }
                         })
-                        Livewire.emit('render');
                     } else {
                         Livewire.emit('alertFail', "{{ __('Event is confirmed.') }}");
-                    }
-                })
-
-                //
-                // Event confirmation alert 
-                //
-                Livewire.on('confirmConfirmation', event => {
-                    if ((event.end !== null)) {
-                        Swal.fire({
-                            title: "{{ __('Are you sure?') }}",
-                            text: "{{ __('You won\'t be able to undo this action!') }}",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: "{{ __('Yes, I am sure. Do it!') }}"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Livewire.emitTo('get-time-registers', 'confirm', event.id);
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: "{{ __('Confirmed!') }}",
-                                    text: "{{ __('Event has been confirmed!') }}",
-                                    timer: 1500,
-                                    footer: ''
-                                })
-                            }
-                        })
-                        Livewire.emit('render');
-                    } else {
-                        Livewire.emit('alertFail', 'Algo ha ido mal. Comprueba los datos');
                     }
                 })
             </script>
