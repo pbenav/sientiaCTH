@@ -6,6 +6,12 @@
         </x-slot>
 
         <x-slot name="content">
+            <div class="mb-4 bg-green-200">
+                <p class="p-2">La <strong>función del registro</strong> horario es la de poder demostrar la hora de entrada y salida del puesto de trabajo.
+                   No tiene mucho sentido fichar un día antes o un día después.
+                   <br />Por favor, acostúmbrate a hacerlo a la hora correcta. <br>
+                <strong>¡Muchas gracias!</strong></p>
+            </div>
 
             <div class="mb-4">
                 <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
