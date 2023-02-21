@@ -5,8 +5,8 @@
 /storage/view/
 *.log
 /vendor
-public/js/app.js
-public/css/app.css
+#public/js/app.js
+#public/css/app.css
 .env
 .env.backup
 .phpunit.result.cache
@@ -21,3 +21,4 @@ yarn-error.log
 act_servers.sh
 db.sql
 _ide_helper.php
+docker-compose.yml
