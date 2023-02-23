@@ -5,8 +5,8 @@
             {{ __('Events') }}
         </h2>
         @if (!$isInspector && !$isTeamAdmin)
-            <div class="bg-green-200 w-full mx-auto border-2 p-2 mt-2">
-                <p class="text-red-500 text-lg">¡IMPORTANTE!</p>
+            <div class="p-2 mx-auto mt-2 w-full bg-green-200 border-2">
+                <p class="text-lg text-red-500">¡IMPORTANTE!</p>
                 <p class="flex-auto">
                     <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón verde,
                     una vez que estés seguro de que las fechas y las horas son correctas.
@@ -18,8 +18,8 @@
 
     @if (session('info'))
         {{-- This div shows information attached to request if exists --}}
-        <div class="flex items-center bg-blue-500 text-white text-sm font-bold px-4 py-3" role="alert">
-            <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <div class="flex items-center px-4 py-3 text-sm font-bold text-white bg-blue-500" role="alert">
+            <svg class="mr-2 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                 <path
                     d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z" />
             </svg>
@@ -28,7 +28,7 @@
     @endif
 
     <!-- Event list. Main table -->
-    <div class="w-full max-w-6xl mx-auto" wire:init="loadEvents">
+    <div class="mx-auto w-full max-w-6xl" wire:init="loadEvents">
 
         <!-- Modal component to filter time registers" -->
         <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector"></x-setfilters>
@@ -38,10 +38,11 @@
             @livewire('add-event')
             <!-- Show Add event button component -->
             @if (!$isInspector || $isTeamAdmin)
-                <div class="w-48 mx-auto sm:mx-0 pl-0">
+                <div class="pl-0 mx-auto w-48 sm:mx-0">
                     <x-jet-button
-                        class="w-full h-16 whitespace-nowrap bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
+                        class="justify-center w-full h-16 whitespace-nowrap bg-green-500 hover:bg-green-600 disabled:bg-gray-500"
                         wire:click="$emitTo('add-event', 'add', '1')">
+                        <i class="mr-2 fas fa-plus"></i>
                         {{ __('Add event') }}
                     </x-jet-button>
                 </div>
@@ -51,16 +52,19 @@
 
 
         <div class="flex flex-wrap gap-2 mt-2">
-            <div class="w-48 mx-auto sm:mx-0">
-                <x-jet-button class="w-48 h-8 justify-center" wire:click="setFilter">
+            
+            <div class="mx-auto w-48 sm:mx-0">                             
+                <x-jet-button class="justify-center w-48 h-8" wire:click="setFilter">
+                    <i class="mr-2 fas fa-filter"></i>  
                     {{ __('Set filter') }}
                 </x-jet-button>
             </div>
 
-            <div class="w-48 mx-auto sm:mx-0">
+            <div class="mx-auto w-48 sm:mx-0">
                 <x-jet-button
                     class="w-48 h-8 justify-center whitespace-nowrap {{ $filtered ? 'bg-green-500' : 'disabled' }}"
-                    wire:click="unsetFilter">
+                    wire:click="unsetFilter"><i class="fa-solid fa-filter-slash"></i>
+                    <i class="mr-2 fas fa-x"></i> 
                     {{ __('Unset filter') }}
                 </x-jet-button>
             </div>
@@ -71,21 +75,21 @@
                         wire:model="search" />
                 </div>
 
-                <div class="w-auto flex flex-row-reverse flex-nowrap ml-4 pt-1">
+                <div class="flex flex-row-reverse flex-nowrap pt-1 ml-4 w-auto">
                     <div>
                         <x-jet-label class="pt-1 whitespace-nowrap" value="{{ __('Not confirmed') }}" />
                     </div>
                     <div>
-                        <x-jet-checkbox class="h-6 w-6 mr-2 text-gray-600 checked:text-green-600" wire:model="confirmed"
+                        <x-jet-checkbox class="mr-2 w-6 h-6 text-gray-600 checked:text-green-600" wire:model="confirmed"
                             wire:click="$set('filtered', false)" />
                     </div>
                 </div>
             </div>
 
-            <div class="h-8 mb-2 mr-2 flex flex-row flex-nowrap">
+            <div class="flex flex-row flex-nowrap mr-2 mb-2 h-8">
                 <div class="p-1">Mostrar</div>
                 <div>
-                    <select wire:model='qtytoshow' class="mx-2 pt-1 h-8 form-control">
+                    <select wire:model='qtytoshow' class="pt-1 mx-2 h-8 form-control">
                         <option value="10">10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
@@ -104,7 +108,7 @@
                 <table class="block min-w-full border-collapse md:table">
                     <thead class="block md:table-header-group">
                         <tr
-                            class="absolute block border border-grey-500 md:border-none md:table-row -top-full md:top-auto -left-full md:left-auto md:relative ">
+                            class="block absolute -top-full -left-full border border-grey-500 md:border-none md:table-row md:top-auto md:left-auto md:relative">
                             <th
                                 class="block p-1 font-bold text-center text-white bg-gray-600 cursor-pointer md:border md:border-grey-500 md:table-cell">
                                 {{ __('Id') }}
@@ -186,34 +190,34 @@
                     <tbody class="block md:table-row-group">
                         @foreach ($events as $ev)
                             <tr
-                                class="block odd:bg-gray-300 even:bg-grey-400 border border-grey-500 md:border-none md:table-row">
+                                class="block border odd:bg-gray-300 even:bg-grey-400 border-grey-500 md:border-none md:table-row">
                                 <td class="block p-1 text-center md:border md:border-grey-500 md:table-cell"><span
                                         class="inline-block font-bold md:hidden">{{ __('Event Id') }}</span>
                                     {{ $ev->id }}
                                 </td>
                                 @if ($isTeamAdmin or $isInspector)
                                     <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                            class="mr-2 inline-block font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user_id . ' - ' . $ev->name . ' ' . $ev->family_name1 }}
+                                            class="inline-block mr-2 font-bold md:hidden">{{ __('Worker') }}</span>{{ $ev->user_id . ' - ' . $ev->name . ' ' . $ev->family_name1 }}
                                     </td>
                                 @endif
 
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Start') }}</span>{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}
+                                        class="inline-block mr-2 font-bold md:hidden">{{ __('Start') }}</span>{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('End') }}</span>{{ is_null($ev->end) ? '' : Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
+                                        class="inline-block mr-2 font-bold md:hidden">{{ __('End') }}</span>{{ is_null($ev->end) ? '' : Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') }}
                                 </td>
                                 <td class="block p-1 text-left md:border md:border-grey-500 md:table-cell"><span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Description') }}</span>{{ __($ev->description) }}
+                                        class="inline-block mr-2 font-bold md:hidden">{{ __('Description') }}</span>{{ __($ev->description) }}
                                 </td>
                                 <td
                                     class="block p-1 text-left md:text-center md:border md:border-grey-500 md:table-cell">
                                     <span
-                                        class="mr-2 inline-block font-bold md:hidden">{{ __('Duration') }}</span>{{ $ev->getPeriod() }}
+                                        class="inline-block mr-2 font-bold md:hidden">{{ __('Duration') }}</span>{{ $ev->getPeriod() }}
                                 </td>
                                 @if (!$isInspector || $isTeamAdmin)
-                                    <td class="flex items-center justify-center p-1 md:border md:border-grey-500">
-                                        <div class="flex flex-row content-center float-right p-0 m-0 mx-min">
+                                    <td class="flex justify-center items-center p-1 md:border md:border-grey-500">
+                                        <div class="flex float-right flex-row content-center p-0 m-0 mx-min">
                                             <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
                                                 wire:click="edit({{ $ev }})">
                                                 {{-- wire:click="$emitTo('edit-event', 'edit', {{ $ev }})"> --}}
