@@ -31,16 +31,6 @@ class ReportsComponent extends Component
         "rtype" => 'required',
     ];
 
-    // protected $validationAttributes = [
-    //         'fromdate' => 'Fecha desde',
-    //         'todate' => 'Fecha hasta',         
-    //     ];
-
-    // protected $messages = [
-    //         'fromdate.before_or_equal' => __('La fecha desde debe ser anterior a hasta.'),            
-    //         'todate.before_or_equal' => __('La fecha hasta debe ser como máximo la de hoy.'),
-    //     ];
-
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);

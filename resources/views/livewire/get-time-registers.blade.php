@@ -8,8 +8,8 @@
             <div class="p-2 mx-auto mt-2 w-full bg-green-200 border-2">
                 <p class="text-lg text-red-500">¡IMPORTANTE!</p>
                 <p class="flex-auto">
-                    <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón verde,
-                    una vez que estés seguro de que las fechas y las horas son correctas.
+                    <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón <span class="w-10 h-8 px-2 py-1 rounded margin-auto text-lg text-center text-white bg-green-500"><i class="fas fa-check"></i></span>, una
+                    vez que hayas <u>verificado</u> que las fechas y las horas son correctas. <strong>¡Gracias!</strong>
                 </p>
             </div>
         @endif
