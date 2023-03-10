@@ -25,7 +25,7 @@ class EditEvent extends Component
     public function mount()
     {
         $this->event = new Event();
-        $this->user = new User();
+        $this->user = User::find(Auth::user()->id);
     }
 
     public function edit(Event $ev)
@@ -35,7 +35,7 @@ class EditEvent extends Component
         error_log('Modificando evento ' . $this->event);
         // Modification is permitted only if event is open or if user is team admin
         // In this case, there must write a change event into log
-        if ($this->event->is_open == 1 || Auth::user()->isTeamAdmin()) {
+        if ($this->event->is_open == 1 || $this->user->isTeamAdmin()) {
             // and end date is empty
             if (!$this->event->end) {
                 $this->event->end = date('Y-m-d H:i:s');

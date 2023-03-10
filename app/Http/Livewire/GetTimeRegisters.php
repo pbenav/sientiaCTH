@@ -58,7 +58,7 @@ class GetTimeRegisters extends Component
             "is_open" => false,
             "description" => __('All'),
         ]);
-        $this->user = Auth::user();
+        $this->user = User::find(Auth::user()->id);
         $this->events = User::find($this->user->id)->events()->Paginate($this->qtytoshow);
         $this->team = $this->user->currentTeam;
         $this->isTeamAdmin = $this->user->isTeamAdmin();

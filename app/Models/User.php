@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Team;
+use App\Models\Event;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;

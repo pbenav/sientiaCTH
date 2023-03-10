@@ -1,5 +1,5 @@
 <div class="flex flex-col m-5 sm:m-10 w-">
-    
+
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ __('Stats') }}
@@ -8,36 +8,35 @@
     </x-slot>
 
     @if (session('info'))
-        {{-- This div shows information attached to request if exists --}}
-        <div class="flex items-center bg-blue-500 text-white text-sm font-bold px-4 py-3" role="alert">
-            <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path
-                    d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z" />
-            </svg>
-            <p>{{ __(session('info')) }}</p>
-        </div>
+    {{-- This div shows information attached to request if exists --}}
+    <div class="flex items-center px-4 py-3 text-sm font-bold text-white bg-blue-500" role="alert">
+        <svg class="mr-2 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z" />
+        </svg>
+        <p>{{ __(session('info')) }}</p>
+    </div>
     @endif
 
     {{-- Stats main div --}}
-    <div class="w-full max-w-7xl mx-auto">
-        <div class="w-auto flex flex-row flex-wrap gap-2 mb-4">
+    <div class="mx-auto w-full max-w-7xl">
+        <div class="flex flex-row flex-wrap gap-2 mb-4 w-auto">
 
             @if ($isTeamAdmin or $isInspector)
-                <div>
-                    <x-jet-label value="{{ __('Worker') }}" />
-                    <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="browsedUser">
-                        @foreach ($workers as $w)
-                            <option value={{ $w->id }}>{{ $w->name . ' ' . $w->family_name1 }}</option>
-                        @endforeach
-                    </select>
-                    <x-jet-input-error for='worker' />
-                </div>
+            <div>
+                <x-jet-label value="{{ __('Worker') }}" />
+                <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="browsedUser">
+                    @foreach ($workers as $w)
+                    <option value={{ $w->id }}>{{ $w->name . ' ' . $w->family_name1 }}</option>
+                    @endforeach
+                </select>
+                <x-jet-input-error for='worker' />
+            </div>
             @endif
 
             <div class="flex flex-row gap-2">
                 <div>
                     <x-jet-label value="{{ __('Month') }}" />
-                    <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="selectedMonth">
+                    <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedMonth">
                         <option {{ $selectedMonth == 1 ? "selected value=$selectedMonth" : '' }} value="1">
                             {{ __('January') }}</option>
                         <option {{ $selectedMonth == 2 ? "selected value=$selectedMonth" : '' }} value="2">
@@ -67,7 +66,7 @@
                 </div>
                 <div>
                     <x-jet-label value="{{ __('Year') }}" />
-                    <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="selectedYear">
+                    <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedYear">
                         <option value="2022">{{ __('2022') }}</option>
                         <option value="2023">{{ __('2023') }}</option>
                     </select>
@@ -77,7 +76,7 @@
 
             <div class="">
                 <x-jet-label value="{{ __('Description') }}" />
-                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model="description">
+                <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="description">
                     <option value="%">{{ __('All') }}</option>
                     <option value="{{ __('Workday') }}">{{ __('Workday') }}</option>
                     <option value="{{ __('Pause') }}">{{ __('Pause') }}</option>
@@ -89,21 +88,25 @@
             <div class="whitespace-nowrap">
                 <x-jet-label>{{ __('Total hours worked in ') }}
                     {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
-                <x-jet-label class="w-min text-black h-8 pt-1 px-2 form-control">{{ $totalHours }}
+                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalHours }}
                     {{ __('hours') }}
                 </x-jet-label>
             </div>
         </div>
 
         <div class="">
-            <div class="w-auto h-96 shadow rounded p-4 border bg-white">
+            <div class="p-4 w-auto h-96 bg-white rounded border shadow">
                 <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
             </div>
         </div>
     </div>
 
+    <x-slot name="footer">
+        <div class="text-tiny">{{ __('Query run time: ') }} {{ $elapsedTime }} {{ __('miliseconds') }}</div>
+    </x-slot>
+
     @push('scripts')
-        @livewireChartsScripts
+    @livewireChartsScripts
     @endpush
 
 </div>

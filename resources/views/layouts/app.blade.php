@@ -25,16 +25,16 @@
 <body class="font-sans antialiased">
     <x-jet-banner />
 
-    <div class="min-h-screen bg-gray-100">
+    <div class="h-auto bg-gray-100">
         @livewire('navigation-menu')
 
         <!-- Page Heading -->
         @if (isset($header))
-            <header class="bg-white shadow">
-                <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
+        <header class="bg-white shadow">
+            <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+                {{ $header }}
+            </div>
+        </header>
         @endif
 
         <!-- Page Content -->
@@ -45,9 +45,18 @@
         </main>
     </div>
 
+    <!-- Page Footer -->
+    @if (isset($footer))
+    <footer class="fixed bottom-0 w-full text-xs bg-white h-min border-grey">
+        <div class="px-4 py-2 max-w-7xl py-1mx-auto sm:px-6 lg:px-8">
+            {{ $footer }}
+        </div>
+    </footer>
+    @endif
+
     @stack('modals')
 
-    @livewireScripts    
+    @livewireScripts
 
     <!-- Tag to include scripts pushed from components with push -->
     @stack('scripts')

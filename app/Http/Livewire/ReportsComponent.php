@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Team;
+use App\Models\User;
 use Livewire\Component;
 use App\Exports\EventsExport;
 use Illuminate\Support\Facades\Auth;
@@ -10,16 +12,16 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportsComponent extends Component
 {
-    public $user;
-    public $team;
-    public $isTeamAdmin;
-    public $isInspector;
-    public $workers = [];
+    public User $user;
+    public Team $team;
+    public bool $isTeamAdmin;
+    public bool $isInspector;
+    public array $workers = [];
     public $worker;
     public $fromdate;
     public $todate;
-    public $description;
-    public $rtype;
+    public string $description;
+    public string $rtype;
     public $rtypes = ["PDF" => "Dompdf", "XLS" => "Xls", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
     public $descriptions = ["All", "Workday", "Pause", "Others"];
 
@@ -55,7 +57,7 @@ class ReportsComponent extends Component
 
     public function mount()
     {
-        $this->user = Auth::user();
+        $this->user = User::find(Auth::user()->id);
         $this->team = $this->user->currentTeam;
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
