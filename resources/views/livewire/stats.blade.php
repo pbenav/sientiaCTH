@@ -36,7 +36,7 @@
             <div class="flex flex-row gap-2">
                 <div>
                     <x-jet-label value="{{ __('Month') }}" />
-                    <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedMonth">
+                    <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedMonth" wire:change="getData">
                         <option {{ $selectedMonth == 1 ? "selected value=$selectedMonth" : '' }} value="1">
                             {{ __('January') }}</option>
                         <option {{ $selectedMonth == 2 ? "selected value=$selectedMonth" : '' }} value="2">
