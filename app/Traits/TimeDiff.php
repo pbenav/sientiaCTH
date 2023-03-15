@@ -28,7 +28,7 @@ trait TimeDiff
                 return $end_date->diffInMinutes($start_date, true);
             }
         } else {
-            return __('Incomplete Event');
+            return __('On course Event');
         }
     }
 }

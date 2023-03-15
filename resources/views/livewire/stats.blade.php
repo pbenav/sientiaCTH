@@ -86,7 +86,7 @@
             </div>
 
             <div class="whitespace-nowrap">
-                <x-jet-label>{{ __('Total hours worked in ') }}
+                <x-jet-label>{{ __('Total hours registered in ') }}
                     {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
                 <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalHours }}
                     {{ __('hours') }}
