@@ -1,9 +1,9 @@
 <x-guest-layout>
     <div
-        class="login flex justify-center min-h-screen py-4 bg-gray-100 flexrelative items-top dark:bg-gray-900 sm:items-center sm:pt-0">
+        class="flex justify-center py-4 min-h-screen bg-gray-100 login flexrelative items-top dark:bg-gray-900 sm:items-center sm:pt-0">
         <!-- Topbar login and register links -->
         @if (Route::has('login'))
-            <div class="flex fixed top-0 right-0 px-6 py-4 ">
+            <div class="flex fixed top-0 right-0 px-6 py-4">
                 @auth
                     <a href="{{ url('events') }}"
                         class="text-sm text-gray-700 underline dark:text-gray-500">{{ __('Events') }}</a>
@@ -28,7 +28,7 @@
         @endif
 
         <!-- Main content -->
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-6xl sm:px-6 lg:px-8">
 
             <!-- Numpad -->
             <div class="p-4 mt-8 bg-gray-500 shadow dark:bg-gray-800 sm:rounded-lg">
@@ -39,7 +39,7 @@
                     <div class="text-sm text-center text-gray-500 sm:text-left">
                         <div class="flex items-center">
 
-                            @if (Route::has('login'))
+                            @if (auth()->check())
                                 <a href="{{ route('events') }}" class="ml-1">
                                     <i class="ml-1 fas fa-sign-in"></i>
                                     {{ __('Events') }}
