@@ -1695,16 +1695,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.4.3",
+            "version": "2.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "67c26b443f348a51926030c83481b85718457d3d"
+                "reference": "3cf1b6d4f0c820a2cf8bcaec39fc698f3443b5cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/67c26b443f348a51926030c83481b85718457d3d",
-                "reference": "67c26b443f348a51926030c83481b85718457d3d",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/3cf1b6d4f0c820a2cf8bcaec39fc698f3443b5cf",
+                "reference": "3cf1b6d4f0c820a2cf8bcaec39fc698f3443b5cf",
                 "shasum": ""
             },
             "require": {
@@ -1794,7 +1794,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.4.3"
+                "source": "https://github.com/guzzle/psr7/tree/2.4.4"
             },
             "funding": [
                 {
@@ -1810,7 +1810,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-26T14:07:24+00:00"
+            "time": "2023-03-09T13:19:02+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
@@ -1898,16 +1898,16 @@
         },
         {
             "name": "jaybizzle/crawler-detect",
-            "version": "v1.2.113",
+            "version": "v1.2.114",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JayBizzle/Crawler-Detect.git",
-                "reference": "6710b75871da2b718550c2bc33388315a3b20151"
+                "reference": "62d0e6b38f6715c673e156ffb0fc894791de3452"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JayBizzle/Crawler-Detect/zipball/6710b75871da2b718550c2bc33388315a3b20151",
-                "reference": "6710b75871da2b718550c2bc33388315a3b20151",
+                "url": "https://api.github.com/repos/JayBizzle/Crawler-Detect/zipball/62d0e6b38f6715c673e156ffb0fc894791de3452",
+                "reference": "62d0e6b38f6715c673e156ffb0fc894791de3452",
                 "shasum": ""
             },
             "require": {
@@ -1944,9 +1944,9 @@
             ],
             "support": {
                 "issues": "https://github.com/JayBizzle/Crawler-Detect/issues",
-                "source": "https://github.com/JayBizzle/Crawler-Detect/tree/v1.2.113"
+                "source": "https://github.com/JayBizzle/Crawler-Detect/tree/v1.2.114"
             },
-            "time": "2023-02-02T21:01:40+00:00"
+            "time": "2023-03-21T21:54:27+00:00"
         },
         {
             "name": "jenssegers/agent",
@@ -2623,16 +2623,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.3.9",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "c1e114f74e518daca2729ea8c4bf1167038fa4b5"
+                "reference": "d44a24690f16b8c1808bf13b1bd54ae4c63ea048"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/c1e114f74e518daca2729ea8c4bf1167038fa4b5",
-                "reference": "c1e114f74e518daca2729ea8c4bf1167038fa4b5",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d44a24690f16b8c1808bf13b1bd54ae4c63ea048",
+                "reference": "d44a24690f16b8c1808bf13b1bd54ae4c63ea048",
                 "shasum": ""
             },
             "require": {
@@ -2668,7 +2668,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.4-dev"
+                    "dev-main": "2.5-dev"
                 }
             },
             "autoload": {
@@ -2725,7 +2725,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-15T14:07:24+00:00"
+            "time": "2023-03-24T15:16:10+00:00"
         },
         {
             "name": "league/config",
@@ -4897,16 +4897,16 @@
         },
         {
             "name": "psy/psysh",
-            "version": "v0.11.12",
+            "version": "v0.11.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bobthecow/psysh.git",
-                "reference": "52cb7c47d403c31c0adc9bf7710fc355f93c20f7"
+                "reference": "722317c9f5627e588788e340f29b923e58f92f54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/52cb7c47d403c31c0adc9bf7710fc355f93c20f7",
-                "reference": "52cb7c47d403c31c0adc9bf7710fc355f93c20f7",
+                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/722317c9f5627e588788e340f29b923e58f92f54",
+                "reference": "722317c9f5627e588788e340f29b923e58f92f54",
                 "shasum": ""
             },
             "require": {
@@ -4967,9 +4967,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bobthecow/psysh/issues",
-                "source": "https://github.com/bobthecow/psysh/tree/v0.11.12"
+                "source": "https://github.com/bobthecow/psysh/tree/v0.11.13"
             },
-            "time": "2023-01-29T21:24:40+00:00"
+            "time": "2023-03-21T14:22:44+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -5330,16 +5330,16 @@
         },
         {
             "name": "spatie/laravel-package-tools",
-            "version": "1.14.1",
+            "version": "1.14.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-package-tools.git",
-                "reference": "b477dd2f89d0751f0e51ffb3a70181f0bc7ab8df"
+                "reference": "bab62023a4745a61170ad5424184533685e73c2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/b477dd2f89d0751f0e51ffb3a70181f0bc7ab8df",
-                "reference": "b477dd2f89d0751f0e51ffb3a70181f0bc7ab8df",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/bab62023a4745a61170ad5424184533685e73c2d",
+                "reference": "bab62023a4745a61170ad5424184533685e73c2d",
                 "shasum": ""
             },
             "require": {
@@ -5378,7 +5378,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-package-tools/issues",
-                "source": "https://github.com/spatie/laravel-package-tools/tree/1.14.1"
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.14.2"
             },
             "funding": [
                 {
@@ -5386,7 +5386,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-01-27T15:33:45+00:00"
+            "time": "2023-03-14T16:41:21+00:00"
         },
         {
             "name": "stevebauman/location",
@@ -8922,24 +8922,27 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.6.2",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "48f445a408c131e38cab1c235aa6d2bb7a0bb20d"
+                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/48f445a408c131e38cab1c235aa6d2bb7a0bb20d",
-                "reference": "48f445a408c131e38cab1c235aa6d2bb7a0bb20d",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
+                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
                 "shasum": ""
             },
             "require": {
+                "doctrine/deprecations": "^1.0",
                 "php": "^7.4 || ^8.0",
-                "phpdocumentor/reflection-common": "^2.0"
+                "phpdocumentor/reflection-common": "^2.0",
+                "phpstan/phpdoc-parser": "^1.13"
             },
             "require-dev": {
                 "ext-tokenizer": "*",
+                "phpbench/phpbench": "^1.2",
                 "phpstan/extension-installer": "^1.1",
                 "phpstan/phpstan": "^1.8",
                 "phpstan/phpstan-phpunit": "^1.1",
@@ -8971,9 +8974,54 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.6.2"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.0"
             },
-            "time": "2022-10-14T12:47:21+00:00"
+            "time": "2023-03-12T10:13:29+00:00"
+        },
+        {
+            "name": "phpstan/phpdoc-parser",
+            "version": "1.16.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpdoc-parser.git",
+                "reference": "e27e92d939e2e3636f0a1f0afaba59692c0bf571"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/e27e92d939e2e3636f0a1f0afaba59692c0bf571",
+                "reference": "e27e92d939e2e3636f0a1f0afaba59692c0bf571",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^1.5",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpstan/phpstan-strict-rules": "^1.0",
+                "phpunit/phpunit": "^9.5",
+                "symfony/process": "^5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\PhpDocParser\\": [
+                        "src/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPDoc parser with support for nullable, intersection and generic types",
+            "support": {
+                "issues": "https://github.com/phpstan/phpdoc-parser/issues",
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.16.1"
+            },
+            "time": "2023-02-07T18:11:17+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -9295,16 +9343,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.6.4",
+            "version": "9.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "9125ee085b6d95e78277dc07aa1f46f9e0607b8d"
+                "reference": "86e761949019ae83f49240b2f2123fb5ab3b2fc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9125ee085b6d95e78277dc07aa1f46f9e0607b8d",
-                "reference": "9125ee085b6d95e78277dc07aa1f46f9e0607b8d",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/86e761949019ae83f49240b2f2123fb5ab3b2fc5",
+                "reference": "86e761949019ae83f49240b2f2123fb5ab3b2fc5",
                 "shasum": ""
             },
             "require": {
@@ -9337,8 +9385,8 @@
                 "sebastian/version": "^3.0.2"
             },
             "suggest": {
-                "ext-soap": "*",
-                "ext-xdebug": "*"
+                "ext-soap": "To be able to generate mocks based on WSDL files",
+                "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
             "bin": [
                 "phpunit"
@@ -9377,7 +9425,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.4"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.5"
             },
             "funding": [
                 {
@@ -9393,7 +9441,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-27T13:06:37+00:00"
+            "time": "2023-03-09T06:34:10+00:00"
         },
         {
             "name": "sebastian/cli-parser",

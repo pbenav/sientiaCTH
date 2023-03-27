@@ -75,7 +75,7 @@ class StatsComponent extends Component
 
         // My implementation
         $cCModel = LivewireCharts::columnChartModel() // This the default initial value the first reduce item
-            ->setTitle(__("Hours worked"))
+            ->setTitle(__("Registered hours"))
             ->setAnimated($this->firstRun)
             ->setLegendVisibility(false)
             ->setColumnWidth(90)
