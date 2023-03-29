@@ -20,6 +20,7 @@ class EditEvent extends Component
         'event.start' => 'required|date',
         'event.end' => 'required|date',
         'event.description' => 'required',
+        'event.observations' => 'string|max:255|nullable',
     ];
 
     public function mount()

@@ -7,7 +7,7 @@
     "Forgot Your Password?": "¿Olvidaste tu contraseña?",
     "Register": "Registro",
     "Name": "Nombre",
-    "Family Name 1": "Primer Apellido",
+    "Family Name 1": "Primer apellido",
     "Family Name 2": "Segundo apellido",
     "Confirm Password": "Confirmar contraseña",
     "Choose a User Code": "Elige un código secreto",
@@ -57,10 +57,10 @@
     "Cancel": "Cancelar",
     "Create Event": "Crear nuevo evento",
     "Time Stamp": "Marca de tiempo",
-    "Start date": "Fecha de inicio del evento",
-    "End date": "Fecha de fin del evento",
-    "Start time": "Hora de inicio del evento",
-    "End time": "Hora de fin del evento",
+    "Start date": "Fecha inicio",
+    "End date": "Fecha fin",
+    "Start time": "Hora inicio",
+    "End time": "Hora fin",
     "Description": "Descripción",
     "Insert code": "Ingresa el código",
     "Reset": "Resetear",
@@ -295,5 +295,6 @@
     "From date must be from before than to date.": "La fecha desde debe ser anterior a hasta.",
     "To date must be at the latest today": "La fecha hasta debe ser como máximo la de hoy.",
     "Query run time: ": "Consulta realizada en: ",
-    "miliseconds": "milisegundos"
+    "miliseconds": "milisegundos",
+    "Observations": "Observaciones"
 }

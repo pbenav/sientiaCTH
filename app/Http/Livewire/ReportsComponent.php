@@ -16,7 +16,7 @@ class ReportsComponent extends Component
     public Team $team;
     public bool $isTeamAdmin;
     public bool $isInspector;
-    public array $workers = [];
+    public $workers;
     public $worker;
     public $fromdate;
     public $todate;

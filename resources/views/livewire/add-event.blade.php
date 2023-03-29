@@ -31,6 +31,18 @@
                 <x-jet-input-error for='description' />
             </div>
 
+            <div class="mx-auto mb-4">
+                <x-jet-label value="{{ __('Observations') }}" />
+                <textarea class="w-full form-control"                
+                wire:model="observations"
+                 rows="4"
+                 placeholder="{{ __('Observations') }}"
+                 name="observations"
+                 id="observations"
+                 maxlength="255"></textarea>
+                <x-jet-input-error for='observations' />
+            </div>
+
             <div class="mb-4">
                 <input type="hidden" id="user_id" name="user_id" wire:model.defer="user_id">
             </div>
@@ -43,7 +55,7 @@
             </x-jet-secondary-button>
 
             {{-- Function save('') empty parameter to say that we are already in dashboard --}}
-            <x-jet-button wire:click="save('')" wire:loading.attr="disabled" class="ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center"
+            <x-jet-button wire:click="save('')" wire:loading.attr="disabled" class="justify-center ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500"
                 wire_target="save">
                 {{ __('Create Event') }}
             </x-jet-button>

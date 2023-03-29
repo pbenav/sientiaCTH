@@ -16,6 +16,7 @@ class AddEvent extends Component
     public $start_time;
     public $user_id;
     public $description;
+    public $observations;
     public $origin;
 
     protected $listeners = ['add'];
@@ -23,7 +24,8 @@ class AddEvent extends Component
     protected $rules = [
         'start_date' => 'required|after:-7 day|before:+1 day', // no more than one day before
         'start_time' => 'required|after:-12 hours|before:+12 hours', // |after_or_equal:now', When needed!!!
-        'description' => 'required'
+        'description' => 'required',
+        'observations' => 'string|max:255|nullable'
     ];
 
     public function updated($propertyName)
@@ -36,6 +38,7 @@ class AddEvent extends Component
         $this->start_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
         $this->description = __('Workday');
+        $this->observations = '';
     }
 
     public function add($origin)
@@ -60,6 +63,7 @@ class AddEvent extends Component
             'user_id' => Auth::user()->id,
             'user_code' => Auth::user()->user_code,
             'description' => $this->description,
+            'observations' => $this->observations,
             'is_open' => true
         ]);
 

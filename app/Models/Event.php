@@ -18,7 +18,8 @@ class Event extends Model
         'start',
         'end',
         'is_open',
-        'description'
+        'description',
+        'observations'
     ];
 
     public function user()
@@ -78,7 +79,7 @@ class Event extends Model
         return $query->selectRaw('user_id as user_id, DAY(start) as day,
                                     MONTH(start) as month,
                                     SUM(TIMESTAMPDIFF(minute, start, end))/60 as hours,
-                                    description as description')
+                                    description')
             ->where('user_id', $user_id)
             ->where('description', 'like', '%' . $description . '%')
             ->whereMonth('start', $month)
@@ -90,7 +91,7 @@ class Event extends Model
 
     public function scopefilterEvents(Builder $query, $start, $end, $user_id, $is_open)
     {
-        return $query->select('id, user_id, start, end, is_open')
+        return $query->select('id, user_id, start, end, is_open, observations')
             ->where('start', '>=', Carbon::parse($start))
             ->where('end', '<=', Carbon::parse($end))
             ->where('user_id', $user_id)

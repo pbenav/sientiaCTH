@@ -24,6 +24,7 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
     public $fromdate;
     public $todate;
     public $description;
+    public $observations;
     public $user;
     public $team;
 
@@ -41,7 +42,8 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
     public function query()
     {
         //$data = DB::table('events')
-        $data = Event::select('events.user_id', 'users.name', 'users.family_name1', 'events.id', 'events.start', 'events.end', 'events.description')
+        $data = Event::select('events.user_id', 'users.name', 'users.family_name1', 'events.id',
+                              'events.start', 'events.end', 'events.description', 'events.observations')
             ->selectRaw('TIMESTAMPDIFF(hour, start, end) as duration')
             ->join('users', 'events.user_id', 'users.id')
             ->when(($this->worker != "%"), fn ($query) => $query->where('users.id', $this->worker))
@@ -58,26 +60,27 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
             [
                 'Id',
                 __('Name'),
-                __('Family Name 1'),
                 __('Event'),
                 __('Start date'),
                 __('End date'),
                 __('Duration'),
-                __('Description')
+                __('Description'),
+                __('Observations')
             ]
         ];
     }
     public function map($event): array
     {
+        $name = $event->name . ' ' . $event->family_name1;
         return [
             $event->user_id,
-            $event->name,
-            $event->family_name1,
+            $name,
             $event->id,
             $event->start,
             $event->end,            
             $this->timeDiff($event->start, $event->end, true),
-            $event->description
+            $event->description,
+            $event->observations
         ];
     }
 
@@ -88,21 +91,62 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
         $sheet->getHeaderFooter()->setFirstHeader('&C&HPlease treat this document as confidential!');
         $sheet->getHeaderFooter()->setFirstFooter('&L&B' . $sheet->getTitle() . '&RPage &P of &N');
         $sheet->getParent()->getDefaultStyle()->getFont()->setName('Helvetica');
-        $sheet->getParent()->getDefaultStyle()->getFont()->setSize('10');        
+        $sheet->getParent()->getDefaultStyle()->getFont()->setSize('8');        
         $sheet->getParent()->getDefaultStyle()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
+        $cols = array(
+            'A' => 10,
+            'B' => 38,
+            'C' => 10,
+            'D' => 28,
+            'E' => 28,
+            'F' => 32,
+            'G' => 24,
+            'H' => 34,
+        );
+
+        foreach($cols as $c => $w) {            
+            $sheet->getParent()->getActiveSheet()->getColumnDimension($c)
+            ->setAutoSize(false)->setWidth((float)$w);
+            
+        }
+        //dump($sheet->getParent()->getActiveSheet()->getColumnDimension('B'));
+
         return [
-            'A1:H1' => [
+            'A:ZZ'=> [
                 'font' => [
                     'name' => 'Helvetica',
-                    'bold' => true,
+                    'bold' => false,
                     'size' => 10,
-                    'color' => ['argb' => 'FFFFFFFF'],
-                    'underline' => true
+                    'color' => ['argb' => '00000000'],
+                    'underline' => false
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_TOP
+                ]
+            ],         
+            'H' => [
+                'autoSize' => true,
+                'width' => '50',
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'color' => ['argb' => 'FFaaaaaa']
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_TOP
+                ]
+            ],           
+            'A1:H1' => [ // Heading                
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                     'vertical' => Alignment::VERTICAL_CENTER
+                ],
+                'font' => [
+                    'bold' => true,
+                    'color' => ['argb' => 'FFFFFFFF'],
+                    'underline' => true
                 ],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
@@ -118,7 +162,7 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
                         'color' => ['argb' => 'FF000000']
                     ],
                 ],
-            ]
+            ],
         ];
     }
 }

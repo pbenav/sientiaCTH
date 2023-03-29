@@ -21,7 +21,7 @@
             </div>
             {{-- end-datepicker --}}
 
-            <div>
+            <div class="mb-4">
                 <x-jet-label value="{{ __('Description') }}" />
                 <select class="sl-select" wire:model.defer="event.description" name="event.description" required>
                     {{-- TODO Integrate causes as new model --}}
@@ -31,6 +31,19 @@
                 </select>
                 <x-jet-input-error for='event.description' />
             </div>
+
+            <div class="mx-auto mb-4">
+                <x-jet-label value="{{ __('Observations') }}" />
+                <textarea class="w-full form-control"
+                 wire:model.defer="event.observations"
+                 rows="4"
+                 placeholder="{{ __('Observations') }}"
+                 name="observations"
+                 id="observations"
+                 maxlength="255"></textarea>
+                <x-jet-input-error for='event.observations' />
+            </div>
+
         </x-slot>
 
         <x-slot name='footer'>
@@ -39,7 +52,7 @@
             </x-jet-secondary-button>
 
             <x-jet-button wire:click="update" wire:loading.attr="disabled"
-                class="ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500 justify-center">
+                class="justify-center ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500">
                 {{ __('Update event') }}
             </x-jet-button>
         </x-slot>
