@@ -25,7 +25,7 @@ trait TimeDiff
             if($forHuman){
                 return $end_date->diffForHumans($start_date, $this->options);
             } else {
-                return $end_date->diffInMinutes($start_date, true);
+                return $end_date->diffInRealSeconds($start_date, true);
             }
         } else {
             return __('On course Event');

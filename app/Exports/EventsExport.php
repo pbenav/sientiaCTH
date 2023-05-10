@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Event;
 use App\Traits\TimeDiff;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -16,7 +17,7 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyles, WithMapping
+class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, ShouldQueue
 {
     use Exportable;
     use TimeDiff;
@@ -42,6 +43,7 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
     public function query()
     {
         //$data = DB::table('events')
+        // Check if period is greater than 120 days.
         $data = Event::select('events.user_id', 'users.name', 'users.family_name1', 'events.id',
                               'events.start', 'events.end', 'events.description', 'events.observations')
             ->selectRaw('TIMESTAMPDIFF(hour, start, end) as duration')
@@ -131,7 +133,7 @@ class EventsExport implements FromQuery, WithHeadings, ShouldAutoSize, WithStyle
                 'width' => '50',
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'color' => ['argb' => 'FFaaaaaa']
+                    'color' => ['argb' => 'FFCCCCCC']
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_LEFT,

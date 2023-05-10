@@ -16,13 +16,17 @@ use App\Http\Controllers\UserController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-// Route for location
-Route::get('userloc', [UserController::class, 'index']);
 
 // This route renders a view without the need of a controller
 Route::get('/', function () {
     return view('welcome');
 })->name('front');
+
+// Route to Presentation_TFG.svg
+Route::get('/pres', function () {
+        $pathToFile = public_path('Presentacion_TFG.svg');
+    return response()->file($pathToFile);
+})->name('pres');
 
 // This route calls a component whose default template is layouts.app.blade.php
 Route::middleware([

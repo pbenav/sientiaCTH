@@ -1,0 +1,39 @@
+INSTALACION
+-----------
+
+Para poner en funcionamiento esta aplicación se deben tener instalados PHP^8.1,
+Composer, node y npm.
+
+con la orden:
+
+#>composer update
+
+se actualizan los módulos necesarios para el funcionamiento.
+
+A continuación se actualizan las dependencias de Node con
+
+#>npm install && npm run dev
+
+El siguiente paso es configurar la base de datos, copiando el archivo
+.env.example a .env modificando las opciones correspondientes.
+
+Después se debe actualizar la clave de la aplicación con 
+
+#>php artisan key:generate
+
+y correr las migraciones con
+
+#>php artisan migrate
+
+Se pueden incluir los datos de prueba si se añade la opción seed
+
+#>php artisan migrate:refresh --seed
+
+Finalmente ejecutar el servidor básico integrado con 
+
+#>php artisan serve
+
+Se puede ver la aplicación en funcionamiento visitando la dirección y puertos
+configurados en el archivo .env
+
+http://localhost:8000 (dirección y puertos por defecto)
