@@ -22,3 +22,6 @@ act_servers.sh
 db.sql
 _ide_helper.php
 docker-compose.yml
+*.lock
+/public/css/app.css
+/public/mix-manifest.json

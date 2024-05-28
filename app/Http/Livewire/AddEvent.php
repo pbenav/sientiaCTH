@@ -80,6 +80,6 @@ class AddEvent extends Component
 
     public function render()
     {
-        return view('livewire.add-event');
+        return view('livewire.events.add-event');
     }
 }

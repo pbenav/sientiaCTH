@@ -15,6 +15,7 @@
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/line-clamp": "^0.4.0",
         "@tailwindcss/typography": "^0.5.2",
+        "@types/tailwindcss": "^3.1.0",
         "alpinejs": "^3.10.3",
         "autoprefixer": "^10.4.7",
         "axios": "^0.25",
@@ -28,6 +29,9 @@
         "tailwindcss": "^3.0.24"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.14",
+        "@fullcalendar/daygrid": "^6.1.14",
+        "@fullcalendar/interaction": "^6.1.14",
         "flatpickr": "^4.6.13"
     }
 }

@@ -18,7 +18,7 @@
         </div>
     @endif
 
-    {{-- Stats main div --}}
+    {{-- Reports main div --}}
     <div class="w-full max-w-7xl mx-auto">
         <div class="w-auto flex flex-row flex-wrap gap-2 mb-4">
 
@@ -74,9 +74,9 @@
             </div>
 
             <div class="h-8 pt-1">
-                <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center" wire:click='export'>{{ __('Download') }}</x-jet-button>
+                <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
+                    wire:click='export'>{{ __('Download') }}</x-jet-button>
             </div>
-
         </div>
     </div>
 </div>

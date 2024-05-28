@@ -198,7 +198,7 @@ class GetTimeRegisters extends Component
     public function render()
     {
         $this->getEvents();
-        return view('livewire.get-time-registers',)
+        return view('livewire.events.get-time-registers',)
             ->with('events', $this->events)
             ->with('isTeamAdmin', $this->isTeamAdmin)
             ->with('isInspector', $this->isInspector);

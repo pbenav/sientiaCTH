@@ -69,6 +69,7 @@
                     <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedYear">
                         <option value="2022">{{ __('2022') }}</option>
                         <option value="2023">{{ __('2023') }}</option>
+                        <option value="2024">{{ __('2024') }}</option>
                     </select>
                     <x-jet-input-error for='year' />
                 </div>

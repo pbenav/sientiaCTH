@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use App\Traits\TimeDiff;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Traits\TimeDiff;
+use App\Traits\InsertHistory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +14,7 @@ class Event extends Model
 {
     use HasFactory;
     use TimeDiff;
+    use InsertHistory;
 
     protected $fillable = [
         'user_id',
@@ -43,9 +46,13 @@ class Event extends Model
 
     public function toggleConfirm()
     {
-        error_log('Toggle confirm...');
+        $orig_ev = clone $this;        
         $this->is_open = !$this->is_open;
         $this->save();
+        if (auth()->user()->isTeamAdmin()) {
+            $this->insertHistory('events', $orig_ev, $this);
+        }
+        unset($orig_ev);
     }
 
 
@@ -98,5 +105,5 @@ class Event extends Model
             ->where('is_open', $is_open)
             ->orderBy('start', 'asc')
             ->get();
-    } 
+    }
 }

@@ -50,6 +50,7 @@
     "Event Id": "Evento",
     "Event": "Evento",
     "Events": "Eventos",
+    "Leaves": "Permisos",
     "Add event": "Añadir evento",
     "Edit event": "Editar evento",
     "Update event": "Actualizar evento",
@@ -296,5 +297,7 @@
     "To date must be at the latest today": "La fecha hasta debe ser como máximo la de hoy.",
     "Query run time: ": "Consulta realizada en: ",
     "miliseconds": "milisegundos",
-    "Observations": "Observaciones"
+    "Observations": "Observaciones",
+    "Holidays": "Vacaciones",
+    "Own Affairs": "Asuntos propios"
 }

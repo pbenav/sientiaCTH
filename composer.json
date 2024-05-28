@@ -16,7 +16,7 @@
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
         "laraveles/spanish": "^1.5",
-        "livewire/livewire": "^2.5",
+        "livewire/livewire": "*",
         "maatwebsite/excel": "^3.1",
         "phpoffice/phpspreadsheet": "^1.26",
         "spatie/laravel-cookie-consent": "^3.2",

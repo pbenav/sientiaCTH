@@ -73,7 +73,7 @@ class ReportsComponent extends Component
 
     public function render()
     {
-        return view('livewire.reports')->with([
+        return view('livewire.reports.reports')->with([
             'workers' => $this->workers,
         ]);
     }

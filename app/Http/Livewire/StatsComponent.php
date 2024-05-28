@@ -5,8 +5,6 @@ namespace App\Http\Livewire;
 use App\Models\User;
 use App\Models\Event;
 use Livewire\Component;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Asantibanez\LivewireCharts\Facades\LivewireCharts;
 
@@ -106,7 +104,7 @@ class StatsComponent extends Component
     {        
         list($cCModel, $elapsedTime) = $this->getData();
 
-        return view('livewire.stats')
+        return view('livewire.stats.stats')
             ->with([
                 'columnChartModel' => $cCModel,
                 'elapsedTime' => $elapsedTime,
