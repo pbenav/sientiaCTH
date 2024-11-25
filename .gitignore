@@ -25,3 +25,4 @@ docker-compose.yml
 *.lock
 /public/css/app.css
 /public/mix-manifest.json
+*.sql
