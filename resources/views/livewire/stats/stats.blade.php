@@ -38,39 +38,50 @@
                     <x-jet-label value="{{ __('Month') }}" />
                     <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedMonth" wire:change="getData">
                         <option {{ $selectedMonth == 1 ? "selected value=$selectedMonth" : '' }} value="1">
-                            {{ __('January') }}</option>
+                            {{ __('January') }}
+                        </option>
                         <option {{ $selectedMonth == 2 ? "selected value=$selectedMonth" : '' }} value="2">
-                            {{ __('February') }}</option>
+                            {{ __('February') }}
+                        </option>
                         <option {{ $selectedMonth == 3 ? "selected value=$selectedMonth" : '' }} value="3">
-                            {{ __('March') }}</option>
+                            {{ __('March') }}
+                        </option>
                         <option {{ $selectedMonth == 4 ? "selected value=$selectedMonth" : '' }} value="4">
-                            {{ __('April') }}</option>
+                            {{ __('April') }}
+                        </option>
                         <option {{ $selectedMonth == 5 ? "selected value=$selectedMonth" : '' }} value="5">
-                            {{ __('May') }}</option>
+                            {{ __('May') }}
+                        </option>
                         <option {{ $selectedMonth == 6 ? "selected value=$selectedMonth" : '' }} value="6">
-                            {{ __('June') }}</option>
+                            {{ __('June') }}
+                        </option>
                         <option {{ $selectedMonth == 7 ? "selected value=$selectedMonth" : '' }} value="7">
-                            {{ __('July') }}</option>
+                            {{ __('July') }}
+                        </option>
                         <option {{ $selectedMonth == 8 ? "selected value=$selectedMonth" : '' }} value="8">
-                            {{ __('August') }}</option>
+                            {{ __('August') }}
+                        </option>
                         <option {{ $selectedMonth == 9 ? "selected value=$selectedMonth" : '' }} value="9">
-                            {{ __('September') }}</option>
+                            {{ __('September') }}
+                        </option>
                         <option {{ $selectedMonth == 10 ? "selected value=$selectedMonth" : '' }} value="10">
-                            {{ __('October') }}</option>
+                            {{ __('October') }}
+                        </option>
                         <option {{ $selectedMonth == 11 ? "selected value=$selectedMonth" : '' }} value="11">
-                            {{ __('November') }}</option>
+                            {{ __('November') }}
+                        </option>
                         <option {{ $selectedMonth == 12 ? "selected value=$selectedMonth" : '' }} value="12">
-                            {{ __('December') }}</option>
+                            {{ __('December') }}
+                        </option>
                     </select>
                     <x-jet-input-error for='month' />
                 </div>
                 <div>
                     <x-jet-label value="{{ __('Year') }}" />
                     <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedYear">
-                        <option value="2022">{{ __('2022') }}</option>
-                        <option value="2023">{{ __('2023') }}</option>
-                        <option value="2024">{{ __('2024') }}</option>
-                        <option value="2025">{{ __('2025') }}</option>
+                        @foreach (range(2022, date('Y')) as $year)
+                        <option value="{{ $year }}">{{ $year }}</option>
+                        @endforeach
                     </select>
                     <x-jet-input-error for='year' />
                 </div>
