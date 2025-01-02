@@ -70,6 +70,7 @@
                         <option value="2022">{{ __('2022') }}</option>
                         <option value="2023">{{ __('2023') }}</option>
                         <option value="2024">{{ __('2024') }}</option>
+                        <option value="2025">{{ __('2025') }}</option>
                     </select>
                     <x-jet-input-error for='year' />
                 </div>
