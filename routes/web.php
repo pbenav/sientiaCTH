@@ -37,7 +37,6 @@ Route::middleware([
     'verified'
 ])->group(function () {
     Route::get('/events', GetTimeRegisters::class)->name('events');
-    Route::get('/leaves', LeaveManager::class)->name('leaves');
     Route::get('/userstats', StatsComponent::class)->name('stats');
     Route::get('/reports', ReportsComponent::class)->name('reports');
 });
