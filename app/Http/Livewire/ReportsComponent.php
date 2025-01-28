@@ -9,7 +9,6 @@ use App\Exports\EventsExport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
-
 class ReportsComponent extends Component
 {
     public User $user;
@@ -33,28 +32,12 @@ class ReportsComponent extends Component
         "rtype" => 'required',
     ];
 
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
-    }
-
-    public function export()
-    {   
-        $params = [
-            "worker" => $this->worker,
-            "fromdate" => $this->fromdate,
-            "todate" => $this->todate,
-            "description" => __($this->description),
-        ];
-
-        $this->validate();
-        
-        $ext = strtoLower($this->rtype);
-        $fn = 'events_' . date('ymdhms'). '.' . $ext;
-
-        return Excel::download(new EventsExport($params), $fn, $this->rtypes[$this->rtype]);
-    }
-
+    /**
+     * Mounts the component and initializes necessary data.
+     *
+     * This method is called once when the component is initialized.
+     * It sets up user, team, permissions, workers, and date range.
+     */
     public function mount()
     {
         $this->user = User::find(Auth::user()->id);
@@ -71,6 +54,47 @@ class ReportsComponent extends Component
         $this->rtype = 'PDF';
     }
 
+    /**
+     * Validates a single property of the component.
+     *
+     * @param string $propertyName The name of the property to validate.
+     */
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
+
+    /**
+     * Exports the report based on selected parameters.
+     *
+     * This method validates the input data, constructs the filename, and returns the Excel file download.
+     *
+     * @return \Illuminate\Http\Response The file download response.
+     */
+    public function export()
+    {
+        $params = [
+            "worker" => $this->worker,
+            "fromdate" => $this->fromdate,
+            "todate" => $this->todate,
+            "description" => __($this->description),
+        ];
+
+        $this->validate();
+
+        $ext = strtoLower($this->rtype);
+        $fn = 'events_' . date('ymdhms'). '.' . $ext;
+
+        return Excel::download(new EventsExport($params), $fn, $this->rtypes[$this->rtype]);
+    }
+
+    /**
+     * Renders the component view.
+     *
+     * This method is responsible for rendering the Livewire component's view and passing necessary data to it.
+     *
+     * @return \Illuminate\View\View The rendered view.
+     */
     public function render()
     {
         return view('livewire.reports.reports')->with([

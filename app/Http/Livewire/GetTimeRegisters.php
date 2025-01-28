@@ -48,6 +48,9 @@ class GetTimeRegisters extends Component
         'filter.description' => 'nullable|string',
     ];
 
+    /**
+     * Initialize the component and set default values.
+     */
     public function mount()
     {
         $this->filter = new Event([
@@ -76,6 +79,11 @@ class GetTimeRegisters extends Component
         }
     }
 
+    /**
+     * Toggle the sorting direction for the specified column.
+     *
+     * @param string $sort The column to sort by.
+     */
     public function order($sort)
     {
         if ($this->sort = $sort) {
@@ -90,15 +98,21 @@ class GetTimeRegisters extends Component
         };
     }
 
-    public function edit(Event $ev){
+    /**
+     * Emit the event to edit an existing event.
+     *
+     * @param Event $ev The event to edit.
+     */
+    public function edit(Event $ev)
+    {
         $this->emitTo('edit-event', 'edit', $ev);
     }
 
-    public function alertConfirm(Event $ev)
-    {
-        $this->emit('confirmConfirmation', $ev);
-    }
-
+    /**
+     * Confirm an event based on user role and event status.
+     *
+     * @param Event $ev The event to confirm.
+     */
     public function confirm(Event $ev)
     {
         if ($this->isTeamAdmin) {
@@ -108,20 +122,43 @@ class GetTimeRegisters extends Component
         }
     }
 
+    /**
+     * Emit the confirmation alert for an event.
+     *
+     * @param Event $ev The event to confirm.
+     */
+    public function alertConfirm(Event $ev)
+    {
+        $this->emit('confirmConfirmation', $ev);
+    }
+
+    /**
+     * Emit the deletion alert for an event.
+     *
+     * @param Event $ev The event to delete.
+     */
     public function alertDelete(Event $ev)
     {
         $this->emit('confirmDeletion', $ev);
     }
 
+    /**
+     * Delete an event if authorized.
+     *
+     * @param Event $ev The event to delete.
+     */
     public function delete(Event $ev)
-    {        
+    {
         if ($this->isTeamAdmin || $ev->is_open) {
             $ev->delete();
         }
-        // This is to avoit not found error. When found remove with event to get.time.registers->render
+        // Redirect to avoid not found errors
         return redirect()->route('events');
     }
 
+    /**
+     * Unset the filters and reset related flags.
+     */
     public function unsetFilter()
     {
         $this->showFiltersModal = false;
@@ -129,6 +166,9 @@ class GetTimeRegisters extends Component
         $this->confirmed = false;
     }
 
+    /**
+     * Set the filters and show the modal.
+     */
     public function setFilter()
     {
         $this->showFiltersModal = true;
@@ -136,12 +176,13 @@ class GetTimeRegisters extends Component
         $this->confirmed = false;
     }
 
+    /**
+     * Retrieve and filter events based on the current settings.
+     */
     public function getEvents()
     {
         if ($this->readyonload) {
-            // Get events taking account of is_team_admin and search strings
             if ($this->filtered) {
-                //$this->events = $this->filter->getEventsFiltered($teamUsers, $this->filter, $this->sort, $this->direction, $this->qtytoshow);
                 $this->events = Event::select(
                     'events.id',
                     'events.user_id',
@@ -154,12 +195,12 @@ class GetTimeRegisters extends Component
                 )
                     ->join('users', 'user_id', '=', 'users.id')
                     ->whereIn('events.user_id', $this->teamUsers)
-                    ->when(!is_null($this->filter->start), fn ($query) => $query->whereDate('events.start', '>=', $this->filter->start))
-                    ->when(!is_null($this->filter->end), fn ($query) => $query->whereDate('events.end', '<=', $this->filter->end))
-                    ->when(!empty($this->filter->name), fn ($query) => $query->where('users.name', $this->filter->name))
-                    ->when(!empty($this->filter->family_name1), fn ($query) => $query->where('users.family_name1', $this->filter->family_name1))
-                    ->when($this->filter->is_open == 1, fn ($query) => $query->where('events.is_open', '1'))
-                    ->when($this->filter->description != __('All'), fn ($query) => $query->where('events.description', $this->filter->description))
+                    ->when(!is_null($this->filter->start), fn($query) => $query->whereDate('events.start', '>=', $this->filter->start))
+                    ->when(!is_null($this->filter->end), fn($query) => $query->whereDate('events.end', '<=', $this->filter->end))
+                    ->when(!empty($this->filter->name), fn($query) => $query->where('users.name', $this->filter->name))
+                    ->when(!empty($this->filter->family_name1), fn($query) => $query->where('users.family_name1', $this->filter->family_name1))
+                    ->when($this->filter->is_open == 1, fn($query) => $query->where('events.is_open', '1'))
+                    ->when($this->filter->description != __('All'), fn($query) => $query->where('events.description', $this->filter->description))
                     ->orderBy($this->sort, $this->direction)
                     ->paginate($this->qtytoshow);
             } else {
@@ -175,8 +216,6 @@ class GetTimeRegisters extends Component
                 )
                     ->join('users', 'user_id', '=', 'users.id')
                     ->whereIn('events.user_id', $this->teamUsers)
-                    // ->when(is_null($this->teamUsers),  fn($query) => $query->where('events.user_id', $this->user->id))
-                    // ->when(!is_null($this->teamUsers), fn($query) => $query->whereIn('user_id', $this->teamUsers))
                     ->where(function ($query) {
                         $query->where('users.name', 'like', '%' . $this->search . '%')
                             ->orWhere('events.user_id', $this->search)
@@ -195,6 +234,11 @@ class GetTimeRegisters extends Component
         }
     }
 
+    /**
+     * Render the component view.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         $this->getEvents();
@@ -204,21 +248,33 @@ class GetTimeRegisters extends Component
             ->with('isInspector', $this->isInspector);
     }
 
+    /**
+     * Reset the pagination when the event is updated.
+     */
     public function updatingEvent()
     {
         $this->resetPage();
     }
 
+    /**
+     * Reset the pagination when the confirmation status is updated.
+     */
     public function updatingConfirmed()
     {
         $this->resetPage();
     }
 
+    /**
+     * Reset the pagination when the quantity to show is updated.
+     */
     public function updatingQtytoshow()
     {
         $this->resetPage();
     }
 
+    /**
+     * Mark the events as ready to load.
+     */
     public function loadEvents()
     {
         $this->readyonload = true;
