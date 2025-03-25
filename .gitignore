@@ -1,11 +1,11 @@
-#/node_modules
+/node_modules
 /public/hot
 /public/storage
 /public/fonts
 /storage/*.key
 /storage/view/
 *.log
-#/vendor
+/vendor
 #public/js/app.js
 #public/css/app.css
 .env
