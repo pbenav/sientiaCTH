@@ -139,7 +139,7 @@ class GetTimeRegisters extends Component
      */
     public function alertDelete(Event $ev)
     {
-        $this->emit('confirmDeletion', $ev);
+        $this->emit('deleteConfirmation', $ev);
     }
 
     /**
