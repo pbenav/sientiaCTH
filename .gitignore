@@ -6,8 +6,8 @@
 /storage/view/
 *.log
 /vendor
-#public/js/app.js
-#public/css/app.css
+public/js/app.js
+public/css/app.css
 .env
 .env.backup
 .phpunit.result.cache
