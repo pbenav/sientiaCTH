@@ -1,28 +1,44 @@
+# Archivos de configuración y entornos sensibles
 .env
 .env.backup
-/public/hot
-/public/storage
-/public/fonts
-#/public/js/app.js
-#/public/css/app.css
-#/public/mix-manifest.json
-/storage/*.key
-/storage/view/
-/vendor
-.env
-.env.backup
-.phpunit.result.cache
+.env.production
 Homestead.json
 Homestead.yaml
+
+# Directorios de dependencias
+/node_modules
+/vendor
+
+# Archivos de compilación y generados
+.phpunit.result.cache
+_ide_helper.php
+*.lock
 npm-debug.log
 yarn-error.log
-/.idea
-/.vscode
+
+# Archivos de compilación de assets
+/public/build
+/public/hot
+
+# Almacenamiento y archivos de usuario
+/public/storage
+/storage/*.key
+/storage/logs/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+
+# Archivos específicos de sistemas operativos y editores
+.DS_Store
+.idea/
+.vscode/
 /nbproject
-.editorconfig
-act_servers.sh
-_ide_helper.php
-docker-compose.yml
-*.lock
-*.log
 *.sql
+
+# Archivos de script
+act_servers.sh
+
+# Descomentar para incluir archivos específicos
+# /public/css/app.css
+# /public/js/app.js
+# /public/mix-manifest.json
