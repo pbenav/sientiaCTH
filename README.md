@@ -101,6 +101,7 @@ Para poner en funcionamiento esta aplicación, debes tener instalados **PHP** (`
     Ejecuta estos comandos desde la carpeta de tu aplicación para corregir los permisos:
 
     ```bash
+    chown user:www-data * -R
     find ./ -type d -exec chmod 775 {} \;
     find ./ -type f -exec chmod 664 {} \;
     ```
