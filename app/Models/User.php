@@ -120,4 +120,9 @@ class User extends Authenticatable
     public function isInspector(){
         return $this->hasTeamRole($this->currentTeam, 'inspect');
     }
+
+     public function meta()
+    {
+        return $this->hasMany(UserMeta::class);
+    }
 }
