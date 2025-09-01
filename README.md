@@ -1,6 +1,6 @@
 ## About CTH
 
-CTH ia a web application based on Laravel and is intended to track time control in bussines.
+CTH is a web application based on Laravel and is intended to track time control in bussines.
 
 ## Security Vulnerabilities
 
