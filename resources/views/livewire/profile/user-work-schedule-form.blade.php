@@ -1,48 +1,64 @@
-<div>
-    <form wire:submit.prevent="save">
-        @if (session()->has('message'))
-            <div class="alert alert-success">
-                {{ session('message') }}
-            </div>
-        @endif
+<x-jet-form-section submit="save">
+    <x-slot name="title">
+        {{ __('Horario Laboral') }}
+    </x-slot>
 
-        <div class="shadow overflow-hidden sm:rounded-md">
-            <div class="px-4 py-5 bg-white sm:p-6">
-                <div class="grid grid-cols-6 gap-6">
-                    @foreach ($schedule as $index => $item)
-                        <div class="col-span-6 sm:col-span-2">
-                            <label for="start_time_{{ $index }}" class="block text-sm font-medium text-gray-700">Hora de inicio</label>
-                            <input type="time" wire:model="schedule.{{ $index }}.start" id="start_time_{{ $index }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                        </div>
-                        <div class="col-span-6 sm:col-span-2">
-                            <label for="end_time_{{ $index }}" class="block text-sm font-medium text-gray-700">Hora de fin</label>
-                            <input type="time" wire:model="schedule.{{ $index }}.end" id="end_time_{{ $index }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
-                        </div>
-                        <div class="col-span-6 sm:col-span-1">
-                            <label class="block text-sm font-medium text-gray-700">Días</label>
-                            <div class="mt-2 grid grid-cols-4 gap-2">
-                                @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" wire:model="schedule.{{ $index }}.days" value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
-                                        <span class="ml-2 text-gray-700">{{ $day }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-                        <div class="col-span-6 sm:col-span-1 flex items-end">
-                            <button type="button" wire:click="removeScheduleRow({{ $index }})" class="text-red-600 hover:text-red-900">Eliminar</button>
-                        </div>
+    <x-slot name="description">
+        {{ __('Define los tramos horarios de tu jornada laboral. Esto ayudará a que el sistema te sugiera la hora de entrada y salida al crear un nuevo evento.') }}
+    </x-slot>
+
+    <x-slot name="form">
+        <div class="col-span-6">
+            @if (session()->has('message'))
+                <div class="alert alert-success">
+                    {{ session('message') }}
+                </div>
+            @endif
+        </div>
+
+        @foreach ($schedule as $index => $item)
+            <div class="col-span-6 sm:col-span-2">
+                <x-jet-label for="start_time_{{ $index }}" value="{{ __('Hora de inicio') }}" />
+                <x-jet-input id="start_time_{{ $index }}" type="time" class="mt-1 block w-full" wire:model.defer="schedule.{{ $index }}.start" />
+                <x-jet-input-error for="schedule.{{ $index }}.start" class="mt-2" />
+            </div>
+            <div class="col-span-6 sm:col-span-2">
+                <x-jet-label for="end_time_{{ $index }}" value="{{ __('Hora de fin') }}" />
+                <x-jet-input id="end_time_{{ $index }}" type="time" class="mt-1 block w-full" wire:model.defer="schedule.{{ $index }}.end" />
+                <x-jet-input-error for="schedule.{{ $index }}.end" class="mt-2" />
+            </div>
+            <div class="col-span-6 sm:col-span-1">
+                <x-jet-label value="{{ __('Días') }}" />
+                <div class="mt-2 flex space-x-4">
+                    @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
+                        <label class="inline-flex items-center">
+                            <span class="mr-2 ml-2 text-gray-700">{{ $day }}</span>
+                            <input type="checkbox" wire:model="schedule.{{ $index }}.days" value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
+                        </label>
                     @endforeach
                 </div>
             </div>
-            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                <button type="button" wire:click="addScheduleRow" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Añadir tramo
-                </button>
-                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    Guardar
-                </button>
+            <div class="col-span-6 sm:col-span-1 flex items-end">
+                <x-jet-danger-button type="button" wire:click="removeScheduleRow({{ $index }})">
+                    {{ __('Eliminar') }}
+                </x-jet-danger-button>
             </div>
+        @endforeach
+
+        <div class="col-span-6 text-right">
+            <x-jet-secondary-button type="button" wire:click="addScheduleRow">
+                {{ __('Añadir tramo') }}
+            </x-jet-secondary-button>
         </div>
-    </form>
-</div>
+    </x-slot>
+
+    <x-slot name="actions">
+        <x-jet-action-message class="mr-3" on="saved">
+            {{ __('Guardado.') }}
+        </x-jet-action-message>
+
+        <x-jet-button>
+            {{ __('Guardar') }}
+        </x-jet-button>
+    </x-slot>
+</x-jet-form-section>
