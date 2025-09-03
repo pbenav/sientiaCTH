@@ -32,8 +32,8 @@
                 <div class="mt-2 flex space-x-4">
                     @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
                         <label class="inline-flex items-center">
-                            <span class="mr-2 ml-2 text-gray-700">{{ $day }}</span>
                             <input type="checkbox" wire:model="schedule.{{ $index }}.days" value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
+                            <span class="ml-2 text-gray-700">{{ $day }}</span>
                         </label>
                     @endforeach
                 </div>

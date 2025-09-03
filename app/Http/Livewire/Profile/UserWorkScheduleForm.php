@@ -12,6 +12,11 @@ class UserWorkScheduleForm extends Component
     public User $user;
     public $schedule = [];
 
+    protected $rules = [
+        'schedule.*.start' => 'required|date_format:H:i',
+        'schedule.*.end' => 'required|date_format:H:i|after:schedule.*.start',
+    ];
+
     public function mount(User $user)
     {
         $this->user = $user;
@@ -37,6 +42,8 @@ class UserWorkScheduleForm extends Component
 
     public function save()
     {
+        $this->validate();
+
         UserMeta::updateOrCreate(
             ['user_id' => $this->user->id, 'meta_key' => 'work_schedule'],
             ['meta_value' => json_encode($this->schedule)]
