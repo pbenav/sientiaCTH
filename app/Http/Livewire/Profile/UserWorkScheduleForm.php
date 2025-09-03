@@ -11,6 +11,7 @@ class UserWorkScheduleForm extends Component
 {
     public User $user;
     public $schedule = [];
+    public $editingIndex = null;
 
     public function mount(User $user)
     {
@@ -33,6 +34,16 @@ class UserWorkScheduleForm extends Component
     {
         unset($this->schedule[$index]);
         $this->schedule = array_values($this->schedule);
+    }
+
+    public function editScheduleRow($index)
+    {
+        $this->editingIndex = $index;
+    }
+
+    public function cancelEdit()
+    {
+        $this->editingIndex = null;
     }
 
     public function save()

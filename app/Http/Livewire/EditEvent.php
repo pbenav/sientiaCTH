@@ -4,13 +4,14 @@ namespace App\Http\Livewire;
 
 use App\Models\User;
 use App\Models\Event;
+use App\Traits\HasWorkScheduleHint;
 use Livewire\Component;
 use App\Traits\InsertHistory;
 use Illuminate\Support\Facades\Auth;
 
 class EditEvent extends Component
 {
-    use InsertHistory;
+    use InsertHistory, HasWorkScheduleHint;
 
     /**
      * @var bool $showModalEditEvent Determines if the edit event modal is visible.
@@ -54,7 +55,9 @@ class EditEvent extends Component
     {
         $this->event = new Event();
         $this->user = User::find(Auth::user()->id);
+        $this->getWorkScheduleHint();
     }
+
 
     /**
      * Handles editing of a specific event.

@@ -9,11 +9,6 @@ trait HasWorkScheduleHint
 {
     public function getWorkScheduleHint()
     {
-        if (!Auth::check()) {
-            $this->workScheduleHint = '';
-            return;
-        }
-
         $user = Auth::user();
         $workSchedule = UserMeta::where('user_id', $user->id)
                                 ->where('meta_key', 'work_schedule')
