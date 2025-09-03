@@ -58,6 +58,7 @@ class EditEvent extends Component
         $this->getWorkScheduleHint();
     }
 
+
     /**
      * Handles editing of a specific event.
      *

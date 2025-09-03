@@ -29,7 +29,7 @@
             </div>
             <div class="col-span-6 sm:col-span-1">
                 <x-jet-label value="{{ __('Días') }}" />
-                <div class="mt-2 flex space-x-4">
+                <div class="mt-2 grid grid-cols-4 gap-2">
                     @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
                         <label class="inline-flex items-center">
                             <input type="checkbox" wire:model="schedule.{{ $index }}.days" value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
