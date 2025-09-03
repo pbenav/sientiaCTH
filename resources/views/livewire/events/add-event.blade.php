@@ -19,6 +19,7 @@
                 <x-jet-input-error for='start_date' />
                 <x-jet-input type="time" class="" wire:model.defer='start_time' />
                 <x-jet-input-error for='start_time' />
+                <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
             </div>
 
             <div class="mb-4">

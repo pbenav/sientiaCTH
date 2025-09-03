@@ -13,6 +13,7 @@
                 <x-jet-label value="{{ __('Start date') }}" />
                 <input type="datetime-local" wire:model="event.start" />
                 <x-jet-input-error for='event.start' />
+                <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
             </div>
             <div class="mb-4">
                 <x-jet-label value="{{ __('End date') }}" />
