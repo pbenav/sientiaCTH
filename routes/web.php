@@ -48,6 +48,7 @@ Route::middleware([
         // Rutas para el CRUD de metadatos
         Route::post('/meta', [UserMetaController::class, 'store'])->name('users.meta.store');
         Route::delete('/meta/{meta}', [UserMetaController::class, 'destroy'])->name('users.meta.destroy');
+
     });
     
 });

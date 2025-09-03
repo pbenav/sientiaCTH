@@ -107,6 +107,7 @@ class AddEvent extends Component
         $this->getWorkScheduleHint();
     }
 
+
     /**
      * Open the Add Event modal.
      * @param string $origin
