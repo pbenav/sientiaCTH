@@ -41,4 +41,12 @@ class Team extends JetstreamTeam
         'updated' => TeamUpdated::class,
         'deleted' => TeamDeleted::class,
     ];
+
+    /**
+     * Get the event types for the team.
+     */
+    public function eventTypes()
+    {
+        return $this->hasMany(EventType::class);
+    }
 }

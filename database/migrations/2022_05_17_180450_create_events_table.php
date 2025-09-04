@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('start');
             $table->dateTime('end')->nullable();
             $table->string('description')->nullable();
+            $table->foreignId('event_type_id')->nullable()->constrained()->onDelete('set null');
             $table->boolean('is_open');
             $table->timestamps();
 

@@ -51,15 +51,16 @@
             </div>
 
             <div>
-                <x-jet-label value="{{ __('Description') }}" />
-                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='description'>
-                    $@foreach ($descriptions as $description)
-                        <option value="{{ $description }}">
-                            {{ __($description) }}
+                <x-jet-label value="{{ __('Event Type') }}" />
+                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='event_type_id'>
+                    <option value="All">{{ __('All') }}</option>
+                    @foreach ($eventTypes as $eventType)
+                        <option value="{{ $eventType->id }}">
+                            {{ $eventType->name }}
                         </option>
                     @endforeach
                 </select>
-                <x-jet-input-error for='description' />
+                <x-jet-input-error for='event_type_id' />
             </div>
 
             <div>

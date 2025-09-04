@@ -24,7 +24,7 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
     public $worker;
     public $fromdate;
     public $todate;
-    public $description;
+    public $event_type_id;
     public $observations;
     public $user;
     public $team;
@@ -35,7 +35,7 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
         $this->worker = $params['worker'];
         $this->fromdate = $params['fromdate'];
         $this->todate = $params['todate'];
-        $this->description = $params['description'] == __('All') ? '%' : __($params['description']);
+        $this->event_type_id = $params['event_type_id'] == 'All' ? '%' : $params['event_type_id'];
         $this->user = Auth::user();
         $this->team = $this->user->currentTeam;
     }
@@ -51,7 +51,7 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
             ->when(($this->worker != "%"), fn ($query) => $query->where('users.id', $this->worker))
             ->whereDate('start', '>=', $this->fromdate)
             ->whereDate('end', '<=', $this->todate)
-            ->where('description', 'like', $this->description)
+            ->when(($this->event_type_id != "%"), fn ($query) => $query->where('event_type_id', $this->event_type_id))
             ->orderBy('events.start');
         return $data;
     }

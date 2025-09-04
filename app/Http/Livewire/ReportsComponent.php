@@ -19,16 +19,16 @@ class ReportsComponent extends Component
     public $worker;
     public $fromdate;
     public $todate;
-    public string $description;
+    public $event_type_id;
     public string $rtype;
     public $rtypes = ["PDF" => "Dompdf", "XLS" => "Xls", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
-    public $descriptions = ["All", "Workday", "Pause", "Others"];
+    public $eventTypes;
 
     protected $rules = [
         "worker" => 'required',
         "fromdate" => 'bail|required|date|before_or_equal:todate',
         "todate" => 'required|date|before_or_equal:now',
-        "description" => 'required|string',
+        "event_type_id" => 'required',
         "rtype" => 'required',
     ];
 
@@ -50,7 +50,8 @@ class ReportsComponent extends Component
         $this->worker = $this->user->id;
         $this->fromdate = date('Y-m-01');
         $this->todate = date('Y-m-d');
-        $this->description = 'All';
+        $this->eventTypes = $this->team->eventTypes;
+        $this->event_type_id = 'All';
         $this->rtype = 'PDF';
     }
 
@@ -77,7 +78,7 @@ class ReportsComponent extends Component
             "worker" => $this->worker,
             "fromdate" => $this->fromdate,
             "todate" => $this->todate,
-            "description" => __($this->description),
+            "event_type_id" => $this->event_type_id,
         ];
 
         $this->validate();

@@ -29,6 +29,7 @@ class EditEvent extends Component
      * @var User $user Holds the user associated with the event.
      */
     public User $user;
+    public $eventTypes;
 
     /**
      * @var array $listeners Listens for emitted events.
@@ -42,6 +43,7 @@ class EditEvent extends Component
         'event.start' => 'required|date',
         'event.end' => 'required|date',
         'event.description' => 'required',
+        'event.event_type_id' => 'required',
         'event.observations' => 'string|max:255|nullable',
     ];
 
@@ -66,6 +68,7 @@ class EditEvent extends Component
     {
         $this->event = $ev;
         $this->user = User::find($ev->user_id);
+        $this->eventTypes = $this->user->currentTeam->eventTypes;
 
         $this->setSuggestedScheduleInfo();
 

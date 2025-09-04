@@ -24,12 +24,14 @@
 
             <div class="mb-4">
                 <x-jet-label value="{{ __('Description') }}" class="required" />
-                <select class="sl-select" required wire:model="description" name="description">
-                    <option value="{{ __('Workday') }}" selected="selected">{{ __('Workday') }}</option>
-                    <option value="{{ __('Pause') }}">{{ __('Pause') }}</option>
-                    <option value="{{ __('Others') }}">{{ __('Others') }}</option>
+                <select class="sl-select" required wire:model="eventTypeId" name="eventTypeId">
+                    @forelse($eventTypes as $eventType)
+                        <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
+                    @empty
+                        <option disabled>{{ __('No event types available. Please add one in Team Settings.') }}</option>
+                    @endforelse
                 </select>
-                <x-jet-input-error for='description' />
+                <x-jet-input-error for='eventTypeId' />
             </div>
 
             <div class="mx-auto mb-4">

@@ -23,14 +23,13 @@
             {{-- end-datepicker --}}
 
             <div class="mb-4">
-                <x-jet-label value="{{ __('Description') }}" />
-                <select class="sl-select" wire:model.defer="event.description" name="event.description" required>
-                    {{-- TODO Integrate causes as new model --}}
-                    <option value="{{ __('Workday') }}" selected="selected">{{ __('Workday') }}</option>
-                    <option value="{{ __('Pause') }}">{{ __('Pause') }}</option>
-                    <option value="{{ __('Others') }}">{{ __('Others') }}</option>
+                <x-jet-label value="{{ __('Event Type') }}" />
+                <select class="sl-select" wire:model.defer="event.event_type_id" name="event.event_type_id" required>
+                    @foreach($eventTypes as $eventType)
+                        <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
+                    @endforeach
                 </select>
-                <x-jet-input-error for='event.description' />
+                <x-jet-input-error for='event.event_type_id' />
             </div>
 
             <div class="mx-auto mb-4">
