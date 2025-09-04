@@ -299,5 +299,7 @@
     "miliseconds": "milisegundos",
     "Observations": "Observaciones",
     "Holidays": "Vacaciones",
-    "Own Affairs": "Asuntos propios"
+    "Own Affairs": "Asuntos propios",
+    "Code format is invalid.": "El formato del código es inválido",
+    "Invalid code.": "Código inválido."
 }

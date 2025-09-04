@@ -26,16 +26,25 @@ class Numpad extends Component
      */
     public function insertCode()
     {
-        $user = User::where('user_code', $this->user_code)->first();
+        // Basic code validation
+        if (!preg_match('/^\d{4,10}$/', $this->user_code)) {
+            session()->flash('info', __( 'Code format is invalid.' ));
+            return;
+        }
+
+        $user = $this->findUserByCode($this->user_code);
+
+        if (!$user) {
+            session()->flash('info', __('Invalid code.'));
+            return;
+        }
+
+        Auth::loginUsingId($user->id);
+
+        $events = $this->getOpenEventsForUser($user->id);
 
         if ($user) {
-            Auth::loginUsingId($user->id);
-
-            $events = DB::table('events')
-                ->where('user_id', $user->id)
-                ->where('is_open', "1")
-                ->get();
-
+            
             // If there are no open events, or the user has specific roles, redirect or emit an event
             if ($events->count() || $user->isTeamAdmin() || $user->isInspector()) {
                 return redirect()->route('events');
@@ -57,5 +66,18 @@ class Numpad extends Component
     public function render()
     {
         return view('livewire.numpad');
+    }
+
+    private function findUserByCode($code)
+    {
+        return User::where('user_code', $code)->first();
+    }
+
+    private function getOpenEventsForUser($userId)
+    {
+        return DB::table('events')
+            ->where('user_id', $userId)
+            ->where('is_open', "1")
+            ->get();
     }
 }
