@@ -57,6 +57,7 @@ class EditEvent extends Component
     {
         $this->event = new Event();
         $this->user = User::find(Auth::user()->id);
+        $this->eventTypes = collect();
     }
 
     /**
