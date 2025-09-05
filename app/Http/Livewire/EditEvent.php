@@ -68,10 +68,7 @@ class EditEvent extends Component
     {
         $this->event = $ev;
         $this->user = User::find($ev->user_id);
-        $this->eventTypes = collect();
-        if ($this->user->currentTeam) {
-            $this->eventTypes = $this->user->currentTeam->eventTypes;
-        }
+        $this->eventTypes = $this->event->eventType->team->eventTypes;
 
         $this->setSuggestedScheduleInfo();
 
