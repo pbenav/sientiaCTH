@@ -111,7 +111,7 @@ class AddEvent extends Component
 
         // Hint is loaded for the initially authenticated user (if any)
         if (Auth::check()) {
-            $this->getWorkScheduleHint();
+            $this->setWorkScheduleHint();
         }
     }
 
