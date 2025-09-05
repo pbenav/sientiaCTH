@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\EventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
@@ -10,6 +11,10 @@ use Laravel\Jetstream\Team as JetstreamTeam;
 
 class Team extends JetstreamTeam
 {
+    public function eventTypes()
+    {
+        return $this->hasMany(EventType::class);
+    }
     use HasFactory;
 
     /**

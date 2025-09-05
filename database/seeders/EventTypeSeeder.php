@@ -10,7 +10,7 @@ class EventTypeSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run($team_id = 1): void
     {
         $eventTypes = [
             [
@@ -37,7 +37,7 @@ class EventTypeSeeder extends Seeder
 
         foreach ($eventTypes as $eventType) {
             EventType::create([
-                'team_id' => 1,
+                'team_id' => $team_id,
                 'name' => $eventType['name'],
                 'color' => $eventType['color'],
                 'observations' => $eventType['observations'],
