@@ -72,7 +72,7 @@ class EditEvent extends Component
         $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
         $this->eventTypes = collect();
-        if ($this->event->eventType) {
+        if ($this->event->eventType && $this->event->eventType->team) {
             $this->eventTypes = $this->event->eventType->team->eventTypes;
         } else if ($this->user->currentTeam) {
             $this->eventTypes = $this->user->currentTeam->eventTypes;
