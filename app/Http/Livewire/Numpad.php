@@ -41,6 +41,10 @@ class Numpad extends Component
 
         Auth::loginUsingId($user->id);
 
+        if (is_null($user->current_team_id)) {
+            $user->switchTeam($user->personalTeam());
+        }
+
         $events = $this->getOpenEventsForUser($user->id);
 
         if ($user) {
