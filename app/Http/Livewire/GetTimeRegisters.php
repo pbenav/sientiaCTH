@@ -26,6 +26,7 @@ class GetTimeRegisters extends Component
     public User $user;
     public Team $team;
     public $teamUsers;
+    public $eventTypes;
     public $isTeamAdmin;
     public $isInspector;
     public $confirmed;
@@ -60,10 +61,12 @@ class GetTimeRegisters extends Component
             "family_name1" => "",
             "is_open" => false,
             "description" => __('All'),
+            "event_type_id" => null,
         ]);
         $this->user = Auth::user();
         $this->events = $this->user->events()->Paginate($this->qtytoshow);
         $this->team = $this->user->currentTeam;
+        $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
         $this->confirmed = false;
@@ -211,6 +214,7 @@ class GetTimeRegisters extends Component
               ->when($this->filter->name, fn($query) => $query->where('users.name', $this->filter->name))
               ->when($this->filter->family_name1, fn($query) => $query->where('users.family_name1', $this->filter->family_name1))
               ->when($this->filter->is_open, fn($query) => $query->where('events.is_open', '1'))
+              ->when($this->filter->event_type_id, fn($query) => $query->where('events.event_type_id', $this->filter->event_type_id))
               ->when($this->filter->description && $this->filter->description != __('All'), fn($query) => $query->where('events.description', $this->filter->description));
         });
 

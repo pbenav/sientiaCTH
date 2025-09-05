@@ -13,7 +13,8 @@ class StatsComponent extends Component
     public $totalHours;
     public $selectedMonth;
     public $selectedYear;
-    public $description;
+    public $eventTypeId;
+    public $eventTypes;
     public $firstRun = true;
     public $showDataLabels = true;
     public User $actualUser;
@@ -40,6 +41,8 @@ class StatsComponent extends Component
         if ($this->isTeamAdmin || $this->isInspector) {
             $this->workers = $this->actualUser->currentTeam->allUsers();
         }
+        $this->eventTypes = $this->actualUser->currentTeam->eventTypes ?? collect();
+        $this->eventTypeId = null;
     }
 
     protected $rules = [
@@ -66,44 +69,44 @@ class StatsComponent extends Component
      */
     public function getData()
     {
-        // Get microtime for benchmarking
         $start = microtime(true);
 
-        // Fetch events data for the selected user, month, year, and description
-        $events = Event::EventsPerUserMonth($this->browsedUser, $this->selectedMonth, $this->selectedYear, $this->description);
-        $this->totalHours = round($events->sum('hours'), 2);
+        // Base query for events
+        $query = Event::query()
+            ->join('event_types', 'events.event_type_id', '=', 'event_types.id')
+            ->where('events.user_id', $this->browsedUser)
+            ->whereMonth('events.start', $this->selectedMonth)
+            ->whereYear('events.start', $this->selectedYear)
+            ->selectRaw('event_types.name as event_type_name, event_types.color as event_type_color, SUM(TIMESTAMPDIFF(minute, events.start, events.end))/60 as hours')
+            ->groupBy('event_types.name', 'event_types.color');
+
+        // Conditionally filter by event type
+        $query->when($this->eventTypeId, function ($q) {
+            return $q->where('events.event_type_id', $this->eventTypeId);
+        });
+
+        $eventsByType = $query->get();
+
+        $this->totalHours = round($eventsByType->sum('hours'), 2);
 
         // Initialize the chart model
-        $cCModel = LivewireCharts::columnChartModel() // Default initial value for the chart
-            ->setTitle(__("Registered hours"))
+        $columnChart = LivewireCharts::columnChartModel()
+            ->setTitle(__("Hours by Event Type"))
             ->setAnimated($this->firstRun)
             ->setLegendVisibility(false)
             ->setColumnWidth(90)
             ->withGrid()
             ->withDataLabels();
 
-        // Group events by day and add columns to the chart model
-        $cols = collect($events->groupBy('day')
-            ->reduce(
-                function ($cols, $data) {
-                    $day = $data->first()->day . '/' . $data->first()->month;
-                    $hours = number_format($data->sum('hours'), 2);
-                    array_push($cols, array('day' => $day, 'hour' => $hours, 'color' => '#006600'));
-                    return $cols;
-                },
-                [''] // To avoid null in the first element of the reduce collection
-            ));
-        $cols->shift(1); // Remove the first element of the collection
-
-        // Add columns to the chart model
-        foreach ($cols as $c) {
-            $cCModel->addColumn($c['day'], $c['hour'], $c['color']);
+        // Add columns to the chart model for each event type
+        foreach ($eventsByType as $eventType) {
+            $columnChart->addColumn($eventType->event_type_name, round($eventType->hours, 2), $eventType->event_type_color);
         }
 
-        // Calculate elapsed time for benchmarking
+        $this->firstRun = false;
         $elapsedTime = number_format((microtime(true) - $start) * 1000, 2);
 
-        return [$cCModel, $elapsedTime];
+        return [$columnChart, $elapsedTime];
     }
 
     /**

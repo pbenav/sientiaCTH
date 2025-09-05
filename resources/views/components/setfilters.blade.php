@@ -47,6 +47,19 @@
                 </select>
                 <x-jet-input-error for='filter.description' />
             </div>
+
+            <div class="mb-4">
+                <x-jet-label value="{{ __('Event Type') }}" />
+                <select class="sl-select" wire:model.defer='filter.event_type_id'>
+                    <option value="">{{ __('All') }}</option>
+                    @if(isset($eventTypes))
+                        @foreach($eventTypes as $eventType)
+                            <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
+                        @endforeach
+                    @endif
+                </select>
+                <x-jet-input-error for='filter.event_type_id' />
+            </div>
             
         </x-slot>
 
