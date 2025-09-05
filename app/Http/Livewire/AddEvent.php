@@ -106,9 +106,13 @@ class AddEvent extends Component
         $this->start_time = date('H:i:s');
         $this->description = __('Workday');
         $this->observations = '';
+        $this->eventTypes = collect();
+        $this->event_type_id = null;
         if (Auth::check()) {
             $this->eventTypes = Auth::user()->currentTeam->eventTypes;
-            $this->event_type_id = $this->eventTypes->first()->id;
+            if ($this->eventTypes->count() > 0) {
+                $this->event_type_id = $this->eventTypes->first()->id;
+            }
         }
         $this->getWorkScheduleHint();
     }
