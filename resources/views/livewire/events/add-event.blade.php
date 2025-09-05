@@ -23,15 +23,13 @@
             </div>
 
             <div class="mb-4">
-                <x-jet-label value="{{ __('Description') }}" class="required" />
-                <select class="sl-select" required wire:model="eventTypeId" name="eventTypeId">
-                    @forelse($eventTypes as $eventType)
+                <x-jet-label value="{{ __('Event Type') }}" class="required" />
+                <select class="sl-select" required wire:model="event_type_id" name="event_type_id">
+                    @foreach($eventTypes as $eventType)
                         <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
-                    @empty
-                        <option disabled>{{ __('No event types available. Please add one in Team Settings.') }}</option>
-                    @endforelse
+                    @endforeach
                 </select>
-                <x-jet-input-error for='eventTypeId' />
+                <x-jet-input-error for='event_type_id' />
             </div>
 
             <div class="mx-auto mb-4">

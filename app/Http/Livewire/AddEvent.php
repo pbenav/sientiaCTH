@@ -80,9 +80,9 @@ class AddEvent extends Component
      * @var array
      */
     protected $rules = [
-        'start_date' => 'required|after:-7 day|before:+1 day',
-        'start_time' => 'required|after:-12 hours|before:+12 hours',
-        'eventTypeId' => 'required|exists:event_types,id',
+        'start_date' => 'required|after:-7 day|before:+1 day', // no more than one day before
+        'start_time' => 'required|after:-12 hours|before:+12 hours', // |after_or_equal:now', When needed!!!
+        'description' => 'required',
         'observations' => 'string|max:255|nullable'
     ];
 
@@ -104,9 +104,12 @@ class AddEvent extends Component
     {
         $this->start_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
+        $this->description = __('Workday');
         $this->observations = '';
-        $this->eventTypes = Auth::user()->currentTeam->eventTypes;
-        $this->event_type_id = $this->eventTypes->first()->id;
+        if (Auth::check()) {
+            $this->eventTypes = Auth::user()->currentTeam->eventTypes;
+            $this->event_type_id = $this->eventTypes->first()->id;
+        }
         $this->getWorkScheduleHint();
     }
 
@@ -139,15 +142,12 @@ class AddEvent extends Component
     {
         $this->validate();
 
-        $eventType = EventType::find($this->eventTypeId);
-
         Event::create([
             'start' => $this->start_date . ' ' . $this->start_time,
             'end' => null,
             'user_id' => Auth::user()->id,
             'user_code' => Auth::user()->user_code,
-            'description' => $eventType->name,
-            'event_type_id' => $this->eventTypeId,
+            'description' => $this->description,
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
             'is_open' => true
@@ -170,12 +170,6 @@ class AddEvent extends Component
      */
     public function render()
     {
-        if (Auth::check()) {
-            $this->eventTypes = Auth::user()->currentTeam->eventTypes()->get();
-            if (is_null($this->eventTypeId) && $this->eventTypes->isNotEmpty()) {
-                $this->eventTypeId = $this->eventTypes->first()->id;
-            }
-        }
         return view('livewire.events.add-event');
     }
 }
