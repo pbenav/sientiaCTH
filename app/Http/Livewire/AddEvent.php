@@ -108,13 +108,11 @@ class AddEvent extends Component
         $this->observations = '';
         $this->eventTypes = collect();
         $this->event_type_id = null;
+
+        // Hint is loaded for the initially authenticated user (if any)
         if (Auth::check()) {
-            $this->eventTypes = Auth::user()->currentTeam->eventTypes;
-            if ($this->eventTypes->count() > 0) {
-                $this->event_type_id = $this->eventTypes->first()->id;
-            }
+            $this->getWorkScheduleHint();
         }
-        $this->getWorkScheduleHint();
     }
 
     /**
@@ -124,6 +122,22 @@ class AddEvent extends Component
      */
     public function add($origin)
     {
+        // Reset and fetch fresh data each time the modal is opened
+        $this->reset(['description', 'observations', 'event_type_id']);
+        $this->start_date = date('Y-m-d');
+        $this->start_time = date('H:i:s');
+        $this->description = __('Workday');
+
+        if (Auth::check() && Auth::user()->currentTeam) {
+            $this->eventTypes = Auth::user()->currentTeam->eventTypes;
+            if ($this->eventTypes->count() > 0) {
+                $this->event_type_id = $this->eventTypes->first()->id;
+            }
+        } else {
+            $this->eventTypes = collect();
+        }
+
+        $this->setWorkScheduleHint();
         $this->origin = $origin;
         $this->showAddEventModal = true;
     }

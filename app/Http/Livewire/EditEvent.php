@@ -6,11 +6,12 @@ use App\Models\User;
 use App\Models\Event;
 use Livewire\Component;
 use App\Traits\InsertHistory;
+use App\Traits\HasWorkScheduleHint;
 use Illuminate\Support\Facades\Auth;
 
 class EditEvent extends Component
 {
-    use InsertHistory;
+    use InsertHistory, HasWorkScheduleHint;
 
     /**
      * @var bool $showModalEditEvent Determines if the edit event modal is visible.
@@ -67,10 +68,16 @@ class EditEvent extends Component
     public function edit(Event $ev)
     {
         $this->event = $ev;
+        $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
-        $this->eventTypes = $this->event->eventType->team->eventTypes;
+        $this->eventTypes = collect();
+        if ($this->event->eventType) {
+            $this->eventTypes = $this->event->eventType->team->eventTypes;
+        } else if ($this->user->currentTeam) {
+            $this->eventTypes = $this->user->currentTeam->eventTypes;
+        }
 
-        $this->setSuggestedScheduleInfo();
+        $this->setWorkScheduleHint();
 
         if ($this->event->is_open == 1) {
             $this->showModalEditEvent = true;
@@ -92,7 +99,6 @@ class EditEvent extends Component
      */
     public function update()
     {
-        $this->original_event = clone $this->event;
         $this->validate();
         $this->event->save();
 
@@ -125,77 +131,5 @@ class EditEvent extends Component
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
-    }
-
-    private function setSuggestedScheduleInfo()
-    {
-        if (!Auth::check()) {
-            $this->workScheduleHint = '';
-            return;
-        }
-
-        $user = Auth::user();
-        $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
-
-        if (!$workScheduleMeta) {
-            $this->workScheduleHint = 'No hay horario laboral definido.';
-            return;
-        }
-
-        $schedule = json_decode($workScheduleMeta->meta_value, true);
-        $now = new \DateTime();
-        $currentTime = $now->format('H:i:s');
-        $currentDay = $now->format('N'); // 1 (Monday) to 7 (Sunday)
-        $dayMap = ['L' => 1, 'M' => 2, 'X' => 3, 'J' => 4, 'V' => 5, 'S' => 6, 'D' => 7];
-
-        $todaysSlots = [];
-        foreach ($schedule as $slot) {
-            $slotDays = $slot['days'] ?? [];
-            foreach ($slotDays as $day) {
-                if (isset($dayMap[$day]) && $dayMap[$day] == $currentDay) {
-                    $todaysSlots[] = $slot;
-                    break;
-                }
-            }
-        }
-
-        if (empty($todaysSlots)) {
-            $this->workScheduleHint = 'No hay tramos para hoy.';
-            return;
-        }
-
-        // Sort today's slots by start time
-        usort($todaysSlots, function ($a, $b) {
-            return strcmp($a['start'], $b['start']);
-        });
-
-        $currentSlot = null;
-        $lastFinishedSlot = null;
-
-        foreach ($todaysSlots as $slot) {
-            if ($currentTime >= $slot['start'] && $currentTime <= $slot['end']) {
-                $currentSlot = $slot;
-                break; // Found the current slot
-            }
-            if ($currentTime > $slot['end']) {
-                $lastFinishedSlot = $slot; // This might be the one we are looking for
-            }
-        }
-
-        $relevantSlot = $currentSlot ?? $lastFinishedSlot;
-
-        if ($relevantSlot) {
-            if ($currentSlot) {
-                $this->workScheduleHint = "Tramo actual sugerido: {$relevantSlot['start']} - {$relevantSlot['end']}";
-            } else {
-                $this->workScheduleHint = "Último tramo finalizado: {$relevantSlot['start']} - {$relevantSlot['end']}";
-            }
-
-            if ($this->event->is_open == 1) {
-                $this->event->end = date('Y-m-d') . ' ' . $relevantSlot['end'];
-            }
-        } else {
-            $this->workScheduleHint = 'No se encontró un tramo horario aplicable.';
-        }
     }
 }
