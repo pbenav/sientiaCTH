@@ -46,7 +46,7 @@ class GetTimeRegisters extends Component
         'filter.name' => 'nullable|string',
         'filter.family_name1' => 'nullable|string',
         'filter.is_open' => 'boolean',
-        'filter.description' => 'nullable|string',
+        'filter.event_type_id' => 'nullable|integer',
     ];
 
     /**
