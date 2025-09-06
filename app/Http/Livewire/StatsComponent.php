@@ -157,13 +157,11 @@ class StatsComponent extends Component
                 ->setAnimated($this->firstRun)
                 ->withDataLabels();
 
-            // Extract the single color from the data
-            $color = array_values(array_values($dailyTypeHours)[0])[0]['color'];
-            $columnChart->setColor($color);
-
             foreach ($dailyTypeHours as $day => $types) {
-                $hours = array_values($types)[0]['hours'];
-                $columnChart->addColumn($day, round($hours, 2));
+                $typeData = array_values($types)[0];
+                $hours = $typeData['hours'];
+                $color = $typeData['color'];
+                $columnChart->addColumn($day, round($hours, 2), $color);
             }
         } else {
             // MULTI-SERIES CHART for all event types
