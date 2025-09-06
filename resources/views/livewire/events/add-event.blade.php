@@ -15,7 +15,7 @@
 
             <div class="mb-4">
                 <x-jet-label value="{{ __('Event Type') }}" class="required" />
-                <select class="sl-select" required wire:model="event_type_id" name="event_type_id">
+                <select class="sl-select" required wire:model.live="event_type_id" name="event_type_id">
                     <option value="">{{ __('Select an option') }}</option>
                     @foreach($eventTypes as $eventType)
                         <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>

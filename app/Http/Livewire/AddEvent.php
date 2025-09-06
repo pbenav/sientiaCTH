@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Event;
 use App\Models\EventType;
 use App\Traits\HasWorkScheduleHint;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
@@ -183,7 +184,7 @@ class AddEvent extends Component
             // For non-all-day events, 'end' remains null on creation.
         }
 
-        Event::create([
+        $data = [
             'start' => $start,
             'end' => $end,
             'user_id' => Auth::user()->id,
@@ -191,8 +192,13 @@ class AddEvent extends Component
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
             'is_open' => true,
-            'is_authorized' => $this->selectedEventType && $this->selectedEventType->is_all_day ? false : false, // Default to not authorized for all-day events
-        ]);
+        ];
+
+        if (Schema::hasColumn('events', 'is_authorized')) {
+            $data['is_authorized'] = $this->selectedEventType && $this->selectedEventType->is_all_day ? false : false;
+        }
+
+        Event::create($data);
 
         $this->reset([
             'showAddEventModal',
