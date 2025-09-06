@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->foreignId('event_type_id')->nullable()->constrained()->onDelete('set null');
             $table->boolean('is_open');
+            $table->boolean('is_authorized')->default(false);
             $table->timestamps();
 
             $table->foreign('user_id')
