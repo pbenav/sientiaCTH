@@ -24,28 +24,17 @@
                 <x-jet-input-error for='event_type_id' />
             </div>
 
-            @if ($selectedEventType)
-                <div class="mb-4">
-                    <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
-                    <x-jet-input type="date" class="mr-2" wire:model.defer="start_date" />
-                    <x-jet-input-error for="start_date" />
+            <div class="mb-4">
+                <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
+                <x-jet-input type="date" class="mr-2" wire:model.defer="start_date" />
+                <x-jet-input-error for="start_date" />
 
-                    @if ($selectedEventType->is_all_day)
-                        <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2 required" />
-                        <x-jet-input type="date" class="mr-2" wire:model.defer="end_date" />
-                        <x-jet-input-error for="end_date" />
-                    @else
-                        <x-jet-label value="{{ __('Start time') }}" class="mt-3 mr-2 required" />
-                        <x-jet-input type="time" class="" wire:model.defer="start_time" />
-                        <x-jet-input-error for="start_time" />
-
-                        <x-jet-label value="{{ __('End time') }}" class="mt-3 mr-2 required" />
-                        <x-jet-input type="time" class="" wire:model.defer="end_time" />
-                        <x-jet-input-error for="end_time" />
-                    @endif
-                </div>
-                <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
-            @endif
+                @if ($selectedEventType && !$selectedEventType->is_all_day)
+                    <x-jet-input type="time" class="" wire:model.defer="start_time" />
+                    <x-jet-input-error for="start_time" />
+                @endif
+            </div>
+            <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
 
             <div class="mx-auto mb-4">
                 <x-jet-label value="{{ __('Observations') }}" />
