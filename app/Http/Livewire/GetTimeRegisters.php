@@ -188,12 +188,12 @@ class GetTimeRegisters extends Component
             return;
         }
 
-        $query = Event::query()
+        $query = Event::query()->with('eventType')
             ->select(
                 'events.id', 'events.user_id', 'users.name', 'users.family_name1',
-                'events.start', 'events.end', 'events.description', 'events.is_open'
+                'events.start', 'events.end', 'events.description', 'events.is_open', 'events.event_type_id'
             )
-            ->join('users', 'user_id', '=', 'users.id')
+            ->join('users', 'events.user_id', '=', 'users.id')
             ->whereIn('events.user_id', $this->teamUsers);
 
         // General search box

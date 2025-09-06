@@ -71,36 +71,84 @@ class StatsComponent extends Component
     {
         $start = microtime(true);
 
-        // Base query for events
+        // 1. Fetch raw events for the month, filtered by user
         $query = Event::query()
+            ->with('eventType') // Eager load for color and name
             ->where('user_id', $this->browsedUser)
-            ->whereMonth('start', $this->selectedMonth)
-            ->whereYear('start', $this->selectedYear)
-            ->selectRaw('DAY(start) as day, MONTH(start) as month, SUM(TIMESTAMPDIFF(minute, start, end))/60 as hours')
-            ->groupBy('day', 'month')
-            ->orderBy('day');
+            ->where(function ($q) {
+                $q->whereMonth('start', $this->selectedMonth)
+                  ->orWhereMonth('end', $this->selectedMonth);
+            })
+            ->whereYear('start', $this->selectedYear);
 
         // Conditionally filter by event type
         $query->when($this->eventTypeId, function ($q) {
             return $q->where('event_type_id', $this->eventTypeId);
         });
 
-        $dailyTotals = $query->get();
+        $events = $query->get();
 
-        $this->totalHours = round($dailyTotals->sum('hours'), 2);
+        // 2. Process events in PHP to handle splitting across days
+        $dailyTypeHours = [];
+        $totalHours = 0;
 
-        // Initialize the chart model
-        $columnChart = LivewireCharts::columnChartModel()
+        foreach ($events as $event) {
+            if (!$event->end || !$event->eventType) {
+                continue;
+            }
+
+            $start_date = new \DateTime($event->start);
+            $end_date = new \DateTime($event->end);
+            $current_date = clone $start_date;
+
+            while ($current_date->format('Y-m-d') <= $end_date->format('Y-m-d')) {
+                // Only process days within the selected month
+                if ($current_date->format('m') != $this->selectedMonth) {
+                    $current_date->modify('+1 day');
+                    continue;
+                }
+
+                $day_start = (clone $current_date)->setTime(0, 0, 0);
+                $day_end = (clone $current_date)->setTime(23, 59, 59);
+
+                $effective_start = max($start_date, $day_start);
+                $effective_end = min($end_date, $day_end);
+
+                if ($effective_start < $effective_end) {
+                    $diff_in_seconds = $effective_end->getTimestamp() - $effective_start->getTimestamp();
+                    $hours_for_day = $diff_in_seconds / 3600;
+                    $totalHours += $hours_for_day;
+
+                    $dayKey = $current_date->format('d/m');
+                    $typeKey = $event->eventType->name;
+                    $color = $event->eventType->color;
+
+                    if (!isset($dailyTypeHours[$dayKey])) {
+                        $dailyTypeHours[$dayKey] = [];
+                    }
+                    if (!isset($dailyTypeHours[$dayKey][$typeKey])) {
+                        $dailyTypeHours[$dayKey][$typeKey] = ['hours' => 0, 'color' => $color];
+                    }
+                    $dailyTypeHours[$dayKey][$typeKey]['hours'] += $hours_for_day;
+                }
+                $current_date->modify('+1 day');
+            }
+        }
+
+        $this->totalHours = round($totalHours, 2);
+
+        // 3. Build the multi-series column chart
+        $columnChart = LivewireCharts::multiColumnChartModel()
             ->setTitle(__("Registered hours"))
             ->setAnimated($this->firstRun)
-            ->setLegendVisibility(false)
-            ->setColumnWidth(90)
-            ->withGrid()
             ->withDataLabels();
 
-        // Add columns to the chart model for each day
-        foreach ($dailyTotals as $dayData) {
-            $columnChart->addColumn($dayData->day . '/' . $dayData->month, round($dayData->hours, 2), '#006600');
+        ksort($dailyTypeHours); // Sort by day
+
+        foreach ($dailyTypeHours as $day => $types) {
+            foreach ($types as $typeName => $data) {
+                $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+            }
         }
 
         $this->firstRun = false;

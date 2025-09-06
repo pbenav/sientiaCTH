@@ -40,8 +40,10 @@
                                     <div class="w-6 h-6 rounded-full" style="background-color: {{ $eventType->color }}"></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button wire:click="manageEventType({{ $eventType->id }})" class="text-indigo-600 hover:text-indigo-900">{{ __('Editar') }}</button>
-                                    <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})" class="ml-2 text-red-600 hover:text-red-900">{{ __('Eliminar') }}</button>
+                                    @if ($isTeamAdmin)
+                                        <button wire:click="manageEventType({{ $eventType->id }})" class="text-indigo-600 hover:text-indigo-900">{{ __('Editar') }}</button>
+                                        <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})" class="ml-2 text-red-600 hover:text-red-900">{{ __('Eliminar') }}</button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

@@ -139,7 +139,14 @@
 
                                 <td class="p-1 text-left md:table-cell">{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}</td>
                                 <td class="p-1 text-left md:table-cell">{{ $ev->end ? Carbon\Carbon::parse($ev->end)->format('d/m/y H:i:s') : '' }}</td>
-                                <td class="p-1 text-left md:table-cell">{{ __($ev->description) }}</td>
+                                <td class="p-1 text-left md:table-cell">
+                                    @if ($ev->eventType)
+                                        <span class="inline-block w-3 h-3 mr-2 rounded-full" style="background-color: {{ $ev->eventType->color }}"></span>
+                                        <span>{{ $ev->eventType->name }}</span>
+                                    @else
+                                        {{ __($ev->description) }}
+                                    @endif
+                                </td>
                                 <td class="p-1 text-center md:table-cell">{{ $ev->getPeriod() }}</td>
 
                                 @if (!$isInspector || $isTeamAdmin)

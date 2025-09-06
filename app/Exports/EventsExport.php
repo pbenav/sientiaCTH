@@ -44,16 +44,17 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
     {
         //$data = DB::table('events')
         // Check if period is greater than 120 days.
-        $data = Event::select('events.user_id', 'users.name', 'users.family_name1', 'events.id',
-                              'events.start', 'events.end', 'events.description', 'events.observations')
-            ->selectRaw('TIMESTAMPDIFF(hour, start, end) as duration')
-            ->join('users', 'events.user_id', 'users.id')
-            ->when(($this->worker != "%"), fn ($query) => $query->where('users.id', $this->worker))
+        return Event::query()
+            ->with(['user', 'eventType']) // Eager load relationships
+            ->when(($this->worker != "%"), function ($query) {
+                $query->where('user_id', $this->worker);
+            })
             ->whereDate('start', '>=', $this->fromdate)
             ->whereDate('end', '<=', $this->todate)
-            ->when(($this->event_type_id != "%"), fn ($query) => $query->where('event_type_id', $this->event_type_id))
-            ->orderBy('events.start');
-        return $data;
+            ->when(($this->event_type_id != "%"), function ($query) {
+                $query->where('event_type_id', $this->event_type_id);
+            })
+            ->orderBy('start');
     }
 
     public function headings(): array
@@ -73,15 +74,17 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
     }
     public function map($event): array
     {
-        $name = $event->name . ' ' . $event->family_name1;
+        $name = $event->user ? $event->user->name . ' ' . $event->user->family_name1 : 'N/A';
+        $description = $event->eventType ? $event->eventType->name : $event->description;
+
         return [
             $event->user_id,
             $name,
             $event->id,
             $event->start,
-            $event->end,            
+            $event->end,
             $this->timeDiff($event->start, $event->end, true),
-            $event->description,
+            $description,
             $event->observations
         ];
     }
