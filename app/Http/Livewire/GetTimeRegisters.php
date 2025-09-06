@@ -60,7 +60,6 @@ class GetTimeRegisters extends Component
             "name" => "",
             "family_name1" => "",
             "is_open" => false,
-            "description" => __('All'),
             "event_type_id" => null,
         ]);
         $this->user = Auth::user();
@@ -214,8 +213,7 @@ class GetTimeRegisters extends Component
               ->when($this->filter->name, fn($query) => $query->where('users.name', $this->filter->name))
               ->when($this->filter->family_name1, fn($query) => $query->where('users.family_name1', $this->filter->family_name1))
               ->when($this->filter->is_open, fn($query) => $query->where('events.is_open', '1'))
-              ->when($this->filter->event_type_id, fn($query) => $query->where('events.event_type_id', $this->filter->event_type_id))
-              ->when($this->filter->description && $this->filter->description != __('All'), fn($query) => $query->where('events.description', $this->filter->description));
+              ->when($this->filter->event_type_id, fn($query) => $query->where('events.event_type_id', $this->filter->event_type_id));
         });
 
         // "Show only open" toggle

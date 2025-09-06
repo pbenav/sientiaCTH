@@ -1,3 +1,4 @@
+@props(['isteamadmin', 'isinspector', 'eventTypes'])
 <div>
     <x-jet-dialog-modal wire:model="showFiltersModal">
 
@@ -35,17 +36,6 @@
                     <x-jet-checkbox class="h-6 w-6 text-gray-600 checked:text-green-600" wire:model.defer='filter.is_open'/>
                     <x-jet-input-error for='filter.is_open' />
                 </div>
-            </div>
-
-            <div class="mb-4">
-                <x-jet-label value="{{ __('Description') }}" />
-                <select class="sl-select" wire:model.defer='filter.description'>
-                    <option value="{{ __('All') }}">{{ __('All') }}</option>
-                    <option value="{{ __('Workday') }}">{{ __('Workday') }}</option>
-                    <option value="{{ __('Pause') }}">{{ __('Pause') }} </option>
-                    <option value="{{ __('Others') }}">{{ __('Others') }}</option>
-                </select>
-                <x-jet-input-error for='filter.description' />
             </div>
 
             <div class="mb-4">

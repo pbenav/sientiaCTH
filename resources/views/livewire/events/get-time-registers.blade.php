@@ -31,7 +31,7 @@
     <div class="mx-auto w-full max-w-6xl" wire:init="loadEvents">
 
         <!-- Filters Modal -->
-        <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector"></x-setfilters>
+        <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector" :eventTypes="$eventTypes"></x-setfilters>
 
         <div class="flex flex-row flex-wrap">
             <!-- Add Event Modal and Button -->
