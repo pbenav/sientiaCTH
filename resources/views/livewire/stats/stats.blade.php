@@ -109,7 +109,13 @@
 
         <div class="">
             <div class="p-4 w-auto h-96 bg-white rounded border shadow">
-                <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
+                @if($hasData)
+                    <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
+                @else
+                    <div class="flex justify-center items-center h-full">
+                        <p class="text-lg text-gray-500">{{ __('No events found for the selected filter.') }}</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

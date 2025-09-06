@@ -17,6 +17,7 @@ class StatsComponent extends Component
     public $eventTypes;
     public $firstRun = true;
     public $showDataLabels = true;
+    public $hasData = true;
     public User $actualUser;
     public $browsedUser;
     public $isTeamAdmin;
@@ -70,6 +71,7 @@ class StatsComponent extends Component
     public function getData()
     {
         $start = microtime(true);
+        $this->hasData = true; // Assume there is data until proven otherwise
 
         // 1. Fetch raw events for the month, filtered by user
         $query = Event::query()
@@ -102,7 +104,6 @@ class StatsComponent extends Component
             $current_date = clone $start_date;
 
             while ($current_date->format('Y-m-d') <= $end_date->format('Y-m-d')) {
-                // Only process days within the selected month
                 if ($current_date->format('m') != $this->selectedMonth) {
                     $current_date->modify('+1 day');
                     continue;
@@ -137,17 +138,44 @@ class StatsComponent extends Component
 
         $this->totalHours = round($totalHours, 2);
 
-        // 3. Build the multi-series column chart
-        $columnChart = LivewireCharts::multiColumnChartModel()
-            ->setTitle(__("Registered hours"))
-            ->setAnimated($this->firstRun)
-            ->withDataLabels();
+        // 3. Handle "No Data" case
+        if (empty($dailyTypeHours)) {
+            $this->hasData = false;
+            // Return a dummy chart model to avoid errors in the view
+            $columnChart = LivewireCharts::columnChartModel();
+            $elapsedTime = number_format((microtime(true) - $start) * 1000, 2);
+            return [$columnChart, $elapsedTime];
+        }
 
         ksort($dailyTypeHours); // Sort by day
 
-        foreach ($dailyTypeHours as $day => $types) {
-            foreach ($types as $typeName => $data) {
-                $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+        // 4. Build the appropriate chart based on filters
+        if ($this->eventTypeId) {
+            // SINGLE-SERIES CHART for a filtered event type
+            $columnChart = LivewireCharts::columnChartModel()
+                ->setTitle(__("Registered hours"))
+                ->setAnimated($this->firstRun)
+                ->withDataLabels();
+
+            // Extract the single color from the data
+            $color = array_values(array_values($dailyTypeHours)[0])[0]['color'];
+            $columnChart->setColor($color);
+
+            foreach ($dailyTypeHours as $day => $types) {
+                $hours = array_values($types)[0]['hours'];
+                $columnChart->addColumn($day, round($hours, 2));
+            }
+        } else {
+            // MULTI-SERIES CHART for all event types
+            $columnChart = LivewireCharts::multiColumnChartModel()
+                ->setTitle(__("Registered hours"))
+                ->setAnimated($this->firstRun)
+                ->withDataLabels();
+
+            foreach ($dailyTypeHours as $day => $types) {
+                foreach ($types as $typeName => $data) {
+                    $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+                }
             }
         }
 
