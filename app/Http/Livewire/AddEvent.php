@@ -38,14 +38,12 @@ class AddEvent extends Component
      * @var string
      */
     public $start_date;
-    public $end_date;
 
     /**
      * Time for the event start.
      * @var string
      */
     public $start_time;
-    public $end_time;
 
     /**
      * User ID associated with the event.
@@ -92,11 +90,8 @@ class AddEvent extends Component
             'observations' => 'nullable|string|max:255',
         ];
 
-        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $rules['end_date'] = 'required|date|after_or_equal:start_date';
-        } else {
+        if ($this->selectedEventType && !$this->selectedEventType->is_all_day) {
             $rules['start_time'] = 'required';
-            $rules['end_time'] = 'required|after:start_time';
         }
 
         return $rules;
@@ -124,9 +119,7 @@ class AddEvent extends Component
     public function mount()
     {
         $this->start_date = date('Y-m-d');
-        $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
-        $this->end_time = date('H:i:s');
         $this->description = __('Workday');
         $this->observations = '';
         $this->eventTypes = collect();
@@ -149,9 +142,7 @@ class AddEvent extends Component
         // Reset and fetch fresh data each time the modal is opened
         $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
         $this->start_date = date('Y-m-d');
-        $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
-        $this->end_time = date('H:i:s');
         $this->description = __('Workday');
 
         if (Auth::check() && Auth::user()->currentTeam) {
@@ -189,23 +180,22 @@ class AddEvent extends Component
 
         $data = [
             'user_id' => Auth::user()->id,
-            'description' => $this->selectedEventType->name, // Description is now always the type name
+            'description' => $this->selectedEventType->name,
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
-            'is_open' => false, // Events are now created closed
         ];
 
-        if ($this->selectedEventType->is_all_day) {
+        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
             $data['start'] = $this->start_date . ' 00:00:00';
-            $data['end'] = $this->end_date . ' 23:59:59';
+            $data['end'] = $this->start_date . ' 23:59:59';
+            $data['is_open'] = false; // All-day events are created closed.
+            if (Schema::hasColumn('events', 'is_authorized')) {
+                $data['is_authorized'] = false;
+            }
         } else {
             $data['start'] = $this->start_date . ' ' . $this->start_time;
-            $data['end'] = $this->start_date . ' ' . $this->end_time;
-        }
-
-        // Add the is_authorized flag only if the column exists and it's an all-day event
-        if ($this->selectedEventType->is_all_day && Schema::hasColumn('events', 'is_authorized')) {
-            $data['is_authorized'] = false; // Always default to not authorized
+            $data['end'] = null;
+            $data['is_open'] = true; // Regular events are created open.
         }
 
         Event::create($data);
