@@ -142,6 +142,7 @@ class AddEvent extends Component
             $this->eventTypes = Auth::user()->currentTeam->eventTypes;
             if ($this->eventTypes->count() > 0) {
                 $this->event_type_id = $this->eventTypes->first()->id;
+                $this->selectedEventType = $this->eventTypes->first();
             }
         } else {
             $this->eventTypes = collect();

@@ -14,6 +14,10 @@ class EventType extends Model
         'is_all_day',
     ];
 
+    protected $casts = [
+        'is_all_day' => 'boolean',
+    ];
+
     /**
      * Get the team that owns the event type.
      */
