@@ -13,4 +13,12 @@ class EventType extends Model
         'color',
         'is_all_day',
     ];
+
+    /**
+     * Get the team that owns the event type.
+     */
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
 }
