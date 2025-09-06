@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('name');
             $table->text('observations')->nullable();
             $table->string('color');
-            $table->boolean('is_all_day')->default(false);
             $table->timestamps();
         });
     }
