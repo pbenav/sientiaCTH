@@ -121,6 +121,7 @@
                             </th>
 
                             <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Duration') }}</th>
+                            <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Authorized') }}</th>
 
                             @if (!$isInspector || $isTeamAdmin)
                                 <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Actions') }}</th>
@@ -131,10 +132,12 @@
                     <tbody class="block md:table-row-group">
                         @foreach ($events as $ev)
                             <tr class="block border md:table-row">
-                                <td class="p-1 text-center md:table-cell">{{ $ev->id }}</td>
+                                <td class="p-1 text-center md:table-cell" style="background-color: {{ $ev->eventType->color ?? 'transparent' }}; color: {{ $ev->eventType && $this->isDark($ev->eventType->color) ? 'white' : 'black' }}">
+                                    {{ $ev->id }}
+                                </td>
 
                                 @if ($isTeamAdmin || $isInspector)
-                                    <td class="p-1 text-left md:table-cell">{{ $ev->user_id . ' - ' . $ev->name . ' ' . $ev->family_name1 }}</td>
+                                    <td class="p-1 text-left md:table-cell">{{ $ev->user->name . ' ' . $ev->user->family_name1 }}</td>
                                 @endif
 
                                 <td class="p-1 text-left md:table-cell">{{ Carbon\Carbon::parse($ev->start)->format('d/m/y H:i:s') }}</td>
@@ -148,6 +151,15 @@
                                     @endif
                                 </td>
                                 <td class="p-1 text-center md:table-cell">{{ $ev->getPeriod() }}</td>
+                                <td class="p-1 text-center md:table-cell">
+                                    @if ($ev->eventType && $ev->eventType->is_all_day)
+                                        <x-jet-checkbox
+                                            wire:click="toggleAuthorization({{ $ev->id }})"
+                                            :checked="$ev->is_authorized"
+                                            :disabled="!$isTeamAdmin"
+                                        />
+                                    @endif
+                                </td>
 
                                 @if (!$isInspector || $isTeamAdmin)
                                     <td class="flex justify-center items-center p-1 md:table-cell">

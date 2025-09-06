@@ -14,23 +14,37 @@
             </div>
 
             <div class="mb-4">
-                <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
-                <x-jet-input type="date" class="mr-2" wire:model.defer='start_date' />
-                <x-jet-input-error for='start_date' />
-                <x-jet-input type="time" class="" wire:model.defer='start_time' />
-                <x-jet-input-error for='start_time' />
-                <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
-            </div>
-
-            <div class="mb-4">
                 <x-jet-label value="{{ __('Event Type') }}" class="required" />
                 <select class="sl-select" required wire:model="event_type_id" name="event_type_id">
+                    <option value="">{{ __('Select an option') }}</option>
                     @foreach($eventTypes as $eventType)
                         <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
                     @endforeach
                 </select>
                 <x-jet-input-error for='event_type_id' />
             </div>
+
+            @if ($selectedEventType)
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
+                    <x-jet-input type="date" class="mr-2" wire:model.defer='start_date' />
+                    <x-jet-input-error for='start_date' />
+
+                    @if (!$selectedEventType->is_all_day)
+                        <x-jet-input type="time" class="" wire:model.defer='start_time' />
+                        <x-jet-input-error for='start_time' />
+                    @endif
+                    <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
+                </div>
+
+                @if ($selectedEventType->is_all_day)
+                    <div class="mb-4">
+                        <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2 required" />
+                        <x-jet-input type="date" class="mr-2" wire:model.defer='end_date' />
+                        <x-jet-input-error for='end_date' />
+                    </div>
+                @endif
+            @endif
 
             <div class="mx-auto mb-4">
                 <x-jet-label value="{{ __('Observations') }}" />

@@ -10,9 +10,11 @@
 
         <x-slot name="content">
             <div class="flex items-center justify-end">
-                <x-jet-button wire:click="manageEventType">
-                    {{ __('Añadir tipo de evento') }}
-                </x-jet-button>
+                @if ($isTeamAdmin)
+                    <x-jet-button wire:click="manageEventType">
+                        {{ __('Añadir tipo de evento') }}
+                    </x-jet-button>
+                @endif
             </div>
 
             <div class="mt-6">
@@ -96,6 +98,10 @@
                     <x-jet-label for="observations" value="{{ __('Observaciones') }}" />
                     <textarea id="observations" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" wire:model.defer="eventType.observations"></textarea>
                     <x-jet-input-error for="eventType.observations" class="mt-2" />
+                </div>
+                <div class="flex items-center">
+                    <x-jet-checkbox id="is_all_day" wire:model.defer="eventType.is_all_day" />
+                    <x-jet-label for="is_all_day" class="ml-2" value="{{ __('Evento de día completo') }}" />
                 </div>
             </div>
         </x-slot>

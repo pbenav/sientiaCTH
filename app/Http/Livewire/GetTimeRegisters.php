@@ -271,4 +271,27 @@ class GetTimeRegisters extends Component
     {
         $this->readyonload = true;
     }
+
+    public function isDark($hexColor)
+    {
+        if(empty($hexColor)) return false;
+        $hexColor = str_replace('#', '', $hexColor);
+        if(strlen($hexColor) != 6) return false;
+        $r = hexdec(substr($hexColor, 0, 2));
+        $g = hexdec(substr($hexColor, 2, 2));
+        $b = hexdec(substr($hexColor, 4, 2));
+        $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+        return $luminance < 0.5;
+    }
+
+    public function toggleAuthorization($eventId)
+    {
+        if ($this->isTeamAdmin) {
+            $event = Event::find($eventId);
+            if ($event && $event->eventType && $event->eventType->is_all_day) {
+                $event->is_authorized = !$event->is_authorized;
+                $event->save();
+            }
+        }
+    }
 }

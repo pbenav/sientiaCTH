@@ -11,5 +11,6 @@ class EventType extends Model
         'description',
         'team_id',
         'color',
+        'is_all_day',
     ];
 }

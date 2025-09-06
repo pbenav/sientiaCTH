@@ -21,6 +21,7 @@ class Event extends Model
         'start',
         'end',
         'is_open',
+        'is_authorized',
         'description',
         'observations',
         'event_type_id',
