@@ -20,6 +20,7 @@ class EventTypeManager extends Component
         'eventType.name' => 'required|string|max:255',
         'eventType.color' => 'required|string|max:255',
         'eventType.observations' => 'nullable|string',
+        'eventType.is_all_day' => 'nullable|boolean',
     ];
 
     public function mount($team)
