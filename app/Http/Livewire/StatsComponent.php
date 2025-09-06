@@ -73,34 +73,34 @@ class StatsComponent extends Component
 
         // Base query for events
         $query = Event::query()
-            ->join('event_types', 'events.event_type_id', '=', 'event_types.id')
-            ->where('events.user_id', $this->browsedUser)
-            ->whereMonth('events.start', $this->selectedMonth)
-            ->whereYear('events.start', $this->selectedYear)
-            ->selectRaw('event_types.name as event_type_name, event_types.color as event_type_color, SUM(TIMESTAMPDIFF(minute, events.start, events.end))/60 as hours')
-            ->groupBy('event_types.name', 'event_types.color');
+            ->where('user_id', $this->browsedUser)
+            ->whereMonth('start', $this->selectedMonth)
+            ->whereYear('start', $this->selectedYear)
+            ->selectRaw('DAY(start) as day, MONTH(start) as month, SUM(TIMESTAMPDIFF(minute, start, end))/60 as hours')
+            ->groupBy('day', 'month')
+            ->orderBy('day');
 
         // Conditionally filter by event type
         $query->when($this->eventTypeId, function ($q) {
-            return $q->where('events.event_type_id', $this->eventTypeId);
+            return $q->where('event_type_id', $this->eventTypeId);
         });
 
-        $eventsByType = $query->get();
+        $dailyTotals = $query->get();
 
-        $this->totalHours = round($eventsByType->sum('hours'), 2);
+        $this->totalHours = round($dailyTotals->sum('hours'), 2);
 
         // Initialize the chart model
         $columnChart = LivewireCharts::columnChartModel()
-            ->setTitle(__("Hours by Event Type"))
+            ->setTitle(__("Registered hours"))
             ->setAnimated($this->firstRun)
             ->setLegendVisibility(false)
             ->setColumnWidth(90)
             ->withGrid()
             ->withDataLabels();
 
-        // Add columns to the chart model for each event type
-        foreach ($eventsByType as $eventType) {
-            $columnChart->addColumn($eventType->event_type_name, round($eventType->hours, 2), $eventType->event_type_color);
+        // Add columns to the chart model for each day
+        foreach ($dailyTotals as $dayData) {
+            $columnChart->addColumn($dayData->day . '/' . $dayData->month, round($dayData->hours, 2), '#006600');
         }
 
         $this->firstRun = false;
