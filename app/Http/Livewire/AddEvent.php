@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Event;
+use App\Models\EventType;
 use App\Traits\HasWorkScheduleHint;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
