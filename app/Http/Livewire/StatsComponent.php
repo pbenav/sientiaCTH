@@ -170,23 +170,30 @@ class StatsComponent extends Component
                 ->setAnimated($this->firstRun)
                 ->withDataLabels();
 
-            // Re-structure data for series-based addition
+            // Re-structure data to get series names, colors, and data grid
             $seriesData = [];
+            $xAxisCategories = [];
             foreach ($dailyTypeHours as $day => $types) {
+                $xAxisCategories[$day] = $day; // Collect unique days for X-axis
                 foreach ($types as $typeName => $data) {
                     if (!isset($seriesData[$typeName])) {
-                        $seriesData[$typeName] = ['data' => [], 'color' => $data['color']];
+                        $seriesData[$typeName] = ['color' => $data['color']];
                     }
-                    $seriesData[$typeName]['data'][$day] = round($data['hours'], 2);
                 }
             }
 
-            // Add each event type as a distinct series with its color
-            foreach ($seriesData as $typeName => $series) {
-                $columnChart->addSeries($typeName, array_values($series['data']), $series['color']);
+            // Set the color palette for the chart
+            $columnChart->setColors(array_column(array_values($seriesData), 'color'));
+
+            // Add data points
+            foreach ($dailyTypeHours as $day => $types) {
+                foreach (array_keys($seriesData) as $typeName) {
+                    $hours = $types[$typeName]['hours'] ?? 0;
+                    $columnChart->addSeriesColumn($typeName, $day, round($hours, 2));
+                }
             }
-            // Set the X-Axis labels to be the days
-            $columnChart->setXAxis(array_keys($dailyTypeHours));
+
+            $columnChart->setXAxis(array_values($xAxisCategories));
         }
 
         $this->firstRun = false;
