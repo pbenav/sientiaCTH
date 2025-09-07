@@ -27,21 +27,25 @@
                 <x-jet-input id="end_time_{{ $index }}" type="time" class="mt-1 block w-full" wire:model.defer="schedule.{{ $index }}.end" />
                 <x-jet-input-error for="schedule.{{ $index }}.end" class="mt-2" />
             </div>
-            <div class="col-span-6 sm:col-span-1">
-                <x-jet-label value="{{ __('Días') }}" />
-                <div class="mt-2 flex space-x-4">
-                    @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
-                        <label class="inline-flex items-center">
-                            <span class="mr-2 ml-2 text-gray-700">{{ $day }}</span>
-                            <input type="checkbox" wire:model="schedule.{{ $index }}.days" value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
-                        </label>
-                    @endforeach
+            <div class="col-span-6 sm:col-span-2">
+                <div class="flex flex-col">
+                    <div>
+                        <x-jet-label value="{{ __('Días') }}" />
+                        <div class="mt-2 flex flex-wrap space-x-4">
+                            @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
+                                <label class="inline-flex items-center">
+                                    <span class="mr-2 ml-2 text-gray-700">{{ $day }}</span>
+                                    <input type="checkbox" wire:model="schedule.{{ $index }}.days" value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="mt-2 flex justify-end">
+                        <x-jet-danger-button type="button" wire:click="removeScheduleRow({{ $index }})">
+                            {{ __('Eliminar') }}
+                        </x-jet-danger-button>
+                    </div>
                 </div>
-            </div>
-            <div class="col-span-6 sm:col-span-1 flex items-end">
-                <x-jet-danger-button type="button" wire:click="removeScheduleRow({{ $index }})">
-                    {{ __('Eliminar') }}
-                </x-jet-danger-button>
             </div>
         @endforeach
 
