@@ -99,24 +99,40 @@
             </div>
 
             <div class="whitespace-nowrap">
-                <x-jet-label>{{ __('Total hours registered in ') }}
+                <x-jet-label>{{ __('Total registered in ') }}
                     {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
-                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalHours }}
-                    {{ __('hours') }}
+                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $this->displayTotal }}
+                    {{ __($displayMode) }}
                 </x-jet-label>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <x-jet-label value="{{ __('Show total in:') }}" />
+                <label class="inline-flex items-center">
+                    <input type="radio" class="form-radio" wire:model.live="displayMode" value="hours">
+                    <span class="ml-2">{{ __('Hours') }}</span>
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" class="form-radio" wire:model.live="displayMode" value="days">
+                    <span class="ml-2">{{ __('Days') }}</span>
+                </label>
             </div>
         </div>
 
-        <div class="">
-            <div class="p-4 w-auto h-96 bg-white rounded border shadow">
-                @if($hasData)
-                    <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
-                @else
+        <div class="space-y-4">
+            @if($hasData)
+                @foreach($charts as $chart)
+                    <div class="p-4 w-auto h-96 bg-white rounded border shadow">
+                        <livewire:livewire-column-chart key="{{ $chart->reactiveKey() }}" :column-chart-model='$chart' />
+                    </div>
+                @endforeach
+            @else
+                <div class="p-4 w-auto bg-white rounded border shadow">
                     <div class="flex justify-center items-center h-full">
                         <p class="text-lg text-gray-500">{{ __('No events found for the selected filter.') }}</p>
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
     </div>
 

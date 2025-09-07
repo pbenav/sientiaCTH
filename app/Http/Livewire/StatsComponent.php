@@ -23,6 +23,7 @@ class StatsComponent extends Component
     public $isTeamAdmin;
     public $isInspector;
     public $workers = [];
+    public $displayMode = 'hours';
     public $paso;
 
     /**
@@ -68,36 +69,28 @@ class StatsComponent extends Component
      *
      * @return array An array containing the chart model and elapsed time.
      */
-    public function getData()
+    public function getCharts()
     {
         $start = microtime(true);
-        $this->hasData = true; // Assume there is data until proven otherwise
+        $this->hasData = true;
 
-        // 1. Fetch raw events for the month, filtered by user
+        // 1. Fetch raw events
         $query = Event::query()
-            ->with('eventType') // Eager load for color and name
+            ->with('eventType')
             ->where('user_id', $this->browsedUser)
             ->where(function ($q) {
                 $q->whereMonth('start', $this->selectedMonth)
                   ->orWhereMonth('end', $this->selectedMonth);
             })
             ->whereYear('start', $this->selectedYear);
-
-        // Conditionally filter by event type
-        $query->when($this->eventTypeId, function ($q) {
-            return $q->where('event_type_id', $this->eventTypeId);
-        });
-
+        $query->when($this->eventTypeId, fn($q) => $q->where('event_type_id', $this->eventTypeId));
         $events = $query->get();
 
-        // 2. Process events in PHP to handle splitting across days
-        $dailyTypeHours = [];
+        // 2. Process events into a data structure grouped by type and day
+        $processedData = [];
         $totalHours = 0;
-
         foreach ($events as $event) {
-            if (!$event->end || !$event->eventType) {
-                continue;
-            }
+            if (!$event->end || !$event->eventType) continue;
 
             $start_date = new \DateTime($event->start);
             $end_date = new \DateTime($event->end);
@@ -108,94 +101,55 @@ class StatsComponent extends Component
                     $current_date->modify('+1 day');
                     continue;
                 }
-
                 $day_start = (clone $current_date)->setTime(0, 0, 0);
                 $day_end = (clone $current_date)->setTime(23, 59, 59);
-
                 $effective_start = max($start_date, $day_start);
                 $effective_end = min($end_date, $day_end);
 
                 if ($effective_start < $effective_end) {
-                    $diff_in_seconds = $effective_end->getTimestamp() - $effective_start->getTimestamp();
-                    $hours_for_day = $diff_in_seconds / 3600;
+                    $hours_for_day = ($effective_end->getTimestamp() - $effective_start->getTimestamp()) / 3600;
                     $totalHours += $hours_for_day;
-
                     $dayKey = $current_date->format('d/m');
-                    $typeKey = $event->eventType->name;
-                    $color = $event->eventType->color;
-
-                    if (!isset($dailyTypeHours[$dayKey])) {
-                        $dailyTypeHours[$dayKey] = [];
+                    $typeKey = $event->eventType->id;
+                    if (!isset($processedData[$typeKey])) {
+                        $processedData[$typeKey] = ['name' => $event->eventType->name, 'color' => $event->eventType->color, 'days' => []];
                     }
-                    if (!isset($dailyTypeHours[$dayKey][$typeKey])) {
-                        $dailyTypeHours[$dayKey][$typeKey] = ['hours' => 0, 'color' => $color];
+                    if (!isset($processedData[$typeKey]['days'][$dayKey])) {
+                        $processedData[$typeKey]['days'][$dayKey] = 0;
                     }
-                    $dailyTypeHours[$dayKey][$typeKey]['hours'] += $hours_for_day;
+                    $processedData[$typeKey]['days'][$dayKey] += $hours_for_day;
                 }
                 $current_date->modify('+1 day');
             }
         }
-
         $this->totalHours = round($totalHours, 2);
 
-        // 3. Handle "No Data" case
-        if (empty($dailyTypeHours)) {
+        // 3. Handle No Data
+        if (empty($processedData)) {
             $this->hasData = false;
-            // Return a dummy chart model to avoid errors in the view
-            $columnChart = LivewireCharts::columnChartModel();
-            $elapsedTime = number_format((microtime(true) - $start) * 1000, 2);
-            return [$columnChart, $elapsedTime];
+            return [null, 0];
         }
 
-        ksort($dailyTypeHours); // Sort by day
-
-        // 4. Build the appropriate chart based on filters
-        if ($this->eventTypeId) {
-            // SINGLE-SERIES CHART for a filtered event type
-            $columnChart = LivewireCharts::columnChartModel()
-                ->setTitle(__("Registered hours"))
+        // 4. Create an array of chart models
+        $charts = [];
+        foreach ($processedData as $typeData) {
+            $chart = LivewireCharts::columnChartModel()
+                ->setTitle($typeData['name'])
                 ->setAnimated($this->firstRun)
-                ->withDataLabels();
+                ->withDataLabels()
+                ->setColor($typeData['color']);
 
-            foreach ($dailyTypeHours as $day => $types) {
-                $typeData = array_values($types)[0];
-                $hours = $typeData['hours'];
-                $color = $typeData['color'];
-                $columnChart->addColumn($day, round($hours, 2), $color);
+            ksort($typeData['days']);
+            foreach ($typeData['days'] as $day => $hours) {
+                $chart->addColumn($day, round($hours, 2));
             }
-        } else {
-            // MULTI-SERIES CHART for all event types
-            $columnChart = LivewireCharts::multiColumnChartModel()
-                ->setTitle(__("Registered hours"))
-                ->setAnimated($this->firstRun)
-                ->withDataLabels();
-
-            // Get all unique series names and their colors
-            $seriesInfo = [];
-            foreach ($dailyTypeHours as $day => $types) {
-                foreach ($types as $typeName => $data) {
-                    if (!isset($seriesInfo[$typeName])) {
-                        $seriesInfo[$typeName] = $data['color'];
-                    }
-                }
-            }
-
-            // Ensure a consistent order for days
-            ksort($dailyTypeHours);
-
-            // Add a data point for every series on every day to stabilize colors
-            foreach ($dailyTypeHours as $day => $types) {
-                foreach ($seriesInfo as $typeName => $color) {
-                    $hours = $types[$typeName]['hours'] ?? 0;
-                    $columnChart->addSeriesColumn($typeName, $day, round($hours, 2), $color);
-                }
-            }
+            $charts[] = $chart;
         }
 
         $this->firstRun = false;
         $elapsedTime = number_format((microtime(true) - $start) * 1000, 2);
 
-        return [$columnChart, $elapsedTime];
+        return [$charts, $elapsedTime];
     }
 
     /**
@@ -205,13 +159,22 @@ class StatsComponent extends Component
      *
      * @return \Illuminate\View\View The rendered view.
      */
+    public function getDisplayTotalProperty()
+    {
+        if ($this->displayMode === 'days') {
+            return round($this->totalHours / 8, 2);
+        }
+
+        return $this->totalHours;
+    }
+
     public function render()
     {
-        list($cCModel, $elapsedTime) = $this->getData();
+        list($charts, $elapsedTime) = $this->getCharts();
 
         return view('livewire.stats.stats')
             ->with([
-                'columnChartModel' => $cCModel,
+                'charts' => $charts,
                 'elapsedTime' => $elapsedTime,
             ]);
     }

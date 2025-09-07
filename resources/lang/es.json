@@ -310,5 +310,10 @@
     "Select an option": "Selecciona una opción",
     "This event is already closed and cannot be modified.": "Este evento ya está cerrado y no se puede modificar.",
     "Start date and time": "Fecha y hora de inicio",
-    "End date and time": "Fecha y hora de fin"
+    "End date and time": "Fecha y hora de fin",
+    "Total registered in ": "Total registrado en ",
+    "Show total in:": "Mostrar total en:",
+    "Hours": "Horas",
+    "Days": "Días",
+    "days": "días"
 }
