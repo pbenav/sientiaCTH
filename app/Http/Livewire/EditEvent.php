@@ -89,8 +89,8 @@ class EditEvent extends Component
             $this->end_datetime = \Carbon\Carbon::parse($ev->end)->toDateTimeLocalString();
             $this->end_date = \Carbon\Carbon::parse($ev->end)->format('Y-m-d');
         } else {
-            $this->end_datetime = '';
-            $this->end_date = '';
+            $this->end_datetime = \Carbon\Carbon::now()->toDateTimeLocalString();
+            $this->end_date = \Carbon\Carbon::now()->format('Y-m-d');
         }
 
         $this->setWorkScheduleHint();

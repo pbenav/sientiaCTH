@@ -170,11 +170,23 @@ class StatsComponent extends Component
                 ->setAnimated($this->firstRun)
                 ->withDataLabels();
 
+            // Re-structure data for series-based addition
+            $seriesData = [];
             foreach ($dailyTypeHours as $day => $types) {
                 foreach ($types as $typeName => $data) {
-                    $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+                    if (!isset($seriesData[$typeName])) {
+                        $seriesData[$typeName] = ['data' => [], 'color' => $data['color']];
+                    }
+                    $seriesData[$typeName]['data'][$day] = round($data['hours'], 2);
                 }
             }
+
+            // Add each event type as a distinct series with its color
+            foreach ($seriesData as $typeName => $series) {
+                $columnChart->addSeries($typeName, array_values($series['data']), $series['color']);
+            }
+            // Set the X-Axis labels to be the days
+            $columnChart->setXAxis(array_keys($dailyTypeHours));
         }
 
         $this->firstRun = false;
