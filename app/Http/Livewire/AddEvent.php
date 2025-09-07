@@ -38,6 +38,7 @@ class AddEvent extends Component
      * @var string
      */
     public $start_date;
+    public $end_date;
 
     /**
      * Time for the event start.
@@ -90,7 +91,9 @@ class AddEvent extends Component
             'observations' => 'nullable|string|max:255',
         ];
 
-        if ($this->selectedEventType && !$this->selectedEventType->is_all_day) {
+        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
+            $rules['end_date'] = 'required|date|after_or_equal:start_date';
+        } else if ($this->selectedEventType) {
             $rules['start_time'] = 'required';
         }
 
@@ -119,6 +122,7 @@ class AddEvent extends Component
     public function mount()
     {
         $this->start_date = date('Y-m-d');
+        $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
         $this->description = __('Workday');
         $this->observations = '';
@@ -142,6 +146,7 @@ class AddEvent extends Component
         // Reset and fetch fresh data each time the modal is opened
         $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
         $this->start_date = date('Y-m-d');
+        $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
         $this->description = __('Workday');
 
@@ -183,19 +188,18 @@ class AddEvent extends Component
             'description' => $this->selectedEventType->name,
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
+            'is_open' => true, // All events are now created as open
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
             $data['start'] = $this->start_date . ' 00:00:00';
-            $data['end'] = $this->start_date . ' 23:59:59';
-            $data['is_open'] = false; // All-day events are created closed.
+            $data['end'] = $this->end_date . ' 23:59:59'; // Use end_date
             if (Schema::hasColumn('events', 'is_authorized')) {
                 $data['is_authorized'] = false;
             }
         } else {
             $data['start'] = $this->start_date . ' ' . $this->start_time;
             $data['end'] = null;
-            $data['is_open'] = true; // Regular events are created open.
         }
 
         Event::create($data);
