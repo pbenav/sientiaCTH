@@ -135,17 +135,33 @@ class StatsComponent extends Component
             return [LivewireCharts::multiColumnChartModel(), 0];
         }
 
-        // 4. Create a single multi-column chart
-        $columnChart = LivewireCharts::multiColumnChartModel()
-            ->setTitle(__("Registered hours"))
-            ->setAnimated($this->firstRun)
-            ->withDataLabels();
+        // 4. Build the appropriate chart based on filters
+        if ($this->eventTypeId && !empty($dailyTypeHours)) {
+            // SINGLE-SERIES CHART for a filtered event type
+            $columnChart = LivewireCharts::columnChartModel()
+                ->setTitle(__("Registered hours"))
+                ->setAnimated($this->firstRun)
+                ->withDataLabels();
 
-        ksort($dailyTypeHours);
+            foreach ($dailyTypeHours as $day => $types) {
+                $typeData = array_values($types)[0];
+                $hours = $typeData['hours'];
+                $color = $typeData['color'];
+                $columnChart->addColumn($day, round($hours, 2), $color);
+            }
+        } else {
+            // MULTI-SERIES CHART for all event types
+            $columnChart = LivewireCharts::multiColumnChartModel()
+                ->setTitle(__("Registered hours"))
+                ->setAnimated($this->firstRun)
+                ->withDataLabels();
 
-        foreach ($dailyTypeHours as $day => $types) {
-            foreach ($types as $typeName => $data) {
-                $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+            ksort($dailyTypeHours);
+
+            foreach ($dailyTypeHours as $day => $types) {
+                foreach ($types as $typeName => $data) {
+                    $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+                }
             }
         }
 
@@ -165,7 +181,7 @@ class StatsComponent extends Component
     public function getDisplayTotalProperty()
     {
         if ($this->displayMode === 'days') {
-            return round($this->totalHours / 8, 2);
+            return round($this->totalHours / 24, 2);
         }
 
         return $this->totalHours;
