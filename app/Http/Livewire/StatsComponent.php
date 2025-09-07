@@ -170,9 +170,24 @@ class StatsComponent extends Component
                 ->setAnimated($this->firstRun)
                 ->withDataLabels();
 
+            // Get all unique series names and their colors
+            $seriesInfo = [];
             foreach ($dailyTypeHours as $day => $types) {
                 foreach ($types as $typeName => $data) {
-                    $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+                    if (!isset($seriesInfo[$typeName])) {
+                        $seriesInfo[$typeName] = $data['color'];
+                    }
+                }
+            }
+
+            // Ensure a consistent order for days
+            ksort($dailyTypeHours);
+
+            // Add a data point for every series on every day to stabilize colors
+            foreach ($dailyTypeHours as $day => $types) {
+                foreach ($seriesInfo as $typeName => $color) {
+                    $hours = $types[$typeName]['hours'] ?? 0;
+                    $columnChart->addSeriesColumn($typeName, $day, round($hours, 2), $color);
                 }
             }
         }
