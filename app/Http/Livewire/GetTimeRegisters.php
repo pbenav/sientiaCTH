@@ -131,6 +131,10 @@ class GetTimeRegisters extends Component
      */
     public function alertConfirm(Event $ev)
     {
+        if (!$ev->is_open && !$this->isTeamAdmin) {
+            $this->emit('alertFail', __("This event is already closed and cannot be modified."));
+            return;
+        }
         $this->emit('confirmConfirmation', $ev);
     }
 
@@ -141,6 +145,10 @@ class GetTimeRegisters extends Component
      */
     public function alertDelete(Event $ev)
     {
+        if (!$ev->is_open && !$this->isTeamAdmin) {
+            $this->emit('alertFail', __("This event is already closed and cannot be modified."));
+            return;
+        }
         $this->emit('deleteConfirmation', $ev);
     }
 

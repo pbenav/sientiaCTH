@@ -34,6 +34,14 @@
                     <x-jet-input-error for="start_time" />
                 @endif
             </div>
+
+            @if ($selectedEventType && $selectedEventType->is_all_day)
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2 required" />
+                    <x-jet-input type="date" class="mr-2" wire:model.defer="end_date" />
+                    <x-jet-input-error for="end_date" />
+                </div>
+            @endif
             <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
 
             <div class="mx-auto mb-4">
