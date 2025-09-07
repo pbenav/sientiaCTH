@@ -69,7 +69,7 @@ class StatsComponent extends Component
      *
      * @return array An array containing the chart model and elapsed time.
      */
-    public function getCharts()
+    public function getData()
     {
         $start = microtime(true);
         $this->hasData = true;
@@ -87,7 +87,7 @@ class StatsComponent extends Component
         $events = $query->get();
 
         // 2. Process events into a data structure grouped by type and day
-        $processedData = [];
+        $dailyTypeHours = [];
         $totalHours = 0;
         foreach ($events as $event) {
             if (!$event->end || !$event->eventType) continue;
@@ -110,14 +110,15 @@ class StatsComponent extends Component
                     $hours_for_day = ($effective_end->getTimestamp() - $effective_start->getTimestamp()) / 3600;
                     $totalHours += $hours_for_day;
                     $dayKey = $current_date->format('d/m');
-                    $typeKey = $event->eventType->id;
-                    if (!isset($processedData[$typeKey])) {
-                        $processedData[$typeKey] = ['name' => $event->eventType->name, 'color' => $event->eventType->color, 'days' => []];
+                    $typeKey = $event->eventType->name;
+                    $color = $event->eventType->color;
+                    if (!isset($dailyTypeHours[$dayKey])) {
+                        $dailyTypeHours[$dayKey] = [];
                     }
-                    if (!isset($processedData[$typeKey]['days'][$dayKey])) {
-                        $processedData[$typeKey]['days'][$dayKey] = 0;
+                    if (!isset($dailyTypeHours[$dayKey][$typeKey])) {
+                        $dailyTypeHours[$dayKey][$typeKey] = ['hours' => 0, 'color' => $color];
                     }
-                    $processedData[$typeKey]['days'][$dayKey] += $hours_for_day;
+                    $dailyTypeHours[$dayKey][$typeKey]['hours'] += $hours_for_day;
                 }
                 $current_date->modify('+1 day');
             }
@@ -125,31 +126,29 @@ class StatsComponent extends Component
         $this->totalHours = round($totalHours, 2);
 
         // 3. Handle No Data
-        if (empty($processedData)) {
+        if (empty($dailyTypeHours)) {
             $this->hasData = false;
-            return [null, 0];
+            return [LivewireCharts::multiColumnChartModel(), 0];
         }
 
-        // 4. Create an array of chart models
-        $charts = [];
-        foreach ($processedData as $typeData) {
-            $chart = LivewireCharts::columnChartModel()
-                ->setTitle($typeData['name'])
-                ->setAnimated($this->firstRun)
-                ->withDataLabels()
-                ->setColor($typeData['color']);
+        // 4. Create a single multi-column chart
+        $columnChart = LivewireCharts::multiColumnChartModel()
+            ->setTitle(__("Registered hours"))
+            ->setAnimated($this->firstRun)
+            ->withDataLabels();
 
-            ksort($typeData['days']);
-            foreach ($typeData['days'] as $day => $hours) {
-                $chart->addColumn($day, round($hours, 2));
+        ksort($dailyTypeHours);
+
+        foreach ($dailyTypeHours as $day => $types) {
+            foreach ($types as $typeName => $data) {
+                $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
             }
-            $charts[] = $chart;
         }
 
         $this->firstRun = false;
         $elapsedTime = number_format((microtime(true) - $start) * 1000, 2);
 
-        return [$charts, $elapsedTime];
+        return [$columnChart, $elapsedTime];
     }
 
     /**
@@ -170,11 +169,11 @@ class StatsComponent extends Component
 
     public function render()
     {
-        list($charts, $elapsedTime) = $this->getCharts();
+        list($columnChartModel, $elapsedTime) = $this->getData();
 
         return view('livewire.stats.stats')
             ->with([
-                'charts' => $charts,
+                'columnChartModel' => $columnChartModel,
                 'elapsedTime' => $elapsedTime,
             ]);
     }
