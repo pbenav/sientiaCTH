@@ -25,12 +25,12 @@ class EditEvent extends Component
      * @var Event $original_event Holds the original state of the event for logging.
      */
     public Event $event, $original_event;
+    public $start_date, $end_date, $start_datetime, $end_datetime;
 
     /**
      * @var User $user Holds the user associated with the event.
      */
     public User $user;
-    public $eventTypes;
 
     /**
      * @var array $listeners Listens for emitted events.
@@ -40,13 +40,22 @@ class EditEvent extends Component
     /**
      * @var array $rules Validation rules for the event.
      */
-    protected $rules = [
-        'event.start' => 'required|date',
-        'event.end' => 'required|date',
-        'event.description' => 'required',
-        'event.event_type_id' => 'required',
-        'event.observations' => 'string|max:255|nullable',
-    ];
+    protected function rules()
+    {
+        if ($this->event->eventType && $this->event->eventType->is_all_day) {
+            return [
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'event.observations' => 'nullable|string|max:255',
+            ];
+        }
+
+        return [
+            'start_datetime' => 'required|date',
+            'end_datetime' => 'required|date|after_or_equal:start_datetime',
+            'event.observations' => 'nullable|string|max:255',
+        ];
+    }
 
     /**
      * Initialize component with default values.
@@ -71,11 +80,17 @@ class EditEvent extends Component
         $this->event = $ev;
         $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
-        $this->eventTypes = collect();
-        if ($this->event->eventType && $this->event->eventType->team) {
-            $this->eventTypes = $this->event->eventType->team->eventTypes;
-        } else if ($this->user->currentTeam) {
-            $this->eventTypes = $this->user->currentTeam->eventTypes;
+
+        // Populate the new properties for the form
+        $this->start_datetime = \Carbon\Carbon::parse($ev->start)->toDateTimeLocalString();
+        $this->start_date = \Carbon\Carbon::parse($ev->start)->format('Y-m-d');
+
+        if ($ev->end) {
+            $this->end_datetime = \Carbon\Carbon::parse($ev->end)->toDateTimeLocalString();
+            $this->end_date = \Carbon\Carbon::parse($ev->end)->format('Y-m-d');
+        } else {
+            $this->end_datetime = '';
+            $this->end_date = '';
         }
 
         $this->setWorkScheduleHint();
@@ -101,6 +116,15 @@ class EditEvent extends Component
     public function update()
     {
         $this->validate();
+
+        if ($this->event->eventType && $this->event->eventType->is_all_day) {
+            $this->event->start = $this->start_date . ' 00:00:00';
+            $this->event->end = $this->end_date . ' 23:59:59';
+        } else {
+            $this->event->start = $this->start_datetime;
+            $this->event->end = $this->end_datetime;
+        }
+
         $this->event->save();
 
         if (auth()->user()->isTeamAdmin()) {

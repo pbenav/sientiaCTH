@@ -8,29 +8,39 @@
         </x-slot>
 
         <x-slot name='content'>
-            {{-- New Datepicker HTML5 --}}
-            <div class="mb-4">
-                <x-jet-label value="{{ __('Start date') }}" />
-                <input type="datetime-local" wire:model="event.start" />
-                <x-jet-input-error for='event.start' />
-                <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
-            </div>
-            <div class="mb-4">
-                <x-jet-label value="{{ __('End date') }}" />
-                <input type="datetime-local" wire:model="event.end" min="{{ $event->start }}" />
-                <x-jet-input-error for='event.end' />
-            </div>
-            {{-- end-datepicker --}}
-
             <div class="mb-4">
                 <x-jet-label value="{{ __('Event Type') }}" />
-                <select class="sl-select" wire:model.defer="event.event_type_id" name="event.event_type_id" required>
-                    @foreach($eventTypes as $eventType)
-                        <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
-                    @endforeach
-                </select>
-                <x-jet-input-error for='event.event_type_id' />
+                <div class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                    {{ $event->eventType->name ?? '' }}
+                </div>
             </div>
+
+            @if ($event->eventType && $event->eventType->is_all_day)
+                {{-- All-day event: show only date inputs --}}
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('Start date') }}" />
+                    <x-jet-input type="date" wire:model="start_date" />
+                    <x-jet-input-error for="start_date" />
+                </div>
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('End date') }}" />
+                    <x-jet-input type="date" wire:model="end_date" />
+                    <x-jet-input-error for="end_date" />
+                </div>
+            @else
+                {{-- Non-all-day event: show datetime inputs --}}
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('Start date and time') }}" />
+                    <x-jet-input type="datetime-local" wire:model="start_datetime" />
+                    <x-jet-input-error for="start_datetime" />
+                    <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
+                </div>
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('End date and time') }}" />
+                    <x-jet-input type="datetime-local" wire:model="end_datetime" />
+                    <x-jet-input-error for="end_datetime" />
+                </div>
+            @endif
 
             <div class="mx-auto mb-4">
                 <x-jet-label value="{{ __('Observations') }}" />
