@@ -88,7 +88,6 @@ class StatsComponent extends Component
 
         // 2. Process events into a data structure grouped by type and day
         $dailyTypeHours = [];
-        $totalHours = 0;
         foreach ($events as $event) {
             if (!$event->end || !$event->eventType) continue;
 
@@ -108,7 +107,6 @@ class StatsComponent extends Component
 
                 if ($effective_start < $effective_end) {
                     $hours_for_day = ($effective_end->getTimestamp() - $effective_start->getTimestamp()) / 3600;
-                    $totalHours += $hours_for_day;
                     $dayKey = $current_date->format('d/m');
                     $typeKey = $event->eventType->name;
                     $color = $event->eventType->color;
@@ -122,6 +120,12 @@ class StatsComponent extends Component
                 }
                 $current_date->modify('+1 day');
             }
+        }
+
+        // Calculate total from the processed data, not the raw query
+        $totalHours = 0;
+        foreach($dailyTypeHours as $day => $types) {
+            $totalHours += array_sum(array_column($types, 'hours'));
         }
         $this->totalHours = round($totalHours, 2);
 
