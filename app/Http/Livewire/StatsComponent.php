@@ -170,30 +170,11 @@ class StatsComponent extends Component
                 ->setAnimated($this->firstRun)
                 ->withDataLabels();
 
-            // Re-structure data to get series names, colors, and data grid
-            $seriesData = [];
-            $xAxisCategories = [];
             foreach ($dailyTypeHours as $day => $types) {
-                $xAxisCategories[$day] = $day; // Collect unique days for X-axis
                 foreach ($types as $typeName => $data) {
-                    if (!isset($seriesData[$typeName])) {
-                        $seriesData[$typeName] = ['color' => $data['color']];
-                    }
+                    $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
                 }
             }
-
-            // Set the color palette for the chart
-            $columnChart->setColors(array_column(array_values($seriesData), 'color'));
-
-            // Add data points
-            foreach ($dailyTypeHours as $day => $types) {
-                foreach (array_keys($seriesData) as $typeName) {
-                    $hours = $types[$typeName]['hours'] ?? 0;
-                    $columnChart->addSeriesColumn($typeName, $day, round($hours, 2));
-                }
-            }
-
-            $columnChart->setXAxis(array_values($xAxisCategories));
         }
 
         $this->firstRun = false;
