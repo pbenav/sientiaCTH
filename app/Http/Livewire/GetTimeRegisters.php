@@ -201,6 +201,11 @@ class GetTimeRegisters extends Component
                 'events.start', 'events.end', 'events.description', 'events.is_open', 'events.event_type_id'
             )
             ->join('users', 'events.user_id', '=', 'users.id')
+            ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
+            ->where(function ($query) {
+                $query->where('event_types.team_id', $this->team->id)
+                      ->orWhereNull('events.event_type_id');
+            })
             ->whereIn('events.user_id', $this->teamUsers);
 
         // General search box
