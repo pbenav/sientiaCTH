@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\EventType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class EventTypeSeeder extends Seeder
 {
@@ -12,6 +13,16 @@ class EventTypeSeeder extends Seeder
      */
     public function run($team_id = 1): void
     {
+        // Desactivar temporalmente las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Elimina todos los registros de la tabla antes de sembrar
+        DB::table('event_types')->truncate();
+
+        // Reactivar las comprobaciones de claves foráneas
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+
         $eventTypes = [
             [
                 'name' => 'Jornada laboral',

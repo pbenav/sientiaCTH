@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('event_types', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('team_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->text('observations')->nullable();
-            $table->string('color');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('event_types')) {
+            Schema::create('event_types', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('team_id')->constrained()->cascadeOnDelete();
+                $table->string('name');
+                $table->text('observations')->nullable();
+                $table->string('color');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
