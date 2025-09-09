@@ -23,6 +23,10 @@ class EventTypeManager extends Component
         'eventType.is_all_day' => 'nullable|boolean',
     ];
 
+    protected $validationAttributes = [
+        'eventType.observations' => 'observaciones',
+    ];
+
     public function mount($team)
     {
         $this->team = $team;
@@ -50,12 +54,17 @@ class EventTypeManager extends Component
         $this->eventTypes = $this->team->eventTypes()->get();
 
         $this->confirmingEventTypeDeletion = false;
+
+        return redirect()->route('teams.show', $this->team);
     }
 
     public function manageEventType(EventType $eventType = null)
     {
         $this->managingEventType = true;
-        $this->eventType = $eventType ?? new EventType();
+        $this->eventType = $eventType ?? new EventType(['is_all_day' => false]);
+        if (is_null($this->eventType->color)) {
+            $this->eventType->color = '#000000';
+        }
     }
 
     public function saveEventType()
