@@ -178,7 +178,9 @@ class AddEvent extends Component
     public function cancel()
     {
         $this->showAddEventModal = false;
-        $this->redirect('/events');
+        if ($this->origin !== 'calendar') {
+            $this->redirect('/events');
+        }
     }
 
     /**
