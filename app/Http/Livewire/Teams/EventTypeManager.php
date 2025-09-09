@@ -58,11 +58,15 @@ class EventTypeManager extends Component
         return redirect()->route('teams.show', $this->team);
     }
 
-    public function manageEventType(EventType $eventType = null)
+    public function manageEventType($eventTypeId = null)
     {
         $this->managingEventType = true;
-        $this->eventType = $eventType ?? new EventType(['is_all_day' => false]);
-        if (is_null($this->eventType->color)) {
+
+        if ($eventTypeId) {
+            $this->eventType = EventType::find($eventTypeId);
+        } else {
+            $this->eventType = new EventType();
+            $this->eventType->is_all_day = false;
             $this->eventType->color = '#000000';
         }
     }
