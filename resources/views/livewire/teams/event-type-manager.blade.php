@@ -21,11 +21,17 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('Nombre') }}
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('Color') }}
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('Evento diario') }}
                             </th>
                             <th scope="col" class="relative px-6 py-3">
                                 <span class="sr-only">{{ __('Acciones') }}</span>
@@ -39,12 +45,22 @@
                                     <div class="text-sm text-gray-900">{{ $eventType->name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="w-6 h-6 rounded-full" style="background-color: {{ $eventType->color }}"></div>
+                                    <div class="w-6 h-6 rounded-full" style="background-color: {{ $eventType->color }}">
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        <input type="checkbox"
+                                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                            @if ($eventType->is_all_day) checked @endif onclick="return false;" />
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     @if ($isTeamAdmin)
-                                        <button wire:click="manageEventType({{ $eventType->id }})" class="text-indigo-600 hover:text-indigo-900">{{ __('Editar') }}</button>
-                                        <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})" class="ml-2 text-red-600 hover:text-red-900">{{ __('Eliminar') }}</button>
+                                        <button wire:click="manageEventType({{ $eventType->id }})"
+                                            class="text-indigo-600 hover:text-indigo-900">{{ __('Editar') }}</button>
+                                        <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})"
+                                            class="ml-2 text-red-600 hover:text-red-900">{{ __('Eliminar') }}</button>
                                     @endif
                                 </td>
                             </tr>
@@ -86,17 +102,21 @@
             <div class="space-y-4">
                 <div>
                     <x-jet-label for="name" value="{{ __('Nombre') }}" />
-                    <x-jet-input id="name" type="text" class="mt-1 block w-full" wire:model.defer="eventType.name" />
+                    <x-jet-input id="name" type="text" class="mt-1 block w-full"
+                        wire:model.defer="eventType.name" />
                     <x-jet-input-error for="eventType.name" class="mt-2" />
                 </div>
                 <div>
                     <x-jet-label for="color" value="{{ __('Color') }}" />
-                    <x-jet-input id="color" type="color" class="mt-1 block w-full" wire:model.defer="eventType.color" />
+                    <x-jet-input id="color" type="color" class="mt-1 block w-full"
+                        wire:model.defer="eventType.color" />
                     <x-jet-input-error for="eventType.color" class="mt-2" />
                 </div>
                 <div>
                     <x-jet-label for="observations" value="{{ __('Observaciones') }}" />
-                    <textarea id="observations" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" wire:model.defer="eventType.observations"></textarea>
+                    <textarea id="observations"
+                        class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
+                        wire:model.defer="eventType.observations"></textarea>
                     <x-jet-input-error for="eventType.observations" class="mt-2" />
                 </div>
                 <div class="flex items-center">
