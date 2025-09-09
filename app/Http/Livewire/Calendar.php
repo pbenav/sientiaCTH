@@ -47,6 +47,6 @@ class Calendar extends Component
                 ];
             });
 
-        return json_encode($events);
+        return $events;
     }
 }

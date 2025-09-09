@@ -17,7 +17,7 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
-                events: JSON.parse({!! $this->getEvents() !!}),
+                events: @json($this->getEvents()),
                 editable: true,
                 selectable: true,
 
@@ -45,7 +45,7 @@
 
             window.addEventListener('refresh-calendar', event => {
                 calendar.removeAllEvents();
-                calendar.addEventSource(JSON.parse(event.detail.events));
+                calendar.addEventSource(event.detail.events);
             });
         });
     </script>
