@@ -25,12 +25,12 @@
 
                 // Callback for clicking an event
                 eventClick: function(info) {
-                    @this.emit('edit', info.event.id);
+                    Livewire.emit('edit', info.event.id);
                 },
 
                 // Callback for clicking a date
                 dateClick: function(info) {
-                    @this.emit('add', 'calendar');
+                    Livewire.emit('add', 'calendar');
                 },
 
                 // Callback for dragging and dropping an event
