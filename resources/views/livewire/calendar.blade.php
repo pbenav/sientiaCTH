@@ -7,6 +7,7 @@
 
     @push('scripts')
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/locales-all.global.min.js'></script>
     <script>
         document.addEventListener('livewire:load', function() {
             var calendarEl = document.getElementById('calendar');
