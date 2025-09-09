@@ -37,7 +37,7 @@
 
                 // Callback for clicking a date
                 dateClick: function(info) {
-                    @this.call('triggerAddModal', 'calendar');
+                    @this.call('triggerAddModal', { origin: 'calendar', date: info.dateStr });
                 },
 
                 // Callback for dragging and dropping an event
