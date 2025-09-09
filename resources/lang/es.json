@@ -315,5 +315,15 @@
     "Show total in:": "Mostrar total en:",
     "Hours": "Horas",
     "Days": "Días",
-    "days": "días"
+    "days": "días",
+    "Calendar": "Calendario",
+    "Add New Event": "Añadir Nuevo Evento",
+    "Description:": "Descripción:",
+    "Start Date:": "Fecha de Inicio:",
+    "End Date:": "Fecha de Fin:",
+    "Event Type:": "Tipo de Evento:",
+    "Select Event Type": "Seleccionar Tipo de Evento",
+    "Update Event": "Actualizar Evento",
+    "Delete Event": "Eliminar Evento",
+    "Are you sure about this change?": "¿Estás seguro de este cambio?"
 }

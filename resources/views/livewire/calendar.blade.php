@@ -17,6 +17,7 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
+                locale: 'es',
                 events: @json($this->getEvents()),
                 editable: true,
                 selectable: true,
@@ -33,7 +34,7 @@
 
                 // Callback for dragging and dropping an event
                 eventDrop: function(info) {
-                    if (!confirm("Are you sure about this change?")) {
+                    if (!confirm("{{ __('Are you sure about this change?') }}")) {
                         info.revert();
                     } else {
                         @this.emit('eventDrop', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
