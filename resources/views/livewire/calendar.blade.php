@@ -18,6 +18,13 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Agenda'
+                },
                 locale: 'es',
                 events: @json($this->getEvents()),
                 editable: true,
@@ -25,12 +32,12 @@
 
                 // Callback for clicking an event
                 eventClick: function(info) {
-                    Livewire.emit('edit', info.event.id);
+                    @this.call('triggerEditModal', info.event.id);
                 },
 
                 // Callback for clicking a date
                 dateClick: function(info) {
-                    Livewire.emit('add', 'calendar');
+                    @this.call('triggerAddModal', 'calendar');
                 },
 
                 // Callback for dragging and dropping an event
