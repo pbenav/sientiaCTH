@@ -211,7 +211,8 @@ class AddEvent extends Component
         if ($this->origin == 'numpad') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
         } else { 
-            $this->emitTo('get-time-registers', 'render');        
+            $this->emitTo('get-time-registers', 'render');
+            $this->emit('refreshCalendar');
         }
     }
 
