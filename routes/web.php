@@ -40,6 +40,7 @@ Route::middleware([
     Route::get('/events', GetTimeRegisters::class)->name('events');
     Route::get('/userstats', StatsComponent::class)->name('stats');
     Route::get('/reports', ReportsComponent::class)->name('reports');
+    Route::get('/calendar', \App\Http\Livewire\Calendar::class)->name('calendar');
 
     Route::prefix('users/{user}')->group(function () {
         // Ruta para mostrar todos los metadatos del usuario
