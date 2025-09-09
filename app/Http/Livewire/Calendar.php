@@ -31,6 +31,16 @@ class Calendar extends Component
         }
     }
 
+    public function triggerEditModal($eventId)
+    {
+        $this->emit('edit', $eventId);
+    }
+
+    public function triggerAddModal($origin)
+    {
+        $this->emit('add', $origin);
+    }
+
     public function getEvents()
     {
         $events = Event::with('eventType')
