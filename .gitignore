@@ -34,7 +34,6 @@ yarn-error.log
 .vscode/
 /nbproject
 *.sql
-*.csv
 
 # Archivos de script
 act_servers.sh

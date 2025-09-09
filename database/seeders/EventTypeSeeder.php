@@ -26,27 +26,23 @@ class EventTypeSeeder extends Seeder
         $eventTypes = [
             [
                 'name' => 'Jornada laboral',
-                'color' => '#ff0000ff',
-                'observations' => 'Horas trabajadas en un día normal.',
-                'is_all_day' => false,
+                'color' => '#0284c7',
+                'observations' => 'Horas trabajadas en un día normal.'
             ],
             [
                 'name' => 'Asuntos propios',
-                'color' => '#ffa600ff',
-                'observations' => 'Días de permiso para asuntos personales.',
-                'is_all_day' => true,
+                'color' => '#eab308',
+                'observations' => 'Días de permiso para asuntos personales.'
             ],
             [
                 'name' => 'Vacaciones',
                 'color' => '#22c55e',
-                'observations' => 'Días de vacaciones anuales.',
-                'is_all_day' => true,
+                'observations' => 'Días de vacaciones anuales.'
             ],
             [
                 'name' => 'Evento especial',
                 'color' => '#8b5cf6',
-                'observations' => 'Eventos especiales como reuniones, desplazamientos, etc.',
-                'is_all_day' => false,
+                'observations' => 'Eventos especiales como reuniones, desplazamientos, etc.'
             ],
         ];
 

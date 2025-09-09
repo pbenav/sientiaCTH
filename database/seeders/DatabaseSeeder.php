@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Event;
-use App\Models\Team;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,10 +15,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         //\App\Models\User::factory(1)->create();
-        Team::factory(1)->create();
+        \App\Models\Team::factory(1)->create();
+        \App\Models\Event::factory(10)->create();
         $this->call([
-            EventTypeSeeder::class,
-        ]);
-        Event::factory(1)->create();
+        EventTypeSeeder::class,
+    ]);
     }
 }
