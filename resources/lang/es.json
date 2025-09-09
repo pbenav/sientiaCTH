@@ -325,5 +325,6 @@
     "Select Event Type": "Seleccionar Tipo de Evento",
     "Update Event": "Actualizar Evento",
     "Delete Event": "Eliminar Evento",
-    "Are you sure about this change?": "¿Estás seguro de este cambio?"
+    "Are you sure about this change?": "¿Estás seguro de este cambio?",
+    "Are you sure you want to delete this event?": "¿Estás seguro de que quieres eliminar este evento?"
 }

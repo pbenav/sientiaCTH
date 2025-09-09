@@ -61,6 +61,12 @@
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
+            <x-jet-danger-button wire:click="delete" wire:loading.attr="disabled"
+                onclick="confirm('{{ __('Are you sure you want to delete this event?') }}') || event.stopImmediatePropagation()"
+                class="justify-center ml-2">
+                {{ __('Delete Event') }}
+            </x-jet-danger-button>
+
             <x-jet-button wire:click="update" wire:loading.attr="disabled"
                 class="justify-center ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500">
                 {{ __('Update event') }}

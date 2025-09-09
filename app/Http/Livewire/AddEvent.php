@@ -141,13 +141,19 @@ class AddEvent extends Component
      * @param string $origin
      * @return void
      */
-    public function add($origin)
+    public function add($data)
     {
         // Reset and fetch fresh data each time the modal is opened
         $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
-        $this->start_date = date('Y-m-d');
-        $this->end_date = date('Y-m-d');
-        $this->start_time = date('H:i:s');
+        if (isset($data['date'])) {
+            $this->start_date = \Carbon\Carbon::parse($data['date'])->format('Y-m-d');
+            $this->end_date = \Carbon\Carbon::parse($data['date'])->format('Y-m-d');
+            $this->start_time = \Carbon\Carbon::parse($data['date'])->format('H:i:s');
+        } else {
+            $this->start_date = date('Y-m-d');
+            $this->end_date = date('Y-m-d');
+            $this->start_time = date('H:i:s');
+        }
         $this->description = __('Workday');
 
         if (Auth::check() && Auth::user()->currentTeam) {
@@ -161,7 +167,7 @@ class AddEvent extends Component
         }
 
         $this->setWorkScheduleHint();
-        $this->origin = $origin;
+        $this->origin = is_array($data) ? $data['origin'] : $data;
         $this->showAddEventModal = true;
     }
 

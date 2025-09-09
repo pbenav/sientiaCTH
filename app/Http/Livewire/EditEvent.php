@@ -158,4 +158,15 @@ class EditEvent extends Component
     {
         $this->validateOnly($propertyName);
     }
+
+    public function delete()
+    {
+        if ($this->event) {
+            $this->event->delete();
+        }
+
+        $this->reset(["showModalEditEvent"]);
+        $this->emit('alert', __('Event has been removed!'));
+        $this->emit('refreshCalendar');
+    }
 }
