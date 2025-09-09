@@ -135,6 +135,7 @@ class EditEvent extends Component
         $this->reset(["showModalEditEvent"]);
         $this->emit('alert', __('Event updated!'));
         $this->emitTo('get-time-registers', 'render');
+        $this->emit('refreshCalendar');
     }
 
     /**

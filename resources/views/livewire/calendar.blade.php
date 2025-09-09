@@ -1,6 +1,6 @@
 <div>
-    @livewire('add-event-modal')
-    @livewire('edit-event-modal')
+    @livewire('add-event')
+    @livewire('edit-event')
     <div id='calendar-container' wire:ignore>
         <div id='calendar'></div>
     </div>
@@ -25,12 +25,12 @@
 
                 // Callback for clicking an event
                 eventClick: function(info) {
-                    @this.emit('showEditEventModal', info.event.id);
+                    @this.emit('edit', info.event.id);
                 },
 
                 // Callback for clicking a date
                 dateClick: function(info) {
-                    @this.emit('showAddEventModal', info.dateStr);
+                    @this.emit('add', 'calendar');
                 },
 
                 // Callback for dragging and dropping an event
