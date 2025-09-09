@@ -43,8 +43,16 @@ class Calendar extends Component
 
     public function getEvents()
     {
+        $user = Auth::user();
+        if (!$user || !$user->currentTeam) {
+            return [];
+        }
+
         $events = Event::with('eventType')
-            ->where('user_id', Auth::id())
+            ->where('user_id', $user->id)
+            ->whereHas('eventType', function ($query) use ($user) {
+                $query->where('team_id', $user->currentTeam->id);
+            })
             ->get()
             ->map(function ($event) {
                 return [

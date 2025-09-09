@@ -25,6 +25,7 @@
                     day: 'Día',
                     list: 'Agenda'
                 },
+                allDayText: 'todo el día',
                 locale: 'es',
                 events: @json($this->getEvents()),
                 editable: true,
