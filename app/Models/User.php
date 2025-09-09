@@ -25,6 +25,23 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
 
     /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+            $user->meta()->create([
+                'meta_key' => 'schedule',
+                'meta_value' => '[{"start":"09:00","end":"14:00","days":["L","X","V"]},{"start":"16:00","end":"19:00","days":["L","M","X","J","V"]}]'
+            ]);
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var string[]
