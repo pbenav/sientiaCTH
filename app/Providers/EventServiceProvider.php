@@ -18,9 +18,6 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        \Laravel\Jetstream\Events\TeamCreated::class => [
-            \App\Listeners\SeedEventTypes::class,
-        ],
     ];
 
     /**

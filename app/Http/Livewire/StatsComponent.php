@@ -77,12 +77,6 @@ class StatsComponent extends Component
         // 1. Fetch raw events
         $query = Event::query()
             ->with('eventType')
-            ->join('users', 'events.user_id', '=', 'users.id')
-            ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
-            ->where(function ($query) {
-                $query->where('event_types.team_id', $this->actualUser->currentTeam->id)
-                      ->orWhereNull('events.event_type_id');
-            })
             ->where('user_id', $this->browsedUser)
             ->where(function ($q) {
                 $q->whereMonth('start', $this->selectedMonth)

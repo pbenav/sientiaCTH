@@ -42,13 +42,10 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
 
     public function query()
     {
+        //$data = DB::table('events')
+        // Check if period is greater than 120 days.
         return Event::query()
             ->with(['user', 'eventType']) // Eager load relationships
-            ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
-            ->where(function ($query) {
-                $query->where('event_types.team_id', $this->team->id)
-                      ->orWhereNull('events.event_type_id');
-            })
             ->when(($this->worker != "%"), function ($query) {
                 $query->where('user_id', $this->worker);
             })
@@ -57,7 +54,6 @@ class EventsExport implements FromQuery, WithHeadings, WithStyles, WithMapping, 
             ->when(($this->event_type_id != "%"), function ($query) {
                 $query->where('event_type_id', $this->event_type_id);
             })
-            ->select('events.*') // To avoid ambiguous column names
             ->orderBy('start');
     }
 
