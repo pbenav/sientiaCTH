@@ -147,11 +147,17 @@ return [
     */
 
     'attributes' => [
-        'start_date' => 'Fecha de inicio',
-        'start_time' => 'Hora de inicio',
-        'description' => 'Descripción',
-        'fromdate' => 'Fecha desde',
-        'todate' => 'Fecha hasta',
+        'start_date' => 'fecha de inicio',
+        'start_time' => 'hora de inicio',
+        'description' => 'descripción',
+        'fromdate' => 'fecha desde',
+        'todate' => 'fecha hasta',
+        'event_type_id' => 'tipo de evento',
+        'observations' => 'observaciones',
+        'end_date' => 'fecha de fin',
+        'event.observations' => 'observaciones',
+        'start_datetime' => 'fecha y hora de inicio',
+        'end_datetime' => 'fecha y hora de fin',
     ],
 
 ];
