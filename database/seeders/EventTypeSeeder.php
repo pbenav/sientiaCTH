@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\EventType;
+use App\Models\Team;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -11,8 +12,14 @@ class EventTypeSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run($team_id): void
+    public function run(): void
     {
+        $team = Team::first();
+        if (!$team) {
+            $team = Team::factory()->create();
+        }
+        $team_id = $team->id;
+
         $eventTypes = [
             [
                 'name' => 'Jornada laboral',
