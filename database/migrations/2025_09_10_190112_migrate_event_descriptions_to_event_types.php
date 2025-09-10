@@ -15,7 +15,6 @@ return new class extends Migration
      */
     public function up()
     {
-        // Get all teams
         $teams = Team::all();
         $seeder = new EventTypeSeeder();
 
