@@ -314,6 +314,5 @@ class GetTimeRegisters extends Component
         $event->save();
 
         $this->emit('alert', __('Event authorization status updated successfully.'));
-        $this->emit('eventAuthorizationChanged');
     }
 }
