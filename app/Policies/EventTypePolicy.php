@@ -20,7 +20,7 @@ class EventTypePolicy
      */
     public function create(User $user, Team $team)
     {
-        return $user->ownsTeam($team) || $user->hasTeamRole($team, 'admin');
+        return $user->ownsTeam($team);
     }
 
     /**
@@ -32,7 +32,7 @@ class EventTypePolicy
      */
     public function update(User $user, EventType $eventType)
     {
-        return $user->ownsTeam($eventType->team) || $user->hasTeamRole($eventType->team, 'admin');
+        return $user->ownsTeam($eventType->team);
     }
 
     /**
@@ -44,6 +44,6 @@ class EventTypePolicy
      */
     public function delete(User $user, EventType $eventType)
     {
-        return $user->ownsTeam($eventType->team) || $user->hasTeamRole($eventType->team, 'admin');
+        return $user->ownsTeam($eventType->team);
     }
 }
