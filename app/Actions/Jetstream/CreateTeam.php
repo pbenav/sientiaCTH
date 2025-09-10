@@ -32,8 +32,6 @@ class CreateTeam implements CreatesTeams
             'personal_team' => false,
         ]));
 
-        (new \Database\Seeders\EventTypeSeeder)->run($team->id);
-
         return $team;
     }
 }
