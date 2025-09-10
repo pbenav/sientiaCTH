@@ -13,11 +13,6 @@ class EventTypeSeeder extends Seeder
      */
     public function run($team_id): void
     {
-        // Add a guard to prevent creating duplicates.
-        if (EventType::where('team_id', $team_id)->exists()) {
-            return;
-        }
-
         $eventTypes = [
             [
                 'name' => 'Jornada laboral',

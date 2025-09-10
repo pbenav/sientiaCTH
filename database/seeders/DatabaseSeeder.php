@@ -16,13 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // Create a user. The UserFactory's `withPersonalTeam` method
-        // will create a team and dispatch the TeamCreated event.
-        // The SeedEventTypes listener will then automatically
-        // run the EventTypeSeeder for the new team.
+        // Create a user, which will also create a personal team via the UserFactory.
         $user = User::factory()->withPersonalTeam()->create();
 
-        // Optionally, create a default event for this user.
+        // The TeamCreated event listener will fire, but to be explicit and
+        // ensure this seeder runs correctly on its own, we can call it.
+        // The listener has a guard to prevent duplicates.
+        (new EventTypeSeeder)->run($user->currentTeam->id);
+
         Event::factory(1)->create([
             'user_id' => $user->id,
         ]);
