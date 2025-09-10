@@ -297,12 +297,21 @@ class GetTimeRegisters extends Component
 
     public function toggleAuthorization($eventId)
     {
-        if ($this->isTeamAdmin) {
-            $event = Event::find($eventId);
-            if ($event && $event->eventType && $event->eventType->is_all_day) {
-                $event->is_authorized = !$event->is_authorized;
-                $event->save();
-            }
+        if (!$this->isTeamAdmin) {
+            $this->emit('alertFail', __('You are not authorized to perform this action.'));
+            return;
         }
+
+        $event = Event::find($eventId);
+
+        if (!$event || !$event->eventType || !$event->eventType->is_all_day) {
+            $this->emit('alertFail', __('This event cannot be authorized.'));
+            return;
+        }
+
+        $event->is_authorized = !$event->is_authorized;
+        $event->save();
+
+        $this->emit('alert', __('Event authorization status updated successfully.'));
     }
 }
