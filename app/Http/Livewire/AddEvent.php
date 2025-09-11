@@ -202,12 +202,14 @@ class AddEvent extends Component
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
             $data['start'] = $this->start_date . ' 00:00:00';
             $data['end'] = $this->end_date . ' 23:59:59'; // Use end_date
-            if (Schema::hasColumn('events', 'is_authorized')) {
-                $data['is_authorized'] = false;
-            }
         } else {
             $data['start'] = $this->start_date . ' ' . $this->start_time;
             $data['end'] = null;
+        }
+
+        // Ensure is_authorized is always set, defaulting to false.
+        if (Schema::hasColumn('events', 'is_authorized')) {
+            $data['is_authorized'] = false;
         }
 
         Event::create($data);
