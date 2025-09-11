@@ -198,7 +198,8 @@ class GetTimeRegisters extends Component
         $query = Event::query()->with('eventType')
             ->select(
                 'events.id', 'events.user_id', 'users.name', 'users.family_name1',
-                'events.start', 'events.end', 'events.description', 'events.is_open', 'events.event_type_id', 'events.is_authorized'
+                'events.start', 'events.end', 'events.description', 'events.is_open', 'events.event_type_id',
+                'events.is_authorized', 'events.observations'
             )
             ->join('users', 'events.user_id', '=', 'users.id')
             ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
