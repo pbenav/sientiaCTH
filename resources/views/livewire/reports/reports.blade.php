@@ -66,7 +66,7 @@
             <div>
                 <x-jet-label value="{{ __('Type') }}" />
                 <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='rtype'>
-                    $@foreach ($rtypes as $rtype_key => $rtype_val)
+                    @foreach ($rtypes as $rtype_key => $rtype_val)
                         <option value="{{ $rtype_key }}">
                             {{ $rtype_key }}</option>
                     @endforeach
