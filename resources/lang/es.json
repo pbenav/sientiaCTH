@@ -326,5 +326,17 @@
     "Update Event": "Actualizar Evento",
     "Delete Event": "Eliminar Evento",
     "Are you sure about this change?": "¿Estás seguro de este cambio?",
-    "Are you sure you want to delete this event?": "¿Estás seguro de que quieres eliminar este evento?"
+    "Are you sure you want to delete this event?": "¿Estás seguro de que quieres eliminar este evento?",
+    "welcome.jetstream.title": "¡Bienvenido a tu aplicación Jetstream!",
+    "Laravel Jetstream provides a beautiful, robust starting point for your next Laravel application. Laravel is designed to help you build your application using a development environment that is simple, powerful, and enjoyable. We believe you should love expressing your creativity through programming, so we have spent time carefully crafting the Laravel ecosystem to be a breath of fresh air. We hope you love it.": "Laravel Jetstream proporciona un punto de partida hermoso y robusto para tu próxima aplicación de Laravel. Laravel está diseñado para ayudarte a construir tu aplicación utilizando un entorno de desarrollo que es simple, potente y agradable. Creemos que deberías amar expresar tu creatividad a través de la programación, por lo que hemos dedicado tiempo a crear cuidadosamente el ecosistema de Laravel para que sea un soplo de aire fresco. ¡Esperamos que te encante!",
+    "welcome.jetstream.documentation.title": "Documentación",
+    "welcome.jetstream.documentation.text": "Laravel tiene una documentación maravillosa que cubre todos los aspectos del framework. Ya seas nuevo en el framework o tengas experiencia previa, te recomendamos leer toda la documentación de principio a fin.",
+    "welcome.jetstream.documentation.link": "Explorar la documentación",
+    "welcome.jetstream.laracasts.title": "Laracasts",
+    "Laracasts offers thousands of video tutorials on Laravel, PHP, and JavaScript development. Check them out, see for yourself, and massively level up your development skills in the process.": "Laracasts ofrece miles of videotutoriales sobre desarrollo con Laravel, PHP y JavaScript. Échales un vistazo, compruébalo por ti mismo y mejora masivamente tus habilidades de desarrollo en el proceso.",
+    "welcome.jetstream.laracasts.link": "Empezar a ver Laracasts",
+    "Tailwind": "Tailwind",
+    "welcome.jetstream.tailwind.text": "Laravel Jetstream está construido con Tailwind, un increíble framework de CSS de primera utilidad que no se interpone en tu camino. Te sorprenderá lo fácil que puedes construir y mantener diseños frescos y modernos con este maravilloso framework al alcance de tu mano.",
+    "welcome.jetstream.authentication.title": "Autenticación",
+    "welcome.jetstream.authentication.text": "Las vistas de autenticación y registro se incluyen con Laravel Jetstream, así como el soporte para la verificación del correo electrónico del usuario y el restablecimiento de contraseñas olvidadas. Por lo tanto, eres libre de empezar con lo que más importa: construir tu aplicación."
 }
