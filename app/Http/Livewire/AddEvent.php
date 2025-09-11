@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use App\Models\Event;
 use App\Models\EventType;
 use App\Traits\HasWorkScheduleHint;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -197,11 +198,16 @@ class AddEvent extends Component
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
             'is_open' => true, // All events are now created as open
+            'is_authorized' => false, // Explicitly set to false for all new events
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
             $data['start'] = $this->start_date . ' 00:00:00';
+<<<<<<< HEAD
             $data['end'] = $this->end_date . ' 23:59:59'; // Use end_date
+=======
+            $data['end'] = Carbon::parse($this->end_date)->addDay()->format('Y-m-d H:i:s');
+>>>>>>> 08af0af8 (fix: Adjust end date for full-day events)
         } else {
             $data['start'] = $this->start_date . ' ' . $this->start_time;
             $data['end'] = null;
@@ -220,7 +226,7 @@ class AddEvent extends Component
 
         if ($this->origin == 'numpad') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
-        } else { 
+        } else {
             $this->emitTo('get-time-registers', 'render');
             $this->emit('refreshCalendar');
         }
