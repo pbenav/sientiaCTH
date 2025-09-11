@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\User;
 use App\Models\Event;
+use Carbon\Carbon;
 use Livewire\Component;
 use App\Traits\InsertHistory;
 use App\Traits\HasWorkScheduleHint;
@@ -119,7 +120,7 @@ class EditEvent extends Component
 
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
             $this->event->start = $this->start_date . ' 00:00:00';
-            $this->event->end = $this->end_date . ' 23:59:59';
+            $this->event->end = Carbon::parse($this->end_date)->addDay()->format('Y-m-d H:i:s');
         } else {
             $this->event->start = $this->start_datetime;
             $this->event->end = $this->end_datetime;
