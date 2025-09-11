@@ -32,7 +32,7 @@ class GetTimeRegisters extends Component
     public $confirmed;
     public $filtered;
 
-    protected $listeners = ['render', 'confirm', 'delete'];
+    protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
 
     protected $queryString = [
         'sort' => ['except' => 'start'],
@@ -313,5 +313,6 @@ class GetTimeRegisters extends Component
         $event->save();
 
         $this->emit('alert', __('Event authorization status updated successfully.'));
+        $this->emit('eventAuthorizationChanged');
     }
 }
