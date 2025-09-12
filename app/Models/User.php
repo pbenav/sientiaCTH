@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Team;
 use App\Models\Event;
+use App\Models\Message;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -141,5 +142,17 @@ class User extends Authenticatable
      public function meta()
     {
         return $this->hasMany(UserMeta::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->belongsToMany(Message::class, 'message_user')
+            ->withPivot('read_at', 'deleted_at')
+            ->withTimestamps();
     }
 }
