@@ -15,6 +15,9 @@
                     <x-jet-nav-link href="{{ route('front') }}" :active="request()->routeIs('front')">
                         {{ __('Start') }}
                     </x-jet-nav-link>
+                    <x-jet-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
+                        {{ __('Calendar') }}
+                    </x-jet-nav-link>
                     <x-jet-nav-link href="{{ route('events') }}" :active="request()->routeIs('events')">
                         {{ __('Events') }}
                     </x-jet-nav-link>                                       
@@ -23,9 +26,6 @@
                     </x-jet-nav-link>
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
-                    </x-jet-nav-link>
-                    <x-jet-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
-                        {{ __('Calendar') }}
                     </x-jet-nav-link>
                 </div>
             </div>
