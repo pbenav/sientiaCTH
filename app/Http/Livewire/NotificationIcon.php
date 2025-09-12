@@ -9,7 +9,7 @@ class NotificationIcon extends Component
 {
     public $unreadCount;
 
-    protected $listeners = ['NewMessage' => 'refreshCount'];
+    protected $listeners = ['NotificationCountChanged' => 'refreshCount'];
 
     public function mount()
     {
@@ -18,7 +18,15 @@ class NotificationIcon extends Component
 
     public function refreshCount()
     {
-        $this->unreadCount = Auth::user()->receivedMessages()->whereNull('read_at')->count();
+        $unreadMessages = Auth::user()->receivedMessages()->whereNull('message_user.read_at')->count();
+        $unreadEventNotifications = Auth::user()->unreadNotifications->count();
+        $newCount = $unreadMessages + $unreadEventNotifications;
+
+        if ($newCount > $this->unreadCount) {
+            $this->dispatchBrowserEvent('new-notification');
+        }
+
+        $this->unreadCount = $newCount;
     }
 
     public function render()

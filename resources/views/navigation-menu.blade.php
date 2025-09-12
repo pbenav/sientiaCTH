@@ -27,9 +27,6 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
-                    <x-jet-nav-link href="{{ route('messages') }}" :active="request()->routeIs('messages')">
-                        {{ __('Mensajes') }}
-                    </x-jet-nav-link>
                 </div>
             </div>
 
@@ -180,24 +177,25 @@
             <x-jet-responsive-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
                 {{ __('Calendar') }}
             </x-jet-responsive-nav-link>
-            <x-jet-responsive-nav-link href="{{ route('messages') }}" :active="request()->routeIs('messages')">
-                {{ __('Mensajes') }}
-            </x-jet-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="flex items-center px-4">
-                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                    <div class="shrink-0 mr-3">
-                        <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}"
-                            alt="{{ Auth::user()->name }}" />
+            <div class="flex items-center justify-between px-4">
+                <div class="flex items-center">
+                    @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+                        <div class="shrink-0 mr-3">
+                            <img class="h-10 w-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}"
+                                alt="{{ Auth::user()->name }}" />
+                        </div>
+                    @endif
+                    <div>
+                        <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
                     </div>
-                @endif
-
-                <div>
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                </div>
+                <div class="ml-3 relative">
+                    @livewire('notification-icon')
                 </div>
             </div>
 
