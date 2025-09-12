@@ -55,12 +55,17 @@ class Calendar extends Component
             })
             ->get()
             ->map(function ($event) {
+                $iconHtml = $event->is_open
+                    ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
+                    : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
+
                 return [
                     'id' => $event->id,
-                    'title' => $event->description,
+                    'title' => $event->description, // El título ahora es solo el texto
+                    'iconHtml' => $iconHtml,       // El icono se pasa en una nueva propiedad
                     'start' => $event->start,
                     'end' => $event->end,
-                    'color' => $event->eventType->color ?? '#3788d8', // Default color
+                    'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
                 ];
             });
