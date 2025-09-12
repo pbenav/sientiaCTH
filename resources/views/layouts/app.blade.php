@@ -64,11 +64,11 @@
 
     @auth
         <script>
-            Livewire.on('NewMessage', () => {
+            window.addEventListener('new-notification', event => {
                 if ({{ Auth::user()->notify_new_messages ? 'true' : 'false' }}) {
                     Swal.fire({
-                        title: 'Nuevo mensaje',
-                        text: 'Has recibido un nuevo mensaje.',
+                        title: 'Nueva notificación',
+                        text: 'Has recibido una nueva notificación.',
                         icon: 'info',
                         toast: true,
                         position: 'top-end',
@@ -78,11 +78,6 @@
                     });
                 }
             });
-
-            Echo.private('App.Models.User.' + {{ Auth::id() }})
-                .listen('NewMessageReceived', (e) => {
-                    Livewire.emit('NewMessage');
-                });
         </script>
     @endauth
 </body>

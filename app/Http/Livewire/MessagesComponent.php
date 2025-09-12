@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire;
 
-use App\Events\NewMessageReceived;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class MessagesComponent extends Component
@@ -16,6 +16,7 @@ class MessagesComponent extends Component
     public $subject = '';
     public $body = '';
     public $users;
+    public $selectedMessages = [];
 
     public function mount()
     {
@@ -44,8 +45,6 @@ class MessagesComponent extends Component
 
         $message->recipients()->attach($this->recipients);
 
-        broadcast(new NewMessageReceived($message))->toOthers();
-
         $this->recipients = [];
         $this->subject = '';
         $this->body = '';
@@ -63,25 +62,118 @@ class MessagesComponent extends Component
     public function showSent()
     {
         $this->view = 'sent';
-        $this->messageList = Auth::user()->messages()->get();
+        $this->messageList = Auth::user()->messages()->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
     }
 
     public function showTrash()
     {
         $this->view = 'trash';
-        $this->messageList = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
+        $received = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
+        $sent = Auth::user()->messages()->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+        $this->messageList = $received->merge($sent);
     }
 
     public function deleteMessage($messageId)
     {
-        Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['deleted_at' => now()]);
-        $this->showInbox();
+        if ($this->view === 'sent') {
+            $message = Auth::user()->messages()->find($messageId);
+            if ($message) {
+                $message->sender_deleted_at = now();
+                $message->save();
+            }
+            $this->showSent();
+        } else {
+            Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['deleted_at' => now()]);
+            $this->showInbox();
+        }
+        $this->emit('NotificationCountChanged');
     }
 
     public function restoreMessage($messageId)
     {
-        Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['deleted_at' => null]);
+        $message = Message::find($messageId);
+
+        if ($message->sender_id === Auth::id()) {
+            $message->sender_deleted_at = null;
+            $message->save();
+        } else {
+            Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['deleted_at' => null]);
+        }
+
         $this->showTrash();
+        $this->emit('NotificationCountChanged');
+    }
+
+    public function forceDeleteMessage($messageId)
+    {
+        $message = Message::find($messageId);
+
+        if ($message->sender_id === Auth::id()) {
+            $message->sender_purged_at = now();
+            $message->save();
+        } else {
+            Auth::user()->receivedMessages()->detach($messageId);
+        }
+
+        $this->showTrash();
+        $this->emit('NotificationCountChanged');
+    }
+
+    public function emptyTrash()
+    {
+        // Permanently delete received messages
+        $receivedTrashItems = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
+        Auth::user()->receivedMessages()->detach($receivedTrashItems->pluck('id'));
+
+        // Mark sent messages as purged
+        $sentTrashItems = Auth::user()->messages()->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+        foreach ($sentTrashItems as $item) {
+            $item->sender_purged_at = now();
+            $item->save();
+        }
+
+        $this->showTrash();
+        $this->emit('NotificationCountChanged');
+    }
+
+    public function markAsRead($messageId)
+    {
+        Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['read_at' => now()]);
+        $this->emit('NotificationCountChanged');
+    }
+
+    public function replyTo($messageId)
+    {
+        $message = Message::find($messageId);
+
+        $this->markAsRead($messageId);
+
+        $this->showComposeForm = true;
+        $this->recipients = [$message->sender_id];
+        $this->subject = 'Re: ' . $message->subject;
+        $this->body = "\n\n\n> " . $message->body;
+    }
+
+    public function markSelectedAsRead()
+    {
+        \Illuminate\Support\Facades\DB::table('message_user')
+            ->where('user_id', Auth::id())
+            ->whereIn('message_id', $this->selectedMessages)
+            ->update(['read_at' => now()]);
+
+        $this->selectedMessages = [];
+        $this->emit('NotificationCountChanged');
+    }
+
+    public function showAlerts()
+    {
+        $this->view = 'alerts';
+        $this->messageList = Auth::user()->notifications->filter(function ($notification) {
+            return $notification->type !== 'App\Notifications\NewMessage';
+        });
+
+        Auth::user()->unreadNotifications->where('type', '!=', 'App\Notifications\NewMessage')->markAsRead();
+        $this->emit('NotificationCountChanged');
     }
 
     public function render()

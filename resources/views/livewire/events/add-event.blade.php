@@ -11,7 +11,6 @@
                    No tiene mucho sentido fichar un día antes o un día después.
                    <br />Por favor, acostúmbrate a hacerlo a la hora correcta. <br>
                 <strong>¡Muchas gracias!</strong></p>
-                <p class="p-2">En esta nueva versión <strong>debes elegir el tipo de evento</strong>, que no podrá ser modificado una vez creado. ¡Elige bien!</p>
             </div>
 
             <div class="mb-4">
@@ -25,7 +24,7 @@
                 <x-jet-input-error for='event_type_id' />
             </div>
 
-            <div class="mb-2">
+            <div class="mb-4">
                 <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
                 <x-jet-input type="date" class="mr-2" wire:model.defer="start_date" />
                 <x-jet-input-error for="start_date" />

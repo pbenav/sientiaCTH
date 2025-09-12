@@ -4,84 +4,15 @@
         <h2 class="text-xl font-semibold leading-tight text-gray-800">{{ __('Events') }}</h2>
 
         @if (!$isInspector && !$isTeamAdmin)
-            <div class="p-4 mx-auto mt-4 w-full bg-green-200 border-2 border-green-400 rounded-lg shadow-md">
-                <div class="flex items-center justify-between cursor-pointer" id="toggleButton">
-                    <p class="text-xl font-bold text-red-500">¡NUEVAS FUNCIONALIDADES!</p>
-                    <i id="toggleIcon" class="fas fa-chevron-down text-gray-700 transition-transform duration-300"></i>
-                </div>
-
-                <div id="collapsibleContent" class="hidden overflow-hidden transition-all duration-300">
-                    <p class="mt-2 text-gray-700">
-                        Se han añadido nuevas funcionalidades a la aplicación:<br>Para los usuarios:
-                    <ul class="list-none space-y-2">
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            En el perfil de usuario podrás definir tu horario laboral de modo que al añadir o editar un
-                            evento te dirá en qué tramo horario estás. Esto es importante de cara al cierre de los
-                            eventos.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Ahora cada tipo de evento tendrá un color distinto para facilitar su identificación.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Se han creado eventos de día completo, para ser usados por ejemplo en días de vacaciones o
-                            asuntos propios.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Los eventos de día entero deberán ser autorizados por un administrador de modo que se
-                            llevará la contabilidad de estos días de una forma fácil y simple.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Se ha añadido una vista de calendario, para que podáis ver de un vistazo todos los eventos
-                            cercanos en el tiempo.
-                        </li>
-                        Para los administradores
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Podrán añadir o cambiar los tipos de evento.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Tendrán la posibilidad de autorizar eventos de día entero.
-
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Cada equipo mostrará solo los eventos que le correspondan.
-                        </li>
-                    </ul>
-                    </p>
-
-                    <p class="text-xl font-bold text-red-500 mt-4">¡IMPORTANTE!</p>
-                    <p class="text-gray-700">
-                        <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón
-                        <span
-                            class="inline-flex items-center justify-center w-8 h-8 px-2 py-1 rounded text-lg text-white bg-green-500">
-                            <i class="fas fa-check"></i>
-                        </span>, una vez que hayas <u>verificado</u> que las fechas y las horas son correctas.
-                        <strong>¡Gracias!</strong>
-                    </p>
-                </div>
+            <div class="p-2 mx-auto mt-2 w-full bg-green-200 border-2">
+                <p class="text-lg text-red-500">¡IMPORTANTE!</p>
+                <p class="flex-auto">
+                    <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón
+                    <span class="w-10 h-8 px-2 py-1 rounded text-lg text-center text-white bg-green-500">
+                        <i class="fas fa-check"></i>
+                    </span>, una vez que hayas <u>verificado</u> que las fechas y las horas son correctas.
+                    <strong>¡Gracias!</strong>
+                </p>
             </div>
         @endif
     </x-slot>
@@ -327,27 +258,6 @@
                             Livewire.emit('delete', event);
                         }
                     });
-                });
-            </script>
-        @endpush
-        @push('scripts')
-            <script>
-                const toggleButton = document.getElementById('toggleButton');
-                const toggleIcon = document.getElementById('toggleIcon');
-                const collapsibleContent = document.getElementById('collapsibleContent');
-
-                toggleButton.addEventListener('click', () => {
-                    const isContentVisible = !collapsibleContent.classList.contains('hidden');
-
-                    if (isContentVisible) {
-                        // Ocultar el contenido
-                        collapsibleContent.classList.add('hidden');
-                        toggleIcon.classList.remove('rotate-180');
-                    } else {
-                        // Mostrar el contenido
-                        collapsibleContent.classList.remove('hidden');
-                        toggleIcon.classList.add('rotate-180');
-                    }
                 });
             </script>
         @endpush
