@@ -5,8 +5,6 @@ namespace App\Http\Livewire;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Event;
-use App\Notifications\EventAuthorized;
-use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Laravel\Jetstream\HasTeams;
@@ -314,10 +312,6 @@ class GetTimeRegisters extends Component
 
         $event->is_authorized = !$event->is_authorized;
         $event->save();
-
-        if ($event->is_authorized) {
-            $event->user->notify(new EventAuthorized($event));
-        }
 
         $this->emit('alert', __('Event authorization status updated successfully.'));
     }
