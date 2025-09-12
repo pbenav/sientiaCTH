@@ -22,6 +22,11 @@ class EditEvent extends Component
     public $workScheduleHint = '';
 
     /**
+     * @var \Illuminate\Support\Collection $eventTypes Holds the collection of event types.
+     */
+    public $eventTypes;
+
+    /**
      * @var Event $event Holds the event being edited.
      * @var Event $original_event Holds the original state of the event for logging.
      */
