@@ -78,6 +78,11 @@
                     });
                 }
             });
+
+            Echo.private('App.Models.User.' + {{ Auth::id() }})
+                .listen('NewMessageReceived', (e) => {
+                    Livewire.emit('NewMessage');
+                });
         </script>
     @endauth
 </body>

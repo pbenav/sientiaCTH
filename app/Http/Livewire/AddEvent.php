@@ -4,8 +4,10 @@ namespace App\Http\Livewire;
 
 use App\Models\Event;
 use App\Models\EventType;
+use App\Notifications\EventCreated;
 use App\Traits\HasWorkScheduleHint;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -219,7 +221,14 @@ class AddEvent extends Component
             $data['is_authorized'] = false;
         }
 
-        Event::create($data);
+        $event = Event::create($data);
+
+        $team = Auth::user()->currentTeam;
+        $admins = $team->users->filter(function ($user) {
+            return $user->hasTeamRole(Auth::user()->currentTeam, 'admin');
+        });
+
+        Notification::send($admins, new EventCreated($event));
 
         $this->reset([
             'showAddEventModal',
