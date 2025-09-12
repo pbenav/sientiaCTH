@@ -27,9 +27,6 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
-                    <x-jet-nav-link href="{{ route('messages') }}" :active="request()->routeIs('messages')">
-                        {{ __('Mensajes') }}
-                    </x-jet-nav-link>
                 </div>
             </div>
 
@@ -179,9 +176,6 @@
             </x-jet-responsive-nav-link>
             <x-jet-responsive-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
                 {{ __('Calendar') }}
-            </x-jet-responsive-nav-link>
-            <x-jet-responsive-nav-link href="{{ route('messages') }}" :active="request()->routeIs('messages')">
-                {{ __('Mensajes') }}
             </x-jet-responsive-nav-link>
         </div>
 

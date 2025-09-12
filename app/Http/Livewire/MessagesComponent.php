@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Events\NewMessageReceived;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -43,7 +44,7 @@ class MessagesComponent extends Component
 
         $message->recipients()->attach($this->recipients);
 
-        $this->emit('NewMessage');
+        broadcast(new NewMessageReceived($message))->toOthers();
 
         $this->recipients = [];
         $this->subject = '';

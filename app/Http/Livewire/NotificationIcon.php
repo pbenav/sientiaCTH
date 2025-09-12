@@ -18,7 +18,7 @@ class NotificationIcon extends Component
 
     public function refreshCount()
     {
-        $this->unreadCount = Auth::user()->receivedMessages()->whereNull('read_at')->count();
+        $this->unreadCount = Auth::user()->unreadNotifications->count();
     }
 
     public function render()
