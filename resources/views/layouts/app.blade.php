@@ -61,6 +61,25 @@
 
     <!-- Tag to include scripts pushed from components with push -->
     @stack('scripts')
+
+    @auth
+        <script>
+            Livewire.on('NewMessage', () => {
+                if ({{ Auth::user()->notify_new_messages ? 'true' : 'false' }}) {
+                    Swal.fire({
+                        title: 'Nuevo mensaje',
+                        text: 'Has recibido un nuevo mensaje.',
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+                }
+            });
+        </script>
+    @endauth
 </body>
 
 </html>

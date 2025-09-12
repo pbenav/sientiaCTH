@@ -6,6 +6,9 @@ const lang = require("flatpickr/dist/l10n/es.js").default.es;
 // or import { lang } from "flatpickr/dist/l10n/es.js"
 flatpickr.localize(lang); // default locale is now Spanish
 
+import Swal from 'sweetalert2';
+window.Swal = Swal;
+
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;

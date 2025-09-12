@@ -27,6 +27,9 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
+                    <x-jet-nav-link href="{{ route('messages') }}" :active="request()->routeIs('messages')">
+                        {{ __('Mensajes') }}
+                    </x-jet-nav-link>
                 </div>
             </div>
 
@@ -83,6 +86,11 @@
                         </x-jet-dropdown>
                     </div>
                 @endif
+
+                <!-- Notifications -->
+                <div class="ml-3 relative flex items-center">
+                    @livewire('notification-icon')
+                </div>
 
                 <!-- Settings Dropdown -->
                 <div class="ml-3 relative">
@@ -171,6 +179,9 @@
             </x-jet-responsive-nav-link>
             <x-jet-responsive-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
                 {{ __('Calendar') }}
+            </x-jet-responsive-nav-link>
+            <x-jet-responsive-nav-link href="{{ route('messages') }}" :active="request()->routeIs('messages')">
+                {{ __('Mensajes') }}
             </x-jet-responsive-nav-link>
         </div>
 
