@@ -9,7 +9,7 @@ use Livewire\Component;
 class MessagesComponent extends Component
 {
     public $view = 'inbox';
-    public $messages;
+    public $messageList;
     public $showComposeForm = false;
     public $recipients = [];
     public $subject = '';
@@ -56,19 +56,19 @@ class MessagesComponent extends Component
     public function showInbox()
     {
         $this->view = 'inbox';
-        $this->messages = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->get();
+        $this->messageList = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->get();
     }
 
     public function showSent()
     {
         $this->view = 'sent';
-        $this->messages = Auth::user()->messages()->get();
+        $this->messageList = Auth::user()->messages()->get();
     }
 
     public function showTrash()
     {
         $this->view = 'trash';
-        $this->messages = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
+        $this->messageList = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
     }
 
     public function deleteMessage($messageId)
