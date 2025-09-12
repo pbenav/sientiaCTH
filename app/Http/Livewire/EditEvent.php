@@ -101,13 +101,16 @@ class EditEvent extends Component
 
         $this->setWorkScheduleHint();
 
-        if ($this->event->is_open || auth()->user()->isTeamAdmin()) {
+        if ($this->event->is_open == 1) {
             $this->showModalEditEvent = true;
         } else {
-            $this->emit('alertFail', __("Event is confirmed."));
-            $this->reset(["showModalEditEvent"]);
+            if (auth()->user()->isTeamAdmin()) {
+                $this->showModalEditEvent = true;
+            } else {
+                $this->emit('alertFail', __("Event is confirmed."));
+                $this->reset(["showModalEditEvent"]);
+            }
         }
-        
         $this->emitTo('get-time-registers', 'render');
     }
 
