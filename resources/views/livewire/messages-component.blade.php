@@ -52,7 +52,14 @@
 
         <div class="mt-4">
             <div class="flex justify-between items-center mb-4 space-x-4">
-                <div>
+                <div class="flex items-center space-x-4">
+                    @if ($view === 'inbox' || $view === 'sent' || $view === 'alerts')
+                    <div class="flex items-center">
+                        <input type="checkbox" wire:model="selectAll" class="mr-2">
+                        <span>{{ __('Seleccionar todo') }}</span>
+                    </div>
+                    @endif
+
                     @if ($view === 'inbox' && count($selectedMessages) > 0)
                         <div class="flex items-center">
                             <select wire:model="bulkAction" class="form-control mr-2">
@@ -133,6 +140,9 @@
                                         </div>
                                     @else
                                         {{-- Received Message --}}
+                                        @if ($view === 'inbox' && isset($message->pivot) && $message->pivot->read_at === null)
+                                            <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
+                                        @endif
                                         <img class="w-10 h-10 rounded-full object-cover" src="{{ $message->sender->profile_photo_url }}" alt="{{ $message->sender->name }}">
                                         <div class="ml-4">
                                             <p class="font-semibold text-gray-700">{{ $message->sender->name }}</p>
@@ -141,9 +151,6 @@
                                     @endif
                                 </div>
                                 <div class="flex items-center text-sm text-gray-500">
-                                    @if ($view === 'inbox' && isset($message->pivot) && $message->pivot->read_at === null)
-                                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
-                                    @endif
                                     {{ $message->created_at->format('d/m/Y H:i') }}
                                 </div>
                             </div>

@@ -19,6 +19,7 @@ class MessagesComponent extends Component
     public $bulkAction = '';
     public $selectedNotifications = [];
     public $bulkAlertAction = '';
+    public $selectAll = false;
 
     public function mount()
     {
@@ -29,6 +30,31 @@ class MessagesComponent extends Component
             $this->users = $team->allUsers()->where('id', '!=', Auth::id());
         } else {
             $this->users = collect();
+        }
+    }
+
+    public function updatedSelectAll($value)
+    {
+        if ($this->view === 'alerts') {
+            if ($value) {
+                $this->selectedNotifications = Auth::user()->notifications
+                    ->filter(function ($notification) {
+                        return $notification->type !== 'App\Notifications\NewMessage';
+                    })
+                    ->pluck('id')->toArray();
+            } else {
+                $this->selectedNotifications = [];
+            }
+        } else {
+            if ($value) {
+                if ($this->view === 'inbox') {
+                    $this->selectedMessages = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->pluck('messages.id')->toArray();
+                } elseif ($this->view === 'sent') {
+                    $this->selectedMessages = Auth::user()->messages()->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->pluck('id')->toArray();
+                }
+            } else {
+                $this->selectedMessages = [];
+            }
         }
     }
 
