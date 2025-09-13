@@ -51,12 +51,22 @@
         </div>
 
         <div class="mt-4">
-            <div class="flex justify-end mb-4 space-x-4">
-                @if ($view === 'inbox' && count($selectedMessages) > 0)
-                    <button wire:click="markSelectedAsRead" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-green-600 border border-transparent rounded-lg active:bg-green-600 hover:bg-green-700 focus:outline-none focus:shadow-outline-green">
-                        Marcar seleccionados como leídos ({{ count($selectedMessages) }})
-                    </button>
-                @endif
+            <div class="flex justify-between items-center mb-4 space-x-4">
+                <div>
+                    @if ($view === 'inbox' && count($selectedMessages) > 0)
+                        <div class="flex items-center">
+                            <select wire:model="bulkAction" class="form-control mr-2">
+                                <option value="">{{ __('Acción en bloque') }}</option>
+                                <option value="markAsRead">{{ __('Marcar como leído') }}</option>
+                                <option value="delete">{{ __('Eliminar') }}</option>
+                            </select>
+                            <button wire:click="applyBulkAction" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
+                                {{ __('Aplicar') }}
+                            </button>
+                        </div>
+                    @endif
+                </div>
+
                 @if ($view === 'trash' && !$messageList->isEmpty())
                     <button wire:click="emptyTrash" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-lg active:bg-red-600 hover:bg-red-700 focus:outline-none focus:shadow-outline-red">
                         Vaciar papelera

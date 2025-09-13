@@ -313,12 +313,14 @@ class GetTimeRegisters extends Component
         }
 
         $event->is_authorized = !$event->is_authorized;
+        $event->is_open = !$event->is_authorized;
         $event->save();
 
         if ($event->is_authorized) {
             $event->user->notify(new EventAuthorized($event));
+            $this->emit('alert', __('Event authorized successfully.'));
+        } else {
+            $this->emit('alert', __('Event un-authorized successfully.'));
         }
-
-        $this->emit('alert', __('Event authorization status updated successfully.'));
     }
 }
