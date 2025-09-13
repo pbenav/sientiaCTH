@@ -223,15 +223,16 @@ class AddEvent extends Component
 
         $event = Event::create($data);
 
-        // Notify team admins if a full-day event is created
+        // Notify team admins if a full-day event is created that needs authorization
         if ($event->eventType && $event->eventType->is_all_day) {
-            $team = Auth::user()->currentTeam;
+            $team = $event->user->currentTeam;
+
             if ($team) {
-                $admins = $team->users->filter(function ($user) use ($team) {
+                $admins = $team->allUsers()->filter(function ($user) use ($team) {
                     return $user->hasTeamRole($team, 'admin');
                 });
 
-                if ($admins->isNotEmpty()) {
+                if ($admins && $admins->isNotEmpty()) {
                     Notification::send($admins, new EventCreated($event));
                 }
             }
