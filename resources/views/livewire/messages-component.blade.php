@@ -81,9 +81,6 @@
                         <div class="p-4 bg-white rounded-lg shadow-md">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div class="flex items-center">
-                                    @if ($view === 'inbox' && $message->pivot->read_at === null)
-                                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
-                                    @endif
                                     @if ($message->sender_id === Auth::id())
                                         {{-- Sent Message --}}
                                         <div class="ml-4">
@@ -104,7 +101,10 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="text-sm text-gray-500">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    @if ($view === 'inbox' && $message->pivot->read_at === null)
+                                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
+                                    @endif
                                     {{ $message->created_at->format('d/m/Y H:i') }}
                                 </div>
                             </div>
