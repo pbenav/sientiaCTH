@@ -56,41 +56,41 @@
                     @if ($view === 'inbox' || $view === 'sent' || $view === 'alerts')
                     <div class="flex items-center">
                         <input type="checkbox" wire:model="selectAll" class="mr-2">
-                        <span>{{ __('Seleccionar todo') }}</span>
+                        <span>{{ __('Select all') }}</span>
                     </div>
                     @endif
 
                     @if ($view === 'inbox' && count($selectedMessages) > 0)
                         <div class="flex items-center">
                             <select wire:model="bulkAction" class="form-control mr-2">
-                                <option value="">{{ __('Acción en bloque') }}</option>
-                                <option value="markAsRead">{{ __('Marcar como leído') }}</option>
-                                <option value="delete">{{ __('Eliminar') }}</option>
+                                <option value="">{{ __('Bulk Action') }}</option>
+                                <option value="markAsRead">{{ __('Mark as read') }}</option>
+                                <option value="delete">{{ __('Delete') }}</option>
                             </select>
                             <button wire:click="applyBulkAction" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
-                                {{ __('Aplicar') }}
+                                {{ __('Apply') }}
                             </button>
                         </div>
                     @endif
                     @if ($view === 'sent' && count($selectedMessages) > 0)
                         <div class="flex items-center">
                             <select wire:model="bulkAction" class="form-control mr-2">
-                                <option value="">{{ __('Acción en bloque') }}</option>
-                                <option value="delete">{{ __('Eliminar') }}</option>
+                                <option value="">{{ __('Bulk Action') }}</option>
+                                <option value="delete">{{ __('Delete') }}</option>
                             </select>
                             <button wire:click="applyBulkAction" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
-                                {{ __('Aplicar') }}
+                                {{ __('Apply') }}
                             </button>
                         </div>
                     @endif
                     @if ($view === 'alerts' && count($selectedNotifications) > 0)
                         <div class="flex items-center">
                             <select wire:model="bulkAlertAction" class="form-control mr-2">
-                                <option value="">{{ __('Acción en bloque') }}</option>
-                                <option value="delete">{{ __('Eliminar') }}</option>
+                                <option value="">{{ __('Bulk Action') }}</option>
+                                <option value="delete">{{ __('Delete') }}</option>
                             </select>
                             <button wire:click="applyBulkAlertAction" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
-                                {{ __('Aplicar') }}
+                                {{ __('Apply') }}
                             </button>
                         </div>
                     @endif
@@ -115,7 +115,7 @@
                                 </a>
                             </div>
                             <button wire:click="deleteNotification('{{ $notification->id }}')" class="text-sm text-red-600 hover:text-red-800">
-                                {{ __('Eliminar') }}
+                                {{ __('Delete') }}
                             </button>
                         </div>
                     @endforeach
