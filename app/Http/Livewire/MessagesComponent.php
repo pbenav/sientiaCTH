@@ -17,6 +17,7 @@ class MessagesComponent extends Component
     public $body = '';
     public $users;
     public $selectedMessages = [];
+    public $bulkAction = '';
 
     public function mount()
     {
@@ -155,14 +156,20 @@ class MessagesComponent extends Component
         $this->body = "\n\n\n> " . $message->body;
     }
 
-    public function markSelectedAsRead()
+    public function applyBulkAction()
     {
-        \Illuminate\Support\Facades\DB::table('message_user')
-            ->where('user_id', Auth::id())
-            ->whereIn('message_id', $this->selectedMessages)
-            ->update(['read_at' => now()]);
+        if (empty($this->bulkAction)) {
+            return;
+        }
+
+        if ($this->bulkAction === 'markAsRead') {
+            Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['read_at' => now()]);
+        } elseif ($this->bulkAction === 'delete') {
+            Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['deleted_at' => now()]);
+        }
 
         $this->selectedMessages = [];
+        $this->bulkAction = '';
         $this->emit('NotificationCountChanged');
         $this->showInbox();
     }
