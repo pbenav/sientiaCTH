@@ -140,6 +140,7 @@ class MessagesComponent extends Component
     {
         Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['read_at' => now()]);
         $this->emit('NotificationCountChanged');
+        $this->showInbox();
     }
 
     public function replyTo($messageId)
@@ -163,6 +164,7 @@ class MessagesComponent extends Component
 
         $this->selectedMessages = [];
         $this->emit('NotificationCountChanged');
+        $this->showInbox();
     }
 
     public function showAlerts()
