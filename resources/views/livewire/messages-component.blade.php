@@ -102,7 +102,7 @@
                                     @endif
                                 </div>
                                 <div class="flex items-center text-sm text-gray-500">
-                                    @if ($view === 'inbox' && $message->pivot->read_at === null)
+                                    @if ($view === 'inbox' && isset($message->pivot) && $message->pivot->read_at === null)
                                         <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
                                     @endif
                                     {{ $message->created_at->format('d/m/Y H:i') }}
@@ -114,7 +114,7 @@
                             <div class="mt-4 flex flex-wrap items-center justify-end space-x-4">
                                 @if ($view !== 'trash')
                                     @if ($message->sender_id !== Auth::id())
-                                        @if ($message->pivot->read_at === null)
+                                        @if (isset($message->pivot) && $message->pivot->read_at === null)
                                             <button wire:click="markAsRead({{ $message->id }})" class="text-sm text-green-600 hover:text-green-800">
                                                 Marcar como leído
                                             </button>
