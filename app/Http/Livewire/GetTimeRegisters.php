@@ -6,6 +6,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Models\Event;
 use App\Notifications\EventAuthorized;
+use App\Notifications\EventDeAuthorized;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -320,6 +321,7 @@ class GetTimeRegisters extends Component
             $event->user->notify(new EventAuthorized($event));
             $this->emit('alert', __('Event :id has been authorized (Status: Closed)', ['id' => $event->id]));
         } else {
+            $event->user->notify(new EventDeAuthorized($event));
             $this->emit('alert', __('Event :id has been un-authorized (Status: Open)', ['id' => $event->id]));
         }
 

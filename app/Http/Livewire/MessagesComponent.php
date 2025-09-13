@@ -164,7 +164,6 @@ class MessagesComponent extends Component
             Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['deleted_at' => now()]);
         }
 
-        $this->selectedMessages = [];
         $this->bulkAction = '';
         $this->emit('NotificationCountChanged');
         $this->showInbox();
