@@ -88,7 +88,7 @@
             @else
                 <div class="space-y-4">
                     @foreach ($messageList as $message)
-                        <div class="p-4 bg-white rounded-lg shadow-md">
+                        <div class="p-4 bg-white rounded-lg shadow-md" wire:key="{{ 'message-' . $view . '-' . $message->id }}">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div class="flex items-center">
                                     @if ($message->sender_id === Auth::id())
