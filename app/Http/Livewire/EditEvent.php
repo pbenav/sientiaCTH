@@ -131,6 +131,10 @@ class EditEvent extends Component
             $this->event->end = $this->end_datetime;
         }
 
+        if (auth()->user()->isTeamAdmin() && $this->event->eventType && $this->event->eventType->is_all_day) {
+            $this->event->is_open = 0;
+        }
+
         $this->event->save();
 
         if (auth()->user()->isTeamAdmin()) {
