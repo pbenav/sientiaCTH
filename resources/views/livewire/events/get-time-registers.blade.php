@@ -32,7 +32,7 @@
     <div class="mx-auto w-full max-w-6xl" wire:init="loadEvents">
 
         <!-- Filters Modal -->
-        <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector" :eventTypes="$eventTypes"></x-setfilters>
+        <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector" :eventTypes="$eventTypes" :teamUserList="$teamUserList"></x-setfilters>
 
         <div class="flex flex-row flex-wrap">
             <!-- Add Event Modal and Button -->
@@ -62,6 +62,22 @@
                     <i class="fa-solid fa-filter-slash"></i>
                     <i class="mr-2 fas fa-x"></i>{{ __('Unset filter') }}
                 </x-jet-button>
+            </div>
+
+            <!-- New Filter Buttons -->
+            <div class="flex flex-nowrap gap-2">
+                <div class="mx-auto w-48 sm:mx-0">
+                    <x-jet-button class="w-48 h-8 justify-center" wire:click="$refresh">
+                        <i class="fa-solid fa-arrows-rotate mr-2"></i>{{ __('Refresh') }}
+                    </x-jet-button>
+                </div>
+                @if($isTeamAdmin)
+                <div class="mx-auto w-48 sm:mx-0">
+                    <x-jet-button class="w-48 h-8 justify-center {{ $showOnlyMine ? 'bg-green-500' : '' }}" wire:click="filterOnlyMine">
+                        <i class="fa-solid fa-person-military-pointing mr-2"></i>{{ __('My Records') }}
+                    </x-jet-button>
+                </div>
+                @endif
             </div>
 
             <!-- Search Input and Checkbox -->

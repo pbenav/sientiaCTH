@@ -29,11 +29,13 @@ class GetTimeRegisters extends Component
     public User $user;
     public Team $team;
     public $teamUsers;
+    public $teamUserList;
     public $eventTypes;
     public $isTeamAdmin;
     public $isInspector;
     public $confirmed;
     public $filtered;
+    public $showOnlyMine = false;
 
     protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
 
@@ -46,8 +48,7 @@ class GetTimeRegisters extends Component
     protected $rules = [
         'filter.start' => 'required|date',
         'filter.end' => 'required|date|after:filter.start',
-        'filter.name' => 'nullable|string',
-        'filter.family_name1' => 'nullable|string',
+        'filter.user_id' => 'nullable|integer',
         'filter.is_open' => 'boolean',
         'filter.event_type_id' => 'nullable|integer',
     ];
@@ -60,14 +61,14 @@ class GetTimeRegisters extends Component
         $this->filter = new Event([
             "start" => date('Y-m-01'),
             "end" => date('Y-m-t'),
-            "name" => "",
-            "family_name1" => "",
+            "user_id" => null,
             "is_open" => false,
             "event_type_id" => null,
         ]);
         $this->user = Auth::user();
         $this->events = $this->user->events()->Paginate($this->qtytoshow);
         $this->team = $this->user->currentTeam;
+        $this->teamUserList = $this->team ? $this->team->allUsers() : collect();
         $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
@@ -101,6 +102,11 @@ class GetTimeRegisters extends Component
             $this->sort = $sort;
             $this->direction = 'asc';
         };
+    }
+
+    public function filterOnlyMine()
+    {
+        $this->showOnlyMine = !$this->showOnlyMine;
     }
 
     /**
@@ -227,8 +233,7 @@ class GetTimeRegisters extends Component
         $query->when($this->filtered, function ($q) {
             $q->when($this->filter->start, fn($query) => $query->whereDate('events.start', '>=', $this->filter->start))
               ->when($this->filter->end, fn($query) => $query->whereDate('events.end', '<=', $this->filter->end))
-              ->when($this->filter->name, fn($query) => $query->where('users.name', $this->filter->name))
-              ->when($this->filter->family_name1, fn($query) => $query->where('users.family_name1', $this->filter->family_name1))
+              ->when($this->filter->user_id, fn($query) => $query->where('events.user_id', $this->filter->user_id))
               ->when($this->filter->is_open, fn($query) => $query->where('events.is_open', '1'))
               ->when($this->filter->event_type_id, fn($query) => $query->where('events.event_type_id', $this->filter->event_type_id));
         });
@@ -236,6 +241,11 @@ class GetTimeRegisters extends Component
         // "Show only open" toggle
         $query->when($this->confirmed, function ($q) {
             $q->where('events.is_open', '=', '1');
+        });
+
+        // "Show only mine" toggle for admins
+        $query->when($this->showOnlyMine, function ($q) {
+            $q->where('events.user_id', Auth::id());
         });
 
         $this->events = $query->orderBy($this->sort, $this->direction)->paginate($this->qtytoshow);

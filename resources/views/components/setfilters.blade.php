@@ -1,4 +1,4 @@
-@props(['isteamadmin', 'isinspector', 'eventTypes'])
+@props(['isteamadmin', 'isinspector', 'eventTypes', 'teamUserList'])
 <div>
     <x-jet-dialog-modal wire:model="showFiltersModal">
 
@@ -20,14 +20,16 @@
             <div class="mb-4 flex flex-row flex-wrap gap-2">                
                 @if ($isteamadmin || $isinspector)
                     <div class="mb-4">
-                        <x-jet-label value="{{ __('Name') }}" />
-                        <x-jet-input type="text" wire:model.defer='filter.name' />
-                        <x-jet-input-error for='filter.name' />
-                    </div>
-                    <div class="mb-4">
-                        <x-jet-label value="{{ __('Family Name 1') }}" />
-                        <x-jet-input type="text" wire:model.defer='filter.family_name1' />
-                        <x-jet-input-error for='filter.family_name1' />
+                        <x-jet-label value="{{ __('User') }}" />
+                        <select class="sl-select" wire:model.defer='filter.user_id'>
+                            <option value="">{{ __('All') }}</option>
+                            @if(isset($teamUserList))
+                                @foreach($teamUserList as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <x-jet-input-error for='filter.user_id' />
                     </div>
                 @endif
                 <div class="mb-4 text-left sm:text-center">
