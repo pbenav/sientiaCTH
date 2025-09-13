@@ -10,7 +10,6 @@ use Livewire\Component;
 class MessagesComponent extends Component
 {
     public $view = 'inbox';
-    public $messageList;
     public $showComposeForm = false;
     public $recipients = [];
     public $subject = '';
@@ -18,6 +17,8 @@ class MessagesComponent extends Component
     public $users;
     public $selectedMessages = [];
     public $bulkAction = '';
+    public $selectedNotifications = [];
+    public $bulkAlertAction = '';
 
     public function mount()
     {
@@ -57,21 +58,16 @@ class MessagesComponent extends Component
     public function showInbox()
     {
         $this->view = 'inbox';
-        $this->messageList = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->get();
     }
 
     public function showSent()
     {
         $this->view = 'sent';
-        $this->messageList = Auth::user()->messages()->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
     }
 
     public function showTrash()
     {
         $this->view = 'trash';
-        $received = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
-        $sent = Auth::user()->messages()->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
-        $this->messageList = $received->merge($sent);
     }
 
     public function deleteMessage($messageId)
@@ -174,19 +170,48 @@ class MessagesComponent extends Component
         $this->showInbox();
     }
 
+    public function deleteNotification($notificationId)
+    {
+        Auth::user()->notifications()->find($notificationId)->delete();
+        $this->emit('NotificationCountChanged');
+    }
+
+    public function applyBulkAlertAction()
+    {
+        if ($this->bulkAlertAction === 'delete') {
+            Auth::user()->notifications()->whereIn('id', $this->selectedNotifications)->delete();
+            $this->selectedNotifications = [];
+            $this->bulkAlertAction = '';
+        }
+        $this->emit('NotificationCountChanged');
+    }
+
     public function showAlerts()
     {
         $this->view = 'alerts';
-        $this->messageList = Auth::user()->notifications->filter(function ($notification) {
-            return $notification->type !== 'App\Notifications\NewMessage';
-        });
-
         Auth::user()->unreadNotifications->where('type', '!=', 'App\Notifications\NewMessage')->markAsRead();
         $this->emit('NotificationCountChanged');
     }
 
     public function render()
     {
-        return view('livewire.messages-component');
+        $messageList = collect();
+        if ($this->view === 'inbox') {
+            $messageList = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->get();
+        } elseif ($this->view === 'sent') {
+            $messageList = Auth::user()->messages()->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+        } elseif ($this->view === 'trash') {
+            $received = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
+            $sent = Auth::user()->messages()->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+            $messageList = $received->merge($sent);
+        } elseif ($this->view === 'alerts') {
+            $messageList = Auth::user()->notifications->filter(function ($notification) {
+                return $notification->type !== 'App\Notifications\NewMessage';
+            });
+        }
+
+        return view('livewire.messages-component', [
+            'messageList' => $messageList
+        ]);
     }
 }
