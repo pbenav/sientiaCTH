@@ -65,6 +65,17 @@
                             </button>
                         </div>
                     @endif
+                    @if ($view === 'sent' && count($selectedMessages) > 0)
+                        <div class="flex items-center">
+                            <select wire:model="bulkAction" class="form-control mr-2">
+                                <option value="">{{ __('Acción en bloque') }}</option>
+                                <option value="delete">{{ __('Eliminar') }}</option>
+                            </select>
+                            <button wire:click="applyBulkAction" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
+                                {{ __('Aplicar') }}
+                            </button>
+                        </div>
+                    @endif
                     @if ($view === 'alerts' && count($selectedNotifications) > 0)
                         <div class="flex items-center">
                             <select wire:model="bulkAlertAction" class="form-control mr-2">
@@ -110,6 +121,7 @@
                                 <div class="flex items-center">
                                     @if ($message->sender_id === Auth::id())
                                         {{-- Sent Message --}}
+                                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
                                         <div class="ml-4">
                                             <p class="font-semibold text-gray-700">
                                                 Para:

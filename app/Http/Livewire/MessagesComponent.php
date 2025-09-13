@@ -23,7 +23,13 @@ class MessagesComponent extends Component
     public function mount()
     {
         $this->showInbox();
-        $this->users = \App\Models\User::where('id', '!=', Auth::id())->get();
+
+        $team = Auth::user()->currentTeam;
+        if ($team) {
+            $this->users = $team->allUsers()->where('id', '!=', Auth::id());
+        } else {
+            $this->users = collect();
+        }
     }
 
     public function toggleComposeForm()
@@ -158,15 +164,24 @@ class MessagesComponent extends Component
             return;
         }
 
-        if ($this->bulkAction === 'markAsRead') {
-            Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['read_at' => now()]);
-        } elseif ($this->bulkAction === 'delete') {
-            Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['deleted_at' => now()]);
+        if ($this->view === 'inbox') {
+            if ($this->bulkAction === 'markAsRead') {
+                Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['read_at' => now()]);
+            } elseif ($this->bulkAction === 'delete') {
+                Auth::user()->receivedMessages()->updateExistingPivot($this->selectedMessages, ['deleted_at' => now()]);
+            }
+            $this->showInbox();
+        } elseif ($this->view === 'sent') {
+            if ($this->bulkAction === 'delete') {
+                Message::where('sender_id', Auth::id())
+                    ->whereIn('id', $this->selectedMessages)
+                    ->update(['sender_deleted_at' => now()]);
+            }
+            $this->showSent();
         }
 
         $this->bulkAction = '';
         $this->emit('NotificationCountChanged');
-        $this->showInbox();
     }
 
     public function deleteNotification($notificationId)
@@ -179,7 +194,6 @@ class MessagesComponent extends Component
     {
         if ($this->bulkAlertAction === 'delete') {
             Auth::user()->notifications()->whereIn('id', $this->selectedNotifications)->delete();
-            $this->selectedNotifications = [];
             $this->bulkAlertAction = '';
         }
         $this->emit('NotificationCountChanged');
