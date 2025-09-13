@@ -338,5 +338,14 @@
     "Tailwind": "Tailwind",
     "welcome.jetstream.tailwind.text": "Laravel Jetstream está construido con Tailwind, un increíble framework de CSS de primera utilidad que no se interpone en tu camino. Te sorprenderá lo fácil que puedes construir y mantener diseños frescos y modernos con este maravilloso framework al alcance de tu mano.",
     "welcome.jetstream.authentication.title": "Autenticación",
-    "welcome.jetstream.authentication.text": "Las vistas de autenticación y registro se incluyen con Laravel Jetstream, así como el soporte para la verificación del correo electrónico del usuario y el restablecimiento de contraseñas olvidadas. Por lo tanto, eres libre de empezar con lo que más importa: construir tu aplicación."
+    "welcome.jetstream.authentication.text": "Las vistas de autenticación y registro se incluyen con Laravel Jetstream, así como el soporte para la verificación del correo electrónico del usuario y el restablecimiento de contraseañas olvidadas. Por lo tanto, eres libre de empezar con lo que más importa: construir tu aplicación.",
+    "You are not authorized to perform this action.": "No estás autorizado para realizar esta acción.",
+    "This event cannot be authorized.": "Este evento no puede ser autorizado.",
+    "Event :id has been authorized (Status: Closed)": "El evento :id ha sido autorizado (Estado: Cerrado)",
+    "Event :id has been un-authorized (Status: Open)": "La autorización para el evento :id ha sido revocada (Estado: Abierto)",
+    "Bulk Action": "Acción en bloque",
+    "Mark as read": "Marcar como leído",
+    "Delete": "Eliminar",
+    "Apply": "Aplicar",
+    "Select all": "Seleccionar todo"
 }
