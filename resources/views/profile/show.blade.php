@@ -1,31 +1,4 @@
 <x-app-layout>
-    {{-- Temporary Diagnostic Panel --}}
-    @if(Auth::user()->id === 1)
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8 bg-red-100 border-2 border-red-500">
-            <h3 class="text-lg font-bold text-red-700">Panel de Diagnóstico de Permisos (Visible solo para Admin ID 1)</h3>
-            <div class="mt-4 p-4 bg-white rounded shadow">
-                <p><strong>Usuario Actual ID:</strong> {{ Auth::user()->id }}</p>
-                <p><strong>Nombre:</strong> {{ Auth::user()->name }}</p>
-                <hr class="my-2">
-                <p><strong>Resultado del Gate `viewSecurityPanel`:</strong> {{ Gate::allows('viewSecurityPanel') ? 'PERMITIDO' : 'DENEGADO' }}</p>
-                <hr class="my-2">
-                <p><strong>Equipos y Roles del Usuario:</strong></p>
-                @if(Auth::user()->allTeams()->isEmpty())
-                    <p>El usuario no pertenece a ningún equipo.</p>
-                @else
-                    <ul class="list-disc pl-5">
-                        @foreach(Auth::user()->allTeams() as $team)
-                            <li>
-                                Equipo: '{{ $team->name }}' (ID: {{ $team->id }})
-                                - Rol: '{{ Auth::user()->teamRole($team) ? Auth::user()->teamRole($team)->key : 'N/A' }}'
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </div>
-        </div>
-    @endif
-
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Profile') }}
