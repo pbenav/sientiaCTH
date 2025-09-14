@@ -2,9 +2,10 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
 use App\Models\Event;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Calendar extends Component
 {
@@ -21,15 +22,16 @@ class Calendar extends Component
     }
 
     public function eventDrop($eventId, $newStart, $newEnd)
-    {
-        $event = Event::find($eventId);
-        if ($event) {
-            $event->update([
-                'start' => $newStart,
-                'end' => $newEnd,
-            ]);
-        }
+{
+    $event = Event::find($eventId);
+
+    if ($event) {
+        $event->update([
+            'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+            'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
+        ]);
     }
+}
 
     public function triggerEditModal($eventId)
     {
