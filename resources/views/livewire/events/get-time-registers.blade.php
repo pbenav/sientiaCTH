@@ -296,7 +296,7 @@
                 Livewire.on('alert', function(message) {
                     Swal.fire({
                         icon: 'success',
-                        title: "{{ __('OK, perfect!') }}",
+                        title: "{{ __('sweetalert.alert.title') }}",
                         text: message,
                         timer: 1500,
                         timerProgressBar: true
@@ -306,7 +306,7 @@
                 Livewire.on('alertFail', function(message) {
                     Swal.fire({
                         icon: 'info',
-                        title: "{{ __('Ups!. Something happened. Check your data!') }}",
+                        title: "{{ __('sweetalert.alert_fail.title') }}",
                         text: message,
                         timer: 1500,
                         timerProgressBar: true
@@ -316,12 +316,12 @@
                 Livewire.on('confirmConfirmation', function(event) {
                     if ((event.is_open && event.end !== null) || {{ $isTeamAdmin ? 1 : 0 }}) {
                         Swal.fire({
-                            title: "{{ __('Are you sure?') }}",
-                            text: "{{ __('You won\'t be able to undo this action!') }}",
+                            title: "{{ __('sweetalert.confirm_confirmation.title') }}",
+                            text: "{{ __('sweetalert.confirm_confirmation.text') }}",
                             icon: 'warning',
                             showCancelButton: true,
-                            confirmButtonText: "{{ __('Yes, confirm!') }}",
-                            cancelButtonText: "{{ __('Cancel') }}",
+                            confirmButtonText: "{{ __('sweetalert.confirm_confirmation.confirmButtonText') }}",
+                            cancelButtonText: "{{ __('sweetalert.confirm_confirmation.cancelButtonText') }}",
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 Livewire.emit('confirm', event);
@@ -332,12 +332,12 @@
 
                 Livewire.on('deleteConfirmation', function(event) {
                     Swal.fire({
-                        title: "{{ __('Are you sure?') }}",
-                        text: "{{ __('You won\'t be able to undo this action!') }}",
+                        title: "{{ __('sweetalert.delete_confirmation.title') }}",
+                        text: "{{ __('sweetalert.delete_confirmation.text') }}",
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: "{{ __('Yes, delete!') }}",
-                        cancelButtonText: "{{ __('Cancel') }}",
+                        confirmButtonText: "{{ __('sweetalert.delete_confirmation.confirmButtonText') }}",
+                        cancelButtonText: "{{ __('sweetalert.delete_confirmation.cancelButtonText') }}",
                     }).then((result) => {
                         if (result.isConfirmed) {
                             Livewire.emit('delete', event);

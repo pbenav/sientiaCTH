@@ -1,6 +1,7 @@
 <x-guest-layout>
     <div
-        class="flex justify-center py-4 min-h-screen bg-gray-100 login flexrelative items-top dark:bg-gray-900 sm:items-center sm:pt-0">
+        class="flex justify-center py-4 min-h-screen bg-gray-100 flex relative items-top dark:bg-gray-900 sm:items-center sm:pt-0"
+        style="background-image: url('{{ config('view.login_background_image') }}'); background-repeat: no-repeat; background-size: cover; background-position: left;">
         <!-- Topbar login and register links -->
         @if (Route::has('login'))
         <div class="flex fixed top-0 right-0 px-6 py-4">

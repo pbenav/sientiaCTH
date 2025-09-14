@@ -21,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         \Laravel\Jetstream\Events\TeamCreated::class => [
             \App\Listeners\SeedEventTypes::class,
         ],
+        \Illuminate\Auth\Events\Failed::class => [
+            \App\Listeners\LogFailedLoginAttempt::class,
+        ],
     ];
 
     /**

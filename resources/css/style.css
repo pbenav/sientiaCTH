@@ -7,9 +7,19 @@
   background: gray;
 }
 
-.login {
-  background-image: url('/images/login_bg.jpg');  
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: left;
+.numpad-info-message {
+    max-width: 32rem; /* 512px, which corresponds to max-w-lg in Tailwind */
+    margin-left: auto;
+    margin-right: auto;
+    word-wrap: break-word; /* For older browsers */
+    overflow-wrap: break-word;
+}
+
+.numpad-info-placeholder {
+    height: 4.5rem; /* 72px, reserves a fixed space for the error message */
+    overflow-y: auto; /* Adds a scrollbar if the content overflows vertically */
+    /* Center the placeholder content if it's smaller than the container */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

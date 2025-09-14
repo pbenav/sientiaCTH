@@ -24,6 +24,16 @@
                             {{ __('Preferencias') }}
                         </a>
                     </li>
+                    <!-- Permissions updated at {{ now() }} -->
+                    @can('viewSecurityPanel')
+                    <li class="mr-2">
+                        <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
+                           :class="{ 'border-indigo-500 text-indigo-600': tab === 'security', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'security' }"
+                           @click.prevent="tab = 'security'">
+                            {{ __('Seguridad') }}
+                        </a>
+                    </li>
+                    @endcan
                 </ul>
             </div>
 
@@ -74,6 +84,15 @@
                         @livewire('profile.update-notification-preferences-form')
                     </div>
                 </div>
+
+                @can('viewSecurityPanel')
+                <!-- Security Tab -->
+                <div x-show="tab === 'security'">
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('security.blocked-ip-manager')
+                    </div>
+                </div>
+                @endcan
             </div>
         </div>
     </div>

@@ -6,6 +6,9 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Services\LoginSecurityService;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class Numpad extends Component
 {
@@ -24,8 +27,15 @@ class Numpad extends Component
      *
      * @return \Illuminate\Http\RedirectResponse|null Redirects to the appropriate route based on validation results.
      */
-    public function insertCode()
+    public function insertCode(Request $request, LoginSecurityService $loginSecurityService)
     {
+        try {
+            $loginSecurityService->check($request);
+        } catch (ValidationException $e) {
+            session()->flash('info', $e->validator->errors()->first());
+            return;
+        }
+
         // Basic code validation
         if (!preg_match('/^\d{4,10}$/', $this->user_code)) {
             session()->flash('info', __( 'Code format is invalid.' ));
@@ -35,6 +45,7 @@ class Numpad extends Component
         $user = $this->findUserByCode($this->user_code);
 
         if (!$user) {
+            $loginSecurityService->logFailedAttempt($request);
             session()->flash('info', __('Invalid code.'));
             return;
         }
