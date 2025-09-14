@@ -86,14 +86,6 @@
                         });
                     },
 
-                    eventResize: function(info) {
-                        if (!confirm("{{ __('sweetalert.calendar.confirm_change') }}")) {
-                            info.revert();
-                        } else {
-                            @this.emit('eventResize', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
-                        }
-                    },
-
                     eventContent: function(info) {
                         // Accede a la propiedad personalizada 'iconHtml'
                         const iconHtml = info.event.extendedProps.iconHtml;

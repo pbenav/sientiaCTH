@@ -28,7 +28,7 @@ class EventTypeSeeder extends Seeder
                 ['id' => 1],
                 [
                     'user_id' => $defaultUser->id,
-                    'name' => $defaultUser->name."'s Team",
+                    'name' => "Equipo de ".$defaultUser->name,
                     'personal_team' => true,
                 ]
             );
