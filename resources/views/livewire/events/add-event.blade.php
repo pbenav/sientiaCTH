@@ -11,9 +11,10 @@
                    No tiene mucho sentido fichar un día antes o un día después.
                    <br />Por favor, acostúmbrate a hacerlo a la hora correcta. <br>
                 <strong>¡Muchas gracias!</strong></p>
+                <p class="p-2">En esta nueva versión <strong>debes elegir el tipo de evento</strong>, que no podrá ser modificado una vez creado. ¡Elige bien!</p>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-2">
                 <x-jet-label value="{{ __('Event Type') }}" class="required" />
                 <select class="sl-select" required wire:model.live="event_type_id" name="event_type_id">
                     <option value="">{{ __('Select an option') }}</option>

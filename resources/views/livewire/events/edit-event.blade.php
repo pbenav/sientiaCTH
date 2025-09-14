@@ -33,12 +33,12 @@
                     <x-jet-label value="{{ __('Start date and time') }}" />
                     <x-jet-input type="datetime-local" wire:model="start_datetime" />
                     <x-jet-input-error for="start_datetime" />
-                    <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
                 </div>
                 <div class="mb-4">
                     <x-jet-label value="{{ __('End date and time') }}" />
                     <x-jet-input type="datetime-local" wire:model="end_datetime" />
                     <x-jet-input-error for="end_datetime" />
+                    <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
                 </div>
             @endif
 
