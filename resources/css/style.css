@@ -8,7 +8,7 @@
 }
 
 .numpad-info-message {
-    max-width: 375; /* 512px, which corresponds to max-w-lg in Tailwind */
+    max-width: 375px; /* 512px, which corresponds to max-w-lg in Tailwind */
     margin-left: auto;
     margin-right: auto;
     word-wrap: break-word; /* For older browsers */
