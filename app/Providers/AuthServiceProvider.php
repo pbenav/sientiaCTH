@@ -33,7 +33,7 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('viewSecurityPanel', function (User $user) {
             foreach ($user->allTeams() as $team) {
-                if ($user->hasTeamRole($team, 'admin')) {
+                if ($user->hasTeamRole($team, 'admin') || $user->hasTeamRole($team, 'owner')) {
                     return true;
                 }
             }
