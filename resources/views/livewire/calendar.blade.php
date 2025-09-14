@@ -27,8 +27,10 @@
                     },
                     allDayText: 'todo el día',
                     locale: 'es',
+                    initialView: 'timeGridWeek',
                     events: @json($this->getEvents()),
                     editable: true,
+                    eventDurationEditable: true,
                     selectable: true,
 
                     // Callback for clicking an event
@@ -46,11 +48,49 @@
 
                     // Callback for dragging and dropping an event
                     eventDrop: function(info) {
+                        Swal.fire({
+                            title: '{{ __("Are you sure?") }}',
+                            text: '{{ __("The event date will be changed.") }}',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: '{{ __("Yes, change it!") }}',
+                            cancelButtonText: '{{ __("Cancel") }}'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                @this.emit('eventDrop', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+                            } else {
+                                info.revert();
+                            }
+                        });
+                    },
+
+                    // Callback for resizing an event
+                    eventResize: function(info) {
+                        Swal.fire({
+                            title: '{{ __("Are you sure?") }}',
+                            text: '{{ __("The event duration will be changed.") }}',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: '{{ __("Yes, change it!") }}',
+                            cancelButtonText: '{{ __("Cancel") }}'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                @this.emit('eventResize', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+                            } else {
+                                info.revert();
+                            }
+                        });
+                    },
+
+                    eventResize: function(info) {
                         if (!confirm("{{ __('Are you sure about this change?') }}")) {
                             info.revert();
                         } else {
-                            @this.emit('eventDrop', info.event.id, info.event.start.toISOString(), info
-                                .event.end.toISOString());
+                            @this.emit('eventResize', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
                         }
                     },
 

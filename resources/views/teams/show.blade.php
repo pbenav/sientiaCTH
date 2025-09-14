@@ -5,25 +5,54 @@
         </h2>
     </x-slot>
 
-    <div>
+    <div x-data="{ tab: 'settings' }">
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            @livewire('teams.update-team-name-form', ['team' => $team])
-
-            <div class="mt-10 sm:mt-0">
-                @livewire('teams.event-type-manager', ['team' => $team])
+            <!-- Tab Headers -->
+            <div class="mb-4 border-b border-gray-200">
+                <ul class="flex flex-wrap -mb-px">
+                    <li class="mr-2">
+                        <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
+                           :class="{ 'border-indigo-500 text-indigo-600': tab === 'settings', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'settings' }"
+                           @click.prevent="tab = 'settings'">
+                            {{ __('Ajustes de equipo') }}
+                        </a>
+                    </li>
+                    <li class="mr-2">
+                        <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
+                           :class="{ 'border-indigo-500 text-indigo-600': tab === 'events', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'events' }"
+                           @click.prevent="tab = 'events'">
+                            {{ __('Tipos de evento') }}
+                        </a>
+                    </li>
+                </ul>
             </div>
 
-            <x-jet-section-border />
+            <!-- Tab Content -->
+            <div>
+                <!-- Team Settings Tab -->
+                <div x-show="tab === 'settings'">
+                    @livewire('teams.update-team-name-form', ['team' => $team])
 
-            @livewire('teams.team-member-manager', ['team' => $team])
+                    <x-jet-section-border />
 
-            @if (Gate::check('delete', $team) && ! $team->personal_team)
-                <x-jet-section-border />
+                    @livewire('teams.team-member-manager', ['team' => $team])
 
-                <div class="mt-10 sm:mt-0">
-                    @livewire('teams.delete-team-form', ['team' => $team])
+                    @if (Gate::check('delete', $team) && ! $team->personal_team)
+                        <x-jet-section-border />
+
+                        <div class="mt-10 sm:mt-0">
+                            @livewire('teams.delete-team-form', ['team' => $team])
+                        </div>
+                    @endif
                 </div>
-            @endif
+
+                <!-- Event Types Tab -->
+                <div x-show="tab === 'events'">
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.event-type-manager', ['team' => $team])
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

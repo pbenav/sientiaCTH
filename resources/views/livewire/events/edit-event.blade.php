@@ -15,7 +15,7 @@
                 </div>
             </div>
 
-            @if ($event->eventType && $event->eventType->is_all_day)
+            @if (isset($event->eventType) && $event->eventType->is_all_day)
                 {{-- All-day event: show only date inputs --}}
                 <div class="mb-4">
                     <x-jet-label value="{{ __('Start date') }}" />
@@ -61,8 +61,7 @@
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-danger-button wire:click="delete" wire:loading.attr="disabled"
-                onclick="confirm('{{ __('Are you sure you want to delete this event?') }}') || event.stopImmediatePropagation()"
+            <x-jet-danger-button onclick="confirmDelete({{ $event->id }})" wire:loading.attr="disabled"
                 class="justify-center ml-2">
                 {{ __('Delete Event') }}
             </x-jet-danger-button>
@@ -75,3 +74,24 @@
 
     </x-jet-dialog-modal>
 </div>
+
+@push('scripts')
+<script>
+    function confirmDelete(eventId) {
+        Swal.fire({
+            title: '{{ __("Are you sure?") }}',
+            text: '{{ __("You will not be able to recover this event!") }}',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '{{ __("Yes, delete it!") }}',
+            cancelButtonText: '{{ __("Cancel") }}'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('delete', eventId);
+            }
+        });
+    }
+</script>
+@endpush

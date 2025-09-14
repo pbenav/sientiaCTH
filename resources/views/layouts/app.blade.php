@@ -79,6 +79,36 @@
                 }
             });
         </script>
+
+        <!-- SweetAlert2 Listeners -->
+        <script>
+            // Listener for simple success alerts
+            window.addEventListener('swal:alert', event => {
+                Swal.fire({
+                    title: event.detail.title,
+                    text: event.detail.text,
+                    icon: event.detail.icon,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+            });
+
+            // Listener for session-flashed alerts
+            @if (session()->has('alert'))
+                Swal.fire({
+                    title: '{{ session('alert') }}',
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+            @endif
+        </script>
     @endauth
 </body>
 

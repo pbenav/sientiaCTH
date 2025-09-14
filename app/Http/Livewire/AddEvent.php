@@ -149,9 +149,10 @@ class AddEvent extends Component
         // Reset and fetch fresh data each time the modal is opened
         $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
         if (isset($data['date'])) {
-            $this->start_date = \Carbon\Carbon::parse($data['date'])->format('Y-m-d');
-            $this->end_date = \Carbon\Carbon::parse($data['date'])->format('Y-m-d');
-            $this->start_time = \Carbon\Carbon::parse($data['date'])->format('H:i:s');
+            $date = \Carbon\Carbon::parse($data['date']);
+            $this->start_date = $date->format('Y-m-d');
+            $this->end_date = $date->format('Y-m-d');
+            $this->start_time = $date->format('H:i:s');
         } else {
             $this->start_date = date('Y-m-d');
             $this->end_date = date('Y-m-d');
@@ -204,10 +205,19 @@ class AddEvent extends Component
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = $this->start_date . ' 00:00:00';
-            $data['end'] = Carbon::parse($this->end_date)->addDay()->format('Y-m-d H:i:s');
+            $data['start'] = Carbon::parse($this->start_date, config('app.timezone'))
+                ->startOfDay()
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
+            $data['end'] = Carbon::parse($this->end_date, config('app.timezone'))
+                ->startOfDay()
+                ->addDay()
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
         } else {
-            $data['start'] = $this->start_date . ' ' . $this->start_time;
+            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
             $data['end'] = null;
         }
 
