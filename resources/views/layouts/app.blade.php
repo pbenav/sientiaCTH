@@ -67,8 +67,8 @@
             window.addEventListener('new-notification', event => {
                 if ({{ Auth::user()->notify_new_messages ? 'true' : 'false' }}) {
                     Swal.fire({
-                        title: 'Nueva notificación',
-                        text: 'Has recibido una nueva notificación.',
+                        title: "{{ __('sweetalert.new_notification.title') }}",
+                        text: "{{ __('sweetalert.new_notification.text') }}",
                         icon: 'info',
                         toast: true,
                         position: 'top-end',

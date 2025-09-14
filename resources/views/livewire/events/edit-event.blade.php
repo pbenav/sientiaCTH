@@ -79,14 +79,14 @@
 <script>
     function confirmDelete(eventId) {
         Swal.fire({
-            title: '{{ __("Are you sure?") }}',
-            text: '{{ __("You will not be able to recover this event!") }}',
+            title: "{{ __('sweetalert.edit_event.delete_confirmation.title') }}",
+            text: "{{ __('sweetalert.edit_event.delete_confirmation.text') }}",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: '{{ __("Yes, delete it!") }}',
-            cancelButtonText: '{{ __("Cancel") }}'
+            confirmButtonText: "{{ __('sweetalert.edit_event.delete_confirmation.confirmButtonText') }}",
+            cancelButtonText: "{{ __('sweetalert.edit_event.delete_confirmation.cancelButtonText') }}"
         }).then((result) => {
             if (result.isConfirmed) {
                 @this.call('delete', eventId);

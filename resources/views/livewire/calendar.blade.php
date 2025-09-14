@@ -49,14 +49,14 @@
                     // Callback for dragging and dropping an event
                     eventDrop: function(info) {
                         Swal.fire({
-                            title: '{{ __("Are you sure?") }}',
-                            text: '{{ __("The event date will be changed.") }}',
+                            title: "{{ __('sweetalert.calendar.event_drop.title') }}",
+                            text: "{{ __('sweetalert.calendar.event_drop.text') }}",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: '{{ __("Yes, change it!") }}',
-                            cancelButtonText: '{{ __("Cancel") }}'
+                            confirmButtonText: "{{ __('sweetalert.calendar.event_drop.confirmButtonText') }}",
+                            cancelButtonText: "{{ __('sweetalert.calendar.event_drop.cancelButtonText') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 @this.emit('eventDrop', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
@@ -69,14 +69,14 @@
                     // Callback for resizing an event
                     eventResize: function(info) {
                         Swal.fire({
-                            title: '{{ __("Are you sure?") }}',
-                            text: '{{ __("The event duration will be changed.") }}',
+                            title: "{{ __('sweetalert.calendar.event_resize.title') }}",
+                            text: "{{ __('sweetalert.calendar.event_resize.text') }}",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',
                             cancelButtonColor: '#d33',
-                            confirmButtonText: '{{ __("Yes, change it!") }}',
-                            cancelButtonText: '{{ __("Cancel") }}'
+                            confirmButtonText: "{{ __('sweetalert.calendar.event_resize.confirmButtonText') }}",
+                            cancelButtonText: "{{ __('sweetalert.calendar.event_resize.cancelButtonText') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 @this.emit('eventResize', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
@@ -87,7 +87,7 @@
                     },
 
                     eventResize: function(info) {
-                        if (!confirm("{{ __('Are you sure about this change?') }}")) {
+                        if (!confirm("{{ __('sweetalert.calendar.confirm_change') }}")) {
                             info.revert();
                         } else {
                             @this.emit('eventResize', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());

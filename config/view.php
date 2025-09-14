@@ -33,4 +33,16 @@ return [
         realpath(storage_path('framework/views'))
     ),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Login Background Image
+    |--------------------------------------------------------------------------
+    |
+    | This value is used as the background image for the login page. You can
+    | set this in your .env file to easily change the login background.
+    |
+    */
+
+    'login_background_image' => env('LOGIN_BACKGROUND_IMAGE', '/images/login_bg.jpg'),
+
 ];
