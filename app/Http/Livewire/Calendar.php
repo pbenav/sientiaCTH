@@ -9,7 +9,11 @@ use Livewire\Component;
 
 class Calendar extends Component
 {
-    protected $listeners = ['refreshCalendar' => 'refresh', 'eventDrop' => 'eventDrop'];
+    protected $listeners = [
+        'refreshCalendar' => 'refresh',
+        'eventDrop' => 'eventDrop',
+        'eventResize' => 'eventResize'
+    ];
 
     public function render()
     {
@@ -22,16 +26,28 @@ class Calendar extends Component
     }
 
     public function eventDrop($eventId, $newStart, $newEnd)
-{
-    $event = Event::find($eventId);
+    {
+        $event = Event::find($eventId);
 
-    if ($event) {
-        $event->update([
-            'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-            'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
-        ]);
+        if ($event) {
+            $event->update([
+                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+                'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
+            ]);
+        }
     }
-}
+
+    public function eventResize($eventId, $newStart, $newEnd)
+    {
+        $event = Event::find($eventId);
+
+        if ($event) {
+            $event->update([
+                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+                'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
+            ]);
+        }
+    }
 
     public function triggerEditModal($eventId)
     {
@@ -65,8 +81,8 @@ class Calendar extends Component
                     'id' => $event->id,
                     'title' => $event->description, // El título ahora es solo el texto
                     'iconHtml' => $iconHtml,       // El icono se pasa en una nueva propiedad
-                    'start' => $event->start,
-                    'end' => $event->end,
+                    'start' => Carbon::parse($event->start, 'UTC')->toIso8601String(),
+                    'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
                 ];

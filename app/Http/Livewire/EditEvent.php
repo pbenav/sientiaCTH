@@ -48,7 +48,7 @@ class EditEvent extends Component
      */
     protected function rules()
     {
-        if ($this->event->eventType && $this->event->eventType->is_all_day) {
+        if (isset($this->event->eventType) && $this->event->eventType->is_all_day) {
             return [
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after_or_equal:start_date',
@@ -87,16 +87,24 @@ class EditEvent extends Component
         $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
 
-        // Populate the new properties for the form
-        $this->start_datetime = \Carbon\Carbon::parse($ev->start)->toDateTimeLocalString();
-        $this->start_date = \Carbon\Carbon::parse($ev->start)->format('Y-m-d');
+        // Populate the new properties for the form, converting from UTC to the app's timezone
+        $this->start_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->start, 'UTC')
+            ->setTimezone(config('app.timezone'))
+            ->toDateTimeLocalString();
+        $this->start_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->start, 'UTC')
+            ->setTimezone(config('app.timezone'))
+            ->format('Y-m-d');
 
         if ($ev->end) {
-            $this->end_datetime = \Carbon\Carbon::parse($ev->end)->toDateTimeLocalString();
-            $this->end_date = \Carbon\Carbon::parse($ev->end)->format('Y-m-d');
+            $this->end_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->end, 'UTC')
+                ->setTimezone(config('app.timezone'))
+                ->toDateTimeLocalString();
+            $this->end_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->end, 'UTC')
+                ->setTimezone(config('app.timezone'))
+                ->format('Y-m-d');
         } else {
-            $this->end_datetime = \Carbon\Carbon::now()->toDateTimeLocalString();
-            $this->end_date = \Carbon\Carbon::now()->format('Y-m-d');
+            $this->end_datetime = \Carbon\Carbon::now(config('app.timezone'))->toDateTimeLocalString();
+            $this->end_date = \Carbon\Carbon::now(config('app.timezone'))->format('Y-m-d');
         }
 
         $this->setWorkScheduleHint();
@@ -124,11 +132,20 @@ class EditEvent extends Component
         $this->validate();
 
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
-            $this->event->start = $this->start_date . ' 00:00:00';
-            $this->event->end = Carbon::parse($this->end_date)->addDay()->format('Y-m-d H:i:s');
+            $this->event->start = Carbon::parse($this->start_date, config('app.timezone'))
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
+            $this->event->end = Carbon::parse($this->end_date, config('app.timezone'))
+                ->addDay()
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
         } else {
-            $this->event->start = $this->start_datetime;
-            $this->event->end = $this->end_datetime;
+            $this->event->start = Carbon::parse($this->start_datetime, config('app.timezone'))
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
+            $this->event->end = Carbon::parse($this->end_datetime, config('app.timezone'))
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
         }
 
         $this->event->save();
@@ -139,7 +156,11 @@ class EditEvent extends Component
         }
 
         $this->reset(["showModalEditEvent"]);
-        $this->emit('alert', __('Event updated!'));
+        $this->dispatchBrowserEvent('swal:alert', [
+            'title' => __('Success'),
+            'text' => __('Event updated!'),
+            'icon' => 'success',
+        ]);
         $this->emitTo('get-time-registers', 'render');
         $this->emit('refreshCalendar');
     }
@@ -165,14 +186,14 @@ class EditEvent extends Component
         $this->validateOnly($propertyName);
     }
 
-    public function delete()
+    public function delete($eventId)
     {
-        if ($this->event) {
-            $this->event->delete();
+        $event = Event::find($eventId);
+        if ($event) {
+            $event->delete();
         }
 
-        $this->reset(["showModalEditEvent"]);
-        $this->emit('alert', __('Event has been removed!'));
-        $this->emit('refreshCalendar');
+        session()->flash('alert', __('Event has been removed!'));
+        return redirect()->route('calendar');
     }
 }
