@@ -4,11 +4,12 @@ namespace App\Providers;
 
 use App\Models\EventType;
 use App\Models\Team;
+use App\Models\User;
 use App\Policies\EventTypePolicy;
 use App\Policies\TeamPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use App\Models\User;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -31,12 +32,10 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('viewSecurityPanel', function (User $user) {
-            foreach ($user->allTeams() as $team) {
-                if ($user->hasTeamRole($team, 'admin') || $user->hasTeamRole($team, 'owner')) {
+        Gate::define('viewSecurityPanel', function (User $user) {            
+                if (Auth::user()->isTeamAdmin()) {
                     return true;
                 }
-            }
             return false;
         });
     }
