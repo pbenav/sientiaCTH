@@ -133,21 +133,20 @@
                 </x-jet-button>
             </div>
 
-            <!-- New Filter Buttons -->
-            <div class="flex flex-nowrap gap-2">
+            <div class="mx-auto w-48 sm:mx-0">
+                <x-jet-button class="w-48 h-8 justify-center" wire:click="$refresh">
+                    <i class="fa-solid fa-arrows-rotate mr-2"></i>{{ __('Refresh') }}
+                </x-jet-button>
+            </div>
+            @if ($isTeamAdmin)
                 <div class="mx-auto w-48 sm:mx-0">
-                    <x-jet-button class="w-48 h-8 justify-center" wire:click="$refresh">
-                        <i class="fa-solid fa-arrows-rotate mr-2"></i>{{ __('Refresh') }}
-                    </x-jet-button>
-                </div>
-                @if($isTeamAdmin)
-                <div class="mx-auto w-48 sm:mx-0">
-                    <x-jet-button class="w-48 h-8 justify-center {{ $showOnlyMine ? 'bg-green-500' : '' }}" wire:click="filterOnlyMine">
+                    <x-jet-button class="w-48 h-8 justify-center {{ $showOnlyMine ? 'bg-green-500' : '' }}"
+                        wire:click="filterOnlyMine">
                         <i class="fa-solid fa-person-military-pointing mr-2"></i>{{ __('My Records') }}
                     </x-jet-button>
                 </div>
-                @endif
-            </div>
+            @endif
+
 
             <!-- Search Input and Checkbox -->
             <div class="flex flex-nowrap">
@@ -184,39 +183,46 @@
             @if (count($events))
                 <table class="block min-w-full border-collapse md:table">
                     <thead class="block md:table-header-group">
-                        <tr class="block md:table-row">
-                            <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Id') }}</th>
+                        <tr class="md:table-row">
+                            <th class="p-1 text-center text-white bg-gray-600 table-cell w-1/12">{{ __('Id') }}
+                            </th>
 
                             @if ($isTeamAdmin || $isInspector)
-                                <th class="p-1 text-center text-white bg-gray-600 md:table-cell"
+                                <th class="min-w-50 p-1 text-center text-white bg-gray-600 table-cell w-3/12"
                                     wire:click="order('name')">
                                     {{ __('Worker') }}
                                     <i class="float-right mt-1 fas fa-sort"></i>
                                 </th>
                             @endif
 
-                            <th class="p-1 text-left text-white bg-gray-600 md:table-cell" wire:click="order('start')">
+                            <th class="min-w-50 p-1 text-left text-white bg-gray-600 table-cell w-2/12"
+                                wire:click="order('start')">
                                 {{ __('Start') }}
                                 <i class="float-right mt-1 fas fa-sort"></i>
                             </th>
 
-                            <th class="p-1 text-left text-white bg-gray-600 md:table-cell" wire:click="order('end')">
+                            <th class="min-w-50 p-1 text-left text-white bg-gray-600 table-cell w-2/12"
+                                wire:click="order('end')">
                                 {{ __('End') }}
                                 <i class="float-right mt-1 fas fa-sort"></i>
                             </th>
 
-                            <th class="p-1 text-left text-white bg-gray-600 md:table-cell"
+                            <th class="min-w-50 p-1 text-left text-white bg-gray-600 table-cell w-3/12"
                                 wire:click="order('description')">
                                 {{ __('Description') }}
                                 <i class="float-right mt-1 fas fa-sort"></i>
                             </th>
 
-                            <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Duration') }}</th>
-                            <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Authorized') }}
+                            <th class="min-w-50 p-1 text-center text-white bg-gray-600 table-cell w-1/12">{{ __('Duration') }}
+                            </th>
+
+                            <th class="p-1 text-center text-white bg-gray-600 md:table-cell md:w-1/12">
+                                {{ __('Authorized') }}
                             </th>
 
                             @if (!$isInspector || $isTeamAdmin)
-                                <th class="p-1 text-center text-white bg-gray-600 md:table-cell">{{ __('Actions') }}
+                                <th class="hidden p-1 text-center text-white bg-gray-600 md:table-cell w-1/12">
+                                    {{ __('Actions') }}
                                 </th>
                             @endif
                         </tr>
@@ -225,21 +231,25 @@
                     <tbody class="block md:table-row-group">
                         @foreach ($events as $ev)
                             <tr class="block border md:table-row">
-                                <td class="p-1 text-center md:table-cell"
+                                <td class="p-1 text-center md:table-cell w-1/12"
                                     style="background-color: {{ $ev->eventType->color ?? 'transparent' }}; color: {{ $ev->eventType && $this->isDark($ev->eventType->color) ? 'white' : 'black' }}">
                                     {{ $ev->id }}
                                 </td>
 
                                 @if ($isTeamAdmin || $isInspector)
-                                    <td class="p-1 text-left md:table-cell">
+                                    <td class="p-1 text-left md:table-cell w-3/12">
                                         {{ $ev->user->name . ' ' . $ev->user->family_name1 }}</td>
                                 @endif
 
-                                <td class="p-1 text-left md:table-cell">
-                                    {{ Carbon\Carbon::parse($ev->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}</td>
-                                <td class="p-1 text-left md:table-cell">
-                                    {{ $ev->end ? Carbon\Carbon::parse($ev->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}</td>
-                                <td class="p-1 text-left md:table-cell">
+                                <td class="p-1 text-left md:table-cell w-2/12">
+                                    {{ Carbon\Carbon::parse($ev->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}
+                                </td>
+
+                                <td class="p-1 text-left md:table-cell w-2/12">
+                                    {{ $ev->end ? Carbon\Carbon::parse($ev->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}
+                                </td>
+
+                                <td class="p-1 text-left md:table-cell w-3/12">
                                     @if ($ev->eventType)
                                         <span class="inline-block w-3 h-3 mr-2 rounded-full"
                                             style="background-color: {{ $ev->eventType->color }}"></span>
@@ -248,8 +258,10 @@
                                         {{ __($ev->description) }}
                                     @endif
                                 </td>
-                                <td class="p-1 text-center md:table-cell">{{ $ev->getPeriod() }}</td>
-                                <td class="p-1 text-center md:table-cell">
+
+                                <td class="p-1 text-center md:table-cell w-1/12">{{ $ev->getPeriod() }}</td>
+
+                                <td class="p-1 text-center md:table-cell md:w-1/12">
                                     @if ($ev->eventType && $ev->eventType->is_all_day)
                                         <input type="checkbox" wire:click="toggleAuthorization({{ $ev->id }})"
                                             @checked($ev->is_authorized) @disabled(!$isTeamAdmin) />
