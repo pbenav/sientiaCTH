@@ -20,8 +20,8 @@ php artisan view:clear
 
 # 3. Borrar y regenerar la base de datos
 # Útil para empezar de cero con la base de datos de desarrollo.
-echo "-> Reiniciando la base de datos y sembrando..."
-php artisan migrate:fresh --seed
+#echo "-> Reiniciando la base de datos y sembrando..."
+#php artisan migrate:fresh --seed
 
 # 4. Instalar las dependencias de npm
 # Esto es necesario para que los comandos de compilación funcionen.
