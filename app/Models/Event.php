@@ -37,6 +37,11 @@ class Event extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function workCenter()
+    {
+        return $this->belongsTo(WorkCenter::class);
+    }
+
     public function getPeriod()
     {
         return $this->timeDiff($this->start, $this->end, true);

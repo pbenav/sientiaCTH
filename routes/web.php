@@ -51,6 +51,8 @@ Route::middleware([
         Route::post('/meta', [UserMetaController::class, 'store'])->name('users.meta.store');
         Route::delete('/meta/{meta}', [UserMetaController::class, 'destroy'])->name('users.meta.destroy');
     });
+
+    Route::resource('work_centers', \App\Http\Controllers\WorkCenterController::class)->middleware('isTeamAdmin');
     
 });
 

@@ -155,4 +155,9 @@ class User extends Authenticatable
             ->withPivot('read_at', 'deleted_at')
             ->withTimestamps();
     }
+
+    public function workCenters()
+    {
+        return $this->belongsToMany(WorkCenter::class);
+    }
 }

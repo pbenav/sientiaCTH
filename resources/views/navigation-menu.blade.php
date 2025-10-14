@@ -27,6 +27,11 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
+                    @if(Auth::user()->isTeamAdmin())
+                        <x-jet-nav-link href="{{ route('work_centers.index') }}" :active="request()->routeIs('work_centers.index')">
+                            {{ __('Work Centers') }}
+                        </x-jet-nav-link>
+                    @endif
                 </div>
             </div>
 
