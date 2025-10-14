@@ -7,6 +7,7 @@ use App\Models\Event;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Asantibanez\LivewireCharts\Facades\LivewireCharts;
+use Carbon\Carbon;
 
 class StatsComponent extends Component
 {
@@ -25,6 +26,7 @@ class StatsComponent extends Component
     public $workers = [];
     public $displayMode = 'hours';
     public $paso;
+    public $totalDays = 0;
 
     /**
      * Mounts the component and initializes necessary data.
@@ -134,6 +136,7 @@ class StatsComponent extends Component
             $totalHours += array_sum(array_column($types, 'hours'));
         }
         $this->totalHours = round($totalHours, 2);
+        $this->totalDays = count($dailyTypeHours);
 
         // 3. Handle No Data
         if (empty($dailyTypeHours)) {
@@ -186,20 +189,9 @@ class StatsComponent extends Component
      */
     public function getDisplayTotalProperty()
     {
+        $this->getData();
         if ($this->displayMode === 'days') {
-            $query = Event::query()
-                ->where('user_id', $this->browsedUser)
-                ->where(function ($q) {
-                    $q->whereMonth('start', $this->selectedMonth)
-                      ->orWhereMonth('end', $this->selectedMonth);
-                })
-                ->whereYear('start', $this->selectedYear);
-
-            if ($this->eventTypeId) {
-                $query->where('event_type_id', $this->eventTypeId);
-            }
-
-            return $query->selectRaw('COUNT(DISTINCT DATE(start)) as unique_days')->value('unique_days');
+            return $this->totalDays;
         }
 
         return $this->totalHours;
@@ -222,27 +214,31 @@ class StatsComponent extends Component
     private function getScheduledData()
     {
         $user = User::find($this->browsedUser);
+        if (!$user || !$user->meta) {
+            return [0, 0];
+        }
+
         $scheduleMeta = $user->meta->where('meta_key', 'schedule')->first();
 
-        if (!$scheduleMeta) {
+        if (!$scheduleMeta || !$scheduleMeta->meta_value) {
             return [0, 0];
         }
 
         $schedule = json_decode($scheduleMeta->meta_value, true);
-        $totalHours = 0;
+        $totalMinutes = 0;
         $workDays = 0;
 
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
         $endDate = $startDate->copy()->endOfMonth();
 
-        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dayOfWeek = $date->format('N'); // 1 (for Monday) through 7 (for Sunday)
             $isWorkDay = false;
             foreach ($schedule as $slot) {
                 if (in_array($this->getDayInitial($dayOfWeek), $slot['days'])) {
                     $start = Carbon::parse($slot['start']);
                     $end = Carbon::parse($slot['end']);
-                    $totalHours += $end->diffInHours($start);
+                    $totalMinutes += $end->diffInMinutes($start);
                     $isWorkDay = true;
                 }
             }
@@ -251,7 +247,7 @@ class StatsComponent extends Component
             }
         }
 
-        return [$totalHours, $workDays];
+        return [round($totalMinutes / 60, 2), $workDays];
     }
 
     private function getDayInitial($dayOfWeek)
