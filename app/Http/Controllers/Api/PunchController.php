@@ -26,7 +26,7 @@ class PunchController extends Controller
             'work_center_id' => $request->work_center_id,
             'start' => $request->timestamp,
             'event_type_id' => $request->type == 'IN' ? 1 : 2,
-            'description' => $request->type == 'IN' ? 'Entrada' : 'Salida',
+            'description' => $request->type == 'IN' ? __('Check In') : __('Check Out'),
         ]);
 
         $event->save();

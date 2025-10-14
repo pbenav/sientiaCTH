@@ -157,8 +157,4 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function workCenters()
-    {
-        return $this->belongsToMany(WorkCenter::class);
-    }
 }

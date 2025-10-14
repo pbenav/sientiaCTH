@@ -26,27 +26,30 @@
             </div>
 
             @auth
-                @php
-                    $defaultWorkCenter = null;
-                    if (Auth::user() && Auth::user()->meta) {
-                        $defaultWorkCenterMeta = Auth::user()->meta->where('meta_key', 'default_work_center_id')->first();
-                        if ($defaultWorkCenterMeta && Auth::user()->currentTeam) {
-                            $defaultWorkCenter = Auth::user()->currentTeam->workCenters()->find($defaultWorkCenterMeta->meta_value);
+                <div class="mb-4 p-3 border-l-4 border-blue-400 bg-blue-50 rounded">
+                    @php
+                        $defaultWorkCenter = null;
+                        if (Auth::user() && Auth::user()->meta) {
+                            $defaultWorkCenterMeta = Auth::user()->meta->where('meta_key', 'default_work_center_id')->first();
+                            if ($defaultWorkCenterMeta && Auth::user()->currentTeam) {
+                                $defaultWorkCenter = Auth::user()->currentTeam->workCenters()->find($defaultWorkCenterMeta->meta_value);
+                            }
                         }
-                    }
-                @endphp
+                    @endphp
 
-                @if($defaultWorkCenter)
-                    <div class="mb-4 p-2 border border-blue-300 bg-blue-100 rounded">
-                        <x-jet-label value="{{ __('Default Work Center') }}" class="font-bold text-blue-600" />
-                        <p class="text-sm text-gray-700 font-bold">
-                            {{ $defaultWorkCenter->name }}
-                        </p>
-                    </div>
-                @endif
+                    @if($defaultWorkCenter)
+                        <div>
+                            <p class="font-bold text-blue-800">{{ __('Default Work Center') }}: <span class="font-medium text-gray-700">{{ $defaultWorkCenter->name }}</span></p>
+                        </div>
+                    @endif
+
+                    @if($workScheduleHint)
+                        <div>
+                            <p class="font-bold text-blue-800 mt-2">{{ __('Work Schedule Hint') }}: <span class="font-medium text-gray-700">{{ $workScheduleHint }}</span></p>
+                        </div>
+                    @endif
+                </div>
             @endauth
-
-            <div class="text-sm text-gray-500 font-bold text-blue-600 mb-4">{{ $workScheduleHint }}</div>
 
             <div class="mb-4">
                 <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />

@@ -20,11 +20,6 @@ class WorkCenter extends Model
         'country',
     ];
 
-    public function users()
-    {
-        return $this->belongsToMany(User::class);
-    }
-
     public function team()
     {
         return $this->belongsTo(Team::class);

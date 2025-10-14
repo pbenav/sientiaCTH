@@ -187,7 +187,19 @@ class StatsComponent extends Component
     public function getDisplayTotalProperty()
     {
         if ($this->displayMode === 'days') {
-            return round($this->totalHours / 24, 2);
+            $query = Event::query()
+                ->where('user_id', $this->browsedUser)
+                ->where(function ($q) {
+                    $q->whereMonth('start', $this->selectedMonth)
+                      ->orWhereMonth('end', $this->selectedMonth);
+                })
+                ->whereYear('start', $this->selectedYear);
+
+            if ($this->eventTypeId) {
+                $query->where('event_type_id', $this->eventTypeId);
+            }
+
+            return $query->selectRaw('COUNT(DISTINCT DATE(start)) as unique_days')->value('unique_days');
         }
 
         return $this->totalHours;
@@ -196,11 +208,55 @@ class StatsComponent extends Component
     public function render()
     {
         list($columnChartModel, $elapsedTime) = $this->getData();
+        list($scheduledHours, $scheduledDays) = $this->getScheduledData();
 
         return view('livewire.stats.stats')
             ->with([
                 'columnChartModel' => $columnChartModel,
                 'elapsedTime' => $elapsedTime,
+                'scheduledHours' => $scheduledHours,
+                'scheduledDays' => $scheduledDays,
             ]);
+    }
+
+    private function getScheduledData()
+    {
+        $user = User::find($this->browsedUser);
+        $scheduleMeta = $user->meta->where('meta_key', 'schedule')->first();
+
+        if (!$scheduleMeta) {
+            return [0, 0];
+        }
+
+        $schedule = json_decode($scheduleMeta->meta_value, true);
+        $totalHours = 0;
+        $workDays = 0;
+
+        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+
+        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+            $dayOfWeek = $date->format('N'); // 1 (for Monday) through 7 (for Sunday)
+            $isWorkDay = false;
+            foreach ($schedule as $slot) {
+                if (in_array($this->getDayInitial($dayOfWeek), $slot['days'])) {
+                    $start = Carbon::parse($slot['start']);
+                    $end = Carbon::parse($slot['end']);
+                    $totalHours += $end->diffInHours($start);
+                    $isWorkDay = true;
+                }
+            }
+            if ($isWorkDay) {
+                $workDays++;
+            }
+        }
+
+        return [$totalHours, $workDays];
+    }
+
+    private function getDayInitial($dayOfWeek)
+    {
+        $days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+        return $days[$dayOfWeek - 1];
     }
 }
