@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('team_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('code')->unique();
-            $table->string('address');
+            $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('postal_code')->nullable();
             $table->string('state')->nullable();

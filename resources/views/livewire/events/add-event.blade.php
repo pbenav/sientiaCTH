@@ -25,21 +25,28 @@
                 <x-jet-input-error for='event_type_id' />
             </div>
 
-            @php
-                $defaultWorkCenterMeta = auth()->user()->meta->where('meta_key', 'default_work_center_id')->first();
-                if ($defaultWorkCenterMeta) {
-                    $defaultWorkCenter = auth()->user()->currentTeam->workCenters()->find($defaultWorkCenterMeta->meta_value);
-                }
-            @endphp
+            @auth
+                @php
+                    $defaultWorkCenter = null;
+                    if (Auth::user() && Auth::user()->meta) {
+                        $defaultWorkCenterMeta = Auth::user()->meta->where('meta_key', 'default_work_center_id')->first();
+                        if ($defaultWorkCenterMeta && Auth::user()->currentTeam) {
+                            $defaultWorkCenter = Auth::user()->currentTeam->workCenters()->find($defaultWorkCenterMeta->meta_value);
+                        }
+                    }
+                @endphp
 
-            @if(isset($defaultWorkCenter))
-                <div class="mb-2">
-                    <x-jet-label value="{{ __('Default Work Center') }}" />
-                    <p class="text-sm text-gray-700">
-                        {{ $defaultWorkCenter->name }}
-                    </p>
-                </div>
-            @endif
+                @if($defaultWorkCenter)
+                    <div class="mb-4 p-2 border border-blue-300 bg-blue-100 rounded">
+                        <x-jet-label value="{{ __('Default Work Center') }}" class="font-bold text-blue-600" />
+                        <p class="text-sm text-gray-700 font-bold">
+                            {{ $defaultWorkCenter->name }}
+                        </p>
+                    </div>
+                @endif
+            @endauth
+
+            <div class="text-sm text-gray-500 font-bold text-blue-600 mb-4">{{ $workScheduleHint }}</div>
 
             <div class="mb-4">
                 <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
@@ -59,7 +66,6 @@
                     <x-jet-input-error for="end_date" />
                 </div>
             @endif
-            <div class="text-sm text-gray-500">{{ $workScheduleHint }}</div>
 
             <div class="mx-auto mb-4">
                 <x-jet-label value="{{ __('Observations') }}" />

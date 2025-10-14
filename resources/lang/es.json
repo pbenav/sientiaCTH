@@ -363,5 +363,6 @@
     "Default Work Center": "Centro de Trabajo por Defecto",
     "Select your default work center. This will be used as the default when creating new events.": "Selecciona tu centro de trabajo por defecto. Se usará como predeterminado al crear nuevos eventos.",
     "None": "Ninguno",
-    "Work Center": "Centro de Trabajo"
+    "Work Center": "Centro de Trabajo",
+    "Edit": "Editar"
 }

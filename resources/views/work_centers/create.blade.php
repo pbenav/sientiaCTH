@@ -23,27 +23,27 @@
 
                         <div class="mt-4">
                             <x-jet-label for="address" value="{{ __('Address') }}" />
-                            <x-jet-input id="address" class="block mt-1 w-full" type="text" name="address" :value="old('address')" required />
+                            <x-jet-input id="address" class="block mt-1 w-full" type="text" name="address" :value="old('address')" />
                         </div>
 
                         <div class="mt-4">
                             <x-jet-label for="city" value="{{ __('City') }}" />
-                            <x-jet-input id="city" class="block mt-1 w-full" type="text" name="city" :value="old('city')" required />
+                            <x-jet-input id="city" class="block mt-1 w-full" type="text" name="city" :value="old('city')" />
                         </div>
 
                         <div class="mt-4">
                             <x-jet-label for="postal_code" value="{{ __('Postal Code') }}" />
-                            <x-jet-input id="postal_code" class="block mt-1 w-full" type="text" name="postal_code" :value="old('postal_code')" required />
+                            <x-jet-input id="postal_code" class="block mt-1 w-full" type="text" name="postal_code" :value="old('postal_code')" />
                         </div>
 
                         <div class="mt-4">
                             <x-jet-label for="state" value="{{ __('State') }}" />
-                            <x-jet-input id="state" class="block mt-1 w-full" type="text" name="state" :value="old('state')" required />
+                            <x-jet-input id="state" class="block mt-1 w-full" type="text" name="state" :value="old('state')" />
                         </div>
 
                         <div class="mt-4">
                             <x-jet-label for="country" value="{{ __('Country') }}" />
-                            <x-jet-input id="country" class="block mt-1 w-full" type="text" name="country" :value="old('country')" required />
+                            <x-jet-input id="country" class="block mt-1 w-full" type="text" name="country" :value="old('country')" x-init="$el.value = new Intl.DisplayNames([navigator.language], { type: 'region' }).of(navigator.language.split('-')[1])" />
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
