@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // will create a team and dispatch the TeamCreated event.
         // The SeedEventTypes listener will then automatically
         // run the EventTypeSeeder for the new team.
-        // $user = User::factory()->withPersonalTeam()->create();
+        User::factory()->withPersonalTeam()->create();
 
         // Optionally, create a default event for this user.
         // Event::factory(1)->create([

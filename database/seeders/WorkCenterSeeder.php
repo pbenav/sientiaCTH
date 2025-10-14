@@ -14,13 +14,15 @@ class WorkCenterSeeder extends Seeder
      */
     public function run()
     {
-        \App\Models\WorkCenter::create([
+        $team = \App\Models\Team::first();
+
+        $team->workCenters()->create([
             'name' => 'Oficina Central',
             'code' => 'OC-001',
             'address' => 'Calle Principal 123',
         ]);
 
-        \App\Models\WorkCenter::create([
+        $team->workCenters()->create([
             'name' => 'Sede Secundaria',
             'code' => 'SS-002',
             'address' => 'Avenida Secundaria 456',

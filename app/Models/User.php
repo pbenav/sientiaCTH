@@ -131,8 +131,9 @@ class User extends Authenticatable
         );
     }
 
-    public function isTeamAdmin(){
-        return $this->hasTeamRole($this->currentTeam, 'admin');
+    public function isTeamAdmin(\App\Models\Team $team = null){
+        $team = $team ?: $this->currentTeam;
+        return $this->hasTeamRole($team, 'admin');
     }
 
     public function isInspector(){

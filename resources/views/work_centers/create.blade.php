@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create Work Center') }}
+            {{ __('Create Work Center') }} for {{ $team->name }}
         </h2>
     </x-slot>
 
@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                    <form action="{{ route('work_centers.store') }}" method="POST">
+                    <form action="{{ route('teams.work_centers.store', $team) }}" method="POST">
                         @csrf
                         <div>
                             <x-jet-label for="name" value="{{ __('Name') }}" />
