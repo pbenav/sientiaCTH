@@ -130,13 +130,36 @@ class StatsComponent extends Component
             }
         }
 
-        // Calculate total from the processed data, not the raw query
+        // Calculate total from the processed data
         $totalHours = 0;
-        foreach($dailyTypeHours as $day => $types) {
+        $dayCountsPerType = [];
+        $uniqueDays = [];
+
+        foreach ($dailyTypeHours as $day => $types) {
             $totalHours += array_sum(array_column($types, 'hours'));
+            $uniqueDays[$day] = true;
+
+            foreach ($types as $typeName => $data) {
+                if (!isset($dayCountsPerType[$typeName])) {
+                    $dayCountsPerType[$typeName] = [];
+                }
+                $dayCountsPerType[$typeName][$day] = true;
+            }
         }
+
         $this->totalHours = round($totalHours, 2);
-        $this->totalDays = count($dailyTypeHours);
+
+        if ($this->eventTypeId) {
+            $this->totalDays = count($dailyTypeHours);
+        } else {
+            $maxDays = 0;
+            foreach ($dayCountsPerType as $typeName => $days) {
+                if (count($days) > $maxDays) {
+                    $maxDays = count($days);
+                }
+            }
+            $this->totalDays = $maxDays;
+        }
 
         // 3. Handle No Data
         if (empty($dailyTypeHours)) {
@@ -225,6 +248,10 @@ class StatsComponent extends Component
         }
 
         $schedule = json_decode($scheduleMeta->meta_value, true);
+        if (empty($schedule)) {
+            return [0, 0];
+        }
+
         $totalMinutes = 0;
         $workDays = 0;
 
@@ -232,7 +259,7 @@ class StatsComponent extends Component
         $endDate = $startDate->copy()->endOfMonth();
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            $dayOfWeek = $date->format('N'); // 1 (for Monday) through 7 (for Sunday)
+            $dayOfWeek = $date->format('N');
             $isWorkDay = false;
             foreach ($schedule as $slot) {
                 if (in_array($this->getDayInitial($dayOfWeek), $slot['days'])) {
