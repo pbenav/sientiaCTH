@@ -355,5 +355,13 @@
     "Create Work Center": "Crear Centro de Trabajo",
     "Edit Work Center": "Editar Centro de Trabajo",
     "Update": "Actualizar",
-    "Address": "Dirección"
+    "Address": "Dirección",
+    "City": "Población",
+    "Postal Code": "Código Postal",
+    "State": "Provincia",
+    "Country": "País",
+    "Default Work Center": "Centro de Trabajo por Defecto",
+    "Select your default work center. This will be used as the default when creating new events.": "Selecciona tu centro de trabajo por defecto. Se usará como predeterminado al crear nuevos eventos.",
+    "None": "Ninguno",
+    "Work Center": "Centro de Trabajo"
 }

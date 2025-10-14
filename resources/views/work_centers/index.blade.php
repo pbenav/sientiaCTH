@@ -36,7 +36,7 @@
                         {{ $workCenter->code }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        {{ $workCenter->address }}
+                        {{ $workCenter->address }}, {{ $workCenter->city }}, {{ $workCenter->postal_code }}, {{ $workCenter->state }}, {{ $workCenter->country }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <a href="{{ route('work_centers.edit', $workCenter) }}" class="text-indigo-600 hover:text-indigo-900">{{ __('Edit') }}</a>

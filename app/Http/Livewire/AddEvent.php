@@ -195,8 +195,12 @@ class AddEvent extends Component
     {
         $this->validate();
 
+        $defaultWorkCenter = Auth::user()->meta->where('meta_key', 'default_work_center_id')->first();
+        $defaultWorkCenterId = $defaultWorkCenter ? $defaultWorkCenter->meta_value : null;
+
         $data = [
             'user_id' => Auth::user()->id,
+            'work_center_id' => $defaultWorkCenterId,
             'description' => $this->selectedEventType->name,
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,

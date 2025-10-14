@@ -46,9 +46,13 @@ class WorkCenterController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:work_centers,code',
             'address' => 'required|string',
+            'city' => 'required|string',
+            'postal_code' => 'required|string',
+            'state' => 'required|string',
+            'country' => 'required|string',
         ]);
 
-        $team->workCenters()->create($request->only(['name', 'code', 'address']));
+        $team->workCenters()->create($request->all());
 
         return redirect()->route('teams.show', $team);
     }
@@ -88,9 +92,13 @@ class WorkCenterController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:work_centers,code,' . $workCenter->id,
             'address' => 'required|string',
+            'city' => 'required|string',
+            'postal_code' => 'required|string',
+            'state' => 'required|string',
+            'country' => 'required|string',
         ]);
 
-        $workCenter->update($request->only(['name', 'code', 'address']));
+        $workCenter->update($request->all());
 
         return redirect()->route('teams.show', $workCenter->team);
     }
