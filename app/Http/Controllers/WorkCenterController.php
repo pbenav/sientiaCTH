@@ -45,16 +45,16 @@ class WorkCenterController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:work_centers,code',
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'postal_code' => 'required|string',
-            'state' => 'required|string',
-            'country' => 'required|string',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string',
+            'postal_code' => 'nullable|string',
+            'state' => 'nullable|string',
+            'country' => 'nullable|string',
         ]);
 
         $team->workCenters()->create($request->all());
 
-        return redirect()->route('teams.show', $team);
+        return redirect()->route('teams.show', ['team' => $team, 'tab' => 'work_centers']);
     }
 
     /**
@@ -91,16 +91,16 @@ class WorkCenterController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:work_centers,code,' . $workCenter->id,
-            'address' => 'required|string',
-            'city' => 'required|string',
-            'postal_code' => 'required|string',
-            'state' => 'required|string',
-            'country' => 'required|string',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string',
+            'postal_code' => 'nullable|string',
+            'state' => 'nullable|string',
+            'country' => 'nullable|string',
         ]);
 
         $workCenter->update($request->all());
 
-        return redirect()->route('teams.show', $workCenter->team);
+        return redirect()->route('teams.show', ['team' => $workCenter->team, 'tab' => 'work_centers']);
     }
 
     /**

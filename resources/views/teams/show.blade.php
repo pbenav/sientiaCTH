@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div x-data="{ tab: 'settings' }">
+    <div x-data="{ tab: new URLSearchParams(window.location.search).get('tab') || 'settings' }">
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
             <!-- Tab Headers -->
             <div class="mb-4 border-b border-gray-200">
