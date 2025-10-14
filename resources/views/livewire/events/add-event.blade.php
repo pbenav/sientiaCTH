@@ -25,6 +25,22 @@
                 <x-jet-input-error for='event_type_id' />
             </div>
 
+            @php
+                $defaultWorkCenterMeta = auth()->user()->meta->where('meta_key', 'default_work_center_id')->first();
+                if ($defaultWorkCenterMeta) {
+                    $defaultWorkCenter = auth()->user()->currentTeam->workCenters()->find($defaultWorkCenterMeta->meta_value);
+                }
+            @endphp
+
+            @if(isset($defaultWorkCenter))
+                <div class="mb-2">
+                    <x-jet-label value="{{ __('Default Work Center') }}" />
+                    <p class="text-sm text-gray-700">
+                        {{ $defaultWorkCenter->name }}
+                    </p>
+                </div>
+            @endif
+
             <div class="mb-4">
                 <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
                 <x-jet-input type="date" class="mr-2" wire:model.defer="start_date" />

@@ -20,12 +20,20 @@ class WorkCenterSeeder extends Seeder
             'name' => 'Oficina Central',
             'code' => 'OC-001',
             'address' => 'Calle Principal 123',
+            'city' => 'Ciudad Principal',
+            'postal_code' => '12345',
+            'state' => 'Provincia Principal',
+            'country' => 'País Principal',
         ]);
 
         $team->workCenters()->create([
             'name' => 'Sede Secundaria',
             'code' => 'SS-002',
             'address' => 'Avenida Secundaria 456',
+            'city' => 'Ciudad Secundaria',
+            'postal_code' => '67890',
+            'state' => 'Provincia Secundaria',
+            'country' => 'País Secundario',
         ]);
     }
 }

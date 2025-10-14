@@ -10,9 +10,14 @@ class WorkCenter extends Model
     use HasFactory;
 
     protected $fillable = [
+        'team_id',
         'name',
         'code',
         'address',
+        'city',
+        'postal_code',
+        'state',
+        'country',
     ];
 
     public function users()
