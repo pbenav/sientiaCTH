@@ -15,7 +15,7 @@ class WorkCenterAPIController extends Controller
 
         $decryptedCode = $encryptionService->decrypt($request->encrypted_code);
 
-        $workCenter = \App\Models\WorkCenter::where('code', $decryptedCode)->first();
+        $workCenter = auth()->user()->currentTeam->workCenters()->where('code', $decryptedCode)->first();
 
         if (!$workCenter) {
             return response()->json(['message' => 'Work center not found'], 404);
@@ -26,7 +26,7 @@ class WorkCenterAPIController extends Controller
 
     public function index()
     {
-        $workCenters = \App\Models\WorkCenter::all();
+        $workCenters = auth()->user()->currentTeam->workCenters;
 
         return response()->json($workCenters);
     }

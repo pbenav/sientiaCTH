@@ -52,7 +52,9 @@ Route::middleware([
         Route::delete('/meta/{meta}', [UserMetaController::class, 'destroy'])->name('users.meta.destroy');
     });
 
-    Route::resource('work_centers', \App\Http\Controllers\WorkCenterController::class)->middleware('isTeamAdmin');
+    Route::group(['middleware' => ['isTeamAdmin']], function () {
+        Route::resource('teams.work_centers', \App\Http\Controllers\WorkCenterController::class)->shallow();
+    });
     
 });
 

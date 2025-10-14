@@ -15,6 +15,12 @@ class PunchController extends Controller
             'type' => 'required|in:IN,OUT',
         ]);
 
+        $workCenter = auth()->user()->currentTeam->workCenters()->find($request->work_center_id);
+
+        if (!$workCenter) {
+            return response()->json(['message' => 'Invalid work center'], 422);
+        }
+
         $event = new \App\Models\Event([
             'user_id' => auth()->id(),
             'work_center_id' => $request->work_center_id,

@@ -16,7 +16,13 @@ class IsTeamAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->user()->isTeamAdmin()) {
+        $team = $request->route('team');
+
+        if (!$team && $request->route('work_center')) {
+            $team = $request->route('work_center')->team;
+        }
+
+        if (!auth()->user()->isTeamAdmin($team)) {
             abort(403);
         }
 

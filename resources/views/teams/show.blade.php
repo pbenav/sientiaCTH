@@ -24,6 +24,13 @@
                             {{ __('Tipos de evento') }}
                         </a>
                     </li>
+                    <li class="mr-2">
+                        <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
+                           :class="{ 'border-indigo-500 text-indigo-600': tab === 'work_centers', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'work_centers' }"
+                           @click.prevent="tab = 'work_centers'">
+                            {{ __('Work Centers') }}
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -50,6 +57,13 @@
                 <div x-show="tab === 'events'">
                     <div class="mt-10 sm:mt-0">
                         @livewire('teams.event-type-manager', ['team' => $team])
+                    </div>
+                </div>
+
+                <!-- Work Centers Tab -->
+                <div x-show="tab === 'work_centers'">
+                    <div class="mt-10 sm:mt-0">
+                        @include('work_centers.index', ['team' => $team, 'workCenters' => $team->workCenters])
                     </div>
                 </div>
             </div>

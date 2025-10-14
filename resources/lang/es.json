@@ -350,5 +350,10 @@
     "Select all": "Seleccionar todo",
     "Refresh": "Refrescar",
     "My Records": "Mis Registros",
-    "Show": "Mostrar"
+    "Show": "Mostrar",
+    "Work Centers": "Centros de Trabajo",
+    "Create Work Center": "Crear Centro de Trabajo",
+    "Edit Work Center": "Editar Centro de Trabajo",
+    "Update": "Actualizar",
+    "Address": "Dirección"
 }

@@ -15,6 +15,11 @@ class Team extends JetstreamTeam
     {
         return $this->hasMany(EventType::class);
     }
+
+    public function workCenters()
+    {
+        return $this->hasMany(WorkCenter::class);
+    }
     use HasFactory;
 
     /**
