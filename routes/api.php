@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('v1')->group(function () {
+    Route::post('login', [\App\Http\Controllers\Api\LoginController::class, 'login']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
+        Route::post('work_center/validate', [\App\Http\Controllers\Api\WorkCenterAPIController::class, 'validateCode']);
+        Route::post('punch', [\App\Http\Controllers\Api\PunchController::class, 'store']);
+        Route::get('admin/work_centers', [\App\Http\Controllers\Api\WorkCenterAPIController::class, 'index'])->middleware('isTeamAdmin');
+    });
 });
