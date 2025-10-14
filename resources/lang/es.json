@@ -364,5 +364,10 @@
     "Select your default work center. This will be used as the default when creating new events.": "Selecciona tu centro de trabajo por defecto. Se usará como predeterminado al crear nuevos eventos.",
     "None": "Ninguno",
     "Work Center": "Centro de Trabajo",
-    "Edit": "Editar"
+    "Edit": "Editar",
+    "Work Schedule Hint": "Tramo Horario Sugerido",
+    "Scheduled Hours": "Horas Programadas",
+    "Scheduled Days": "Días Programados",
+    "Check In": "Entrada",
+    "Check Out": "Salida"
 }

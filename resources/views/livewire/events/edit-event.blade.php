@@ -15,16 +15,19 @@
                 </div>
             </div>
 
-            @if($event->workCenter)
-                <div class="mb-4 p-2 border border-blue-300 bg-blue-100 rounded">
-                    <x-jet-label value="{{ __('Work Center') }}" class="font-bold text-blue-600" />
-                    <div class="px-3 py-2 border border-gray-300 rounded-md shadow-sm font-bold">
-                        {{ $event->workCenter->name }}
+            <div class="mb-4 p-3 border-l-4 border-blue-400 bg-blue-50 rounded">
+                @if($event->workCenter)
+                    <div>
+                        <p class="font-bold text-blue-800">{{ __('Work Center') }}: <span class="font-medium text-gray-700">{{ $event->workCenter->name }}</span></p>
                     </div>
-                </div>
-            @endif
+                @endif
 
-            <div class="text-sm text-gray-500 font-bold text-blue-600 mb-4">{{ $workScheduleHint }}</div>
+                @if($workScheduleHint)
+                    <div>
+                        <p class="font-bold text-blue-800 mt-2">{{ __('Work Schedule Hint') }}: <span class="font-medium text-gray-700">{{ $workScheduleHint }}</span></p>
+                    </div>
+                @endif
+            </div>
 
             @if (isset($event->eventType) && $event->eventType->is_all_day)
                 {{-- All-day event: show only date inputs --}}

@@ -106,6 +106,20 @@
                 </x-jet-label>
             </div>
 
+            <div class="whitespace-nowrap">
+                <x-jet-label>{{ __('Scheduled Hours') }}: </x-jet-label>
+                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $scheduledHours }}
+                    {{ __('hours') }}
+                </x-jet-label>
+            </div>
+
+            <div class="whitespace-nowrap">
+                <x-jet-label>{{ __('Scheduled Days') }}: </x-jet-label>
+                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $scheduledDays }}
+                    {{ __('days') }}
+                </x-jet-label>
+            </div>
+
             <div class="flex items-center space-x-4">
                 <x-jet-label value="{{ __('Show total in:') }}" />
                 <label class="inline-flex items-center">
