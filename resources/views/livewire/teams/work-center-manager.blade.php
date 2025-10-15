@@ -9,7 +9,15 @@
         </x-slot>
 
         <x-slot name="content">
-            <div class="space-y-6">
+            <div class="flex items-center justify-end">
+                @if (auth()->user()->ownsTeam($team) || auth()->user()->hasTeamRole($team, 'admin'))
+                    <x-jet-button wire:click="confirmWorkCenterCreation">
+                        {{ __('Create Work Center') }}
+                    </x-jet-button>
+                @endif
+            </div>
+
+            <div class="mt-6 space-y-6">
                 @foreach ($workCenters as $workCenter)
                     <div class="flex items-center justify-between">
                         <div>
@@ -36,28 +44,6 @@
             </div>
         </x-slot>
     </x-jet-action-section>
-
-    @if (auth()->user()->ownsTeam($team) || auth()->user()->hasTeamRole($team, 'admin'))
-        <x-jet-section-border />
-
-        <div class="mt-10 sm:mt-0">
-            <x-jet-action-section>
-                <x-slot name="title">
-                    {{ __('Create Work Center') }}
-                </x-slot>
-
-                <x-slot name="description">
-                    {{ __('Add a new work center to your team.') }}
-                </x-slot>
-
-                <x-slot name="content">
-                    <x-jet-button wire:click="confirmWorkCenterCreation">
-                        {{ __('Create Work Center') }}
-                    </x-jet-button>
-                </x-slot>
-            </x-jet-action-section>
-        </div>
-    @endif
 
     <!-- Create Work Center Modal -->
     <x-jet-dialog-modal wire:model="confirmingWorkCenterCreation">
