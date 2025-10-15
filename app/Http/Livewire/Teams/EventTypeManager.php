@@ -21,12 +21,14 @@ class EventTypeManager extends Component
     public $color;
     public $observations;
     public $is_all_day;
+    public $is_workday_type;
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'color' => 'required|string|max:255',
         'observations' => 'nullable|string',
         'is_all_day' => 'required|boolean',
+        'is_workday_type' => 'required|boolean',
     ];
 
     protected $validationAttributes = [
@@ -34,6 +36,7 @@ class EventTypeManager extends Component
         'color' => 'color',
         'observations' => 'observaciones',
         'is_all_day' => 'todo el día',
+        'is_workday_type' => 'tipo de jornada',
     ];
 
     public function mount($team)
@@ -79,11 +82,13 @@ class EventTypeManager extends Component
             $this->color = $eventType->color;
             $this->observations = $eventType->observations;
             $this->is_all_day = $eventType->is_all_day;
+            $this->is_workday_type = $eventType->is_workday_type;
         } else {
             $this->name = '';
             $this->color = '#000000';
             $this->observations = '';
             $this->is_all_day = false;
+            $this->is_workday_type = false;
         }
     }
 
@@ -96,7 +101,12 @@ class EventTypeManager extends Component
             'color' => $this->color,
             'observations' => $this->observations,
             'is_all_day' => $this->is_all_day,
+            'is_workday_type' => $this->is_workday_type,
         ];
+
+        if ($this->is_workday_type) {
+            $this->team->eventTypes()->where('id', '!=', $this->eventTypeId)->update(['is_workday_type' => false]);
+        }
 
         if ($this->eventTypeId) {
             $eventType = EventType::find($this->eventTypeId);

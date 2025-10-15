@@ -33,6 +33,10 @@
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('Evento diario') }}
                             </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ __('Tipo de Jornada') }}
+                            </th>
                             <th scope="col" class="relative px-6 py-3">
                                 <span class="sr-only">{{ __('Acciones') }}</span>
                             </th>
@@ -53,6 +57,13 @@
                                         <input type="checkbox"
                                             class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                             @if ($eventType->is_all_day) checked @endif onclick="return false;" />
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">
+                                        <input type="checkbox"
+                                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                            @if ($eventType->is_workday_type) checked @endif onclick="return false;" />
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -119,6 +130,11 @@
                     <x-jet-checkbox id="is_all_day" wire:model.defer="is_all_day" />
                     <x-jet-label for="is_all_day" class="ml-2" value="{{ __('Evento de día completo') }}" />
                     <x-jet-input-error for="is_all_day" class="mt-2" />
+                </div>
+                <div class="flex items-center">
+                    <x-jet-checkbox id="is_workday_type" wire:model.defer="is_workday_type" />
+                    <x-jet-label for="is_workday_type" class="ml-2" value="{{ __('Tipo de Jornada Principal') }}" />
+                    <x-jet-input-error for="is_workday_type" class="mt-2" />
                 </div>
             </div>
         </x-slot>
