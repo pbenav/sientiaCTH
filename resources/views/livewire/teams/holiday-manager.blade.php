@@ -56,13 +56,13 @@
                 </table>
             </div>
 
-            <div class="mt-6 flex items-center justify-end">
-                @if ($isTeamAdmin)
+            @if ($isTeamAdmin)
+                <div class="mt-6 flex items-center justify-end">
                     <x-jet-button wire:click="manageHoliday">
                         {{ __('Añadir Festivo') }}
                     </x-jet-button>
-                @endif
-            </div>
+                </div>
+            @endif
         </x-slot>
     </x-jet-action-section>
 
