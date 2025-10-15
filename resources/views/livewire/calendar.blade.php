@@ -32,10 +32,17 @@
                     editable: true,
                     eventDurationEditable: true,
                     selectable: true,
+                    eventAllow: function(dropInfo, draggedEvent) {
+                        // Only allow dragging user events, not holidays
+                        return draggedEvent.id.startsWith('event_');
+                    },
 
                     // Callback for clicking an event
                     eventClick: function(info) {
-                        @this.call('triggerEditModal', info.event.id);
+                        // Only allow editing user events, not holidays
+                        if (info.event.id.startsWith('event_')) {
+                            @this.call('triggerEditModal', info.event.id.replace('event_', ''));
+                        }
                     },
 
                     // Callback for clicking a date
@@ -48,6 +55,11 @@
 
                     // Callback for dragging and dropping an event
                     eventDrop: function(info) {
+                        // Only allow dropping user events, not holidays
+                        if (!info.event.id.startsWith('event_')) {
+                            info.revert();
+                            return;
+                        }
                         Swal.fire({
                             title: "{{ __('sweetalert.calendar.event_drop.title') }}",
                             text: "{{ __('sweetalert.calendar.event_drop.text') }}",
@@ -68,6 +80,11 @@
 
                     // Callback for resizing an event
                     eventResize: function(info) {
+                        // Only allow resizing user events, not holidays
+                        if (!info.event.id.startsWith('event_')) {
+                            info.revert();
+                            return;
+                        }
                         Swal.fire({
                             title: "{{ __('sweetalert.calendar.event_resize.title') }}",
                             text: "{{ __('sweetalert.calendar.event_resize.text') }}",
