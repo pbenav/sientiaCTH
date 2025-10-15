@@ -258,6 +258,22 @@ class StatsComponent extends Component
             return [0, 0];
         }
 
+        // Pre-calculate total minutes scheduled for each day of the week
+        $minutesPerDay = array_fill_keys(['L', 'M', 'X', 'J', 'V', 'S', 'D'], 0);
+        foreach ($schedule as $slot) {
+            if (empty($slot['days']) || empty($slot['start']) || empty($slot['end'])) {
+                continue;
+            }
+            $start = Carbon::parse($slot['start']);
+            $end = Carbon::parse($slot['end']);
+            $duration = $end->diffInMinutes($start);
+            foreach ($slot['days'] as $dayInitial) {
+                if (array_key_exists($dayInitial, $minutesPerDay)) {
+                    $minutesPerDay[$dayInitial] += $duration;
+                }
+            }
+        }
+
         $totalMinutes = 0;
         $workDays = 0;
 
@@ -274,17 +290,11 @@ class StatsComponent extends Component
                 continue;
             }
 
-            $dayOfWeek = $date->format('N');
-            $isWorkDay = false;
-            foreach ($schedule as $slot) {
-                if (in_array($this->getDayInitial($dayOfWeek), $slot['days'])) {
-                    $start = Carbon::parse($slot['start']);
-                    $end = Carbon::parse($slot['end']);
-                    $totalMinutes += $end->diffInMinutes($start);
-                    $isWorkDay = true;
-                }
-            }
-            if ($isWorkDay) {
+            $dayInitial = $this->getDayInitial($date->format('N'));
+            $minutesForDay = $minutesPerDay[$dayInitial];
+
+            if ($minutesForDay > 0) {
+                $totalMinutes += $minutesForDay;
                 $workDays++;
             }
         }
