@@ -260,7 +260,7 @@ class StatsComponent extends Component
 
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dayOfWeek = $date->format('N');
-            $isWorkDay = false;
+            $isWorkDay = false; // Reset for each day
             foreach ($schedule as $slot) {
                 if (in_array($this->getDayInitial($dayOfWeek), $slot['days'])) {
                     $start = Carbon::parse($slot['start']);
