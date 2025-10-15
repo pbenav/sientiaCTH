@@ -63,9 +63,7 @@
                 <!-- Work Centers Tab -->
                 <div x-show="tab === 'work_centers'">
                     <div class="mt-10 sm:mt-0">
-                        <a href="{{ route('teams.work_centers.index', $team) }}" class="text-indigo-600 hover:text-indigo-900">
-                            {{ __('Manage Work Centers') }}
-                        </a>
+                        @livewire('teams.work-center-manager', ['team' => $team])
                     </div>
                 </div>
             </div>
