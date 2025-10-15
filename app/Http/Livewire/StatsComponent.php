@@ -264,7 +264,16 @@ class StatsComponent extends Component
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
         $endDate = $startDate->copy()->endOfMonth();
 
+        $holidays = $this->actualUser->currentTeam->holidays()
+            ->whereBetween('date', [$startDate, $endDate])
+            ->pluck('date')
+            ->map(fn ($date) => $date->format('Y-m-d'));
+
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            if ($holidays->contains($date->format('Y-m-d'))) {
+                continue;
+            }
+
             $dayOfWeek = $date->format('N');
             $isWorkDay = false;
             foreach ($schedule as $slot) {
