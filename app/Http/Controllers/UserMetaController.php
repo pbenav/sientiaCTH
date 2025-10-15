@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\UserMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UserMetaController extends Controller
 {
@@ -15,6 +16,9 @@ class UserMetaController extends Controller
      */
     public function index(User $user)
     {
+        if (!(Auth::id() === $user->id || Auth::user()?->isTeamAdmin())) {
+            abort(403);
+        }
         // Se cargan todos los metadatos del usuario para mostrarlos en una vista.
         $metaData = $user->meta()->get();
 
@@ -27,6 +31,9 @@ class UserMetaController extends Controller
      */
     public function store(Request $request, User $user)
     {
+        if (!(Auth::id() === $user->id || Auth::user()?->isTeamAdmin())) {
+            abort(403);
+        }
         // 1. Validar la entrada
         $validator = Validator::make($request->all(), [
             'meta_key' => 'required|string|max:255',
@@ -52,6 +59,10 @@ class UserMetaController extends Controller
      */
     public function destroy(User $user, UserMeta $meta)
     {
+        if (!(Auth::id() === $user->id || Auth::user()?->isTeamAdmin())) {
+            abort(403);
+        }
+
         // 1. Verificar si el metadato pertenece al usuario.
         if ($meta->user_id !== $user->id) {
             return back()->with('error', 'Metadato no encontrado o no pertenece al usuario.');
