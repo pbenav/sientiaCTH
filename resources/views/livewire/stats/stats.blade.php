@@ -98,38 +98,38 @@
                 <x-jet-input-error for='eventTypeId' />
             </div>
 
-            <div class="whitespace-nowrap">
-                <x-jet-label>{{ __('Total registered in ') }}
-                    {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
-                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $this->displayTotal }}
-                    {{ __($displayMode) }}
-                </x-jet-label>
+            <div class="flex flex-row gap-2 border border-gray-300 p-2 rounded">
+                <div class="whitespace-nowrap">
+                    <x-jet-label>{{ __('Total registered in ') }}
+                        {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
+                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $this->displayTotal }}
+                    </x-jet-label>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="inline-flex items-center">
+                        <input type="radio" class="form-radio" wire:model.live="displayMode" value="hours">
+                        <span class="ml-2">{{ __('Hours') }}</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" class="form-radio" wire:model.live="displayMode" value="days">
+                        <span class="ml-2">{{ __('Days') }}</span>
+                    </label>
+                </div>
             </div>
 
-            <div class="whitespace-nowrap">
-                <x-jet-label>{{ __('Scheduled Hours') }}: </x-jet-label>
-                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $scheduledHours }}
-                    {{ __('hours') }}
-                </x-jet-label>
-            </div>
-
-            <div class="whitespace-nowrap">
-                <x-jet-label>{{ __('Scheduled Days') }}: </x-jet-label>
-                <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $scheduledDays }}
-                    {{ __('days') }}
-                </x-jet-label>
-            </div>
-
-            <div class="flex items-center space-x-4">
-                <x-jet-label value="{{ __('Show total in:') }}" />
-                <label class="inline-flex items-center">
-                    <input type="radio" class="form-radio" wire:model.live="displayMode" value="hours">
-                    <span class="ml-2">{{ __('Hours') }}</span>
-                </label>
-                <label class="inline-flex items-center">
-                    <input type="radio" class="form-radio" wire:model.live="displayMode" value="days">
-                    <span class="ml-2">{{ __('Days') }}</span>
-                </label>
+            <div class="flex flex-row gap-2 border border-gray-300 p-2 rounded">
+                <div class="whitespace-nowrap">
+                    <x-jet-label>{{ __('Scheduled Hours') }}: </x-jet-label>
+                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $scheduledHours }}
+                        {{ __('hours') }}
+                    </x-jet-label>
+                </div>
+                <div class="whitespace-nowrap">
+                    <x-jet-label>{{ __('Scheduled Days') }}: </x-jet-label>
+                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $scheduledDays }}
+                        {{ __('days') }}
+                    </x-jet-label>
+                </div>
             </div>
         </div>
 
