@@ -83,7 +83,7 @@ class EditEvent extends Component
      */
     public function edit(Event $ev)
     {
-        $this->event = $ev;
+        $this->event = $ev->load('workCenter');
         $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
 
