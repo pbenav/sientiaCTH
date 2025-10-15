@@ -16,10 +16,8 @@ class WorkCenterController extends Controller
      */
     public function index(Team $team)
     {
-        // This view will be integrated into the team settings page.
-        // We pass the team and its work centers to the view.
         $workCenters = $team->workCenters;
-        return view('teams.show', compact('team', 'workCenters'));
+        return view('work_centers.index', compact('team', 'workCenters'));
     }
 
     /**

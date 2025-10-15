@@ -63,7 +63,9 @@
                 <!-- Work Centers Tab -->
                 <div x-show="tab === 'work_centers'">
                     <div class="mt-10 sm:mt-0">
-                        @include('work_centers.index', ['team' => $team, 'workCenters' => $team->workCenters])
+                        <a href="{{ route('teams.work_centers.index', $team) }}" class="text-indigo-600 hover:text-indigo-900">
+                            {{ __('Manage Work Centers') }}
+                        </a>
                     </div>
                 </div>
             </div>

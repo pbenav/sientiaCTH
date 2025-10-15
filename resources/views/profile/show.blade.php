@@ -75,6 +75,12 @@
                 <!-- Preferences Tab -->
                 <div x-show="tab === 'preferences'">
                     <div class="mt-10 sm:mt-0">
+                        @livewire('update-default-work-center-form')
+                    </div>
+
+                    <x-jet-section-border />
+
+                    <div class="mt-10 sm:mt-0">
                         @livewire('profile.user-work-schedule-form', ['user' => Auth::user()])
                     </div>
 
@@ -82,12 +88,6 @@
 
                     <div class="mt-10 sm:mt-0">
                         @livewire('profile.update-notification-preferences-form')
-                    </div>
-
-                    <x-jet-section-border />
-
-                    <div class="mt-10 sm:mt-0">
-                        @livewire('update-default-work-center-form')
                     </div>
                 </div>
 

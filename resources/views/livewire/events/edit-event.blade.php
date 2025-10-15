@@ -8,13 +8,6 @@
         </x-slot>
 
         <x-slot name='content'>
-            <div class="mb-4">
-                <x-jet-label value="{{ __('Event Type') }}" />
-                <div class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                    {{ $event->eventType->name ?? '' }}
-                </div>
-            </div>
-
             <div class="mb-4 p-3 border-l-4 border-blue-400 bg-blue-50 rounded">
                 @if($event->workCenter)
                     <div>
@@ -27,6 +20,12 @@
                         <p class="font-bold text-blue-800 mt-2">{{ __('Work Schedule Hint') }}: <span class="font-medium text-gray-700">{{ $workScheduleHint }}</span></p>
                     </div>
                 @endif
+            </div>
+            <div class="mb-4">
+                <x-jet-label value="{{ __('Event Type') }}" />
+                <div class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                    {{ $event->eventType->name ?? '' }}
+                </div>
             </div>
 
             @if (isset($event->eventType) && $event->eventType->is_all_day)
