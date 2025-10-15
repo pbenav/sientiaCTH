@@ -35,7 +35,7 @@
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Tipo de Jornada') }}
+                                {{ __('Tipo de Jornada Principal') }}
                             </th>
                             <th scope="col" class="relative px-6 py-3">
                                 <span class="sr-only">{{ __('Acciones') }}</span>
