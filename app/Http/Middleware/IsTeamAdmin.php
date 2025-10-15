@@ -22,7 +22,7 @@ class IsTeamAdmin
             $team = $request->route('work_center')->team;
         }
 
-        if (!auth()->user()->isTeamAdmin($team)) {
+        if (!auth()->user()->ownsTeam($team) && !auth()->user()->hasTeamRole($team, 'admin')) {
             abort(403);
         }
 
