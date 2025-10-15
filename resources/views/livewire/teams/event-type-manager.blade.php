@@ -60,30 +60,16 @@
                     </tbody>
                 </table>
             </div>
-        </x-slot>
-    </x-jet-action-section>
 
-    @if ($isTeamAdmin)
-        <x-jet-section-border />
-
-        <div class="mt-10 sm:mt-0">
-            <x-jet-action-section>
-                <x-slot name="title">
-                    {{ __('Añadir tipo de evento') }}
-                </x-slot>
-
-                <x-slot name="description">
-                    {{ __('Añade un nuevo tipo de evento a tu equipo.') }}
-                </x-slot>
-
-                <x-slot name="content">
+            <div class="mt-6 flex items-center justify-end">
+                @if ($isTeamAdmin)
                     <x-jet-button wire:click="manageEventType">
                         {{ __('Añadir tipo de evento') }}
                     </x-jet-button>
-                </x-slot>
-            </x-jet-action-section>
-        </div>
-    @endif
+                @endif
+            </div>
+        </x-slot>
+    </x-jet-action-section>
 
     <!-- Delete Event Type Confirmation Modal -->
     <x-jet-confirmation-modal wire:model="confirmingEventTypeDeletion">
