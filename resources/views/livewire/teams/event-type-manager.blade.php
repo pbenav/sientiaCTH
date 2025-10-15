@@ -9,6 +9,14 @@
         </x-slot>
 
         <x-slot name="content">
+            <div class="flex items-center justify-end">
+                @if ($isTeamAdmin)
+                    <x-jet-button wire:click="manageEventType">
+                        {{ __('Añadir tipo de evento') }}
+                    </x-jet-button>
+                @endif
+            </div>
+
             <div class="mt-6">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -59,14 +67,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
-
-            <div class="mt-6 flex items-center justify-end">
-                @if ($isTeamAdmin)
-                    <x-jet-button wire:click="manageEventType">
-                        {{ __('Añadir tipo de evento') }}
-                    </x-jet-button>
-                @endif
             </div>
         </x-slot>
     </x-jet-action-section>

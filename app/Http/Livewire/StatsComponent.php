@@ -241,7 +241,7 @@ class StatsComponent extends Component
             return [0, 0];
         }
 
-        $scheduleMeta = $user->meta->where('meta_key', 'schedule')->first();
+        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
 
         if (!$scheduleMeta || !$scheduleMeta->meta_value) {
             return [0, 0];
