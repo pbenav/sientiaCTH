@@ -31,6 +31,13 @@
                             {{ __('Work Centers') }}
                         </a>
                     </li>
+                    <li class="mr-2">
+                        <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
+                           :class="{ 'border-indigo-500 text-indigo-600': tab === 'holidays', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'holidays' }"
+                           @click.prevent="tab = 'holidays'">
+                            {{ __('Días Festivos') }}
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -64,6 +71,13 @@
                 <div x-show="tab === 'work_centers'">
                     <div class="mt-10 sm:mt-0">
                         @livewire('teams.work-center-manager', ['team' => $team])
+                    </div>
+                </div>
+
+                <!-- Holidays Tab -->
+                <div x-show="tab === 'holidays'">
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.holiday-manager', ['team' => $team])
                     </div>
                 </div>
             </div>

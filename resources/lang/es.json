@@ -373,5 +373,12 @@
     "Manage Work Centers": "Gestionar Centros de Trabajo",
     "Manage the work centers associated with this team.": "Gestiona los centros de trabajo asociados a este equipo.",
     "Tipo de Jornada": "Principal",
-    "Tipo de Jornada Principal": "Principal"
+    "Tipo de Jornada Principal": "Principal",
+    "Días Festivos": "Días Festivos",
+    "Gestiona los días festivos de tu equipo.": "Gestiona los días festivos de tu equipo.",
+    "Añadir Festivo": "Añadir Festivo",
+    "Editar Festivo": "Editar Festivo",
+    "Eliminar Festivo": "Eliminar Festivo",
+    "¿Estás seguro de que quieres eliminar este día festivo?": "¿Estás seguro de que quieres eliminar este día festivo?",
+    "Fecha": "Fecha"
 }
