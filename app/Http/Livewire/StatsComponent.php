@@ -135,8 +135,14 @@ class StatsComponent extends Component
         $dayCountsPerType = [];
         $uniqueDays = [];
 
+        $workdayEventType = $this->actualUser->currentTeam->eventTypes()->where('is_workday_type', true)->first();
+
         foreach ($dailyTypeHours as $day => $types) {
-            $totalHours += array_sum(array_column($types, 'hours'));
+            if ($workdayEventType) {
+                if (isset($types[$workdayEventType->name])) {
+                    $totalHours += $types[$workdayEventType->name]['hours'];
+                }
+            }
             $uniqueDays[$day] = true;
 
             foreach ($types as $typeName => $data) {
@@ -241,7 +247,7 @@ class StatsComponent extends Component
             return [0, 0];
         }
 
-        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+        $scheduleMeta = $user->meta->where('meta_key', 'schedule')->first();
 
         if (!$scheduleMeta || !$scheduleMeta->meta_value) {
             return [0, 0];
