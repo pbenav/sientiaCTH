@@ -35,15 +35,29 @@
                 {{ $workCenters->links() }}
             </div>
         </x-slot>
-
-        @if (auth()->user()->ownsTeam($team) || auth()->user()->hasTeamRole($team, 'admin'))
-            <x-slot name="actions">
-                <x-jet-button wire:click="confirmWorkCenterCreation">
-                    {{ __('Create Work Center') }}
-                </x-jet-button>
-            </x-slot>
-        @endif
     </x-jet-action-section>
+
+    @if (auth()->user()->ownsTeam($team) || auth()->user()->hasTeamRole($team, 'admin'))
+        <x-jet-section-border />
+
+        <div class="mt-10 sm:mt-0">
+            <x-jet-action-section>
+                <x-slot name="title">
+                    {{ __('Create Work Center') }}
+                </x-slot>
+
+                <x-slot name="description">
+                    {{ __('Add a new work center to your team.') }}
+                </x-slot>
+
+                <x-slot name="content">
+                    <x-jet-button wire:click="confirmWorkCenterCreation">
+                        {{ __('Create Work Center') }}
+                    </x-jet-button>
+                </x-slot>
+            </x-jet-action-section>
+        </div>
+    @endif
 
     <!-- Create Work Center Modal -->
     <x-jet-dialog-modal wire:model="confirmingWorkCenterCreation">
