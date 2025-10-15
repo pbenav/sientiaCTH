@@ -12,10 +12,12 @@ class EventType extends Model
         'team_id',
         'color',
         'is_all_day',
+        'is_workday_type',
     ];
 
     protected $casts = [
         'is_all_day' => 'boolean',
+        'is_workday_type' => 'boolean',
     ];
 
     /**
