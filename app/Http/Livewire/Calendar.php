@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Event;
+use App\Models\Holiday;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -66,7 +67,10 @@ class Calendar extends Component
             return [];
         }
 
-        $events = Event::with('eventType')
+        $events = collect();
+
+        // Get user events
+        $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
             ->whereHas('eventType', function ($query) use ($user) {
                 $query->where('team_id', $user->currentTeam->id);
@@ -78,9 +82,9 @@ class Calendar extends Component
                     : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
 
                 return [
-                    'id' => $event->id,
-                    'title' => $event->description, // El título ahora es solo el texto
-                    'iconHtml' => $iconHtml,       // El icono se pasa en una nueva propiedad
+                    'id' => 'event_' . $event->id,
+                    'title' => $event->description,
+                    'iconHtml' => $iconHtml,
                     'start' => Carbon::parse($event->start, 'UTC')->toIso8601String(),
                     'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
@@ -88,6 +92,21 @@ class Calendar extends Component
                 ];
             });
 
-        return $events;
+        // Get team holidays
+        $holidays = Holiday::where('team_id', $user->currentTeam->id)
+            ->get()
+            ->map(function ($holiday) {
+                return [
+                    'id' => 'holiday_' . $holiday->id,
+                    'title' => $holiday->name,
+                    'iconHtml' => '<i class="ml-1 mr-2 fa-solid fa-calendar-day" style="color: #ff6b35;"></i>',
+                    'start' => $holiday->date->format('Y-m-d'),
+                    'end' => $holiday->date->format('Y-m-d'),
+                    'color' => '#ff6b35',
+                    'allDay' => true,
+                ];
+            });
+
+        return $events->merge($holidays);
     }
 }
