@@ -21,6 +21,7 @@ class LoginSecurityService
     public function check(Request $request)
     {
         $ip = $request->ip();
+        $code = (string) ($request->input('user_code') ?? '');
 
         $lastAttempt = FailedLoginAttempt::where('ip_address', $ip)->latest('timestamp')->first();
 
@@ -29,6 +30,17 @@ class LoginSecurityService
             throw ValidationException::withMessages([
                 'email' => [trans('auth.throttle', ['seconds' => $remaining])],
             ])->status(429);
+        }
+
+        // Simple per-code throttle key to slow enumeration of codes
+        if ($code !== '') {
+            $codeKey = 'login-code-attempts:' . sha1($code);
+            $codeAttempts = Cache::get($codeKey, 0);
+            if ($codeAttempts > 10) {
+                throw ValidationException::withMessages([
+                    'user_code' => [__('Too many attempts for this code. Try again later.')],
+                ])->status(429);
+            }
         }
     }
 
@@ -41,12 +53,19 @@ class LoginSecurityService
     public function logFailedAttempt(Request $request)
     {
         $ip = $request->ip();
+        $code = (string) ($request->input('user_code') ?? '');
         $cacheKey = 'login-attempts:' . $ip;
 
         $attempts = Cache::get($cacheKey, 0);
         $attempts++;
 
         Cache::put($cacheKey, $attempts, config('security.login_delay.base') * config('security.login_delay.factor') * $attempts);
+
+        if ($code !== '') {
+            $codeKey = 'login-code-attempts:' . sha1($code);
+            $codeAttempts = Cache::get($codeKey, 0) + 1;
+            Cache::put($codeKey, $codeAttempts, 15 * 60); // 15 minutes window
+        }
 
         if ($attempts > config('security.login_delay.max_attempts_before_hard_lock')) {
             $lockoutTime = config('security.login_delay.hard_lock_duration_in_hours') * 3600;
@@ -59,5 +78,18 @@ class LoginSecurityService
             'timestamp' => Carbon::now(),
             'lockout_time' => $lockoutTime,
         ]);
+    }
+
+    /**
+     * Clear per-code attempts on successful login.
+     */
+    public function clearAttemptsOnSuccess(Request $request): void
+    {
+        $ip = $request->ip();
+        $code = (string) ($request->input('user_code') ?? '');
+        Cache::forget('login-attempts:' . $ip);
+        if ($code !== '') {
+            Cache::forget('login-code-attempts:' . sha1($code));
+        }
     }
 }

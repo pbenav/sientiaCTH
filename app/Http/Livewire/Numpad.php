@@ -42,6 +42,9 @@ class Numpad extends Component
             return;
         }
 
+        // Ensure the code is available on the request for throttling keys
+        $request->merge(['user_code' => $this->user_code]);
+
         $user = $this->findUserByCode($this->user_code);
 
         if (!$user) {
@@ -51,6 +54,7 @@ class Numpad extends Component
         }
 
         Auth::loginUsingId($user->id);
+        $loginSecurityService->clearAttemptsOnSuccess($request);
 
         if (is_null($user->current_team_id)) {
             $user->switchTeam($user->personalTeam());

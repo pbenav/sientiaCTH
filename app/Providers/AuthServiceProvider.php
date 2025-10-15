@@ -35,11 +35,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('viewSecurityPanel', function (User $user) {            
-                if (Auth::user()->isTeamAdmin()) {
-                    return true;
-                }
-            return false;
+        Gate::define('viewSecurityPanel', function (User $user) {
+            return $user->isTeamAdmin();
         });
     }
 }

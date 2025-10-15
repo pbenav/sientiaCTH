@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\EventType;
 
 class PunchController extends Controller
 {
@@ -21,11 +22,16 @@ class PunchController extends Controller
             return response()->json(['message' => 'Invalid work center'], 422);
         }
 
+        $workEventType = auth()->user()->currentTeam
+            ->eventTypes()
+            ->where('is_workday_type', true)
+            ->first();
+
         $event = new \App\Models\Event([
             'user_id' => auth()->id(),
             'work_center_id' => $request->work_center_id,
             'start' => $request->timestamp,
-            'event_type_id' => $request->type == 'IN' ? 1 : 2,
+            'event_type_id' => optional($workEventType)->id,
             'description' => $request->type == 'IN' ? __('Check In') : __('Check Out'),
         ]);
 

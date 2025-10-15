@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class WorkCenterAPIController extends Controller
 {
@@ -13,7 +14,11 @@ class WorkCenterAPIController extends Controller
             'encrypted_code' => 'required',
         ]);
 
-        $decryptedCode = $encryptionService->decrypt($request->encrypted_code);
+        try {
+            $decryptedCode = $encryptionService->decrypt($request->encrypted_code);
+        } catch (DecryptException $e) {
+            return response()->json(['message' => 'Invalid code format'], 422);
+        }
 
         $workCenter = auth()->user()->currentTeam->workCenters()->where('code', $decryptedCode)->first();
 
