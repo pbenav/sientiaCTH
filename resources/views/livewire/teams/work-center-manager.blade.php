@@ -18,7 +18,7 @@
 
                         <div class="flex items-center">
                             @if (auth()->user()->ownsTeam($team) || auth()->user()->hasTeamRole($team, 'admin'))
-                                <button class="cursor-pointer ml-6 text-sm text-gray-400 focus:outline-none" wire:click="confirmWorkCenterUpdate({{ $workCenter->id }})">
+                                <button class="cursor-pointer ml-6 text-sm text-indigo-600 hover:text-indigo-900 focus:outline-none" wire:click="confirmWorkCenterUpdate({{ $workCenter->id }})">
                                     {{ __('Edit') }}
                                 </button>
 
