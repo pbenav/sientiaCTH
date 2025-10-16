@@ -380,5 +380,16 @@
     "Editar Festivo": "Editar Festivo",
     "Eliminar Festivo": "Eliminar Festivo",
     "¿Estás seguro de que quieres eliminar este día festivo?": "¿Estás seguro de que quieres eliminar este día festivo?",
-    "Fecha": "Fecha"
+    "Fecha": "Fecha",
+    "Chart": "Gráfico",
+    "Registered Hours": "Horas Registradas",
+    "Workday Completion": "Cumplimiento de Jornada",
+    "Punctuality": "Puntualidad",
+    "Extra Hours": "Horas Extra",
+    "Absenteeism (days)": "Absentismo (días)",
+    "Not enough data to build dashboard.": "No hay datos suficientes para construir el cuadro de mando.",
+    "Events for selected day": "Eventos del día seleccionado",
+    "Start Time": "Hora de Inicio",
+    "End Time": "Hora de Fin",
+    "No events for this day.": "No hay eventos para este día."
 }
