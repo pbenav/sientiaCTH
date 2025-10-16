@@ -98,23 +98,37 @@
                 <x-jet-input-error for='eventTypeId' />
             </div>
 
-            <div class="border border-gray-300 p-2 rounded">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="whitespace-nowrap">
-                        <x-jet-label>{{ __('Registered Hours') }}: </x-jet-label>
-                        <x-jet-label class="px-2 pt-1 w-full h-8 text-black form-control">{{ $totalHours }} {{ __('hours') }}</x-jet-label>
+            <div class="border border-gray-300 p-4 rounded flex flex-col md:flex-row gap-4 justify-around">
+                <!-- Registered Totals -->
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ __('Registered') }}</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <x-jet-label class="text-center">{{ __('Hours') }}</x-jet-label>
+                            <div class="p-2 bg-gray-100 rounded text-center">{{ $totalHours }}</div>
+                        </div>
+                        <div>
+                            <x-jet-label class="text-center">{{ __('Days') }}</x-jet-label>
+                            <div class="p-2 bg-gray-100 rounded text-center">{{ $totalDays }}</div>
+                        </div>
                     </div>
-                    <div class="whitespace-nowrap">
-                        <x-jet-label>{{ __('Registered Days') }}: </x-jet-label>
-                        <x-jet-label class="px-2 pt-1 w-full h-8 text-black form-control">{{ $totalDays }} {{ __('days') }}</x-jet-label>
-                    </div>
-                    <div class="whitespace-nowrap">
-                        <x-jet-label>{{ __('Scheduled Hours') }}: </x-jet-label>
-                        <x-jet-label class="px-2 pt-1 w-full h-8 text-black form-control">{{ $scheduledHours }} {{ __('hours') }}</x-jet-label>
-                    </div>
-                    <div class="whitespace-nowrap">
-                        <x-jet-label>{{ __('Scheduled Days') }}: </x-jet-label>
-                        <x-jet-label class="px-2 pt-1 w-full h-8 text-black form-control">{{ $scheduledDays }} {{ __('days') }}</x-jet-label>
+                </div>
+
+                <!-- Divider -->
+                <div class="hidden md:block border-l border-gray-300 mx-4"></div>
+
+                <!-- Scheduled Totals -->
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ __('Scheduled') }}</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <x-jet-label class="text-center">{{ __('Hours') }}</x-jet-label>
+                            <div class="p-2 bg-gray-100 rounded text-center">{{ $scheduledHours }}</div>
+                        </div>
+                        <div>
+                            <x-jet-label class="text-center">{{ __('Days') }}</x-jet-label>
+                            <div class="p-2 bg-gray-100 rounded text-center">{{ $scheduledDays }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
