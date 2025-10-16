@@ -135,40 +135,29 @@
         </div>
 
         <!-- Dashboard Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column (Chart) -->
-            <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-lg h-96">
-                @if($hasData)
-                    <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
-                @else
-                    <div class="flex justify-center items-center h-full">
-                        <p class="text-lg text-gray-500">{{ __('No events found for the selected filter.') }}</p>
+        <div class="flex flex-col gap-6">
+            <!-- Top Row: Completion -->
+            <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Completion') }}</h3>
+                <div class="relative w-40 h-40">
+                    <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <path class="text-gray-200" stroke-width="3" fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="text-green-500" stroke-width="3" fill="none"
+                            stroke-dasharray="{{ $dashboardData['percentage_completion'] ?? 0 }}, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-3xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</span>
                     </div>
-                @endif
+                </div>
+                <p class="mt-4 text-sm text-gray-600">
+                    {{ round($dashboardData['registered_hours'] ?? 0, 2) }} / {{ round($dashboardData['effective_scheduled_hours'] ?? 0, 2) }} {{ __('hours') }}
+                </p>
             </div>
 
-            <!-- Right Column (Metrics) -->
-            <div class="space-y-6">
-                <!-- Workday Completion Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Completion') }}</h3>
-                    <div class="relative w-40 h-40">
-                        <svg class="w-full h-full" viewBox="0 0 36 36">
-                            <path class="text-gray-200" stroke-width="3" fill="none"
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path class="text-green-500" stroke-width="3" fill="none"
-                                stroke-dasharray="{{ $dashboardData['percentage_completion'] ?? 0 }}, 100"
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-3xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</span>
-                        </div>
-                    </div>
-                    <p class="mt-4 text-sm text-gray-600">
-                        {{ round($dashboardData['registered_hours'] ?? 0, 2) }} / {{ round($dashboardData['effective_scheduled_hours'] ?? 0, 2) }} {{ __('hours') }}
-                    </p>
-                </div>
-
+            <!-- Middle Row: KPIs -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Punctuality Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <div class="flex items-center">
@@ -207,6 +196,29 @@
                         </div>
                     </div>
                 </div>
+                 <!-- Registered Days Card -->
+                 <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Registered Days') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $totalDays }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Chart -->
+            <div class="bg-white p-6 rounded-lg shadow-lg h-96">
+                @if($hasData)
+                    <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
+                @else
+                    <div class="flex justify-center items-center h-full">
+                        <p class="text-lg text-gray-500">{{ __('No events found for the selected filter.') }}</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
