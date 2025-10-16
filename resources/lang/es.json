@@ -383,5 +383,7 @@
     "Fecha": "Fecha",
     "Chart": "Gráfico",
     "Registered Hours": "Horas Registradas",
-    "Registered Days": "Días Registrados"
+    "Registered Days": "Días Registrados",
+    "Registered": "Registrado",
+    "Scheduled": "Programado"
 }
