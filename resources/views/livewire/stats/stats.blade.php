@@ -135,68 +135,9 @@
         </div>
 
         <!-- Dashboard Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Workday Completion Card -->
-            <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Completion') }}</h3>
-                <div class="relative w-40 h-40">
-                    <svg class="w-full h-full" viewBox="0 0 36 36">
-                        <path class="text-gray-200" stroke-width="3" fill="none"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="text-green-500" stroke-width="3" fill="none"
-                            stroke-dasharray="{{ $dashboardData['percentage_completion'] ?? 0 }}, 100"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-3xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</span>
-                    </div>
-                </div>
-                <p class="mt-4 text-sm text-gray-600">
-                    {{ round($dashboardData['registered_hours'] ?? 0, 2) }} / {{ round($dashboardData['effective_scheduled_hours'] ?? 0, 2) }} {{ __('hours') }}
-                </p>
-            </div>
-
-            <!-- Punctuality Card -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <div class="flex items-center">
-                    <div class="bg-blue-500 p-3 rounded-full text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">{{ __('Punctuality') }}</h3>
-                        <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality'] ?? '0' }}%</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Extra Hours Card -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <div class="flex items-center">
-                    <div class="bg-green-500 p-3 rounded-full text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }}</h3>
-                        <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['extra_hours'] ?? '0' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Absenteeism Card -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <div class="flex items-center">
-                    <div class="bg-red-500 p-3 rounded-full text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">{{ __('Absenteeism (days)') }}</h3>
-                        <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chart Card -->
-            <div class="md:col-span-2 lg:col-span-4 bg-white p-6 rounded-lg shadow-lg h-96">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column (Chart) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-lg h-96">
                 @if($hasData)
                     <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
                 @else
@@ -204,6 +145,68 @@
                         <p class="text-lg text-gray-500">{{ __('No events found for the selected filter.') }}</p>
                     </div>
                 @endif
+            </div>
+
+            <!-- Right Column (Metrics) -->
+            <div class="space-y-6">
+                <!-- Workday Completion Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Completion') }}</h3>
+                    <div class="relative w-40 h-40">
+                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                            <path class="text-gray-200" stroke-width="3" fill="none"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="text-green-500" stroke-width="3" fill="none"
+                                stroke-dasharray="{{ $dashboardData['percentage_completion'] ?? 0 }}, 100"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-3xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</span>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-sm text-gray-600">
+                        {{ round($dashboardData['registered_hours'] ?? 0, 2) }} / {{ round($dashboardData['effective_scheduled_hours'] ?? 0, 2) }} {{ __('hours') }}
+                    </p>
+                </div>
+
+                <!-- Punctuality Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-blue-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Punctuality') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality'] ?? '0' }}%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extra Hours Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-green-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['extra_hours'] ?? '0' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Absenteeism Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-red-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Absenteeism (days)') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
