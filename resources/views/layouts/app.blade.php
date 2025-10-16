@@ -58,6 +58,7 @@
     @stack('modals')
 
     @livewireScripts
+    @livewireChartsScripts
 
     <!-- Tag to include scripts pushed from components with push -->
     @stack('scripts')
