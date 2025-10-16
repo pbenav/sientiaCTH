@@ -134,8 +134,69 @@
             </div>
         </div>
 
-        <div class="">
-            <div class="p-4 w-auto h-96 bg-white rounded border shadow">
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Workday Completion Card -->
+            <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Completion') }}</h3>
+                <div class="relative w-40 h-40">
+                    <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <path class="text-gray-200" stroke-width="3" fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="text-green-500" stroke-width="3" fill="none"
+                            stroke-dasharray="{{ $dashboardData['percentage_completion'] ?? 0 }}, 100"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-3xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</span>
+                    </div>
+                </div>
+                <p class="mt-4 text-sm text-gray-600">
+                    {{ round($dashboardData['registered_hours'] ?? 0, 2) }} / {{ round($dashboardData['effective_scheduled_hours'] ?? 0, 2) }} {{ __('hours') }}
+                </p>
+            </div>
+
+            <!-- Punctuality Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="bg-blue-500 p-3 rounded-full text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">{{ __('Punctuality') }}</h3>
+                        <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality'] ?? '0' }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extra Hours Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="bg-green-500 p-3 rounded-full text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }}</h3>
+                        <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['extra_hours'] ?? '0' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Absenteeism Card -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center">
+                    <div class="bg-red-500 p-3 rounded-full text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">{{ __('Absenteeism (days)') }}</h3>
+                        <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Card -->
+            <div class="md:col-span-2 lg:col-span-4 bg-white p-6 rounded-lg shadow-lg h-96">
                 @if($hasData)
                     <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
                 @else
@@ -150,6 +211,57 @@
     <x-slot name="footer">
         <div class="text-tiny">{{ __('Query run time: ') }} {{ $elapsedTime }} {{ __('miliseconds') }}</div>
     </x-slot>
+
+    <!-- Alpine Modal -->
+    <div x-data="{ showModal: false, events: [] }" x-on:open-events-modal.window="events = $event.detail.events; showModal = true"
+        x-show="showModal" style="display: none;"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden">
+        <div x-show="showModal" class="fixed inset-0 transform" x-on:click="showModal = false">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <div x-show="showModal"
+            class="bg-white rounded-lg shadow-xl transform sm:w-full sm:max-w-2xl">
+            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    {{ __('Events for selected day') }}
+                </h3>
+                <div class="mt-4 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Event Type') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Description') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Start Time') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('End Time') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="event in events" :key="event.id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="event.event_type ? event.event_type.name : 'N/A'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="event.description"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
+                                </tr>
+                            </template>
+                            <template x-if="events.length === 0">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-sm text-center text-gray-500">{{ __('No events for this day.') }}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" @click="showModal = false"
+                    class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    {{ __('Close') }}
+                </button>
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
     @livewireChartsScripts
