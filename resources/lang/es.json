@@ -385,5 +385,13 @@
     "Registered Hours": "Horas Registradas",
     "Registered Days": "Días Registrados",
     "Registered": "Registrado",
-    "Scheduled": "Programado"
+    "Scheduled": "Programado",
+    "Workday Completion": "Cumplimiento de Jornada",
+    "Punctuality": "Puntualidad",
+    "Extra Hours": "Horas Extra",
+    "Absenteeism (days)": "Absentismo (días)",
+    "Events for selected day": "Eventos del día seleccionado",
+    "Start Time": "Hora de Inicio",
+    "End Time": "Hora de Fin",
+    "No events for this day.": "No hay eventos para este día."
 }
