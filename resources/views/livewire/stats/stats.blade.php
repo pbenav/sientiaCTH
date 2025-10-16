@@ -100,16 +100,20 @@
 
             <div class="flex flex-row gap-2 border border-gray-300 p-2 rounded">
                 <div class="whitespace-nowrap">
-                    <x-jet-label>{{ __('Registered Hours') }}: </x-jet-label>
-                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalHours }}
-                        {{ __('hours') }}
+                    <x-jet-label>{{ __('Total registered in ') }}
+                        {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
+                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $this->displayTotal }}
                     </x-jet-label>
                 </div>
-                <div class="whitespace-nowrap">
-                    <x-jet-label>{{ __('Registered Days') }}: </x-jet-label>
-                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalDays }}
-                        {{ __('days') }}
-                    </x-jet-label>
+                <div class="flex items-center space-x-2">
+                    <label class="inline-flex items-center">
+                        <input type="radio" class="form-radio" wire:model.live="displayMode" value="hours">
+                        <span class="ml-2">{{ __('Hours') }}</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" class="form-radio" wire:model.live="displayMode" value="days">
+                        <span class="ml-2">{{ __('Days') }}</span>
+                    </label>
                 </div>
             </div>
 
@@ -129,76 +133,15 @@
             </div>
         </div>
 
-        <div x-data="{ tab: 'chart' }">
-            <!-- Tabs -->
-            <div class="mb-4 border-b border-gray-200">
-                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myTab"
-                    data-tabs-toggle="#myTabContent" role="tablist">
-                    <li class="mr-2" role="presentation">
-                        <button @click="tab = 'chart'"
-                            :class="{ 'border-indigo-500 text-indigo-600': tab === 'chart' }"
-                            class="inline-block p-4 border-b-2 rounded-t-lg"
-                            type="button">{{ __('Chart') }}</button>
-                    </li>
-                    <li class="mr-2" role="presentation">
-                        <button @click="tab = 'dashboard'"
-                            :class="{ 'border-indigo-500 text-indigo-600': tab === 'dashboard' }"
-                            class="inline-block p-4 border-b-2 rounded-t-lg"
-                            type="button">{{ __('Dashboard') }}</button>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Tab Content -->
-            <div>
-                <div x-show="tab === 'chart'">
-                    <div class="p-4 w-auto h-96 bg-white rounded border shadow">
-                        @if ($hasData)
-                            <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}"
-                                :column-chart-model='$columnChartModel' />
-                        @else
-                            <div class="flex justify-center items-center h-full">
-                                <p class="text-lg text-gray-500">
-                                    {{ __('No events found for the selected filter.') }}</p>
-                            </div>
-                        @endif
+        <div class="">
+            <div class="p-4 w-auto h-96 bg-white rounded border shadow">
+                @if($hasData)
+                    <livewire:livewire-column-chart key="{{ $columnChartModel->reactiveKey() }}" :column-chart-model='$columnChartModel' />
+                @else
+                    <div class="flex justify-center items-center h-full">
+                        <p class="text-lg text-gray-500">{{ __('No events found for the selected filter.') }}</p>
                     </div>
-                </div>
-                <div x-show="tab === 'dashboard'">
-                    @if (!empty($dashboardData))
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <!-- Registered Hours -->
-                            <div class="p-4 bg-white rounded-lg border shadow-md">
-                                <h5 class="text-lg font-semibold text-gray-500">{{ __('Registered Hours') }}</h5>
-                                <p class="text-3xl font-bold text-gray-800">{{ $dashboardData['registered_hours'] ?? 'N/A' }}</p>
-                            </div>
-                            <!-- Percentage Completion -->
-                            <div class="p-4 bg-white rounded-lg border shadow-md">
-                                <h5 class="text-lg font-semibold text-gray-500">{{ __('Workday Completion') }}</h5>
-                                <p class="text-3xl font-bold text-gray-800">{{ $dashboardData['percentage_completion'] ?? '0' }}%</p>
-                            </div>
-                            <!-- Punctuality -->
-                            <div class="p-4 bg-white rounded-lg border shadow-md">
-                                <h5 class="text-lg font-semibold text-gray-500">{{ __('Punctuality') }}</h5>
-                                <p class="text-3xl font-bold text-gray-800">{{ $dashboardData['punctuality'] ?? '0' }}%</p>
-                            </div>
-                            <!-- Extra Hours -->
-                            <div class="p-4 bg-white rounded-lg border shadow-md">
-                                <h5 class="text-lg font-semibold text-gray-500">{{ __('Extra Hours') }}</h5>
-                                <p class="text-3xl font-bold text-gray-800">{{ $dashboardData['extra_hours'] ?? '0' }}</p>
-                            </div>
-                            <!-- Absenteeism -->
-                            <div class="p-4 bg-white rounded-lg border shadow-md">
-                                <h5 class="text-lg font-semibold text-gray-500">{{ __('Absenteeism (days)') }}</h5>
-                                <p class="text-3xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
-                            </div>
-                        </div>
-                    @else
-                        <div class="flex justify-center items-center h-full p-4">
-                            <p class="text-lg text-gray-500">{{ __('Not enough data to build dashboard.') }}</p>
-                        </div>
-                    @endif
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -207,59 +150,8 @@
         <div class="text-tiny">{{ __('Query run time: ') }} {{ $elapsedTime }} {{ __('miliseconds') }}</div>
     </x-slot>
 
-    <!-- Alpine Modal -->
-    <div x-data="{ showModal: false, events: [] }" x-on:open-events-modal.window="events = $event.detail.events; showModal = true"
-        x-show="showModal" style="display: none;"
-        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden">
-        <div x-show="showModal" class="fixed inset-0 transform" x-on:click="showModal = false">
-            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-        </div>
-
-        <div x-show="showModal"
-            class="bg-white rounded-lg shadow-xl transform sm:w-full sm:max-w-2xl">
-            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
-                    {{ __('Events for selected day') }}
-                </h3>
-                <div class="mt-4 overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Event Type') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Description') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Start Time') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('End Time') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <template x-for="event in events" :key="event.id">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="event.event_type ? event.event_type.name : 'N/A'"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="event.description"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
-                                </tr>
-                            </template>
-                            <template x-if="events.length === 0">
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-sm text-center text-gray-500">{{ __('No events for this day.') }}</td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" @click="showModal = false"
-                    class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    {{ __('Close') }}
-                </button>
-            </div>
-        </div>
-    </div>
-
     @push('scripts')
+    @livewireChartsScripts
     @endpush
 
 </div>
-<!-- Force cache refresh -->

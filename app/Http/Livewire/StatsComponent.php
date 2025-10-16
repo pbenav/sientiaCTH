@@ -8,25 +8,9 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Asantibanez\LivewireCharts\Facades\LivewireCharts;
 use Carbon\Carbon;
-use Livewire\Attributes\On;
 
 class StatsComponent extends Component
 {
-    #[On('onColumnClick')]
-    public function onColumnClick($column)
-    {
-        $dayAndMonth = $column['title'];
-        $date = Carbon::createFromFormat('d/m Y', $dayAndMonth . ' ' . $this->selectedYear);
-
-        $events = Event::query()
-            ->with('eventType')
-            ->where('user_id', $this->browsedUser)
-            ->whereDate('start', $date)
-            ->orderBy('start', 'asc')
-            ->get();
-
-        $this->dispatch('open-events-modal', events: $events->toArray());
-    }
     public $totalHours;
     public $selectedMonth;
     public $selectedYear;
@@ -40,9 +24,9 @@ class StatsComponent extends Component
     public $isTeamAdmin;
     public $isInspector;
     public $workers = [];
+    public $displayMode = 'hours';
     public $paso;
     public $totalDays = 0;
-    public $dashboardData = [];
 
     /**
      * Mounts the component and initializes necessary data.
@@ -195,8 +179,7 @@ class StatsComponent extends Component
             $columnChart = LivewireCharts::columnChartModel()
                 ->setTitle(__("Registered hours"))
                 ->setAnimated($this->firstRun)
-                ->withDataLabels()
-                ->withOnColumnClickEventName('onColumnClick');
+                ->withDataLabels();
 
             foreach ($dailyTypeHours as $day => $types) {
                 $typeData = array_values($types)[0];
@@ -209,8 +192,7 @@ class StatsComponent extends Component
             $columnChart = LivewireCharts::multiColumnChartModel()
                 ->setTitle(__("Registered hours"))
                 ->setAnimated($this->firstRun)
-                ->withDataLabels()
-                ->withOnColumnClickEventName('onColumnClick');
+                ->withDataLabels();
 
             ksort($dailyTypeHours);
 
@@ -234,11 +216,20 @@ class StatsComponent extends Component
      *
      * @return \Illuminate\View\View The rendered view.
      */
+    public function getDisplayTotalProperty()
+    {
+        $this->getData();
+        if ($this->displayMode === 'days') {
+            return $this->totalDays;
+        }
+
+        return $this->totalHours;
+    }
+
     public function render()
     {
         list($columnChartModel, $elapsedTime) = $this->getData();
         list($scheduledHours, $scheduledDays) = $this->getScheduledData();
-        $this->dashboardData = $this->getDashboardData($scheduledHours, $scheduledDays);
 
         return view('livewire.stats.stats')
             ->with([
@@ -246,100 +237,7 @@ class StatsComponent extends Component
                 'elapsedTime' => $elapsedTime,
                 'scheduledHours' => $scheduledHours,
                 'scheduledDays' => $scheduledDays,
-                'dashboardData' => $this->dashboardData,
             ]);
-    }
-
-    private function getDashboardData($scheduledHours, $scheduledDays)
-    {
-        // 1. Fetch user and events
-        $user = User::find($this->browsedUser);
-        $workdayEventType = $user->currentTeam->eventTypes()->where('is_workday_type', true)->first();
-        if (!$workdayEventType) {
-            return [];
-        }
-
-        $allEvents = Event::query()
-            ->where('user_id', $this->browsedUser)
-            ->whereMonth('start', $this->selectedMonth)
-            ->whereYear('start', $this->selectedYear)
-            ->orderBy('start', 'asc')
-            ->get();
-
-        $nonWorkdayHours = $allEvents->where('event_type_id', '!=', $workdayEventType->id)->sum(function ($event) {
-            return Carbon::parse($event->start)->diffInHours(Carbon::parse($event->end));
-        });
-
-        $events = $allEvents->where('event_type_id', $workdayEventType->id);
-
-        $registeredHours = $events->sum(function ($event) {
-            return Carbon::parse($event->start)->diffInHours(Carbon::parse($event->end));
-        });
-
-        // 2. Calculate Metrics
-        $effectiveScheduledHours = max(0, $scheduledHours - $nonWorkdayHours);
-        $percentage_completion = ($effectiveScheduledHours > 0) ? round(($registeredHours / $effectiveScheduledHours) * 100, 2) : 0;
-        $extra_hours = ($registeredHours > $effectiveScheduledHours) ? $registeredHours - $effectiveScheduledHours : 0;
-
-        // Punctuality & Absenteeism
-        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
-        $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
-        $punctualDays = 0;
-        $absentDays = 0;
-        $workedDays = $events->groupBy(function ($event) {
-            return Carbon::parse($event->start)->format('Y-m-d');
-        })->keys();
-
-        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
-        $endDate = $startDate->copy()->endOfMonth();
-
-        $holidays = $this->actualUser->currentTeam->holidays()
-            ->whereBetween('date', [$startDate, $endDate])
-            ->pluck('date')
-            ->map(fn ($date) => $date->format('Y-m-d'));
-
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            if ($holidays->contains($date->format('Y-m-d'))) {
-                continue;
-            }
-
-            $dayInitial = $this->getDayInitial($date->format('N'));
-            $daySchedule = collect($schedule)->first(function ($slot) use ($dayInitial) {
-                return in_array($dayInitial, $slot['days']);
-            });
-
-            if ($daySchedule) {
-                $isWorked = $workedDays->contains($date->format('Y-m-d'));
-
-                if (!$isWorked) {
-                    $absentDays++;
-                } else {
-                    $firstEvent = $events->first(function ($event) use ($date) {
-                        return Carbon::parse($event->start)->isSameDay($date);
-                    });
-
-                    if ($firstEvent) {
-                        $scheduledStartTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start']);
-                        $actualStartTime = Carbon::parse($firstEvent->start);
-                        if ($actualStartTime <= $scheduledStartTime) {
-                            $punctualDays++;
-                        }
-                    }
-                }
-            }
-        }
-
-        $workedDaysCount = $scheduledDays - $absentDays;
-        $punctuality = ($workedDaysCount > 0) ? round(($punctualDays / $workedDaysCount) * 100, 2) : 0;
-
-
-        return [
-            'percentage_completion' => $percentage_completion,
-            'extra_hours' => $extra_hours,
-            'punctuality' => $punctuality,
-            'absenteeism' => $absentDays,
-            'registered_hours' => $registeredHours,
-        ];
     }
 
     private function getScheduledData()
