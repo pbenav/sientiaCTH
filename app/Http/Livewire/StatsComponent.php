@@ -18,14 +18,14 @@ class StatsComponent extends Component
         $dayAndMonth = $column['title'];
         $date = Carbon::createFromFormat('d/m Y', $dayAndMonth . ' ' . $this->selectedYear);
 
-        $this->modalEvents = Event::query()
+        $events = Event::query()
             ->with('eventType')
             ->where('user_id', $this->browsedUser)
             ->whereDate('start', $date)
             ->orderBy('start', 'asc')
             ->get();
 
-        $this->showEventsModal = true;
+        $this->dispatch('open-events-modal', events: $events->toArray());
     }
     public $totalHours;
     public $selectedMonth;
@@ -40,12 +40,9 @@ class StatsComponent extends Component
     public $isTeamAdmin;
     public $isInspector;
     public $workers = [];
-    public $displayMode = 'hours';
     public $paso;
     public $totalDays = 0;
     public $dashboardData = [];
-    public $showEventsModal = false;
-    public $modalEvents = [];
 
     /**
      * Mounts the component and initializes necessary data.
@@ -237,16 +234,6 @@ class StatsComponent extends Component
      *
      * @return \Illuminate\View\View The rendered view.
      */
-    public function getDisplayTotalProperty()
-    {
-        $this->getData();
-        if ($this->displayMode === 'days') {
-            return $this->totalDays;
-        }
-
-        return $this->totalHours;
-    }
-
     public function render()
     {
         list($columnChartModel, $elapsedTime) = $this->getData();

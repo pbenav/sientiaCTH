@@ -100,20 +100,16 @@
 
             <div class="flex flex-row gap-2 border border-gray-300 p-2 rounded">
                 <div class="whitespace-nowrap">
-                    <x-jet-label>{{ __('Total registered in ') }}
-                        {{ __(date('F', mktime(0, 0, 0, $selectedMonth, 10))) }}: </x-jet-label>
-                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $this->displayTotal }}
+                    <x-jet-label>{{ __('Registered Hours') }}: </x-jet-label>
+                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalHours }}
+                        {{ __('hours') }}
                     </x-jet-label>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <label class="inline-flex items-center">
-                        <input type="radio" class="form-radio" wire:model.live="displayMode" value="hours">
-                        <span class="ml-2">{{ __('Hours') }}</span>
-                    </label>
-                    <label class="inline-flex items-center">
-                        <input type="radio" class="form-radio" wire:model.live="displayMode" value="days">
-                        <span class="ml-2">{{ __('Days') }}</span>
-                    </label>
+                <div class="whitespace-nowrap">
+                    <x-jet-label>{{ __('Registered Days') }}: </x-jet-label>
+                    <x-jet-label class="px-2 pt-1 w-min h-8 text-black form-control">{{ $totalDays }}
+                        {{ __('days') }}
+                    </x-jet-label>
                 </div>
             </div>
 
@@ -211,65 +207,56 @@
         <div class="text-tiny">{{ __('Query run time: ') }} {{ $elapsedTime }} {{ __('miliseconds') }}</div>
     </x-slot>
 
-    <!-- Events Modal -->
-    <x-jet-dialog-modal wire:model="showEventsModal">
-        <x-slot name="title">
-            {{ __('Events for selected day') }}
-        </x-slot>
+    <!-- Alpine Modal -->
+    <div x-data="{ showModal: false, events: [] }" x-on:open-events-modal.window="events = $event.detail.events; showModal = true"
+        x-show="showModal" style="display: none;"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden">
+        <div x-show="showModal" class="fixed inset-0 transform" x-on:click="showModal = false">
+            <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
 
-        <x-slot name="content">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Event Type') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Description') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Start Time') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('End Time') }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse ($modalEvents as $event)
+        <div x-show="showModal"
+            class="bg-white rounded-lg shadow-xl transform sm:w-full sm:max-w-2xl">
+            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">
+                    {{ __('Events for selected day') }}
+                </h3>
+                <div class="mt-4 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $event->eventType->name ?? 'N/A' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $event->description }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ \Carbon\Carbon::parse($event->start)->format('H:i') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ \Carbon\Carbon::parse($event->end)->format('H:i') }}
-                                </td>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Event Type') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Description') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Start Time') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('End Time') }}</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                                    {{ __('No events for this day.') }}
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="event in events" :key="event.id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="event.event_type ? event.event_type.name : 'N/A'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="event.description"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(event.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(event.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})"></td>
+                                </tr>
+                            </template>
+                            <template x-if="events.length === 0">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-sm text-center text-gray-500">{{ __('No events for this day.') }}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </x-slot>
-
-        <x-slot name="footer">
-            <x-jet-secondary-button wire:click="$set('showEventsModal', false)" wire:loading.attr="disabled">
-                {{ __('Close') }}
-            </x-jet-secondary-button>
-        </x-slot>
-    </x-jet-dialog-modal>
+            <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" @click="showModal = false"
+                    class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    {{ __('Close') }}
+                </button>
+            </div>
+        </div>
+    </div>
 
     @push('scripts')
     @endpush
