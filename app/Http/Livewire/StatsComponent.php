@@ -24,7 +24,6 @@ class StatsComponent extends Component
     public $isTeamAdmin;
     public $isInspector;
     public $workers = [];
-    public $displayMode = 'hours';
     public $paso;
     public $totalDays = 0;
 
@@ -216,16 +215,6 @@ class StatsComponent extends Component
      *
      * @return \Illuminate\View\View The rendered view.
      */
-    public function getDisplayTotalProperty()
-    {
-        $this->getData();
-        if ($this->displayMode === 'days') {
-            return $this->totalDays;
-        }
-
-        return $this->totalHours;
-    }
-
     public function render()
     {
         list($columnChartModel, $elapsedTime) = $this->getData();

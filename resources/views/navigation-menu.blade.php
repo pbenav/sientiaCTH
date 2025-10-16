@@ -195,7 +195,7 @@
                     </div>
                 </div>
                 <div class="ml-3 relative">
-                    {{-- @livewire('notification-icon') --}}
+                    @livewire('notification-icon')
                 </div>
             </div>
 
