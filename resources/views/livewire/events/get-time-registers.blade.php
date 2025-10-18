@@ -233,7 +233,7 @@
                             <tr class="block border md:table-row">
                                 <td class="p-1 text-center md:table-cell w-1/12"
                                     style="background-color: {{ $ev->eventType->color ?? 'transparent' }}; color: {{ $ev->eventType && $this->isDark($ev->eventType->color) ? 'white' : 'black' }}">
-                                    {{ $ev->id }}
+                                    <a href="#" wire:click.prevent="showEventModal({{ $ev->id }})" class="underline">{{ $ev->id }}</a>
                                 </td>
 
                                 @if ($isTeamAdmin || $isInspector)
@@ -301,6 +301,77 @@
 
         <!-- Livewire Component to Edit Event -->
         @livewire('edit-event')
+
+        <!-- Event Details Modal -->
+        @if ($selectedEvent)
+            <x-jet-dialog-modal wire:model="showEventModal">
+                <x-slot name="title">
+                    {{ __('Event Details') }}
+                </x-slot>
+
+                <x-slot name="content">
+                    <div class="space-y-4">
+                        <div>
+                            <span class="font-bold">{{ __('Id') }}:</span> {{ $selectedEvent->id }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('Worker') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('Start') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('End') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('Duration') }}:</span> {{ $selectedEvent->getPeriod() }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('Event Type') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Workday') }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('Observations') }}:</span> {{ $selectedEvent->observations }}
+                        </div>
+                        <div>
+                            <span class="font-bold">{{ __('Status') }}:</span> {{ $selectedEvent->is_open ? __('Open') : __('Closed') }}
+                        </div>
+
+                        @if ($selectedEvent->eventType && $selectedEvent->eventType->is_all_day)
+                            <div>
+                                <span class="font-bold">{{ __('Authorized') }}:</span>
+                                @if ($selectedEvent->is_authorized)
+                                    {{ __('Yes') }}
+                                    @if ($selectedEvent->authorizedBy)
+                                        ({{ __('by') }} {{ $selectedEvent->authorizedBy->name }})
+                                    @endif
+                                @else
+                                    {{ __('No') }}
+                                @endif
+                            </div>
+                        @endif
+
+                        @if ($isTeamAdmin)
+                            <hr>
+                            <div class="text-sm text-gray-600">
+                                <div>
+                                    <span class="font-bold">{{ __('Created At') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}
+                                </div>
+                                <div>
+                                    <span class="font-bold">{{ __('Updated At') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </x-slot>
+
+                <x-slot name="footer">
+                    <x-jet-secondary-button wire:click="$set('showEventModal', false)">
+                        {{ __('Close') }}
+                    </x-jet-secondary-button>
+                </x-slot>
+            </x-jet-dialog-modal>
+        @endif
+
 
         <!-- SweetAlert Scripts -->
         @push('scripts')
