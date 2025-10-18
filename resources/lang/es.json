@@ -402,5 +402,8 @@
     "Gestión de eventos": "Gestión de eventos",
     "Records Confidence": "Confianza de Registros",
     "Min": "Mín",
-    "Max": "Máx"
+    "Max": "Máx",
+    "Notification Preferences": "Preferencias de Notificación",
+    "Manage your notification preferences.": "Gestiona tus preferencias de notificación.",
+    "Receive email notifications": "Recibir notificaciones por correo electrónico"
 }

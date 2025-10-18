@@ -1,28 +1,28 @@
-<x-jet-form-section submit="update">
+<x-jet-form-section submit="updateNotificationPreferences">
     <x-slot name="title">
-        Preferencias de Notificaciones
+        {{ __('Notification Preferences') }}
     </x-slot>
 
     <x-slot name="description">
-        Configura cómo quieres recibir las notificaciones de nuevos mensajes.
+        {{ __('Manage your notification preferences.') }}
     </x-slot>
 
     <x-slot name="form">
         <div class="col-span-6 sm:col-span-4">
-            <label for="notify_new_messages" class="flex items-center">
-                <x-jet-checkbox id="notify_new_messages" wire:model.defer="notifyNewMessages" />
-                <span class="ml-2 text-sm text-gray-600">Mostrar una alerta al recibir un nuevo mensaje.</span>
+            <label for="notify_by_email" class="flex items-center">
+                <x-jet-checkbox id="notify_by_email" wire:model.defer="state.notify_by_email" />
+                <span class="ml-2 text-sm text-gray-600">{{ __('Receive email notifications') }}</span>
             </label>
         </div>
     </x-slot>
 
     <x-slot name="actions">
         <x-jet-action-message class="mr-3" on="saved">
-            Guardado.
+            {{ __('Saved.') }}
         </x-jet-action-message>
 
         <x-jet-button>
-            Guardar
+            {{ __('Save') }}
         </x-jet-button>
     </x-slot>
 </x-jet-form-section>
