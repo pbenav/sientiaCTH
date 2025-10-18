@@ -168,4 +168,17 @@ class User extends Authenticatable
 
         return $preference && $preference->meta_value == '1';
     }
+
+    /**
+     * Check if the user wants to receive internal notifications.
+     *
+     * @return bool
+     */
+    public function wantsInternalNotifications()
+    {
+        $preference = $this->meta->where('meta_key', 'notify_by_internal_message')->first();
+
+        // Default to true if not set
+        return $preference ? (bool)$preference->meta_value : true;
+    }
 }

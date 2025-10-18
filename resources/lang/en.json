@@ -15,5 +15,6 @@
     "exceptional_clock_in.message_subject": "Exceptional Clock-in",
     "Notification Preferences": "Notification Preferences",
     "Manage your notification preferences.": "Manage your notification preferences.",
-    "Receive email notifications": "Receive email notifications"
+    "Receive email notifications": "Receive email notifications",
+    "Receive internal messages": "Receive internal messages"
 }

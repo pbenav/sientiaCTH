@@ -34,7 +34,11 @@ class NewMessage extends Notification
      */
     public function via($notifiable)
     {
-        $channels = ['database'];
+        $channels = [];
+
+        if ($notifiable->wantsInternalNotifications()) {
+            $channels[] = 'database';
+        }
 
         if ($notifiable->wantsEmailNotifications()) {
             $channels[] = 'mail';

@@ -24,6 +24,9 @@ class UpdateNotificationPreferencesForm extends Component
         $user = Auth::user();
         $notifyByEmail = $user->meta->where('meta_key', 'notify_by_email')->first();
         $this->state['notify_by_email'] = $notifyByEmail ? (bool)$notifyByEmail->meta_value : false;
+
+        $notifyByInternal = $user->meta->where('meta_key', 'notify_by_internal_message')->first();
+        $this->state['notify_by_internal_message'] = $notifyByInternal ? (bool)$notifyByInternal->meta_value : true;
     }
 
     /**
@@ -38,6 +41,11 @@ class UpdateNotificationPreferencesForm extends Component
         $user->meta()->updateOrCreate(
             ['meta_key' => 'notify_by_email'],
             ['meta_value' => $this->state['notify_by_email'] ? '1' : '0']
+        );
+
+        $user->meta()->updateOrCreate(
+            ['meta_key' => 'notify_by_internal_message'],
+            ['meta_value' => $this->state['notify_by_internal_message'] ? '1' : '0']
         );
 
         $this->emit('saved');
