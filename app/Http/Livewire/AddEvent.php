@@ -132,8 +132,8 @@ class AddEvent extends Component
 
             $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
             $dayOfWeek = $clockInTime->format('N');
-            $dayMap = ['L' => 1, 'M' => 2, 'X' => 3, 'J' => 4, 'V' => 5, 'S' => 6, 'D' => 7];
-            $dayAbbr = array_search($dayOfWeek, $dayMap);
+            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
 
             $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
                 return in_array($dayAbbr, $slot['days']);
@@ -142,63 +142,56 @@ class AddEvent extends Component
             if ($todaysSlots->isEmpty()) {
                 $isExtraHours = true;
             } else {
-                // This logic only applies if it's NOT extra hours
-                $relevantSlot = null;
-                $minDiff = PHP_INT_MAX;
+                $isWithinAnySlot = false;
+                $allowedDelay = $team->clock_in_delay_minutes;
 
                 foreach ($todaysSlots as $slot) {
                     $startTime = Carbon::parse($this->start_date . ' ' . $slot['start']);
                     $endTime = Carbon::parse($this->start_date . ' ' . $slot['end']);
 
-                    $diffToStart = abs($clockInTime->getTimestamp() - $startTime->getTimestamp());
-                    $diffToEnd = abs($clockInTime->getTimestamp() - $endTime->getTimestamp());
-
-                    if ($diffToStart < $minDiff) {
-                        $minDiff = $diffToStart;
-                        $relevantSlot = ['time' => $startTime, 'type' => 'start'];
+                    // Check start time window
+                    if ($clockInTime->between($startTime->copy()->subMinutes($allowedDelay), $startTime->copy()->addMinutes($allowedDelay))) {
+                        $isWithinAnySlot = true;
+                        break;
                     }
-                    if ($diffToEnd < $minDiff) {
-                        $minDiff = $diffToEnd;
-                        $relevantSlot = ['time' => $endTime, 'type' => 'end'];
+
+                    // Check end time window
+                    if ($clockInTime->between($endTime->copy()->subMinutes($allowedDelay), $endTime->copy()->addMinutes($allowedDelay))) {
+                        $isWithinAnySlot = true;
+                        break;
                     }
                 }
 
-                if ($relevantSlot) {
-                    $allowedDelay = $team->clock_in_delay_minutes;
-                    $scheduledTime = $relevantSlot['time'];
+                if (!$isWithinAnySlot) {
+                    $token = Str::random(60);
+                    ExceptionalClockInToken::create([
+                        'user_id' => $user->id,
+                        'team_id' => $team->id,
+                        'token' => $token,
+                        'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
+                    ]);
 
-                    if ($clockInTime->diffInMinutes($scheduledTime) > $allowedDelay) {
-                        $token = Str::random(60);
-                        ExceptionalClockInToken::create([
-                            'user_id' => $user->id,
-                            'team_id' => $team->id,
-                            'token' => $token,
-                            'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
-                        ]);
+                    $adminSender = $team->owner;
+                    $url = route('exceptional.clock-in', ['token' => $token]);
+                    $messageContent = __('exceptional_clock_in.message_content', [
+                        'minutes' => $team->clock_in_grace_period_minutes,
+                        'url' => $url
+                    ]);
 
-                        $adminSender = $team->owner;
-                        $url = route('exceptional.clock-in', ['token' => $token]);
-                        $messageContent = __('exceptional_clock_in.message_content', [
-                            'minutes' => $team->clock_in_grace_period_minutes,
-                             'url' => $url
-                        ]);
+                    $message = Message::create([
+                        'sender_id' => $adminSender->id,
+                        'subject' => __('exceptional_clock_in.message_subject'),
+                        'body' => $messageContent,
+                        'is_log' => true,
+                    ]);
 
-                        $message = Message::create([
-                            'sender_id' => $adminSender->id,
-                            'subject' => __('exceptional_clock_in.message_subject'),
-                            'body' => $messageContent,
-                            'is_log' => true,
-                        ]);
+                    $message->recipients()->attach($user->id);
 
-                        $message->recipients()->attach($user->id);
+                    $user->notify(new NewMessage($message));
 
-                        $user->notify(new NewMessage($message));
-
-
-                        throw ValidationException::withMessages([
-                            'start_time' => __('exceptional_clock_in.validation_error'),
-                        ]);
-                    }
+                    throw ValidationException::withMessages([
+                        'start_time' => __('exceptional_clock_in.validation_error'),
+                    ]);
                 }
             }
         }
