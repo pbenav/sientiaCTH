@@ -155,7 +155,7 @@
                                 </div>
                             </div>
                             <div class="mt-4 text-gray-600">
-                                {!! nl2br(e($message->body)) !!}
+                                {!! nl2br($message->body) !!}
                             </div>
                             <div class="mt-4 flex flex-wrap items-center justify-end space-x-4">
                                 @if ($view !== 'trash')

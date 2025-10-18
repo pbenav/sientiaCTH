@@ -157,4 +157,15 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    /**
+     * Check if the user wants to receive email notifications.
+     *
+     * @return bool
+     */
+    public function wantsEmailNotifications()
+    {
+        $preference = $this->meta->where('meta_key', 'notify_by_email')->first();
+
+        return $preference && $preference->meta_value == '1';
+    }
 }

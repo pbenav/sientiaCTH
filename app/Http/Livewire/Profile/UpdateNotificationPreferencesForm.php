@@ -7,22 +7,47 @@ use Livewire\Component;
 
 class UpdateNotificationPreferencesForm extends Component
 {
-    public $notifyNewMessages;
+    /**
+     * The component's state.
+     *
+     * @var array
+     */
+    public $state = [];
 
+    /**
+     * Mount the component.
+     *
+     * @return void
+     */
     public function mount()
     {
-        $this->notifyNewMessages = Auth::user()->notify_new_messages;
+        $user = Auth::user();
+        $notifyByEmail = $user->meta->where('meta_key', 'notify_by_email')->first();
+        $this->state['notify_by_email'] = $notifyByEmail ? (bool)$notifyByEmail->meta_value : false;
     }
 
-    public function update()
+    /**
+     * Update the user's notification preferences.
+     *
+     * @return void
+     */
+    public function updateNotificationPreferences()
     {
         $user = Auth::user();
-        $user->notify_new_messages = $this->notifyNewMessages;
-        $user->save();
+
+        $user->meta()->updateOrCreate(
+            ['meta_key' => 'notify_by_email'],
+            ['meta_value' => $this->state['notify_by_email'] ? '1' : '0']
+        );
 
         $this->emit('saved');
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.profile.update-notification-preferences-form');
