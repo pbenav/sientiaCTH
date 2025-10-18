@@ -189,9 +189,9 @@ class AddEvent extends Component
 
                     $user->notify(new NewMessage($message));
 
-                    throw ValidationException::withMessages([
-                        'start_time' => __('exceptional_clock_in.validation_error'),
-                    ]);
+                    $this->emit('alertFail', __('exceptional_clock_in.validation_error'));
+                    $this->showAddEventModal = false;
+                    return;
                 }
             }
         }

@@ -69,7 +69,7 @@ class ExceptionalClockIn extends Component
             'user_id' => $user->id,
             'work_center_id' => $defaultWorkCenterId,
             'description' => $workdayEventType->name,
-            'observations' => $this->observations,
+            'observations' => __('Creado de forma excepcional: ') . $this->observations,
             'event_type_id' => $workdayEventType->id,
             'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
             'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
