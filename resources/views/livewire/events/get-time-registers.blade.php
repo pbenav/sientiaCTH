@@ -312,31 +312,19 @@
                 </x-slot>
 
                 <x-slot name="content">
-                    <div class="space-y-4">
-                        <div>
-                            <span class="font-bold">{{ __('Id') }}:</span> {{ $selectedEvent->id }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Trabajador') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Inicio') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Fin') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Duración') }}:</span> {{ $selectedEvent->getPeriod() }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Tipo de Evento') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Jornada Laboral') }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Observaciones') }}:</span> {{ $selectedEvent->observations }}
-                        </div>
-                        <div>
-                            <span class="font-bold">{{ __('Estado') }}:</span> {{ $selectedEvent->is_open ? __('Abierto') : __('Cerrado') }}
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="md:col-span-2"><span class="font-bold">{{ __('Id') }}:</span> {{ $selectedEvent->id }}</div>
+                        <div class="md:col-span-2"><span class="font-bold">{{ __('Trabajador') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}</div>
+
+                        <div><span class="font-bold">{{ __('Inicio') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}</div>
+                        <div><span class="font-bold">{{ __('Fin') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}</div>
+
+                        <div><span class="font-bold">{{ __('Duración') }}:</span> {{ $selectedEvent->getPeriod() }}</div>
+                        <div><span class="font-bold">{{ __('Tipo de Evento') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Jornada Laboral') }}</div>
+
+                        <div class="md:col-span-2"><span class="font-bold">{{ __('Observaciones') }}:</span> {{ $selectedEvent->observations }}</div>
+
+                        <div><span class="font-bold">{{ __('Estado') }}:</span> {{ $selectedEvent->is_open ? __('Abierto') : __('Cerrado') }}</div>
 
                         @if ($selectedEvent->eventType && $selectedEvent->eventType->is_all_day)
                             <div>
@@ -353,14 +341,10 @@
                         @endif
 
                         @if ($isTeamAdmin)
-                            <hr>
-                            <div class="text-sm text-gray-600">
-                                <div>
-                                    <span class="font-bold">{{ __('Creado el') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}
-                                </div>
-                                <div>
-                                    <span class="font-bold">{{ __('Actualizado el') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}
-                                </div>
+                            <hr class="md:col-span-2">
+                            <div class="md:col-span-2 text-xs text-gray-600">
+                                <div><span class="font-bold">{{ __('Creado el') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}</div>
+                                <div><span class="font-bold">{{ __('Actualizado el') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}</div>
                             </div>
                         @endif
                     </div>
