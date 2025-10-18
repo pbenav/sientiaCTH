@@ -48,6 +48,11 @@ class Event extends Model
         return $this->belongsTo(WorkCenter::class);
     }
 
+    public function authorizedBy()
+    {
+        return $this->belongsTo(User::class, 'authorized_by_id');
+    }
+
     public function getPeriod()
     {
         return $this->timeDiff($this->start, $this->end, true);

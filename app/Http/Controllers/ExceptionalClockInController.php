@@ -57,13 +57,17 @@ class ExceptionalClockInController extends Controller
                 'is_open' => false,
             ]);
         } else {
-            // Clock-in: Create a new event
+            // Clock-in: Create a new event using the data from the token
+            $eventData = json_decode($tokenRecord->event_data, true);
+            $eventType = $eventData['event_type_id'] ? $team->eventTypes()->find($eventData['event_type_id']) : $workdayEventType;
+
             Event::create([
                 'user_id' => $user->id,
                 'work_center_id' => $defaultWorkCenterId,
-                'description' => $workdayEventType->name,
-                'event_type_id' => $workdayEventType->id,
-                'start' => Carbon::now(config('app.timezone'))->setTimezone('UTC'),
+                'description' => $eventType->name,
+                'observations' => $eventData['observations'] ?? null,
+                'event_type_id' => $eventType->id,
+                'start' => Carbon::parse($eventData['start_date'] . ' ' . $eventData['start_time'], config('app.timezone'))->setTimezone('UTC'),
                 'end' => null,
                 'is_open' => true,
                 'is_authorized' => false,

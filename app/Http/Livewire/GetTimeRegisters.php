@@ -36,6 +36,8 @@ class GetTimeRegisters extends Component
     public $confirmed;
     public $filtered;
     public $showOnlyMine = false;
+    public $showEventModal = false;
+    public $selectedEvent;
 
     protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
 
@@ -325,6 +327,13 @@ class GetTimeRegisters extends Component
 
         $event->is_authorized = !$event->is_authorized;
         $event->is_open = !$event->is_authorized;
+
+        if ($event->is_authorized) {
+            $event->authorized_by_id = Auth::id();
+        } else {
+            $event->authorized_by_id = null;
+        }
+
         $event->save();
 
         if ($event->is_authorized) {
@@ -336,5 +345,11 @@ class GetTimeRegisters extends Component
         }
 
         $this->emit('eventAuthorizationChanged');
+    }
+
+    public function showEventModal($eventId)
+    {
+        $this->selectedEvent = Event::with(['eventType', 'authorizedBy'])->findOrFail($eventId);
+        $this->showEventModal = true;
     }
 }

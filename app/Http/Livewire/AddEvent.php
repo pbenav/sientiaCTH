@@ -169,6 +169,12 @@ class AddEvent extends Component
                         'team_id' => $team->id,
                         'token' => $token,
                         'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
+                        'event_data' => json_encode([
+                            'start_date' => $this->start_date,
+                            'start_time' => $this->start_time,
+                            'event_type_id' => $this->event_type_id,
+                            'observations' => $this->observations,
+                        ]),
                     ]);
 
                     $adminSender = $team->owner;
