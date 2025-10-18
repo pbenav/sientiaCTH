@@ -185,7 +185,8 @@ class AddEvent extends Component
 
                         $message = Message::create([
                             'sender_id' => $adminSender->id,
-                            'content' => $messageContent,
+                            'subject' => __('exceptional_clock_in.message_subject'),
+                            'body' => $messageContent,
                             'is_log' => true,
                         ]);
 
