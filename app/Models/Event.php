@@ -23,6 +23,7 @@ class Event extends Model
         'end',
         'is_open',
         'is_authorized',
+        'is_closed_automatically',
         'is_extra_hours',
         'description',
         'observations',

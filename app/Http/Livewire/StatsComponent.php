@@ -323,7 +323,10 @@ class StatsComponent extends Component
         $minConfidence = !empty($confidenceScores) ? round(min($confidenceScores), 2) : 0;
         $maxConfidence = !empty($confidenceScores) ? round(max($confidenceScores), 2) : 0;
 
+        $automaticallyClosedCount = $allEvents->where('is_closed_automatically', true)->count();
+
         return [
+            'automatically_closed_count' => $automaticallyClosedCount,
             'percentage_completion' => $percentage_completion,
             'extra_hours' => $extra_hours,
             'punctuality' => $punctuality,
