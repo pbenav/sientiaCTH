@@ -115,7 +115,7 @@ class MessagesComponent extends Component
             Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['deleted_at' => now()]);
             $this->showInbox();
         }
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function restoreMessage($messageId)
@@ -130,7 +130,7 @@ class MessagesComponent extends Component
         }
 
         $this->showTrash();
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function forceDeleteMessage($messageId)
@@ -145,7 +145,7 @@ class MessagesComponent extends Component
         }
 
         $this->showTrash();
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function emptyTrash()
@@ -162,13 +162,13 @@ class MessagesComponent extends Component
         }
 
         $this->showTrash();
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function markAsRead($messageId)
     {
         Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['read_at' => now()]);
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
         $this->showInbox();
     }
 
@@ -207,13 +207,13 @@ class MessagesComponent extends Component
         }
 
         $this->bulkAction = '';
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function deleteNotification($notificationId)
     {
         Auth::user()->notifications()->find($notificationId)->delete();
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function applyBulkAlertAction()
@@ -222,14 +222,14 @@ class MessagesComponent extends Component
             Auth::user()->notifications()->whereIn('id', $this->selectedNotifications)->delete();
             $this->bulkAlertAction = '';
         }
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function showAlerts()
     {
         $this->view = 'alerts';
         Auth::user()->unreadNotifications->where('type', '!=', 'App\Notifications\NewMessage')->markAsRead();
-        $this->emit('NotificationCountChanged');
+        $this->emitTo('notification-icon', 'refreshCount');
     }
 
     public function render()
