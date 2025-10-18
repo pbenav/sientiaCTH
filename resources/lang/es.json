@@ -400,5 +400,6 @@
     "exceptional_clock_in.no_workday_event_type": "No se ha configurado un tipo de evento de jornada laboral por defecto para este equipo.",
     "exceptional_clock_in.success": "¡Fichaje excepcional realizado con éxito!",
     "exceptional_clock_in.message_content": "Hola, has intentado fichar fuera del margen de tiempo permitido. Puedes usar el siguiente enlace para realizar un fichaje excepcional. Este enlace expirará en :minutes minutos. <br><br> <a href=\":url\" class=\"text-indigo-600 hover:text-indigo-900\">:url</a>",
-    "exceptional_clock_in.validation_error": "Has excedido el margen de tiempo para fichar. Revisa tu bandeja de entrada para obtener un enlace de fichaje excepcional."
+    "exceptional_clock_in.validation_error": "Has excedido el margen de tiempo para fichar. Revisa tu bandeja de entrada para obtener un enlace de fichaje excepcional.",
+    "Gestión de eventos": "Gestión de eventos"
 }
