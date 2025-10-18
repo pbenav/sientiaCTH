@@ -203,7 +203,7 @@ class AddEvent extends Component
         }
 
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-        $defaultWorkCenterId = $defaultWorkCenter ? $defaultWorkCenter->meta_value : null;
+        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
 
         $data = [
             'user_id' => Auth::user()->id,
