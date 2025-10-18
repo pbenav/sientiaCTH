@@ -4,13 +4,18 @@ namespace App\Http\Livewire;
 
 use App\Models\Event;
 use App\Models\EventType;
+use App\Models\ExceptionalClockInToken;
+use App\Models\Message;
 use App\Notifications\EventCreated;
+use App\Notifications\NewMessage;
 use App\Traits\HasWorkScheduleHint;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class AddEvent extends Component
 {
@@ -195,7 +200,86 @@ class AddEvent extends Component
     {
         $this->validate();
 
-        $defaultWorkCenter = Auth::user()->meta->where('meta_key', 'default_work_center_id')->first();
+        $user = Auth::user();
+        $team = $user->currentTeam;
+
+        if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type) {
+            $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
+            $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
+
+            $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
+            $dayOfWeek = $clockInTime->format('N'); // 1 (Lunes) a 7 (Domingo)
+            $dayMap = ['L' => 1, 'M' => 2, 'X' => 3, 'J' => 4, 'V' => 5, 'S' => 6, 'D' => 7];
+            $dayAbbr = array_search($dayOfWeek, $dayMap);
+
+            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
+                return in_array($dayAbbr, $slot['days']);
+            });
+
+            if ($todaysSlots->isNotEmpty()) {
+                $relevantSlot = null;
+                $minDiff = PHP_INT_MAX;
+
+                foreach ($todaysSlots as $slot) {
+                    $startTime = Carbon::parse($this->start_date . ' ' . $slot['start']);
+                    $endTime = Carbon::parse($this->start_date . ' ' . $slot['end']);
+
+                    $diffToStart = abs($clockInTime->getTimestamp() - $startTime->getTimestamp());
+                    $diffToEnd = abs($clockInTime->getTimestamp() - $endTime->getTimestamp());
+
+                    if ($diffToStart < $minDiff) {
+                        $minDiff = $diffToStart;
+                        $relevantSlot = ['time' => $startTime, 'type' => 'start'];
+                    }
+                    if ($diffToEnd < $minDiff) {
+                        $minDiff = $diffToEnd;
+                        $relevantSlot = ['time' => $endTime, 'type' => 'end'];
+                    }
+                }
+
+                if ($relevantSlot) {
+                    $allowedDelay = $team->clock_in_delay_minutes;
+                    $scheduledTime = $relevantSlot['time'];
+
+                    if ($clockInTime->diffInMinutes($scheduledTime) > $allowedDelay) {
+                        $token = Str::random(60);
+                        ExceptionalClockInToken::create([
+                            'user_id' => $user->id,
+                            'team_id' => $team->id,
+                            'token' => $token,
+                            'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
+                        ]);
+
+                        // Send a message to the user with the exceptional clock-in link
+                        $adminSender = $team->owner; // Or find another admin/system user
+                        $url = route('exceptional.clock-in', ['token' => $token]);
+                        $messageContent = __('exceptional_clock_in.message_content', [
+                            'minutes' => $team->clock_in_grace_period_minutes,
+                             'url' => $url
+                        ]);
+
+                        $message = Message::create([
+                            'sender_id' => $adminSender->id,
+                            'content' => $messageContent,
+                            'is_log' => true,
+                        ]);
+
+                        $message->recipients()->attach($user->id);
+
+                        // Notify the user about the new message
+                        $user->notify(new NewMessage($message));
+
+
+                        throw ValidationException::withMessages([
+                            'start_time' => __('exceptional_clock_in.validation_error'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+
+        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = $defaultWorkCenter ? $defaultWorkCenter->meta_value : null;
 
         $data = [
