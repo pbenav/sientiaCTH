@@ -8,7 +8,12 @@
     </x-slot>
 
     <x-slot name="form">
-        <div class="col-span-6 sm:col-span-4">
+        <div class="col-span-6 sm:col-span-4 space-y-2">
+            <label for="notify_by_internal_message" class="flex items-center">
+                <x-jet-checkbox id="notify_by_internal_message" wire:model.defer="state.notify_by_internal_message" />
+                <span class="ml-2 text-sm text-gray-600">{{ __('Receive internal messages') }}</span>
+            </label>
+
             <label for="notify_by_email" class="flex items-center">
                 <x-jet-checkbox id="notify_by_email" wire:model.defer="state.notify_by_email" />
                 <span class="ml-2 text-sm text-gray-600">{{ __('Receive email notifications') }}</span>
