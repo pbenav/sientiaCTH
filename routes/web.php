@@ -52,6 +52,8 @@ Route::middleware([
         Route::delete('/meta/{meta}', [UserMetaController::class, 'destroy'])->name('users.meta.destroy');
     });
 
+    Route::prefix('fichaje-excepcional')->name('exceptional.clock-in')->group(function () {
+        Route::get('/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn']);
+        Route::get('/formulario/{token}', \App\Http\Livewire\ExceptionalClockIn::class)->name('.form');
+    });
 });
-
-Route::get('/fichaje-excepcional/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn'])->name('exceptional.clock-in');

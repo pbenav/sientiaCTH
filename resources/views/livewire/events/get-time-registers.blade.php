@@ -231,14 +231,16 @@
                     <tbody class="block md:table-row-group">
                         @foreach ($events as $ev)
                             <tr class="block border md:table-row">
-                                <td class="p-1 text-center md:table-cell w-1/12"
+                                <td class="p-1 text-center md:table-cell w-1/12 cursor-pointer hover:bg-gray-200"
+                                    wire:click="showEventModal({{ $ev->id }})"
                                     style="background-color: {{ $ev->eventType->color ?? 'transparent' }}; color: {{ $ev->eventType && $this->isDark($ev->eventType->color) ? 'white' : 'black' }}">
-                                    <a href="#" wire:click.prevent="showEventModal({{ $ev->id }})" class="underline">{{ $ev->id }}</a>
+                                    {{ $ev->id }}
                                 </td>
 
                                 @if ($isTeamAdmin || $isInspector)
                                     <td class="p-1 text-left md:table-cell w-3/12">
-                                        {{ $ev->user->name . ' ' . $ev->user->family_name1 }}</td>
+                                        {{ $ev->user->name }} {{ $ev->user->family_name1 }}
+                                    </td>
                                 @endif
 
                                 <td class="p-1 text-left md:table-cell w-2/12">
@@ -306,7 +308,7 @@
         @if ($selectedEvent)
             <x-jet-dialog-modal wire:model="showEventModal">
                 <x-slot name="title">
-                    {{ __('Event Details') }}
+                    {{ __('Detalles del Evento') }}
                 </x-slot>
 
                 <x-slot name="content">
@@ -315,34 +317,34 @@
                             <span class="font-bold">{{ __('Id') }}:</span> {{ $selectedEvent->id }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('Worker') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}
+                            <span class="font-bold">{{ __('Trabajador') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('Start') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}
+                            <span class="font-bold">{{ __('Inicio') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('End') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}
+                            <span class="font-bold">{{ __('Fin') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('Duration') }}:</span> {{ $selectedEvent->getPeriod() }}
+                            <span class="font-bold">{{ __('Duración') }}:</span> {{ $selectedEvent->getPeriod() }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('Event Type') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Workday') }}
+                            <span class="font-bold">{{ __('Tipo de Evento') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Jornada Laboral') }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('Observations') }}:</span> {{ $selectedEvent->observations }}
+                            <span class="font-bold">{{ __('Observaciones') }}:</span> {{ $selectedEvent->observations }}
                         </div>
                         <div>
-                            <span class="font-bold">{{ __('Status') }}:</span> {{ $selectedEvent->is_open ? __('Open') : __('Closed') }}
+                            <span class="font-bold">{{ __('Estado') }}:</span> {{ $selectedEvent->is_open ? __('Abierto') : __('Cerrado') }}
                         </div>
 
                         @if ($selectedEvent->eventType && $selectedEvent->eventType->is_all_day)
                             <div>
-                                <span class="font-bold">{{ __('Authorized') }}:</span>
+                                <span class="font-bold">{{ __('Autorizado') }}:</span>
                                 @if ($selectedEvent->is_authorized)
-                                    {{ __('Yes') }}
+                                    {{ __('Sí') }}
                                     @if ($selectedEvent->authorizedBy)
-                                        ({{ __('by') }} {{ $selectedEvent->authorizedBy->name }})
+                                        ({{ __('por') }} {{ $selectedEvent->authorizedBy->name }} {{ $selectedEvent->authorizedBy->family_name1 }})
                                     @endif
                                 @else
                                     {{ __('No') }}
@@ -354,10 +356,10 @@
                             <hr>
                             <div class="text-sm text-gray-600">
                                 <div>
-                                    <span class="font-bold">{{ __('Created At') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}
+                                    <span class="font-bold">{{ __('Creado el') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}
                                 </div>
                                 <div>
-                                    <span class="font-bold">{{ __('Updated At') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}
+                                    <span class="font-bold">{{ __('Actualizado el') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}
                                 </div>
                             </div>
                         @endif
@@ -366,7 +368,7 @@
 
                 <x-slot name="footer">
                     <x-jet-secondary-button wire:click="$set('showEventModal', false)">
-                        {{ __('Close') }}
+                        {{ __('Cerrar') }}
                     </x-jet-secondary-button>
                 </x-slot>
             </x-jet-dialog-modal>

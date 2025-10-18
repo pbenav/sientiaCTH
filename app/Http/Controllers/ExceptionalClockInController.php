@@ -32,51 +32,7 @@ class ExceptionalClockInController extends Controller
             return redirect()->route('dashboard')->with('error', __('exceptional_clock_in.expired_link'));
         }
 
-        // Authenticate the user associated with the token to ensure all policies and ownerships are respected.
-        Auth::loginUsingId($tokenRecord->user_id);
-        $user = Auth::user();
-        $team = $tokenRecord->team;
-
-        // Find the default workday event type for the team
-        $workdayEventType = $team->eventTypes()->where('is_workday_type', true)->first();
-
-        if (!$workdayEventType) {
-             return redirect()->route('dashboard')->with('error', __('exceptional_clock_in.no_workday_event_type'));
-        }
-
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-        $defaultWorkCenterId = $defaultWorkCenter ? $defaultWorkCenter->meta_value : null;
-
-        // Check if there is an open event to close it (clock-out)
-        $openEvent = Event::where('user_id', $user->id)->where('is_open', true)->orderBy('start', 'desc')->first();
-
-        if ($openEvent) {
-            // Clock-out: Close the existing event
-            $openEvent->update([
-                'end' => Carbon::now(config('app.timezone'))->setTimezone('UTC'),
-                'is_open' => false,
-            ]);
-        } else {
-            // Clock-in: Create a new event using the data from the token
-            $eventData = json_decode($tokenRecord->event_data, true);
-            $eventType = $eventData['event_type_id'] ? $team->eventTypes()->find($eventData['event_type_id']) : $workdayEventType;
-
-            Event::create([
-                'user_id' => $user->id,
-                'work_center_id' => $defaultWorkCenterId,
-                'description' => $eventType->name,
-                'observations' => $eventData['observations'] ?? null,
-                'event_type_id' => $eventType->id,
-                'start' => Carbon::parse($eventData['start_date'] . ' ' . $eventData['start_time'], config('app.timezone'))->setTimezone('UTC'),
-                'end' => null,
-                'is_open' => true,
-                'is_authorized' => false,
-            ]);
-        }
-
-        // Mark the token as used
-        $tokenRecord->update(['used_at' => Carbon::now()]);
-
-        return redirect()->route('events')->with('success', __('exceptional_clock_in.success'));
+        // The token is valid, redirect to the regularization form
+        return redirect()->route('exceptional.clock-in.form', ['token' => $token]);
     }
 }
