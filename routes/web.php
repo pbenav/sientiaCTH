@@ -55,5 +55,3 @@ Route::middleware([
 });
 
 Route::get('/fichaje-excepcional/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn'])->name('exceptional.clock-in');
-
-

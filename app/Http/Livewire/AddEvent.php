@@ -21,76 +21,22 @@ class AddEvent extends Component
 {
     use HasWorkScheduleHint;
 
-    /**
-     * Control visibility of the Add Event modal.
-     * @var bool
-     */
     public $showAddEventModal = false;
-
     public $workScheduleHint = '';
-
-    /**
-     * Control visibility of the dashboard modal.
-     * @var bool
-     */
     public $goDashboardModal = false;
-
-    /**
-     * Store the current date and time.
-     * @var string
-     */
     public $now;
-
-    /**
-     * Date for the event start.
-     * @var string
-     */
     public $start_date;
     public $end_date;
-
-    /**
-     * Time for the event start.
-     * @var string
-     */
     public $start_time;
-
-    /**
-     * User ID associated with the event.
-     * @var int
-     */
     public $user_id;
-
-    /**
-     * Description of the event.
-     * @var string
-     */
     public $description;
     public $event_type_id;
     public $eventTypes;
     public $selectedEventType;
-
-    /**
-     * Additional observations about the event.
-     * @var string|null
-     */
     public $observations;
-
-    /**
-     * Origin of the action triggering the event creation.
-     * @var string
-     */
     public $origin;
-
-    /**
-     * Event listeners.
-     * @var array
-     */
     protected $listeners = ['add'];
 
-    /**
-     * Validation rules for event creation.
-     * @var array
-     */
     protected function rules()
     {
         $rules = [
@@ -108,11 +54,6 @@ class AddEvent extends Component
         return $rules;
     }
 
-    /**
-     * Validate individual properties on update.
-     * @param string $propertyName
-     * @return void
-     */
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
@@ -123,10 +64,6 @@ class AddEvent extends Component
         $this->selectedEventType = EventType::find($value);
     }
 
-    /**
-     * Initialize component properties.
-     * @return void
-     */
     public function mount()
     {
         $this->start_date = date('Y-m-d');
@@ -138,20 +75,13 @@ class AddEvent extends Component
         $this->event_type_id = null;
         $this->selectedEventType = null;
 
-        // Hint is loaded for the initially authenticated user (if any)
         if (Auth::check()) {
             $this->setWorkScheduleHint();
         }
     }
 
-    /**
-     * Open the Add Event modal.
-     * @param string $origin
-     * @return void
-     */
     public function add($data)
     {
-        // Reset and fetch fresh data each time the modal is opened
         $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
         if (isset($data['date'])) {
             $date = \Carbon\Carbon::parse($data['date']);
@@ -180,10 +110,6 @@ class AddEvent extends Component
         $this->showAddEventModal = true;
     }
 
-    /**
-     * Cancel event creation and redirect to events page.
-     * @return void
-     */
     public function cancel()
     {
         $this->showAddEventModal = false;
@@ -192,15 +118,12 @@ class AddEvent extends Component
         }
     }
 
-    /**
-     * Save the event to the database.
-     * @return mixed
-     */
     public function save()
     {
         $this->validate();
 
         $user = Auth::user();
+        $isExtraHours = false;
         $team = $user->currentTeam;
 
         if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type) {
@@ -208,7 +131,7 @@ class AddEvent extends Component
             $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
 
             $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
-            $dayOfWeek = $clockInTime->format('N'); // 1 (Lunes) a 7 (Domingo)
+            $dayOfWeek = $clockInTime->format('N');
             $dayMap = ['L' => 1, 'M' => 2, 'X' => 3, 'J' => 4, 'V' => 5, 'S' => 6, 'D' => 7];
             $dayAbbr = array_search($dayOfWeek, $dayMap);
 
@@ -216,7 +139,10 @@ class AddEvent extends Component
                 return in_array($dayAbbr, $slot['days']);
             });
 
-            if ($todaysSlots->isNotEmpty()) {
+            if ($todaysSlots->isEmpty()) {
+                $isExtraHours = true;
+            } else {
+                // This logic only applies if it's NOT extra hours
                 $relevantSlot = null;
                 $minDiff = PHP_INT_MAX;
 
@@ -250,8 +176,7 @@ class AddEvent extends Component
                             'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
                         ]);
 
-                        // Send a message to the user with the exceptional clock-in link
-                        $adminSender = $team->owner; // Or find another admin/system user
+                        $adminSender = $team->owner;
                         $url = route('exceptional.clock-in', ['token' => $token]);
                         $messageContent = __('exceptional_clock_in.message_content', [
                             'minutes' => $team->clock_in_grace_period_minutes,
@@ -266,7 +191,6 @@ class AddEvent extends Component
 
                         $message->recipients()->attach($user->id);
 
-                        // Notify the user about the new message
                         $user->notify(new NewMessage($message));
 
 
@@ -278,7 +202,6 @@ class AddEvent extends Component
             }
         }
 
-
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = $defaultWorkCenter ? $defaultWorkCenter->meta_value : null;
 
@@ -288,8 +211,9 @@ class AddEvent extends Component
             'description' => $this->selectedEventType->name,
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
-            'is_open' => true, // All events are now created as open
-            'is_authorized' => false, // Explicitly set to false for all new events
+            'is_open' => true,
+            'is_authorized' => false,
+            'is_extra_hours' => $isExtraHours,
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
@@ -309,19 +233,16 @@ class AddEvent extends Component
             $data['end'] = null;
         }
 
-        // Ensure is_authorized is always set, defaulting to false.
-        if (Schema::hasColumn('events', 'is_authorized')) {
-            $data['is_authorized'] = false;
-        }
-
-        // Ensure is_authorized is always set, defaulting to false.
         if (Schema::hasColumn('events', 'is_authorized')) {
             $data['is_authorized'] = false;
         }
 
         $event = Event::create($data);
 
-        // Notify team admins if a full-day event is created that needs authorization
+        if ($isExtraHours) {
+            session()->flash('info', 'El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.');
+        }
+
         if ($event->eventType && $event->eventType->is_all_day) {
             $team = $event->user->currentTeam;
 
@@ -336,9 +257,7 @@ class AddEvent extends Component
             }
         }
 
-        $this->reset([
-            'showAddEventModal',
-        ]);
+        $this->reset(['showAddEventModal']);
 
         if ($this->origin == 'numpad') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
@@ -348,10 +267,6 @@ class AddEvent extends Component
         }
     }
 
-    /**
-     * Render the Livewire component view.
-     * @return \Illuminate\View\View
-     */
     public function render()
     {
         return view('livewire.events.add-event');

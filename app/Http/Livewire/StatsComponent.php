@@ -44,12 +44,6 @@ class StatsComponent extends Component
     public $totalDays = 0;
     public $dashboardData = [];
 
-    /**
-     * Mounts the component and initializes necessary data.
-     *
-     * This method is called once when the component is initialized.
-     * It sets up user, team, permissions, and the current selected month and year.
-     */
     public function mount()
     {
         $this->selectedMonth = date('m');
@@ -69,84 +63,72 @@ class StatsComponent extends Component
         'browsedUser' => 'required|exists:users',
     ];
 
-    /**
-     * Handles updates to the browsedUser property.
-     *
-     * This method is triggered when the browsedUser property is updated.
-     * It does not perform any action in this case, but can be extended for future use.
-     */
     public function updatedBrowsedUser()
     {
     }
 
-    /**
-     * Retrieves the data for the selected user, month, year, and description.
-     *
-     * This method fetches the events data for the selected user and time period,
-     * calculates the total hours, and prepares the chart model.
-     *
-     * @return array An array containing the chart model and elapsed time.
-     */
     public function getData()
     {
         $start = microtime(true);
         $this->hasData = true;
 
-        // 1. Fetch raw events
-        $query = Event::query()
-            ->with('eventType')
-            ->join('users', 'events.user_id', '=', 'users.id')
-            ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
-            ->where(function ($query) {
-                $query->where('event_types.team_id', $this->actualUser->currentTeam->id)
-                      ->orWhereNull('events.event_type_id');
-            })
+        $query = Event::with('eventType')
             ->where('user_id', $this->browsedUser)
+            ->whereYear('start', $this->selectedYear)
             ->where(function ($q) {
                 $q->whereMonth('start', $this->selectedMonth)
                   ->orWhereMonth('end', $this->selectedMonth);
-            })
-            ->whereYear('start', $this->selectedYear);
-        $query->when($this->eventTypeId, fn($q) => $q->where('event_type_id', $this->eventTypeId));
+            });
+
+        if ($this->eventTypeId) {
+            $query->where('event_type_id', $this->eventTypeId);
+        }
+
         $events = $query->get();
 
-        // 2. Process events into a data structure grouped by type and day
-        $dailyTypeHours = [];
+        $processedEvents = [];
+        $daysWithEvents = [];
+        $eventTypesInUse = [];
+
         foreach ($events as $event) {
             if (!$event->end || !$event->eventType) continue;
 
-            $start_date = new \DateTime($event->start);
-            $end_date = new \DateTime($event->end);
-            $current_date = clone $start_date;
+            $eventTypesInUse[$event->eventType->name] = $event->eventType;
 
-            while ($current_date->format('Y-m-d') <= $end_date->format('Y-m-d')) {
-                if ($current_date->format('m') != $this->selectedMonth) {
-                    $current_date->modify('+1 day');
-                    continue;
-                }
-                $day_start = (clone $current_date)->setTime(0, 0, 0);
-                $day_end = (clone $current_date)->setTime(23, 59, 59);
-                $effective_start = max($start_date, $day_start);
-                $effective_end = min($end_date, $day_end);
+            $start_date = Carbon::parse($event->start);
+            $end_date = Carbon::parse($event->end);
 
-                if ($effective_start < $effective_end) {
-                    $hours_for_day = ($effective_end->getTimestamp() - $effective_start->getTimestamp()) / 3600;
-                    $dayKey = $current_date->format('d/m');
-                    $typeKey = $event->eventType->name;
-                    $color = $event->eventType->color;
-                    if (!isset($dailyTypeHours[$dayKey])) {
-                        $dailyTypeHours[$dayKey] = [];
-                    }
-                    if (!isset($dailyTypeHours[$dayKey][$typeKey])) {
-                        $dailyTypeHours[$dayKey][$typeKey] = ['hours' => 0, 'color' => $color];
-                    }
-                    $dailyTypeHours[$dayKey][$typeKey]['hours'] += $hours_for_day;
+            for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
+                if ($date->month != $this->selectedMonth) continue;
+
+                $dayKey = $date->format('d/m');
+                $daysWithEvents[$dayKey] = $date;
+
+                $day_start = $date->copy()->startOfDay();
+                $day_end = $date->copy()->endOfDay();
+                $effective_start = $start_date->max($day_start);
+                $effective_end = $end_date->min($day_end);
+
+                if ($effective_start->lt($effective_end)) {
+                    $hours_for_day = $effective_start->diffInSeconds($effective_end) / 3600;
+                    $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
                 }
-                $current_date->modify('+1 day');
             }
         }
 
-        // Calculate total from the processed data
+        uasort($daysWithEvents, function ($a, $b) {
+            return $a <=> $b;
+        });
+        $xAxisData = array_keys($daysWithEvents);
+
+        $dailyTypeHours = [];
+        foreach ($daysWithEvents as $dayKey => $dateObject) {
+            foreach ($eventTypesInUse as $typeName => $eventType) {
+                $hours = $processedEvents[$dayKey][$typeName] ?? null;
+                $dailyTypeHours[$dayKey][$typeName] = ['hours' => $hours, 'color' => $eventType->color];
+            }
+        }
+
         $totalHours = 0;
         $dayCountsPerType = [];
         $uniqueDays = [];
@@ -183,15 +165,12 @@ class StatsComponent extends Component
             $this->totalDays = $maxDays;
         }
 
-        // 3. Handle No Data
         if (empty($dailyTypeHours)) {
             $this->hasData = false;
             return [LivewireCharts::multiColumnChartModel(), 0];
         }
 
-        // 4. Build the appropriate chart based on filters
         if ($this->eventTypeId && !empty($dailyTypeHours)) {
-            // SINGLE-SERIES CHART for a filtered event type
             $columnChart = LivewireCharts::columnChartModel()
                 ->setTitle(__("Registered hours"))
                 ->setAnimated($this->firstRun)
@@ -202,21 +181,19 @@ class StatsComponent extends Component
                 $typeData = array_values($types)[0];
                 $hours = $typeData['hours'];
                 $color = $typeData['color'];
-                $columnChart->addColumn($day, round($hours, 2), $color);
+                $columnChart->addColumn($day, $hours !== null ? round($hours, 2) : null, $color);
             }
         } else {
-            // MULTI-SERIES CHART for all event types
             $columnChart = LivewireCharts::multiColumnChartModel()
                 ->setTitle(__("Registered hours"))
                 ->setAnimated($this->firstRun)
                 ->withDataLabels()
-                ->withOnColumnClickEventName('onColumnClick');
-
-            ksort($dailyTypeHours);
+                ->withOnColumnClickEventName('onColumnClick')
+                ->setXAxisCategories($xAxisData);
 
             foreach ($dailyTypeHours as $day => $types) {
                 foreach ($types as $typeName => $data) {
-                    $columnChart->addSeriesColumn($typeName, $day, round($data['hours'], 2), $data['color']);
+                    $columnChart->addSeriesColumn($typeName, $day, $data['hours'] !== null ? round($data['hours'], 2) : null, $data['color']);
                 }
             }
         }
@@ -227,13 +204,6 @@ class StatsComponent extends Component
         return [$columnChart, $elapsedTime];
     }
 
-    /**
-     * Renders the component view.
-     *
-     * This method is responsible for rendering the Livewire component's view and passing the necessary data to it.
-     *
-     * @return \Illuminate\View\View The rendered view.
-     */
     public function render()
     {
         list($columnChartModel, $elapsedTime) = $this->getData();
@@ -252,7 +222,6 @@ class StatsComponent extends Component
 
     private function getDashboardData($scheduledHours, $scheduledDays)
     {
-        // 1. Fetch user and events
         $user = User::find($this->browsedUser);
         $workdayEventType = $user->currentTeam->eventTypes()->where('is_workday_type', true)->first();
         if (!$workdayEventType) {
@@ -276,12 +245,10 @@ class StatsComponent extends Component
             return Carbon::parse($event->start)->diffInHours(Carbon::parse($event->end));
         });
 
-        // 2. Calculate Metrics
         $effectiveScheduledHours = max(0, $scheduledHours - $nonWorkdayHours);
         $percentage_completion = ($effectiveScheduledHours > 0) ? round(($registeredHours / $effectiveScheduledHours) * 100, 2) : 0;
         $extra_hours = ($registeredHours > $effectiveScheduledHours) ? $registeredHours - $effectiveScheduledHours : 0;
 
-        // Punctuality & Absenteeism
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
         $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
         $punctualDays = 0;
@@ -332,6 +299,29 @@ class StatsComponent extends Component
         $workedDaysCount = $scheduledDays - $absentDays;
         $punctuality = ($workedDaysCount > 0) ? round(($punctualDays / $workedDaysCount) * 100, 2) : 0;
 
+        $confidenceScores = [];
+        foreach ($events as $event) {
+            if (!$event->end) continue;
+
+            $start = Carbon::parse($event->start);
+            $end = Carbon::parse($event->end);
+            $createdAt = Carbon::parse($event->created_at);
+            $updatedAt = Carbon::parse($event->updated_at);
+
+            $diffStart = abs($start->diffInSeconds($createdAt));
+            $diffEnd = abs($end->diffInSeconds($updatedAt));
+            $duration = abs($start->diffInSeconds($end));
+
+            if ($duration > 0) {
+                $totalDiff = $diffStart + $diffEnd;
+                $confidence = max(0, (1 - ($totalDiff / $duration)) * 100);
+                $confidenceScores[] = $confidence;
+            }
+        }
+
+        $avgConfidence = !empty($confidenceScores) ? round(array_sum($confidenceScores) / count($confidenceScores), 2) : 0;
+        $minConfidence = !empty($confidenceScores) ? round(min($confidenceScores), 2) : 0;
+        $maxConfidence = !empty($confidenceScores) ? round(max($confidenceScores), 2) : 0;
 
         return [
             'percentage_completion' => $percentage_completion,
@@ -340,6 +330,9 @@ class StatsComponent extends Component
             'absenteeism' => $absentDays,
             'registered_hours' => $registeredHours,
             'effective_scheduled_hours' => $effectiveScheduledHours,
+            'avg_confidence' => $avgConfidence,
+            'min_confidence' => $minConfidence,
+            'max_confidence' => $maxConfidence,
         ];
     }
 
@@ -361,7 +354,6 @@ class StatsComponent extends Component
             return [0, 0];
         }
 
-        // Pre-calculate total minutes scheduled for each day of the week
         $minutesPerDay = array_fill_keys(['L', 'M', 'X', 'J', 'V', 'S', 'D'], 0);
         foreach ($schedule as $slot) {
             if (empty($slot['days']) || empty($slot['start']) || empty($slot['end'])) {

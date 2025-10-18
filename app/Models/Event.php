@@ -23,9 +23,14 @@ class Event extends Model
         'end',
         'is_open',
         'is_authorized',
+        'is_extra_hours',
         'description',
         'observations',
         'event_type_id',
+    ];
+
+    protected $casts = [
+        'is_extra_hours' => 'boolean',
     ];
 
     public function eventType()

@@ -27,11 +27,6 @@ class Team extends JetstreamTeam
     }
     use HasFactory;
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
     protected $casts = [
         'personal_team' => 'boolean',
         'force_clock_in_delay' => 'boolean',
@@ -39,11 +34,6 @@ class Team extends JetstreamTeam
         'clock_in_grace_period_minutes' => 'integer',
     ];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var string[]
-     */
     protected $fillable = [
         'name',
         'personal_team',
@@ -52,11 +42,6 @@ class Team extends JetstreamTeam
         'clock_in_grace_period_minutes',
     ];
 
-    /**
-     * The event map for the model.
-     *
-     * @var array
-     */
     protected $dispatchesEvents = [
         'created' => TeamCreated::class,
         'updated' => TeamUpdated::class,
