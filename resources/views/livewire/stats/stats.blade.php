@@ -125,6 +125,32 @@
                     </div>
                 </div>
 
+                <!-- Scheduled Hours Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-gray-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Scheduled Hours') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $scheduledHours }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registered Hours Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-gray-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Registered Hours') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $totalHours }}</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Extra Hours Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <div class="flex items-center">
@@ -180,51 +206,16 @@
             </div>
 
             <!-- Bottom Row: Completion and Totals -->
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Completion Card -->
-                <div class="w-full lg:w-1/3 bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Completion') }}</h3>
-                    <div class="relative w-40 h-40">
-                        <svg class="w-full h-full" viewBox="0 0 36 36">
-                            <path class="text-gray-200" stroke-width="3" fill="none"
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path class="text-green-500" stroke-width="3" fill="none"
-                                stroke-dasharray="{{ $dashboardData['percentage_completion'] ?? 0 }}, 100"
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <span class="text-3xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</span>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-indigo-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                    </div>
-                </div>
-                <!-- Totals Card -->
-                <div class="w-full lg:w-2/3 bg-white p-6 rounded-lg shadow-lg">
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="col-span-1">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ __('Registered') }}</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <x-jet-label>{{ __('Hours') }}</x-jet-label>
-                                    <div class="p-2 bg-gray-100 rounded text-lg">{{ $totalHours }}</div>
-                                </div>
-                                <div>
-                                    <x-jet-label>{{ __('Days') }}</x-jet-label>
-                                    <div class="p-2 bg-gray-100 rounded text-lg">{{ $totalDays }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-span-1">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-2">{{ __('Scheduled') }}</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <x-jet-label>{{ __('Hours') }}</x-jet-label>
-                                    <div class="p-2 bg-gray-100 rounded text-lg">{{ $scheduledHours }}</div>
-                                </div>
-                                <div>
-                                    <x-jet-label>{{ __('Days') }}</x-jet-label>
-                                    <div class="p-2 bg-gray-100 rounded text-lg">{{ $scheduledDays }}</div>
-                                </div>
-                            </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Workday Completion') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</p>
                         </div>
                     </div>
                 </div>
