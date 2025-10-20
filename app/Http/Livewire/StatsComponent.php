@@ -323,7 +323,11 @@ class StatsComponent extends Component
         $minConfidence = !empty($confidenceScores) ? round(min($confidenceScores), 2) : 0;
         $maxConfidence = !empty($confidenceScores) ? round(max($confidenceScores), 2) : 0;
 
-        $automaticallyClosedCount = $allEvents->where('is_closed_automatically', true)->count();
+        $automaticallyClosedCount = Event::where('user_id', $this->browsedUser)
+            ->where('is_closed_automatically', true)
+            ->whereYear('updated_at', $this->selectedYear)
+            ->whereMonth('updated_at', $this->selectedMonth)
+            ->count();
 
         return [
             'automatically_closed_count' => $automaticallyClosedCount,
