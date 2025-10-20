@@ -13,7 +13,7 @@
                     <label for="recipients" class="block text-sm font-medium text-gray-700">Destinatarios</label>
                     <select id="recipients" wire:model="recipients" multiple class="block w-full mt-1">
                         @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }} {{ $user->family_name1 }}</option>
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -133,7 +133,7 @@
                                             <p class="font-semibold text-gray-700">
                                                 Para:
                                                 @foreach ($message->recipients as $recipient)
-                                                    {{ $recipient->name }} {{ $recipient->family_name1 }}@if (!$loop->last), @endif
+                                                    {{ $recipient->name }}@if (!$loop->last), @endif
                                                 @endforeach
                                             </p>
                                             <p class="text-sm text-gray-500">{{ $message->subject }}</p>
@@ -145,7 +145,7 @@
                                         @endif
                                         <img class="w-10 h-10 rounded-full object-cover" src="{{ $message->sender->profile_photo_url }}" alt="{{ $message->sender->name }}">
                                         <div class="ml-4">
-                                            <p class="font-semibold text-gray-700">{{ $message->sender->name }} {{ $message->sender->family_name1 }}</p>
+                                            <p class="font-semibold text-gray-700">{{ $message->sender->name }}</p>
                                             <p class="text-sm text-gray-500">{{ $message->subject }}</p>
                                         </div>
                                     @endif

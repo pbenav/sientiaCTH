@@ -25,7 +25,7 @@
                             <option value="">{{ __('All') }}</option>
                             @if(isset($teamUserList))
                                 @foreach($teamUserList as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }} {{ $user->family_name1 }}</option>
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                             @endif
                         </select>

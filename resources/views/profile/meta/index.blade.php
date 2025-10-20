@@ -4,7 +4,7 @@
     <title>Gestión de Metadatos</title>
 </head>
 <body>
-    <h1>Metadatos de {{ $user->name }} {{ $user->family_name1 }}</h1>
+    <h1>Metadatos de {{ $user->name }}</h1>
 
     @if (session('success'))
         <div>{{ session('success') }}</div>
