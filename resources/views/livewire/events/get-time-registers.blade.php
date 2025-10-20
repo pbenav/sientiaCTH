@@ -377,8 +377,8 @@
                         icon: 'info',
                         title: "{{ __('sweetalert.alert_fail.title') }}",
                         text: message,
-                        timer: 1500,
-                        timerProgressBar: true
+                        showConfirmButton: true,
+                        confirmButtonText: "{{ __('sweetalert.ok_button') }}",
                     });
                 });
 
