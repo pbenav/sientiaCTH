@@ -107,6 +107,40 @@ class EditEvent extends Component
             $this->end_date = \Carbon\Carbon::now(config('app.timezone'))->format('Y-m-d');
         }
 
+        if ($this->event->is_exceptional) {
+            $workScheduleMeta = $this->user->meta()->where('meta_key', 'work_schedule')->first();
+            $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
+
+            $eventStartTime = Carbon::parse($this->start_datetime);
+            $dayOfWeek = $eventStartTime->format('N');
+            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
+
+            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
+                return in_array($dayAbbr, $slot['days']);
+            });
+
+            if ($todaysSlots->isNotEmpty()) {
+                $closestSlot = null;
+                $smallestDiff = null;
+
+                foreach ($todaysSlots as $slot) {
+                    $slotStart = Carbon::parse($eventStartTime->format('Y-m-d') . ' ' . $slot['start']);
+                    $diff = abs($eventStartTime->timestamp - $slotStart->timestamp);
+
+                    if (is_null($smallestDiff) || $diff < $smallestDiff) {
+                        $smallestDiff = $diff;
+                        $closestSlot = $slot;
+                    }
+                }
+
+                if ($closestSlot) {
+                    $this->start_datetime = Carbon::parse($eventStartTime->format('Y-m-d') . ' ' . $closestSlot['start'])->toDateTimeLocalString();
+                    $this->end_datetime = Carbon::parse($eventStartTime->format('Y-m-d') . ' ' . $closestSlot['end'])->toDateTimeLocalString();
+                }
+            }
+        }
+
         $this->setWorkScheduleHint();
 
         if ($this->event->is_open == 1) {
