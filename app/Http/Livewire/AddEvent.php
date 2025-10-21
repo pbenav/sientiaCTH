@@ -193,7 +193,7 @@ class AddEvent extends Component
                         $this->showAddEventModal = false;
                         return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
                     } else {
-                        $this->dispatch('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
+                        $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
                         $this->showAddEventModal = false;
                         $this->emit('refreshCalendar');
                     }
