@@ -17,9 +17,7 @@ class ExceptionalClockInToken extends Model
     protected $fillable = [
         'user_id',
         'team_id',
-        'event_id',
         'token',
-        'data',
         'expires_at',
         'used_at',
     ];

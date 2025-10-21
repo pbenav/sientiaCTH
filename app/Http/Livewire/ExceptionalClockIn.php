@@ -38,43 +38,8 @@ class ExceptionalClockIn extends Component
 
         if ($this->tokenRecord && !$this->tokenRecord->used_at && Carbon::now()->isBefore($this->tokenRecord->expires_at)) {
             $this->isValidToken = true;
-
-            $user = User::find($this->tokenRecord->user_id);
-            $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
-            $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
-            $tokenCreationTime = Carbon::parse($this->tokenRecord->created_at);
-
-            $this->start_date = $tokenCreationTime->format('Y-m-d');
-            $this->end_date = $tokenCreationTime->format('Y-m-d');
-
-            $dayOfWeek = $tokenCreationTime->format('N');
-            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
-            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
-
-            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
-                return in_array($dayAbbr, $slot['days']);
-            });
-
-            $correctSlot = null;
-            foreach ($todaysSlots as $slot) {
-                $slotStart = Carbon::parse($tokenCreationTime->format('Y-m-d') . ' ' . $slot['start']);
-                $slotEnd = Carbon::parse($tokenCreationTime->format('Y-m-d') . ' ' . $slot['end']);
-                if ($tokenCreationTime->between($slotStart, $slotEnd)) {
-                    $correctSlot = $slot;
-                    break;
-                }
-            }
-
-            if ($correctSlot) {
-                $this->start_time = Carbon::parse($correctSlot['start'])->format('H:i');
-                $this->end_time = Carbon::parse($correctSlot['end'])->format('H:i');
-            } else {
-                $this->start_time = $tokenCreationTime->format('H:i');
-                $this->end_time = $tokenCreationTime->copy()->addHours(1)->format('H:i');
-            }
-
-            $this->observations = __('Eg: I forgot to clock in when I arrived.');
-
+            $this->start_date = now()->format('Y-m-d');
+            $this->end_date = now()->format('Y-m-d');
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }
@@ -100,18 +65,18 @@ class ExceptionalClockIn extends Component
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
 
-        $event = Event::find($this->tokenRecord->event_id);
-
-        if ($event) {
-            $event->update([
-                'observations' => $this->observations,
-                'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
-                'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
-                'is_open' => false,
-                'is_exceptional' => false, // Mark as regularized
-                'is_authorized' => false, // Needs authorization after regularization
-            ]);
-        }
+        Event::create([
+            'user_id' => $user->id,
+            'work_center_id' => $defaultWorkCenterId,
+            'description' => $workdayEventType->name,
+            'observations' => __('Creado de forma excepcional: ') . $this->observations,
+            'event_type_id' => $workdayEventType->id,
+            'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
+            'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
+            'is_open' => false,
+            'is_authorized' => false,
+            'is_exceptional' => true,
+        ]);
 
         $this->tokenRecord->update(['used_at' => now()]);
 

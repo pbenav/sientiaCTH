@@ -104,18 +104,11 @@
                     },
 
                     eventContent: function(info) {
-                        const isOpen = info.event.extendedProps.is_open;
+                        // Accede a la propiedad personalizada 'iconHtml'
+                        const iconHtml = info.event.extendedProps.iconHtml;
                         const title = info.event.title;
-                        let iconHtml = '';
 
-                        if (info.event.id.startsWith('event_')) {
-                            iconHtml = isOpen
-                                ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
-                                : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
-                        } else if (info.event.extendedProps.is_holiday) {
-                            iconHtml = '<i class="ml-1 mr-2 fa-solid fa-calendar-day" style="color: #A3E635;"></i>';
-                        }
-
+                        // Retorna un objeto con la propiedad 'html'
                         return {
                             html: `<span class="fc-title">${iconHtml} ${title}</span>`
                         };

@@ -21,15 +21,15 @@ class ExceptionalClockInController extends Controller
         $tokenRecord = ExceptionalClockInToken::where('token', $token)->first();
 
         if (!$tokenRecord) {
-            return redirect()->route('events')->with('error', __('exceptional_clock_in.invalid_link'));
+            return redirect()->route('dashboard')->with('error', __('exceptional_clock_in.invalid_link'));
         }
 
         if ($tokenRecord->used_at) {
-            return redirect()->route('events')->with('error', __('exceptional_clock_in.used_link'));
+            return redirect()->route('dashboard')->with('error', __('exceptional_clock_in.used_link'));
         }
 
         if (Carbon::now()->isAfter($tokenRecord->expires_at)) {
-            return redirect()->route('events')->with('error', __('exceptional_clock_in.expired_link'));
+            return redirect()->route('dashboard')->with('error', __('exceptional_clock_in.expired_link'));
         }
 
         // The token is valid, redirect to the regularization form

@@ -6,8 +6,6 @@ use App\Models\Event;
 use App\Models\EventType;
 use App\Models\ExceptionalClockInToken;
 use App\Models\Message;
-use App\Models\User;
-use App\Models\Team;
 use App\Notifications\EventCreated;
 use App\Notifications\NewMessage;
 use App\Traits\HasWorkScheduleHint;
@@ -125,33 +123,134 @@ class AddEvent extends Component
         $this->validate();
 
         $user = Auth::user();
+        $isExtraHours = false;
         $team = $user->currentTeam;
-        $eventType = $this->selectedEventType;
 
-        if ($eventType && $eventType->is_workday_type && $team) {
+        if ($eventType && $eventType->is_workday_type && $team && $team->force_clock_in_delay) {
             $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
             $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
+
             $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
+            $dayOfWeek = $clockInTime->format('N');
+            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
 
-            $isWithinSchedule = $this->isWithinSchedule($schedule, $clockInTime, $team->clock_in_delay_minutes ?? 0);
+            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
+                return in_array($dayAbbr, $slot['days']);
+            });
 
-            if (!$isWithinSchedule) {
-                // Create the placeholder event first and get the instance back
-                $placeholderEvent = $this->createEvent(false, true); // is_exceptional = true
+            if ($todaysSlots->isEmpty()) {
+                $isExtraHours = true;
+            } else {
+                $isWithinAnySlot = false;
+                $allowedDelay = $team->clock_in_delay_minutes;
 
-                // Then, trigger the regularization flow
-                $this->triggerExceptionalFlow($user, $team, $clockInTime, $placeholderEvent->id);
+                foreach ($todaysSlots as $slot) {
+                    $startTime = Carbon::parse($this->start_date . ' ' . $slot['start']);
+                    $endTime = Carbon::parse($this->start_date . ' ' . $slot['end']);
 
-                return; // Stop execution
+                    // Check start time window
+                    if ($clockInTime->between($startTime->copy()->subMinutes($allowedDelay), $startTime->copy()->addMinutes($allowedDelay))) {
+                        $isWithinAnySlot = true;
+                        break;
+                    }
+
+                    // Check end time window
+                    if ($clockInTime->between($endTime->copy()->subMinutes($allowedDelay), $endTime->copy()->addMinutes($allowedDelay))) {
+                        $isWithinAnySlot = true;
+                        break;
+                    }
+                }
+
+                if (!$isWithinAnySlot) {
+                    $token = Str::random(60);
+                    ExceptionalClockInToken::create([
+                        'user_id' => $user->id,
+                        'team_id' => $team->id,
+                        'token' => $token,
+                        'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
+                    ]);
+
+                    $adminSender = $team->owner;
+                    $url = route('exceptional.clock-in', ['token' => $token]);
+                    $messageContent = __('exceptional_clock_in.message_content', [
+                        'minutes' => $team->clock_in_grace_period_minutes,
+                        'url' => $url
+                    ]);
+
+                    $message = Message::create([
+                        'sender_id' => $adminSender->id,
+                        'subject' => __('exceptional_clock_in.message_subject'),
+                        'body' => $messageContent,
+                        'is_log' => true,
+                    ]);
+
+                    $message->recipients()->attach($user->id);
+
+                    $user->notify(new NewMessage($message));
+
+                    if ($this->origin === 'numpad') {
+                        $this->showAddEventModal = false;
+                        return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
+                    } else {
+                        $this->dispatch('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
+                        $this->showAddEventModal = false;
+                        $this->emit('refreshCalendar');
+                    }
+                    return;
+                }
             }
         }
 
-        // --- Normal event creation flow ---
-        $event = $this->createEvent();
+        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
+        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
 
-        // Handle side effects for normal creation here
+        $team = Auth::user()->currentTeam;
+        $data = [
+            'user_id' => Auth::user()->id,
+            'work_center_id' => $defaultWorkCenterId,
+            'description' => $this->selectedEventType->name,
+            'observations' => $this->observations,
+            'event_type_id' => $this->event_type_id,
+            'is_open' => true,
+            'is_authorized' => false,
+            'is_extra_hours' => $isExtraHours,
+        ];
+
+        if ($isExceptional && $team) {
+            $data['override_color'] = $team->irregular_event_color;
+        }
+
+        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
+            $data['start'] = Carbon::parse($this->start_date, config('app.timezone'))
+                ->startOfDay()
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
+            $data['end'] = Carbon::parse($this->end_date, config('app.timezone'))
+                ->startOfDay()
+                ->addDay()
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
+        } else {
+            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))
+                ->setTimezone('UTC')
+                ->format('Y-m-d H:i:s');
+            $data['end'] = null;
+        }
+
+        if (Schema::hasColumn('events', 'is_authorized')) {
+            $data['is_authorized'] = false;
+        }
+
+        $event = Event::create($data);
+
+        if ($isExtraHours) {
+            session()->flash('info', 'El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.');
+        }
+
         if ($event->eventType && $event->eventType->is_all_day) {
             $team = $event->user->currentTeam;
+
             if ($team) {
                 $admins = $team->allUsers()->filter(function ($user) use ($team) {
                     return $user->hasTeamRole($team, 'admin');
@@ -171,118 +270,6 @@ class AddEvent extends Component
             $this->emitTo('get-time-registers', 'render');
             $this->emit('refreshCalendar');
         }
-    }
-
-    private function isWithinSchedule($schedule, Carbon $clockInTime, $allowedDelay)
-    {
-        $dayOfWeek = $clockInTime->format('N');
-        $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
-        $dayAbbr = $dayMap[$dayOfWeek] ?? null;
-
-        $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
-            return !empty($slot['days']) && in_array($dayAbbr, $slot['days']);
-        });
-
-        if ($todaysSlots->isEmpty()) {
-            return false; // Not within schedule if there are no slots for the day
-        }
-
-        foreach ($todaysSlots as $slot) {
-            $startTime = Carbon::parse($clockInTime->format('Y-m-d') . ' ' . $slot['start']);
-            $endTime = Carbon::parse($clockInTime->format('Y-m-d') . ' ' . $slot['end']);
-
-            if ($clockInTime->between($startTime->copy()->subMinutes($allowedDelay), $endTime->copy()->addMinutes($allowedDelay))) {
-                return true; // It's within a valid slot
-            }
-        }
-
-        return false; // Not within any of the day's slots
-    }
-
-    private function triggerExceptionalFlow(User $user, Team $team, Carbon $clockInTime, $eventId)
-    {
-        $token = Str::random(60);
-        ExceptionalClockInToken::create([
-            'user_id' => $user->id,
-            'team_id' => $team->id,
-            'token' => $token,
-            'event_id' => $eventId,
-            'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 60),
-            'data' => json_encode([
-                'start' => $clockInTime->toDateTimeString(),
-                'event_type_id' => $this->event_type_id,
-                'observations' => $this->observations,
-            ]),
-        ]);
-
-        $adminSender = $team->owner;
-        $url = route('exceptional.clock-in', ['token' => $token]);
-        $messageContent = __('exceptional_clock_in.message_content', [
-            'minutes' => $team->clock_in_grace_period_minutes ?? 60,
-            'url' => $url
-        ]);
-
-        $message = Message::create([
-            'sender_id' => $adminSender->id,
-            'subject' => __('exceptional_clock_in.message_subject'),
-            'body' => $messageContent,
-            'is_log' => true,
-        ]);
-
-        $message->recipients()->attach($user->id);
-        $user->notify(new NewMessage($message));
-
-        $this->showAddEventModal = false;
-        $alertMessage = __('This clock-in is considered exceptional because it is outside your schedule. You will receive a message to regularize it.');
-
-        if ($this->origin === 'numpad') {
-            return redirect()->route('events')->with('alertFail', $alertMessage);
-        } else {
-            $this->dispatchBrowserEvent('alertFail', ['message' => $alertMessage]);
-            $this->emit('refreshCalendar');
-        }
-    }
-
-    private function createEvent($isExtraHours = false, $isExceptional = false)
-    {
-        $user = Auth::user();
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
-
-        $data = [
-            'user_id' => $user->id,
-            'work_center_id' => $defaultWorkCenterId,
-            'description' => $this->selectedEventType->name,
-            'observations' => $this->observations,
-            'event_type_id' => $this->event_type_id,
-            'is_open' => !$isExceptional, // An exceptional event is created as closed
-            'is_authorized' => false,
-            'is_extra_hours' => $isExtraHours,
-            'is_exceptional' => $isExceptional,
-        ];
-
-        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = Carbon::parse($this->start_date, config('app.timezone'))
-                ->startOfDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = Carbon::parse($this->end_date, config('app.timezone'))
-                ->startOfDay()
-                ->addDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-        } else {
-            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = $isExceptional ? $data['start'] : null; // Exceptional placeholder has same start and end
-        }
-
-        if (Schema::hasColumn('events', 'is_authorized')) {
-            $data['is_authorized'] = false;
-        }
-
-        return Event::create($data);
     }
 
     public function render()

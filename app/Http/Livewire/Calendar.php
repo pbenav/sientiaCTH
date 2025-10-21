@@ -47,6 +47,8 @@ class Calendar extends Component
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
             ]);
+
+            $this->refresh();
         }
     }
 
@@ -71,6 +73,8 @@ class Calendar extends Component
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
             ]);
+
+            $this->refresh();
         }
     }
 
@@ -91,6 +95,8 @@ class Calendar extends Component
             return [];
         }
 
+        $events = collect();
+
         // Get user events
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
@@ -100,7 +106,7 @@ class Calendar extends Component
             ->get()
             ->map(function ($event) use ($user) {
                 $color = $event->override_color ?? $event->eventType->color ?? '#3788d8';
-                $isEditable = !$event->is_authorized || $user->hasTeamRole($event->user->currentTeam, 'admin');
+                $isEditable = (!$event->is_authorized && !$event->is_exceptional) || $user->hasTeamRole($event->user->currentTeam, 'admin');
 
                 return [
                     'id' => 'event_' . $event->id,
@@ -114,7 +120,6 @@ class Calendar extends Component
                 ];
             });
 
-
         // Get team holidays
         $holidays = Holiday::where('team_id', $user->currentTeam->id)
             ->get()
@@ -122,14 +127,14 @@ class Calendar extends Component
                 return [
                     'id' => 'holiday_' . $holiday->id,
                     'title' => $holiday->name,
+                    'iconHtml' => '<i class="ml-1 mr-2 fa-solid fa-calendar-day" style="color: #ff6b35;"></i>',
                     'start' => $holiday->date->format('Y-m-d'),
                     'end' => $holiday->date->format('Y-m-d'),
-                    'color' => '#A3E635',
+                    'color' => '#ff6b35',
                     'allDay' => true,
-                    'is_holiday' => true,
                 ];
             });
 
-        return $userEvents->merge($holidays);
+        return $events->merge($holidays);
     }
 }
