@@ -125,6 +125,20 @@
                     </div>
                 </div>
 
+                <!-- Completion Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-indigo-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Workday Completion') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</p>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Scheduled Hours Card -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <div class="flex items-center">
@@ -147,6 +161,20 @@
                         <div class="ml-4">
                             <h3 class="text-sm font-medium text-gray-500">{{ __('Registered Hours') }}</h3>
                             <p class="text-2xl font-bold text-gray-800">{{ $totalHours }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confidence Card -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center">
+                        <div class="bg-purple-500 p-3 rounded-full text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">{{ __('Records Confidence') }}</h3>
+                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['avg_confidence'] ?? '0' }}%</p>
+                            <p class="text-xs text-gray-500">{{ __('Min') }}: {{ $dashboardData['min_confidence'] ?? '0' }}% / {{ __('Max') }}: {{ $dashboardData['max_confidence'] ?? '0' }}%</p>
                         </div>
                     </div>
                 </div>
@@ -189,36 +217,10 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Confidence Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-purple-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Records Confidence') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['avg_confidence'] ?? '0' }}%</p>
-                            <p class="text-xs text-gray-500">{{ __('Min') }}: {{ $dashboardData['min_confidence'] ?? '0' }}% / {{ __('Max') }}: {{ $dashboardData['max_confidence'] ?? '0' }}%</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Bottom Row: Completion and Totals -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Completion Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-indigo-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Workday Completion') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
