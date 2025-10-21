@@ -100,18 +100,18 @@ class ExceptionalClockIn extends Component
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
 
-        Event::create([
-            'user_id' => $user->id,
-            'work_center_id' => $defaultWorkCenterId,
-            'description' => $workdayEventType->name,
-            'observations' => __('Creado de forma excepcional: ') . $this->observations,
-            'event_type_id' => $workdayEventType->id,
-            'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
-            'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
-            'is_open' => false,
-            'is_authorized' => false,
-            'is_exceptional' => true,
-        ]);
+        $event = Event::find($this->tokenRecord->event_id);
+
+        if ($event) {
+            $event->update([
+                'observations' => __('Creado de forma excepcional: ') . $this->observations,
+                'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
+                'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
+                'is_open' => false,
+                'is_exceptional' => false, // Mark as regularized
+                'is_authorized' => false, // Needs authorization after regularization
+            ]);
+        }
 
         $this->tokenRecord->update(['used_at' => now()]);
 

@@ -452,5 +452,6 @@
     "sweetalert.calendar.event_resize.text": "La duración del evento cambiará.",
     "sweetalert.calendar.event_resize.confirmButtonText": "Sí, cambiar!",
     "sweetalert.calendar.event_resize.cancelButtonText": "Cancelar",
-    "Eg: I forgot to clock in when I arrived.": "Ej: Olvidé fichar al llegar a la oficina."
+    "Eg: I forgot to clock in when I arrived.": "Ej: Olvidé fichar al llegar a la oficina.",
+    "This clock-in is considered exceptional because it is outside your schedule. You will receive a message to regularize it.": "Este fichaje se considera excepcional por estar fuera de tu horario. Recibirás un mensaje para regularizarlo."
 }
