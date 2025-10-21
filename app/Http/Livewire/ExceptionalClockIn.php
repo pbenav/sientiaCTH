@@ -38,8 +38,50 @@ class ExceptionalClockIn extends Component
 
         if ($this->tokenRecord && !$this->tokenRecord->used_at && Carbon::now()->isBefore($this->tokenRecord->expires_at)) {
             $this->isValidToken = true;
-            $this->start_date = now()->format('Y-m-d');
-            $this->end_date = now()->format('Y-m-d');
+
+            $user = User::find($this->tokenRecord->user_id);
+            $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
+            $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
+
+            // Use the original clock-in time from the token's data
+            $tokenData = json_decode($this->tokenRecord->data, true);
+            $clockInTime = Carbon::parse($tokenData['start']);
+
+            $this->start_date = $clockInTime->format('Y-m-d');
+            $this->end_date = $clockInTime->format('Y-m-d');
+
+            $dayOfWeek = $clockInTime->format('N');
+            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
+
+            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
+                return !empty($slot['days']) && in_array($dayAbbr, $slot['days']);
+            });
+
+            // Find the closest slot
+            $closestSlot = null;
+            $minDiff = PHP_INT_MAX;
+
+            foreach ($todaysSlots as $slot) {
+                $slotStart = Carbon::parse($clockInTime->format('Y-m-d') . ' ' . $slot['start']);
+                $diff = abs($clockInTime->getTimestamp() - $slotStart->getTimestamp());
+                if ($diff < $minDiff) {
+                    $minDiff = $diff;
+                    $closestSlot = $slot;
+                }
+            }
+
+            if ($closestSlot) {
+                $this->start_time = Carbon::parse($closestSlot['start'])->format('H:i');
+                $this->end_time = Carbon::parse($closestSlot['end'])->format('H:i');
+            } else {
+                // Default if no schedule found for the day
+                $this->start_time = $clockInTime->format('H:i');
+                $this->end_time = $clockInTime->copy()->addHours(8)->format('H:i');
+            }
+
+            $this->observations = __('Eg: I forgot to clock in when I arrived.');
+
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }
@@ -53,30 +95,18 @@ class ExceptionalClockIn extends Component
             return;
         }
 
-        $user = User::find($this->tokenRecord->user_id);
-        $team = $this->tokenRecord->team;
-        $workdayEventType = $team->eventTypes()->where('is_workday_type', true)->first();
+        $event = Event::find($this->tokenRecord->event_id);
 
-        if (!$workdayEventType) {
-             session()->flash('error', __('exceptional_clock_in.no_workday_event_type'));
-             return;
+        if ($event) {
+            $event->update([
+                'observations' => $this->observations,
+                'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
+                'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
+                'is_open' => false,
+                'is_exceptional' => false, // Mark as regularized
+                'is_authorized' => false, // Needs authorization after regularization
+            ]);
         }
-
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
-
-        Event::create([
-            'user_id' => $user->id,
-            'work_center_id' => $defaultWorkCenterId,
-            'description' => $workdayEventType->name,
-            'observations' => __('Creado de forma excepcional: ') . $this->observations,
-            'event_type_id' => $workdayEventType->id,
-            'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
-            'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
-            'is_open' => false,
-            'is_authorized' => false,
-            'is_exceptional' => true,
-        ]);
 
         $this->tokenRecord->update(['used_at' => now()]);
 
