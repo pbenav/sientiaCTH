@@ -72,12 +72,6 @@
                         <div class="mt-10 sm:mt-0">
                             @livewire('teams.clock-in-delay-manager', ['team' => $team])
                         </div>
-
-                        <x-jet-section-border />
-
-                        <div class="mt-10 sm:mt-0">
-                            @livewire('teams.update-irregular-event-color-form', ['team' => $team])
-                        </div>
                     @endif
                 </div>
 

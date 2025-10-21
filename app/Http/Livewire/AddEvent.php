@@ -123,134 +123,27 @@ class AddEvent extends Component
         $this->validate();
 
         $user = Auth::user();
-        $isExtraHours = false;
         $team = $user->currentTeam;
+        $eventType = $this->selectedEventType; // Correct initialization
 
         if ($eventType && $eventType->is_workday_type && $team && $team->force_clock_in_delay) {
             $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
             $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
-
             $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
-            $dayOfWeek = $clockInTime->format('N');
-            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
-            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
 
-            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
-                return in_array($dayAbbr, $slot['days']);
-            });
+            $isWithinSchedule = $this->isWithinSchedule($schedule, $clockInTime, $team->clock_in_delay_minutes ?? 0);
 
-            if ($todaysSlots->isEmpty()) {
-                $isExtraHours = true;
-            } else {
-                $isWithinAnySlot = false;
-                $allowedDelay = $team->clock_in_delay_minutes;
-
-                foreach ($todaysSlots as $slot) {
-                    $startTime = Carbon::parse($this->start_date . ' ' . $slot['start']);
-                    $endTime = Carbon::parse($this->start_date . ' ' . $slot['end']);
-
-                    // Check start time window
-                    if ($clockInTime->between($startTime->copy()->subMinutes($allowedDelay), $startTime->copy()->addMinutes($allowedDelay))) {
-                        $isWithinAnySlot = true;
-                        break;
-                    }
-
-                    // Check end time window
-                    if ($clockInTime->between($endTime->copy()->subMinutes($allowedDelay), $endTime->copy()->addMinutes($allowedDelay))) {
-                        $isWithinAnySlot = true;
-                        break;
-                    }
-                }
-
-                if (!$isWithinAnySlot) {
-                    $token = Str::random(60);
-                    ExceptionalClockInToken::create([
-                        'user_id' => $user->id,
-                        'team_id' => $team->id,
-                        'token' => $token,
-                        'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
-                    ]);
-
-                    $adminSender = $team->owner;
-                    $url = route('exceptional.clock-in', ['token' => $token]);
-                    $messageContent = __('exceptional_clock_in.message_content', [
-                        'minutes' => $team->clock_in_grace_period_minutes,
-                        'url' => $url
-                    ]);
-
-                    $message = Message::create([
-                        'sender_id' => $adminSender->id,
-                        'subject' => __('exceptional_clock_in.message_subject'),
-                        'body' => $messageContent,
-                        'is_log' => true,
-                    ]);
-
-                    $message->recipients()->attach($user->id);
-
-                    $user->notify(new NewMessage($message));
-
-                    if ($this->origin === 'numpad') {
-                        $this->showAddEventModal = false;
-                        return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
-                    } else {
-                        $this->dispatch('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
-                        $this->showAddEventModal = false;
-                        $this->emit('refreshCalendar');
-                    }
-                    return;
-                }
+            if (!$isWithinSchedule) {
+                $placeholderEvent = $this->createEvent(false, true); // is_exceptional = true
+                $this->triggerExceptionalFlow($user, $team, $clockInTime, $placeholderEvent->id);
+                return;
             }
         }
 
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
-
-        $team = Auth::user()->currentTeam;
-        $data = [
-            'user_id' => Auth::user()->id,
-            'work_center_id' => $defaultWorkCenterId,
-            'description' => $this->selectedEventType->name,
-            'observations' => $this->observations,
-            'event_type_id' => $this->event_type_id,
-            'is_open' => true,
-            'is_authorized' => false,
-            'is_extra_hours' => $isExtraHours,
-        ];
-
-        if ($isExceptional && $team) {
-            $data['override_color'] = $team->irregular_event_color;
-        }
-
-        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = Carbon::parse($this->start_date, config('app.timezone'))
-                ->startOfDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = Carbon::parse($this->end_date, config('app.timezone'))
-                ->startOfDay()
-                ->addDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-        } else {
-            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = null;
-        }
-
-        if (Schema::hasColumn('events', 'is_authorized')) {
-            $data['is_authorized'] = false;
-        }
-
-        $event = Event::create($data);
-
-        if ($isExtraHours) {
-            session()->flash('info', 'El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.');
-        }
+        $event = $this->createEvent();
 
         if ($event->eventType && $event->eventType->is_all_day) {
             $team = $event->user->currentTeam;
-
             if ($team) {
                 $admins = $team->allUsers()->filter(function ($user) use ($team) {
                     return $user->hasTeamRole($team, 'admin');
