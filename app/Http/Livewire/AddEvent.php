@@ -189,8 +189,14 @@ class AddEvent extends Component
 
                     $user->notify(new NewMessage($message));
 
-                    $this->emit('alertFail', __('exceptional_clock_in.validation_error'));
-                    $this->showAddEventModal = false;
+                    if ($this->origin === 'numpad') {
+                        $this->showAddEventModal = false;
+                        return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
+                    } else {
+                        $this->dispatch('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
+                        $this->showAddEventModal = false;
+                        $this->emit('refreshCalendar');
+                    }
                     return;
                 }
             }

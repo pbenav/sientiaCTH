@@ -82,6 +82,17 @@
 
         <!-- SweetAlert2 Listeners -->
         <script>
+            // Listener for 'alertFail' events
+            window.addEventListener('alertFail', event => {
+                Swal.fire({
+                    icon: 'info',
+                    title: "{{ __('sweetalert.alert_fail.title') }}",
+                    text: event.detail.message,
+                    showConfirmButton: true,
+                    confirmButtonText: "{{ __('sweetalert.ok_button') }}",
+                });
+            });
+
             // Listener for simple success alerts
             window.addEventListener('swal:alert', event => {
                 Swal.fire({

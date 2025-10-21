@@ -25,6 +25,7 @@ class Event extends Model
         'is_authorized',
         'is_closed_automatically',
         'is_extra_hours',
+        'is_exceptional',
         'description',
         'observations',
         'event_type_id',
@@ -32,6 +33,7 @@ class Event extends Model
 
     protected $casts = [
         'is_extra_hours' => 'boolean',
+        'is_exceptional' => 'boolean',
     ];
 
     public function eventType()
