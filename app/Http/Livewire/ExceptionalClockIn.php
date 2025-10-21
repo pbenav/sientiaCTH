@@ -73,6 +73,8 @@ class ExceptionalClockIn extends Component
                 $this->end_time = $tokenCreationTime->copy()->addHours(1)->format('H:i');
             }
 
+            $this->observations = __('Eg: I forgot to clock in when I arrived.');
+
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }

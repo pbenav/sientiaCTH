@@ -443,5 +443,14 @@
     "Automatic Event Closure": "Cierre Automático de Eventos",
     "Set the number of days after which open events should be automatically closed. Leave blank to disable.": "Establece el número de días tras los cuales los eventos abiertos se cerrarán automáticamente. Déjalo en blanco para desactivar esta opción.",
     "Expiration Days": "Días de Expiración",
-    "Closed automatically.": "Cerrado automáticamente."
+    "Closed automatically.": "Cerrado automáticamente.",
+    "sweetalert.calendar.event_drop.title": "¿Estás seguro?",
+    "sweetalert.calendar.event_drop.text": "El evento se moverá a la nueva fecha.",
+    "sweetalert.calendar.event_drop.confirmButtonText": "Sí, mover!",
+    "sweetalert.calendar.event_drop.cancelButtonText": "Cancelar",
+    "sweetalert.calendar.event_resize.title": "¿Estás seguro?",
+    "sweetalert.calendar.event_resize.text": "La duración del evento cambiará.",
+    "sweetalert.calendar.event_resize.confirmButtonText": "Sí, cambiar!",
+    "sweetalert.calendar.event_resize.cancelButtonText": "Cancelar",
+    "Eg: I forgot to clock in when I arrived.": "Ej: Olvidé fichar al llegar a la oficina."
 }
