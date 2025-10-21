@@ -72,9 +72,6 @@ class Calendar extends Component
         // Get user events
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
-            ->whereHas('eventType', function ($query) use ($user) {
-                $query->where('team_id', $user->currentTeam->id);
-            })
             ->get()
             ->map(function ($event) {
                 $iconHtml = $event->is_open
@@ -107,6 +104,6 @@ class Calendar extends Component
                 ];
             });
 
-        return $events->merge($holidays);
+        return $userEvents->merge($holidays);
     }
 }
