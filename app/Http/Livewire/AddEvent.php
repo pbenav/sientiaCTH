@@ -163,58 +163,41 @@ class AddEvent extends Component
                 }
 
                 if (!$isWithinAnySlot) {
-                    // Find the immediately preceding work slot
-                    $previousSlot = null;
-                    $minDiff = PHP_INT_MAX;
+                    $token = Str::random(60);
+                    ExceptionalClockInToken::create([
+                        'user_id' => $user->id,
+                        'team_id' => $team->id,
+                        'token' => $token,
+                        'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
+                    ]);
 
-                    foreach ($todaysSlots as $slot) {
-                        $startTime = Carbon::parse($this->start_date . ' ' . $slot['start']);
-                        if ($startTime->isBefore($clockInTime)) {
-                            $diff = $clockInTime->diffInMinutes($startTime);
-                            if ($diff < $minDiff) {
-                                $minDiff = $diff;
-                                $previousSlot = $slot;
-                            }
-                        }
-                    }
+                    $adminSender = $team->owner;
+                    $url = route('exceptional.clock-in', ['token' => $token]);
+                    $messageContent = __('exceptional_clock_in.message_content', [
+                        'minutes' => $team->clock_in_grace_period_minutes,
+                        'url' => $url
+                    ]);
 
-                    if ($previousSlot) {
-                        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-                        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
+                    $message = Message::create([
+                        'sender_id' => $adminSender->id,
+                        'subject' => __('exceptional_clock_in.message_subject'),
+                        'body' => $messageContent,
+                        'is_log' => true,
+                    ]);
 
-                        $event = Event::create([
-                            'user_id' => $user->id,
-                            'work_center_id' => $defaultWorkCenterId,
-                            'description' => $this->selectedEventType->name,
-                            'observations' => __('Created exceptionally. Please regularize.'),
-                            'event_type_id' => $this->event_type_id,
-                            'start' => Carbon::parse($this->start_date . ' ' . $previousSlot['start'])->setTimezone('UTC'),
-                            'end' => Carbon::parse($this->start_date . ' ' . $previousSlot['end'])->setTimezone('UTC'),
-                            'is_open' => false,
-                            'is_authorized' => false,
-                            'is_exceptional' => true,
-                            'is_extra_hours' => false,
-                        ]);
+                    $message->recipients()->attach($user->id);
 
-                        if ($this->origin === 'numpad') {
-                             return redirect()->route('events', ['edit_event' => $event->id])->with('alertFail', __('exceptional_clock_in.regularize_event'));
-                        } else {
-                            $this->emitTo('get-time-registers', 'render');
-                            $this->emit('refreshCalendar');
-                            $this->emitTo('edit-event', 'edit', $event->id);
-                            $this->dispatchBrowserEvent('alert', ['type' => 'error', 'message' => __('exceptional_clock_in.regularize_event')]);
-                        }
+                    $user->notify(new NewMessage($message));
 
+                    if ($this->origin === 'numpad') {
+                        $this->showAddEventModal = false;
+                        return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
                     } else {
-                         if ($this->origin === 'numpad') {
-                            return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.no_previous_slot'));
-                        } else {
-                            $this->dispatchBrowserEvent('alert', ['type' => 'error', 'message' => __('exceptional_clock_in.no_previous_slot')]);
-                        }
+                        $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
+                        $this->showAddEventModal = false;
+                        $this->emit('refreshCalendar');
+                        return;
                     }
-
-                    $this->showAddEventModal = false;
-                    return;
                 }
             }
         }
