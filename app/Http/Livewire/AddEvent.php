@@ -4,18 +4,11 @@ namespace App\Http\Livewire;
 
 use App\Models\Event;
 use App\Models\EventType;
-use App\Models\ExceptionalClockInToken;
-use App\Models\Message;
-use App\Notifications\EventCreated;
-use App\Notifications\NewMessage;
 use App\Traits\HasWorkScheduleHint;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class AddEvent extends Component
 {
@@ -23,13 +16,9 @@ class AddEvent extends Component
 
     public $showAddEventModal = false;
     public $workScheduleHint = '';
-    public $goDashboardModal = false;
-    public $now;
     public $start_date;
     public $end_date;
     public $start_time;
-    public $user_id;
-    public $description;
     public $event_type_id;
     public $eventTypes;
     public $selectedEventType;
@@ -39,37 +28,18 @@ class AddEvent extends Component
 
     protected function rules()
     {
-        $rules = [
+        return [
             'event_type_id' => 'required',
             'start_date' => 'required|date',
+            'start_time' => 'required',
             'observations' => 'nullable|string|max:255',
         ];
-
-        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $rules['end_date'] = 'required|date|after_or_equal:start_date';
-        } else if ($this->selectedEventType) {
-            $rules['start_time'] = 'required';
-        }
-
-        return $rules;
-    }
-
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
-    }
-
-    public function updatedEventTypeId($value)
-    {
-        $this->selectedEventType = EventType::find($value);
     }
 
     public function mount()
     {
         $this->start_date = date('Y-m-d');
-        $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
-        $this->description = __('Workday');
         $this->observations = '';
         $this->eventTypes = collect();
         $this->event_type_id = null;
@@ -82,27 +52,19 @@ class AddEvent extends Component
 
     public function add($data)
     {
-        $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
-        if (isset($data['date'])) {
-            $date = \Carbon\Carbon::parse($data['date']);
-            $this->start_date = $date->format('Y-m-d');
-            $this->end_date = $date->format('Y-m-d');
-            $this->start_time = $date->format('H:i:s');
-        } else {
-            $this->start_date = date('Y-m-d');
-            $this->end_date = date('Y-m-d');
-            $this->start_time = date('H:i:s');
-        }
-        $this->description = __('Workday');
+        $this->reset(['observations', 'event_type_id', 'selectedEventType']);
+
+        $date = isset($data['date']) ? Carbon::parse($data['date']) : Carbon::now();
+        $this->start_date = $date->format('Y-m-d');
+        $this->start_time = $date->format('H:i:s');
 
         if (Auth::check() && Auth::user()->currentTeam) {
-            $this->eventTypes = Auth::user()->currentTeam->eventTypes;
+            $this->eventTypes = Auth::user()->currentTeam->eventTypes()->where('is_workday_type', true)->get();
             if ($this->eventTypes->count() > 0) {
-                $this->event_type_id = $this->eventTypes->first()->id;
-                $this->selectedEventType = $this->eventTypes->first();
+                $defaultEventType = $this->eventTypes->first();
+                $this->event_type_id = $defaultEventType->id;
+                $this->selectedEventType = $defaultEventType;
             }
-        } else {
-            $this->eventTypes = collect();
         }
 
         $this->setWorkScheduleHint();
@@ -113,9 +75,6 @@ class AddEvent extends Component
     public function cancel()
     {
         $this->showAddEventModal = false;
-        if ($this->origin !== 'calendar') {
-            $this->redirect('/events');
-        }
     }
 
     public function save()
@@ -123,148 +82,97 @@ class AddEvent extends Component
         $this->validate();
 
         $user = Auth::user();
-        $isExtraHours = false;
         $team = $user->currentTeam;
+        $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
 
-        if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type) {
-            $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
-            $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
+        $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
+        $schedule = $workScheduleMeta ? json_decode($workScheduleMeta->meta_value, true) : [];
 
-            $clockInTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
-            $dayOfWeek = $clockInTime->format('N');
-            $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
-            $dayAbbr = $dayMap[$dayOfWeek] ?? null;
+        $isExceptionalDate = !$clockInTime->isToday();
+        list($isWithinSlot, $closestSlot) = $this->findClosestSlot($clockInTime, $schedule, $team->clock_in_delay_minutes ?? 15);
 
-            $todaysSlots = collect($schedule)->filter(function ($slot) use ($dayAbbr) {
-                return in_array($dayAbbr, $slot['days']);
-            });
+        $isExceptional = $isExceptionalDate || !$isWithinSlot;
 
-            if ($todaysSlots->isEmpty()) {
-                $isExtraHours = true;
-            } else {
-                $isWithinAnySlot = false;
-                $allowedDelay = $team->clock_in_delay_minutes;
+        if ($isExceptional) {
+            if (!$closestSlot) {
+                $this->dispatchBrowserEvent('alertFail', ['message' => __('No se encontró un tramo horario cercano para crear el evento excepcional.')]);
+                return;
+            }
 
-                foreach ($todaysSlots as $slot) {
-                    $startTime = Carbon::parse($this->start_date . ' ' . $slot['start']);
-                    $endTime = Carbon::parse($this->start_date . ' ' . $slot['end']);
+            $slotStart = Carbon::parse($clockInTime->format('Y-m-d') . ' ' . $closestSlot['start']);
+            $slotEnd = Carbon::parse($clockInTime->format('Y-m-d') . ' ' . $closestSlot['end']);
 
-                    // Check start time window
-                    if ($clockInTime->between($startTime->copy()->subMinutes($allowedDelay), $startTime->copy()->addMinutes($allowedDelay))) {
-                        $isWithinAnySlot = true;
-                        break;
-                    }
+            Event::create([
+                'user_id' => $user->id,
+                'work_center_id' => $user->meta->where('meta_key', 'default_work_center_id')->first()->meta_value ?? null,
+                'description' => $this->selectedEventType->name,
+                'observations' => __('Creado de forma excepcional: ') . $this->observations,
+                'event_type_id' => $this->event_type_id,
+                'start' => $slotStart,
+                'end' => $slotEnd,
+                'is_open' => false,
+                'is_confirmed' => true,
+                'is_exceptional' => true,
+                'is_authorized' => false,
+            ]);
 
-                    // Check end time window
-                    if ($clockInTime->between($endTime->copy()->subMinutes($allowedDelay), $endTime->copy()->addMinutes($allowedDelay))) {
-                        $isWithinAnySlot = true;
-                        break;
-                    }
-                }
+            session()->flash('info', 'Se ha creado un evento excepcional confirmado. Por favor, regularícelo si es necesario.');
 
-                if (!$isWithinAnySlot) {
-                    $token = Str::random(60);
-                    ExceptionalClockInToken::create([
-                        'user_id' => $user->id,
-                        'team_id' => $team->id,
-                        'token' => $token,
-                        'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes),
-                    ]);
+        } else {
+            // Standard event creation
+            Event::create([
+                'user_id' => $user->id,
+                'work_center_id' => $user->meta->where('meta_key', 'default_work_center_id')->first()->meta_value ?? null,
+                'description' => $this->selectedEventType->name,
+                'observations' => $this->observations,
+                'event_type_id' => $this->event_type_id,
+                'start' => $clockInTime,
+                'end' => null,
+                'is_open' => true,
+                'is_confirmed' => false,
+                'is_exceptional' => false,
+                'is_authorized' => false,
+            ]);
+        }
 
-                    $adminSender = $team->owner;
-                    $url = route('exceptional.clock-in', ['token' => $token]);
-                    $messageContent = __('exceptional_clock_in.message_content', [
-                        'minutes' => $team->clock_in_grace_period_minutes,
-                        'url' => $url
-                    ]);
+        $this->showAddEventModal = false;
+        $this->emit('refreshCalendar');
+        $this->emitTo('get-time-registers', 'render');
+    }
 
-                    $message = Message::create([
-                        'sender_id' => $adminSender->id,
-                        'subject' => __('exceptional_clock_in.message_subject'),
-                        'body' => $messageContent,
-                        'is_log' => true,
-                    ]);
+    private function findClosestSlot(Carbon $time, array $schedule, int $allowedDelay)
+    {
+        $dayOfWeek = $time->format('N');
+        $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+        $dayAbbr = $dayMap[$dayOfWeek] ?? null;
 
-                    $message->recipients()->attach($user->id);
+        $todaysSlots = collect($schedule)->filter(fn($slot) => in_array($dayAbbr, $slot['days']));
 
-                    $user->notify(new NewMessage($message));
+        if ($todaysSlots->isEmpty()) {
+            return [false, null];
+        }
 
-                    if ($this->origin === 'numpad') {
-                        $this->showAddEventModal = false;
-                        return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
-                    } else {
-                        $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
-                        $this->showAddEventModal = false;
-                        $this->emit('refreshCalendar');
-                    }
-                    return;
-                }
+        $closestSlot = null;
+        $minDiff = PHP_INT_MAX;
+        $isWithinAnySlot = false;
+
+        foreach ($todaysSlots as $slot) {
+            $slotStart = Carbon::parse($time->format('Y-m-d') . ' ' . $slot['start']);
+            $slotEnd = Carbon::parse($time->format('Y-m-d') . ' ' . $slot['end']);
+
+            if ($time->between($slotStart->copy()->subMinutes($allowedDelay), $slotStart->copy()->addMinutes($allowedDelay)) ||
+                $time->between($slotEnd->copy()->subMinutes($allowedDelay), $slotEnd->copy()->addMinutes($allowedDelay))) {
+                $isWithinAnySlot = true;
+            }
+
+            $diff = abs($time->diffInMinutes($slotStart));
+            if ($diff < $minDiff) {
+                $minDiff = $diff;
+                $closestSlot = $slot;
             }
         }
 
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
-        $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
-
-        $data = [
-            'user_id' => Auth::user()->id,
-            'work_center_id' => $defaultWorkCenterId,
-            'description' => $this->selectedEventType->name,
-            'observations' => $this->observations,
-            'event_type_id' => $this->event_type_id,
-            'is_open' => true,
-            'is_authorized' => false,
-            'is_extra_hours' => $isExtraHours,
-        ];
-
-        if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = Carbon::parse($this->start_date, config('app.timezone'))
-                ->startOfDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = Carbon::parse($this->end_date, config('app.timezone'))
-                ->startOfDay()
-                ->addDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-        } else {
-            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = null;
-        }
-
-        if (Schema::hasColumn('events', 'is_authorized')) {
-            $data['is_authorized'] = false;
-        }
-
-        $event = Event::create($data);
-
-        if ($isExtraHours) {
-            session()->flash('info', 'El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.');
-        }
-
-        if ($event->eventType && $event->eventType->is_all_day) {
-            $team = $event->user->currentTeam;
-
-            if ($team) {
-                $admins = $team->allUsers()->filter(function ($user) use ($team) {
-                    return $user->hasTeamRole($team, 'admin');
-                });
-
-                if ($admins && $admins->isNotEmpty()) {
-                    Notification::send($admins, new EventCreated($event));
-                }
-            }
-        }
-
-        $this->reset(['showAddEventModal']);
-
-        if ($this->origin == 'numpad') {
-            return redirect()->route('events')->with('info', 'E_SUCCESS');
-        } else {
-            $this->emitTo('get-time-registers', 'render');
-            $this->emit('refreshCalendar');
-        }
+        return [$isWithinAnySlot, $closestSlot];
     }
 
     public function render()

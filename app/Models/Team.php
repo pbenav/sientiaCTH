@@ -32,6 +32,7 @@ class Team extends JetstreamTeam
         'force_clock_in_delay' => 'boolean',
         'clock_in_delay_minutes' => 'integer',
         'clock_in_grace_period_minutes' => 'integer',
+        'event_expiration_days' => 'integer',
     ];
 
     protected $fillable = [
@@ -40,6 +41,7 @@ class Team extends JetstreamTeam
         'force_clock_in_delay',
         'clock_in_delay_minutes',
         'clock_in_grace_period_minutes',
+        'event_expiration_days',
     ];
 
     protected $dispatchesEvents = [

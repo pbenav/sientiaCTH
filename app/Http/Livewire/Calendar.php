@@ -31,11 +31,15 @@ class Calendar extends Component
         $event = Event::find($eventId);
 
         if ($event) {
+            $isExceptional = Carbon::parse($newStart)->isPast();
+
             $event->update([
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
+                'is_exceptional' => $event->is_exceptional || $isExceptional,
             ]);
         }
+        $this->refresh();
     }
 
     public function eventResize($eventId, $newStart, $newEnd)
@@ -48,6 +52,7 @@ class Calendar extends Component
                 'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
             ]);
         }
+        $this->refresh();
     }
 
     public function triggerEditModal($eventId)

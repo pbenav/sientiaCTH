@@ -73,6 +73,14 @@
                             @livewire('teams.clock-in-delay-manager', ['team' => $team])
                         </div>
                     @endif
+
+                    @if (Gate::check('update', $team))
+                        <x-jet-section-border />
+
+                        <div class="mt-10 sm:mt-0">
+                            @livewire('teams.event-expiration-manager', ['team' => $team])
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Work Centers Tab -->
