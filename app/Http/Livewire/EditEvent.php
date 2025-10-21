@@ -103,8 +103,15 @@ class EditEvent extends Component
                 ->setTimezone(config('app.timezone'))
                 ->format('Y-m-d');
         } else {
-            $this->end_datetime = \Carbon\Carbon::now(config('app.timezone'))->toDateTimeLocalString();
-            $this->end_date = \Carbon\Carbon::now(config('app.timezone'))->format('Y-m-d');
+            $now = \Carbon\Carbon::now(config('app.timezone'));
+            $startTime = \Carbon\Carbon::parse($this->start_datetime);
+
+            if ($now->lessThan($startTime)) {
+                $this->end_datetime = $startTime->copy()->addMinutes(2)->toDateTimeLocalString();
+            } else {
+                $this->end_datetime = $now->toDateTimeLocalString();
+            }
+            $this->end_date = \Carbon\Carbon::parse($this->end_datetime)->format('Y-m-d');
         }
 
         $this->setWorkScheduleHint();
