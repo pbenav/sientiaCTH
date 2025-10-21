@@ -287,21 +287,18 @@
                                 @if (!$isInspector || $isTeamAdmin)
                                     <td class="flex justify-center items-center p-1 md:table-cell">
                                         <div class="flex float-right">
-                                            <button class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
-                                                    wire:click="edit({{ $ev }})"
-                                                    @if(!$ev->is_open) onclick="showClosedEventAlert()" @endif>
+                                            <a class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
+                                                wire:click="edit({{ $ev }})">
                                                 <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
-                                                    wire:click="alertConfirm({{ $ev }})"
-                                                    @if(!$ev->is_open) onclick="showClosedEventAlert()" @endif>
+                                            </a>
+                                            <a class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
+                                                wire:click="alertConfirm({{ $ev }})">
                                                 <i class="fas fa-check"></i>
-                                            </button>
-                                            <button class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
-                                                    wire:click="alertDelete({{ $ev }})"
-                                                    @if(!$ev->is_open) onclick="showClosedEventAlert()" @endif>
+                                            </a>
+                                            <a class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
+                                                wire:click="alertDelete({{ $ev }})">
                                                 <i class="fas fa-trash"></i>
-                                            </button>
+                                            </a>
                                         </div>
                                     </td>
                                 @endif
@@ -379,15 +376,6 @@
         <!-- SweetAlert Scripts -->
         @push('scripts')
             <script>
-                function showClosedEventAlert() {
-                    Swal.fire({
-                        icon: 'info',
-                        title: "{{ __('sweetalert.event_closed.title') }}",
-                        text: "{{ __('sweetalert.event_closed.text') }}",
-                        confirmButtonText: "{{ __('sweetalert.ok_button') }}",
-                    });
-                }
-
                 Livewire.on('alert', function(message) {
                     Swal.fire({
                         icon: 'success',

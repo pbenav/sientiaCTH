@@ -31,15 +31,11 @@ class Calendar extends Component
         $event = Event::find($eventId);
 
         if ($event) {
-            $isExceptional = Carbon::parse($newStart)->isPast();
-
             $event->update([
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
-                'is_exceptional' => $event->is_exceptional || $isExceptional,
             ]);
         }
-        $this->refresh();
     }
 
     public function eventResize($eventId, $newStart, $newEnd)
@@ -52,7 +48,6 @@ class Calendar extends Component
                 'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
             ]);
         }
-        $this->refresh();
     }
 
     public function triggerEditModal($eventId)
@@ -72,27 +67,24 @@ class Calendar extends Component
             return [];
         }
 
-        $events = collect();
-
         // Get user events
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
             ->get()
             ->map(function ($event) {
-                $iconHtml = $event->is_open
-                    ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
-                    : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
+                $color = $event->override_color ?? $event->eventType->color ?? '#3788d8';
 
                 return [
                     'id' => 'event_' . $event->id,
                     'title' => $event->description,
-                    'iconHtml' => $iconHtml,
                     'start' => Carbon::parse($event->start, 'UTC')->toIso8601String(),
                     'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
-                    'color' => $event->eventType->color ?? '#3788d8',
+                    'color' => $color,
                     'allDay' => $event->eventType->is_all_day ?? false,
+                    'is_open' => $event->is_open,
                 ];
             });
+
 
         // Get team holidays
         $holidays = Holiday::where('team_id', $user->currentTeam->id)
@@ -101,11 +93,11 @@ class Calendar extends Component
                 return [
                     'id' => 'holiday_' . $holiday->id,
                     'title' => $holiday->name,
-                    'iconHtml' => '<i class="ml-1 mr-2 fa-solid fa-calendar-day" style="color: #ff6b35;"></i>',
                     'start' => $holiday->date->format('Y-m-d'),
                     'end' => $holiday->date->format('Y-m-d'),
-                    'color' => '#ff6b35',
+                    'color' => '#A3E635',
                     'allDay' => true,
+                    'is_holiday' => true,
                 ];
             });
 

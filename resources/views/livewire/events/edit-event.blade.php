@@ -59,7 +59,7 @@
                 <textarea class="w-full form-control"
                  wire:model.defer="event.observations"
                  rows="4"
-                 placeholder="{{ __('Indica un motivo para la regularización. P. ej.: Olvido') }}"
+                 placeholder="{{ __('Observations') }}"
                  name="observations"
                  id="observations"
                  maxlength="255"></textarea>

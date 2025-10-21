@@ -72,9 +72,7 @@
                         <div class="mt-10 sm:mt-0">
                             @livewire('teams.clock-in-delay-manager', ['team' => $team])
                         </div>
-                    @endif
 
-                    @if (Gate::check('update', $team))
                         <x-jet-section-border />
 
                         <div class="mt-10 sm:mt-0">

@@ -4,17 +4,16 @@ namespace App\Http\Livewire\Teams;
 
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use App\Models\Team;
 
 class EventExpirationManager extends Component
 {
     public $team;
-    public array $state = [];
+    public $state = [];
 
-    public function mount(Team $team)
+    public function mount($team)
     {
         $this->team = $team;
-        $this->state['event_expiration_days'] = $this->team->event_expiration_days ?? 7;
+        $this->state['event_expiration_days'] = $this->team->event_expiration_days;
     }
 
     public function updateEventExpiration()
@@ -24,7 +23,7 @@ class EventExpirationManager extends Component
         Gate::forUser(auth()->user())->authorize('update', $this->team);
 
         $this->validate([
-            'state.event_expiration_days' => ['required', 'integer', 'min:1'],
+            'state.event_expiration_days' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $this->team->forceFill([
