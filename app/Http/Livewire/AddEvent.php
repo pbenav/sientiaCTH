@@ -134,7 +134,7 @@ class AddEvent extends Component
             $isWithinSchedule = $this->isWithinSchedule($schedule, $clockInTime, $team->clock_in_delay_minutes ?? 0);
 
             if (!$isWithinSchedule) {
-                // Create the placeholder event first
+                // Create the placeholder event first and get the instance back
                 $placeholderEvent = $this->createEvent(false, true); // is_exceptional = true
 
                 // Then, trigger the regularization flow
@@ -144,7 +144,31 @@ class AddEvent extends Component
             }
         }
 
-        $this->createEvent();
+        // --- Normal event creation flow ---
+        $event = $this->createEvent();
+
+        // Handle side effects for normal creation here
+        if ($event->eventType && $event->eventType->is_all_day) {
+            $team = $event->user->currentTeam;
+            if ($team) {
+                $admins = $team->allUsers()->filter(function ($user) use ($team) {
+                    return $user->hasTeamRole($team, 'admin');
+                });
+
+                if ($admins && $admins->isNotEmpty()) {
+                    Notification::send($admins, new EventCreated($event));
+                }
+            }
+        }
+
+        $this->reset(['showAddEventModal']);
+
+        if ($this->origin == 'numpad') {
+            return redirect()->route('events')->with('info', 'E_SUCCESS');
+        } else {
+            $this->emitTo('get-time-registers', 'render');
+            $this->emit('refreshCalendar');
+        }
     }
 
     private function isWithinSchedule($schedule, Carbon $clockInTime, $allowedDelay)
@@ -256,34 +280,7 @@ class AddEvent extends Component
             $data['is_authorized'] = false;
         }
 
-        $event = Event::create($data);
-
-        if ($isExtraHours) {
-            session()->flash('info', __('The event has been registered as extra hours as it is not in a defined time slot.'));
-        }
-
-        if ($event->eventType && $event->eventType->is_all_day) {
-            $team = $event->user->currentTeam;
-
-            if ($team) {
-                $admins = $team->allUsers()->filter(function ($user) use ($team) {
-                    return $user->hasTeamRole($team, 'admin');
-                });
-
-                if ($admins && $admins->isNotEmpty()) {
-                    Notification::send($admins, new EventCreated($event));
-                }
-            }
-        }
-
-        $this->reset(['showAddEventModal']);
-
-        if ($this->origin == 'numpad') {
-            return redirect()->route('events')->with('info', 'E_SUCCESS');
-        } else {
-            $this->emitTo('get-time-registers', 'render');
-            $this->emit('refreshCalendar');
-        }
+        return Event::create($data);
     }
 
     public function render()

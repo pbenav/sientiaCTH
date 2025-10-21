@@ -70,6 +70,9 @@ class Calendar extends Component
         // Get user events
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
+            ->whereHas('eventType', function ($query) use ($user) {
+                $query->where('team_id', $user->currentTeam->id);
+            })
             ->get()
             ->map(function ($event) {
                 $color = $event->override_color ?? $event->eventType->color ?? '#3788d8';

@@ -104,7 +104,7 @@ class ExceptionalClockIn extends Component
 
         if ($event) {
             $event->update([
-                'observations' => __('Creado de forma excepcional: ') . $this->observations,
+                'observations' => $this->observations,
                 'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
                 'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
                 'is_open' => false,
