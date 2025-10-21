@@ -97,6 +97,20 @@
         </div>
     @endif
 
+    @if (session()->has('alertFail'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'info',
+                    title: "{{ __('sweetalert.alert_fail.title') }}",
+                    text: "{{ session('alertFail') }}",
+                    showConfirmButton: true,
+                    confirmButtonText: "{{ __('sweetalert.ok_button') }}",
+                });
+            });
+        </script>
+    @endif
+
     <!-- Event List Section -->
     <div class="mx-auto w-full max-w-6xl" wire:init="loadEvents">
 
@@ -369,16 +383,6 @@
                         text: message,
                         timer: 1500,
                         timerProgressBar: true
-                    });
-                });
-
-                Livewire.on('alertFail', function(message) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: "{{ __('sweetalert.alert_fail.title') }}",
-                        text: message,
-                        showConfirmButton: true,
-                        confirmButtonText: "{{ __('sweetalert.ok_button') }}",
                     });
                 });
 

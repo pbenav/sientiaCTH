@@ -75,6 +75,7 @@ class ExceptionalClockIn extends Component
             'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
             'is_open' => false,
             'is_authorized' => false,
+            'is_exceptional' => true,
         ]);
 
         $this->tokenRecord->update(['used_at' => now()]);

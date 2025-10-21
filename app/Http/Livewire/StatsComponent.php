@@ -323,13 +323,20 @@ class StatsComponent extends Component
         $minConfidence = !empty($confidenceScores) ? round(min($confidenceScores), 2) : 0;
         $maxConfidence = !empty($confidenceScores) ? round(max($confidenceScores), 2) : 0;
 
+        $exceptionalEventsCount = Event::where('user_id', $this->browsedUser)
+            ->where('is_exceptional', true)
+            ->whereYear('start', $this->selectedYear)
+            ->whereMonth('start', $this->selectedMonth)
+            ->count();
+
         $automaticallyClosedCount = Event::where('user_id', $this->browsedUser)
             ->where('is_closed_automatically', true)
-            ->whereYear('updated_at', $this->selectedYear)
-            ->whereMonth('updated_at', $this->selectedMonth)
+            ->whereYear('end', $this->selectedYear)
+            ->whereMonth('end', $this->selectedMonth)
             ->count();
 
         return [
+            'exceptional_events_count' => $exceptionalEventsCount,
             'automatically_closed_count' => $automaticallyClosedCount,
             'percentage_completion' => $percentage_completion,
             'extra_hours' => $extra_hours,
