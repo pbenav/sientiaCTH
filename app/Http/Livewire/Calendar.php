@@ -28,9 +28,21 @@ class Calendar extends Component
 
     public function eventDrop($eventId, $newStart, $newEnd)
     {
-        $event = Event::find($eventId);
+        $numericId = str_replace('event_', '', $eventId);
+        $event = Event::find($numericId);
 
         if ($event) {
+            $user = Auth::user();
+            if ($event->is_authorized && !$user->hasTeamRole($event->user->currentTeam, 'admin')) {
+                $this->dispatchBrowserEvent('swal:alert', [
+                    'icon' => 'error',
+                    'title' => __('Error'),
+                    'text' => __('You are not authorized to modify a confirmed event.'),
+                ]);
+                $this->refresh(); // Revert the change visually
+                return;
+            }
+
             $event->update([
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
@@ -40,9 +52,21 @@ class Calendar extends Component
 
     public function eventResize($eventId, $newStart, $newEnd)
     {
-        $event = Event::find($eventId);
+        $numericId = str_replace('event_', '', $eventId);
+        $event = Event::find($numericId);
 
         if ($event) {
+            $user = Auth::user();
+            if ($event->is_authorized && !$user->hasTeamRole($event->user->currentTeam, 'admin')) {
+                $this->dispatchBrowserEvent('swal:alert', [
+                    'icon' => 'error',
+                    'title' => __('Error'),
+                    'text' => __('You are not authorized to modify a confirmed event.'),
+                ]);
+                $this->refresh(); // Revert the change visually
+                return;
+            }
+
             $event->update([
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
@@ -74,8 +98,9 @@ class Calendar extends Component
                 $query->where('team_id', $user->currentTeam->id);
             })
             ->get()
-            ->map(function ($event) {
+            ->map(function ($event) use ($user) {
                 $color = $event->override_color ?? $event->eventType->color ?? '#3788d8';
+                $isEditable = !$event->is_authorized || $user->hasTeamRole($event->user->currentTeam, 'admin');
 
                 return [
                     'id' => 'event_' . $event->id,
@@ -85,6 +110,7 @@ class Calendar extends Component
                     'color' => $color,
                     'allDay' => $event->eventType->is_all_day ?? false,
                     'is_open' => $event->is_open,
+                    'editable' => $isEditable,
                 ];
             });
 
