@@ -6,6 +6,8 @@ use App\Models\Event;
 use App\Models\EventType;
 use App\Models\ExceptionalClockInToken;
 use App\Models\Message;
+use App\Models\User;
+use App\Models\Team;
 use App\Notifications\EventCreated;
 use App\Notifications\NewMessage;
 use App\Traits\HasWorkScheduleHint;
@@ -197,7 +199,7 @@ class AddEvent extends Component
         return false; // Not within any of the day's slots
     }
 
-    private function triggerExceptionalFlow(User $user, $team, Carbon $clockInTime, $eventId)
+    private function triggerExceptionalFlow(User $user, Team $team, Carbon $clockInTime, $eventId)
     {
         $token = Str::random(60);
         ExceptionalClockInToken::create([
