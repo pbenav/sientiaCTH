@@ -33,8 +33,8 @@
                     eventDurationEditable: true,
                     selectable: true,
                     eventAllow: function(dropInfo, draggedEvent) {
-                        // Only allow dragging user events, not holidays
-                        return draggedEvent.id.startsWith('event_');
+                        // Use the 'editable' property passed from the backend
+                        return draggedEvent.extendedProps.editable && draggedEvent.id.startsWith('event_');
                     },
 
                     // Callback for clicking an event
@@ -103,16 +103,14 @@
                         });
                     },
 
-                    eventContent: function(info) {
-                        // Accede a la propiedad personalizada 'iconHtml'
-                        const iconHtml = info.event.extendedProps.iconHtml;
-                        const title = info.event.title;
-
-                        // Retorna un objeto con la propiedad 'html'
-                        return {
-                            html: `<span class="fc-title">${iconHtml} ${title}</span>`
-                        };
-                    }
+                    eventContent: function(arg) {
+                        let iconHtml = '';
+                        // Check the custom property from the backend
+                        if (arg.event.extendedProps.is_open === false) {
+                            iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg> `;
+                        }
+                        return { html: `<div class="fc-event-main-frame">${iconHtml}<div class="fc-event-title-container"><div class="fc-event-title fc-sticky">${arg.event.title}</div></div></div>` };
+                    },
                 });
 
                 calendar.render();

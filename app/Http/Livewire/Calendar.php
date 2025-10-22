@@ -33,11 +33,14 @@ class Calendar extends Component
 
         if ($event) {
             $user = Auth::user();
-            if ($event->is_authorized && !$user->hasTeamRole($event->user->currentTeam, 'admin')) {
+            // Replicate the same logic used to set the 'editable' property
+            $isEditable = (!$event->is_authorized && !$event->is_exceptional) || $user->hasTeamRole($event->user->currentTeam, 'admin');
+
+            if (!$isEditable) {
                 $this->dispatchBrowserEvent('swal:alert', [
                     'icon' => 'error',
                     'title' => __('Error'),
-                    'text' => __('You are not authorized to modify a confirmed event.'),
+                    'text' => __('You are not authorized to perform this action.'),
                 ]);
                 $this->refresh(); // Revert the change visually
                 return;
@@ -59,13 +62,16 @@ class Calendar extends Component
 
         if ($event) {
             $user = Auth::user();
-            if ($event->is_authorized && !$user->hasTeamRole($event->user->currentTeam, 'admin')) {
-                $this->dispatchBrowserEvent('swal:alert', [
+            // Replicate the same logic used to set the 'editable' property
+            $isEditable = (!$event->is_authorized && !$event->is_exceptional) || $user->hasTeamRole($event->user->currentTeam, 'admin');
+
+            if (!$isEditable) {
+                $this.dispatchBrowserEvent('swal:alert', [
                     'icon' => 'error',
                     'title' => __('Error'),
-                    'text' => __('You are not authorized to modify a confirmed event.'),
+                    'text' => __('You are not authorized to perform this action.'),
                 ]);
-                $this->refresh(); // Revert the change visually
+                $this.refresh(); // Revert the change visually
                 return;
             }
 

@@ -80,7 +80,7 @@ class ExceptionalClockIn extends Component
                 $this->end_time = $clockInTime->copy()->addHours(8)->format('H:i');
             }
 
-            $this->observations = __('Eg: I forgot to clock in when I arrived.');
+            $this->observations = __('regularization.observation_placeholder');
 
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
