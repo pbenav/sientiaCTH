@@ -28,26 +28,50 @@ class Calendar extends Component
 
     public function eventDrop($eventId, $newStart, $newEnd)
     {
+        $eventId = str_replace('event_', '', $eventId);
         $event = Event::find($eventId);
 
-        if ($event) {
-            $event->update([
-                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-                'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
-            ]);
+        if (!$event) {
+            return;
         }
+
+        // Authorization logic
+        $user = Auth::user();
+        if (!$user->hasTeamRole($user->currentTeam, 'admin') && ($event->is_authorized || $event->is_exceptional)) {
+            $this->refresh();
+            return;
+        }
+
+        $event->update([
+            'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+            'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
+        ]);
+
+        $this->refresh();
     }
 
     public function eventResize($eventId, $newStart, $newEnd)
     {
+        $eventId = str_replace('event_', '', $eventId);
         $event = Event::find($eventId);
 
-        if ($event) {
-            $event->update([
-                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-                'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
-            ]);
+        if (!$event) {
+            return;
         }
+
+        // Authorization logic
+        $user = Auth::user();
+        if (!$user->hasTeamRole($user->currentTeam, 'admin') && ($event->is_authorized || $event->is_exceptional)) {
+            $this->refresh();
+            return;
+        }
+
+        $event->update([
+            'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+            'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
+        ]);
+
+        $this->refresh();
     }
 
     public function triggerEditModal($eventId)
