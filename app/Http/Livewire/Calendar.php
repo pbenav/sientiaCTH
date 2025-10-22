@@ -86,6 +86,7 @@ class Calendar extends Component
                     'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
+                    'editable' => $event->is_open,
                 ];
             });
 
