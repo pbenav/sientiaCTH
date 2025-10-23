@@ -53,7 +53,7 @@
                     <!-- Observations -->
                     <div class="mt-4">
                         <x-jet-label for="observations" value="{{ __('Motivo del fichaje excepcional') }}" />
-                        <textarea id="observations" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1 block w-full" wire:model.defer="observations" placeholder="{{ __('P.ej. Se me olvidó fichar al inicio de mi jornada laboral.') }}"></textarea>
+                        <textarea id="observations" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1 block w-full" wire:model.defer="observations"></textarea>
                         <x-jet-input-error for="observations" class="mt-2" />
                     </div>
 

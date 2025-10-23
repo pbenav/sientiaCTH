@@ -40,32 +40,6 @@ class ExceptionalClockIn extends Component
             $this->isValidToken = true;
             $this->start_date = now()->format('Y-m-d');
             $this->end_date = now()->format('Y-m-d');
-
-            $user = User::find($this->tokenRecord->user_id);
-            $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
-            if ($workScheduleMeta) {
-                $workSchedule = json_decode($workScheduleMeta->meta_value, true);
-                $dayOfWeek = Carbon::now()->format('N');
-                $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
-                $currentDayLetter = $dayMap[$dayOfWeek];
-
-                $scheduleForToday = collect($workSchedule)->where('day', $currentDayLetter)->sortBy('start_time');
-
-                $now = Carbon::now()->format('H:i');
-                $previousSlot = null;
-                foreach ($scheduleForToday as $slot) {
-                    if ($slot['start_time'] < $now) {
-                        $previousSlot = $slot;
-                    } else {
-                        break;
-                    }
-                }
-
-                if ($previousSlot) {
-                    $this->start_time = $previousSlot['start_time'];
-                    $this->end_time = $previousSlot['end_time'];
-                }
-            }
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }

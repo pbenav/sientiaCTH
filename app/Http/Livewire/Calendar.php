@@ -35,6 +35,8 @@ class Calendar extends Component
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
             ]);
+
+            $this->refresh();
         }
     }
 
@@ -47,6 +49,8 @@ class Calendar extends Component
                 'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
                 'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
             ]);
+
+            $this->refresh();
         }
     }
 

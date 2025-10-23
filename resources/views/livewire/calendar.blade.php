@@ -71,7 +71,7 @@
                             cancelButtonText: "{{ __('sweetalert.calendar.event_drop.cancelButtonText') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                @this.emit('eventDrop', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+                                @this.emit('eventDrop', info.event.id.replace('event_', ''), info.event.start.toISOString(), info.event.end.toISOString());
                             } else {
                                 info.revert();
                             }
@@ -96,7 +96,7 @@
                             cancelButtonText: "{{ __('sweetalert.calendar.event_resize.cancelButtonText') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                @this.emit('eventResize', info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+                                @this.emit('eventResize', info.event.id.replace('event_', ''), info.event.start.toISOString(), info.event.end.toISOString());
                             } else {
                                 info.revert();
                             }
