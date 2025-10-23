@@ -37,7 +37,7 @@ class Calendar extends Component
 
         // Authorization logic
         $user = Auth::user();
-        if (!$user->hasTeamRole($user->currentTeam, 'admin') && ($event->is_authorized || $event->is_exceptional)) {
+        if (!$user->hasTeamRole($user->currentTeam, 'admin') && !$event->is_open) {
             $this->refresh();
             return;
         }
@@ -61,7 +61,7 @@ class Calendar extends Component
 
         // Authorization logic
         $user = Auth::user();
-        if (!$user->hasTeamRole($user->currentTeam, 'admin') && ($event->is_authorized || $event->is_exceptional)) {
+        if (!$user->hasTeamRole($user->currentTeam, 'admin') && !$event->is_open) {
             $this->refresh();
             return;
         }
