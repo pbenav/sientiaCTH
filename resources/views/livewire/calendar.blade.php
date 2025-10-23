@@ -33,8 +33,7 @@
                     eventDurationEditable: true,
                     selectable: true,
                     eventAllow: function(dropInfo, draggedEvent) {
-                        // Only allow dragging user events, not holidays
-                        return draggedEvent.id.startsWith('event_');
+                        return draggedEvent.editable;
                     },
 
                     // Callback for clicking an event
