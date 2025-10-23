@@ -8,11 +8,17 @@ use Carbon\Carbon;
 use Livewire\Component;
 use App\Traits\InsertHistory;
 use App\Traits\HasWorkScheduleHint;
+use App\Traits\HandlesEventAuthorization;
 use Illuminate\Support\Facades\Auth;
 
 class EditEvent extends Component
 {
-    use InsertHistory, HasWorkScheduleHint;
+    use InsertHistory, HasWorkScheduleHint, HandlesEventAuthorization;
+
+    /**
+     * @var bool $canBeModified Determines if the event can be modified by the current user.
+     */
+    public $canBeModified = false;
 
     /**
      * @var bool $showModalEditEvent Determines if the edit event modal is visible.
@@ -143,16 +149,15 @@ class EditEvent extends Component
 
         $this->setWorkScheduleHint();
 
-        if ($this->event->is_open == 1) {
+        $this->canBeModified = $this->canModifyEvent($this->event);
+
+        if ($this->canBeModified) {
             $this->showModalEditEvent = true;
         } else {
-            if (auth()->user()->isTeamAdmin()) {
-                $this->showModalEditEvent = true;
-            } else {
-                $this->emit('alertFail', __("Event is confirmed."));
-                $this->reset(["showModalEditEvent"]);
-            }
+            $this->emit('alertFail', __("Event is confirmed."));
+            $this->reset(["showModalEditEvent"]);
         }
+
         $this->emitTo('get-time-registers', 'render');
     }
 
@@ -163,6 +168,12 @@ class EditEvent extends Component
      */
     public function update()
     {
+        if (!$this->canModifyEvent($this->event)) {
+            $this->emit('alertFail', __("You are not authorized to perform this action."));
+            $this->reset(["showModalEditEvent"]);
+            return;
+        }
+
         $this->validate();
 
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
