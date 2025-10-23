@@ -33,8 +33,8 @@
                     eventDurationEditable: true,
                     selectable: true,
                     eventAllow: function(dropInfo, draggedEvent) {
-                        // Use the 'editable' property from the event object
-                        return draggedEvent.editable;
+                        // Use the 'editable' property from the event's extendedProps
+                        return draggedEvent.extendedProps?.editable ?? true;
                     },
 
                     // Callback for clicking an event
