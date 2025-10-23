@@ -33,7 +33,10 @@
                     eventDurationEditable: true,
                     selectable: true,
                     eventAllow: function(dropInfo, draggedEvent) {
-                        return draggedEvent.editable;
+                        // Permitir el drop salvo que la propiedad editable exista y sea false.
+                        // Algunos draggedEvent (p. ej. externos) no tienen la propiedad editable definida,
+                        // y en ese caso FullCalendar debe permitir el drop si no está explícitamente denegado.
+                        return !(draggedEvent && draggedEvent.editable === false);
                     },
 
                     // Callback for clicking an event
