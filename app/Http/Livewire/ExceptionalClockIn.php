@@ -38,8 +38,48 @@ class ExceptionalClockIn extends Component
 
         if ($this->tokenRecord && !$this->tokenRecord->used_at && Carbon::now()->isBefore($this->tokenRecord->expires_at)) {
             $this->isValidToken = true;
-            $this->start_date = now()->format('Y-m-d');
-            $this->end_date = now()->format('Y-m-d');
+
+            $user = User::find($this->tokenRecord->user_id);
+            $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+            $precedingSlot = null;
+
+            if ($workScheduleMeta) {
+                $workSchedule = json_decode($workScheduleMeta->meta_value, true);
+                $now = Carbon::now();
+                $dayOfWeek = $now->format('N');
+                $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+                $currentDayLetter = $dayMap[$dayOfWeek];
+                $latestPrecedingTime = null;
+
+                if(is_array($workSchedule)) {
+                    foreach ($workSchedule as $slot) {
+                        if (isset($slot['days']) && in_array($currentDayLetter, $slot['days']) && isset($slot['start']) && isset($slot['end'])) {
+                            $endTime = Carbon::parse($slot['end']);
+                            if ($endTime->isBefore($now)) {
+                                if (is_null($latestPrecedingTime) || $endTime->isAfter($latestPrecedingTime)) {
+                                    $latestPrecedingTime = $endTime;
+                                    $precedingSlot = $slot;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($precedingSlot) {
+                $this->start_date = now()->format('Y-m-d');
+                $this->start_time = Carbon::parse($precedingSlot['start'])->format('H:i');
+                $this->end_date = now()->format('Y-m-d');
+                $this->end_time = Carbon::parse($precedingSlot['end'])->format('H:i');
+            } else {
+                 // Fallback to current time if no preceding slot is found
+                $this->start_date = now()->format('Y-m-d');
+                $this->start_time = now()->format('H:i');
+                $this->end_date = now()->format('Y-m-d');
+                $this->end_time = now()->addMinutes(1)->format('H:i');
+            }
+
+            $this->observations = __('Indica un motivo para la regularización. P. ej.: Olvido');
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }
@@ -69,7 +109,7 @@ class ExceptionalClockIn extends Component
             'user_id' => $user->id,
             'work_center_id' => $defaultWorkCenterId,
             'description' => $workdayEventType->name,
-            'observations' => __('Creado de forma excepcional: ') . $this->observations,
+            'observations' => $this->observations,
             'event_type_id' => $workdayEventType->id,
             'start' => Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))->setTimezone('UTC'),
             'end' => Carbon::parse($this->end_date . ' ' . $this->end_time, config('app.timezone'))->setTimezone('UTC'),
