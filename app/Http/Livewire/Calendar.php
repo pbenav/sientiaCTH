@@ -31,10 +31,13 @@ class Calendar extends Component
         $event = Event::find($eventId);
 
         if ($event) {
-            $event->update([
-                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-                'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
-            ]);
+            $user = Auth::user();
+            if ($user->hasTeamRole($user->currentTeam, 'admin') || $event->is_open) {
+                $event->update([
+                    'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+                    'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
+                ]);
+            }
 
             $this->refresh();
         }
@@ -45,10 +48,13 @@ class Calendar extends Component
         $event = Event::find($eventId);
 
         if ($event) {
-            $event->update([
-                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-                'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
-            ]);
+            $user = Auth::user();
+            if ($user->hasTeamRole($user->currentTeam, 'admin') || $event->is_open) {
+                $event->update([
+                    'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+                    'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
+                ]);
+            }
 
             $this->refresh();
         }
@@ -77,10 +83,12 @@ class Calendar extends Component
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
             ->get()
-            ->map(function ($event) {
+            ->map(function ($event) use ($user) {
                 $iconHtml = $event->is_open
                     ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
                     : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
+
+                $editable = $user->hasTeamRole($user->currentTeam, 'admin') || $event->is_open;
 
                 return [
                     'id' => 'event_' . $event->id,
@@ -90,6 +98,7 @@ class Calendar extends Component
                     'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
+                    'editable' => $editable,
                 ];
             });
 
