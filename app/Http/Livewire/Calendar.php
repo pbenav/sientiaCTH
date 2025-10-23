@@ -28,50 +28,26 @@ class Calendar extends Component
 
     public function eventDrop($eventId, $newStart, $newEnd)
     {
-        $eventId = str_replace('event_', '', $eventId);
         $event = Event::find($eventId);
 
-        if (!$event) {
-            return;
+        if ($event) {
+            $event->update([
+                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+                'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
+            ]);
         }
-
-        // Authorization logic
-        $user = Auth::user();
-        if (!$user->hasTeamRole($user->currentTeam, 'admin') && !$event->is_open) {
-            $this->refresh();
-            return;
-        }
-
-        $event->update([
-            'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-            'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
-        ]);
-
-        $this->refresh();
     }
 
     public function eventResize($eventId, $newStart, $newEnd)
     {
-        $eventId = str_replace('event_', '', $eventId);
         $event = Event::find($eventId);
 
-        if (!$event) {
-            return;
+        if ($event) {
+            $event->update([
+                'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
+                'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
+            ]);
         }
-
-        // Authorization logic
-        $user = Auth::user();
-        if (!$user->hasTeamRole($user->currentTeam, 'admin') && !$event->is_open) {
-            $this->refresh();
-            return;
-        }
-
-        $event->update([
-            'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-            'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
-        ]);
-
-        $this->refresh();
     }
 
     public function triggerEditModal($eventId)
@@ -110,7 +86,6 @@ class Calendar extends Component
                     'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
-                    'editable' => $event->is_open,
                 ];
             });
 

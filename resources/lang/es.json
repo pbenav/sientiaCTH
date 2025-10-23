@@ -148,7 +148,7 @@
     "Once a team is deleted, all of its resources and data will be permanently deleted. Before deleting this team, please download any data or information regarding this team that you wish to retain.": "Una vez que se elimina un equipo, todos sus recursos y datos se eliminarán de forma permanente. Antes de eliminar este equipo, descargue cualquier dato o información sobre este equipo que desee conservar.",
     "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.": "Una vez su cuenta sea borrada, todos sus recursos y datos se eliminarán de forma permanente. Antes de borrar su cuenta, por favor descargue cualquier dato o información que desee conservar.",
     "Page Expired": "Página expirada",
-    "Page Not Found": "Página no encontrada",
+    "Page Not Found": "Página no encontrado",
     "Pagination Navigation": "Navegación por los enlaces de paginación",
     "Pending Team Invitations": "Invitaciones de equipo pendientes",
     "Permanently delete this team.": "Eliminar este equipo de forma permanente",
@@ -442,5 +442,6 @@
     "sweetalert.ok_button": "Aceptar",
     "Indica un motivo para la regularización. P. ej.: Olvido": "Indica un motivo para la regularización. P. ej.: Olvido",
     "sweetalert.event_closed.title": "Evento Cerrado",
-    "sweetalert.event_closed.text": "Este evento está cerrado y no se puede modificar."
+    "sweetalert.event_closed.text": "Este evento está cerrado y no se puede modificar.",
+    "P.ej. Se me olvidó fichar al inicio de mi jornada laboral.": "P.ej. Se me olvidó fichar al inicio de mi jornada laboral."
 }
