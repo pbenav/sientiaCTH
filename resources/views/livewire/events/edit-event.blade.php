@@ -32,24 +32,24 @@
                 {{-- All-day event: show only date inputs --}}
                 <div class="mb-4">
                     <x-jet-label value="{{ __('Start date') }}" />
-                    <x-jet-input type="date" wire:model="start_date" />
+                    <x-jet-input type="date" wire:model="start_date" :disabled="!$canBeModified" />
                     <x-jet-input-error for="start_date" />
                 </div>
                 <div class="mb-4">
                     <x-jet-label value="{{ __('End date') }}" />
-                    <x-jet-input type="date" wire:model="end_date" />
+                    <x-jet-input type="date" wire:model="end_date" :disabled="!$canBeModified" />
                     <x-jet-input-error for="end_date" />
                 </div>
             @else
                 {{-- Non-all-day event: show datetime inputs --}}
                 <div class="mb-4">
                     <x-jet-label value="{{ __('Start date and time') }}" />
-                    <x-jet-input type="datetime-local" wire:model="start_datetime" />
+                    <x-jet-input type="datetime-local" wire:model="start_datetime" :disabled="!$canBeModified" />
                     <x-jet-input-error for="start_datetime" />
                 </div>
                 <div class="mb-4">
                     <x-jet-label value="{{ __('End date and time') }}" />
-                    <x-jet-input type="datetime-local" wire:model="end_datetime" />
+                    <x-jet-input type="datetime-local" wire:model="end_datetime" :disabled="!$canBeModified" />
                     <x-jet-input-error for="end_datetime" />
                 </div>
             @endif
@@ -62,7 +62,8 @@
                  placeholder="{{ __('Indica un motivo para la regularización. P. ej.: Olvido') }}"
                  name="observations"
                  id="observations"
-                 maxlength="255"></textarea>
+                 maxlength="255"
+                 :disabled="!$canBeModified"></textarea>
                 <x-jet-input-error for='event.observations' />
             </div>
 
@@ -73,15 +74,17 @@
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-danger-button onclick="confirmDelete({{ $event->id }})" wire:loading.attr="disabled"
-                class="justify-center ml-2">
-                {{ __('Delete Event') }}
-            </x-jet-danger-button>
+            @if($canBeModified)
+                <x-jet-danger-button onclick="confirmDelete({{ $event->id }})" wire:loading.attr="disabled"
+                    class="justify-center ml-2">
+                    {{ __('Delete Event') }}
+                </x-jet-danger-button>
 
-            <x-jet-button wire:click="update" wire:loading.attr="disabled"
-                class="justify-center ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500">
-                {{ __('Update event') }}
-            </x-jet-button>
+                <x-jet-button wire:click="update" wire:loading.attr="disabled"
+                    class="justify-center ml-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-500">
+                    {{ __('Update event') }}
+                </x-jet-button>
+            @endif
         </x-slot>
 
     </x-jet-dialog-modal>
