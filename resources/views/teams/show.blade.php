@@ -47,14 +47,6 @@
                 <div x-show="tab === 'settings'">
                     @livewire('teams.update-team-name-form', ['team' => $team])
 
-                    <x-jet-section-border />
-
-                    <div class="mt-10 sm:mt-0">
-                        @livewire('teams.timezone-manager', ['team' => $team])
-                    </div>
-
-                    <x-jet-section-border />
-
                     @livewire('teams.team-member-manager', ['team' => $team])
 
                     @if (Gate::check('delete', $team) && ! $team->personal_team)
@@ -83,6 +75,12 @@
 
                 <!-- Work Centers Tab -->
                 <div x-show="tab === 'work_centers'">
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.timezone-manager', ['team' => $team])
+                    </div>
+
+                    <x-jet-section-border />
+
                     <div class="mt-10 sm:mt-0">
                         @livewire('teams.work-center-manager', ['team' => $team])
                     </div>
