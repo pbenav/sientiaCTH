@@ -39,14 +39,11 @@ trait HandlesEventAuthorization
         $team = $user->currentTeam;
         $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
 
-        if (!$workScheduleMeta || !$team) {
-            return false;
+        if (!$workScheduleMeta || !$team || empty(json_decode($workScheduleMeta->meta_value, true))) {
+            return true;
         }
 
         $workSchedule = json_decode($workScheduleMeta->meta_value, true);
-        if (empty($workSchedule)) {
-            return false;
-        }
 
         $delayMinutes = $team->clock_in_delay_minutes ?? 0;
 
