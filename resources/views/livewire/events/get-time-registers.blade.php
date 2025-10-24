@@ -399,20 +399,18 @@
                 });
 
                 Livewire.on('confirmConfirmation', function(event) {
-                    if ((event.is_open && event.end !== null) || {{ $isTeamAdmin ? 1 : 0 }}) {
-                        Swal.fire({
-                            title: "{{ __('sweetalert.confirm_confirmation.title') }}",
-                            text: "{{ __('sweetalert.confirm_confirmation.text') }}",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: "{{ __('sweetalert.confirm_confirmation.confirmButtonText') }}",
-                            cancelButtonText: "{{ __('sweetalert.confirm_confirmation.cancelButtonText') }}",
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Livewire.emit('confirm', event);
-                            }
-                        });
-                    }
+                    Swal.fire({
+                        title: "{{ __('sweetalert.confirm_confirmation.title') }}",
+                        text: "{{ __('sweetalert.confirm_confirmation.text') }}",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: "{{ __('sweetalert.confirm_confirmation.confirmButtonText') }}",
+                        cancelButtonText: "{{ __('sweetalert.confirm_confirmation.cancelButtonText') }}",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Livewire.emit('confirm', event);
+                        }
+                    });
                 });
 
                 Livewire.on('deleteConfirmation', function(event) {
