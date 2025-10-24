@@ -55,6 +55,24 @@ class ClockInDelayManager extends Component
     }
 
     /**
+     * Update the event expiration settings.
+     *
+     * @return void
+     */
+    public function updateEventExpirationSettings()
+    {
+        $this->resetErrorBag();
+
+        Gate::forUser(auth()->user())->authorize('update', $this->team);
+
+        $this->team->forceFill([
+            'event_expiration_days' => $this->state['event_expiration_days'] ?? null,
+        ])->save();
+
+        $this->emit('saved');
+    }
+
+    /**
      * Render the component.
      *
      * @return \Illuminate\View\View
