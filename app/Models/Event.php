@@ -32,6 +32,7 @@ class Event extends Model
     ];
 
     protected $casts = [
+        'is_open' => 'boolean',
         'is_extra_hours' => 'boolean',
         'is_exceptional' => 'boolean',
     ];
@@ -64,8 +65,8 @@ class Event extends Model
     public function confirm()
     {
         error_log('Confirm...');
-        if ($this->is_open == 1) {
-            $this->is_open = 0;
+        if ($this->is_open === true) {
+            $this->is_open = false;
         }
         $this->save();
     }
