@@ -79,7 +79,7 @@ class ExceptionalClockIn extends Component
                 $this->end_time = now()->addMinutes(1)->format('H:i');
             }
 
-            $this->observations = __('Indica un motivo para la regularización. P. ej.: Olvido');
+            $this->observations = __('Provide a reason for the regularization. E.g.: Forgot to clock in');
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }

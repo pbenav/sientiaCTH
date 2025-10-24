@@ -325,31 +325,31 @@
         @if ($selectedEvent)
             <x-jet-dialog-modal wire:model="showEventModal">
                 <x-slot name="title">
-                    {{ __('Detalles del Evento') }}
+                    {{ __('Event Details') }}
                 </x-slot>
 
                 <x-slot name="content">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div class="md:col-span-2"><span class="font-bold">{{ __('Id') }}:</span> {{ $selectedEvent->id }}</div>
-                        <div class="md:col-span-2"><span class="font-bold">{{ __('Trabajador') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}</div>
+                        <div class="md:col-span-2"><span class="font-bold">{{ __('Worker') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}</div>
 
-                        <div><span class="font-bold">{{ __('Inicio') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}</div>
-                        <div><span class="font-bold">{{ __('Fin') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}</div>
+                        <div><span class="font-bold">{{ __('Start') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}</div>
+                        <div><span class="font-bold">{{ __('End') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}</div>
 
-                        <div><span class="font-bold">{{ __('Duración') }}:</span> {{ $selectedEvent->getPeriod() }}</div>
-                        <div><span class="font-bold">{{ __('Tipo de Evento') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Jornada Laboral') }}</div>
+                        <div><span class="font-bold">{{ __('Duration') }}:</span> {{ $selectedEvent->getPeriod() }}</div>
+                        <div><span class="font-bold">{{ __('Event Type') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Work Shift') }}</div>
 
-                        <div class="md:col-span-2"><span class="font-bold">{{ __('Observaciones') }}:</span> {{ $selectedEvent->observations }}</div>
+                        <div class="md:col-span-2"><span class="font-bold">{{ __('Observations') }}:</span> {{ $selectedEvent->observations }}</div>
 
-                        <div><span class="font-bold">{{ __('Estado') }}:</span> {{ $selectedEvent->is_open ? __('Abierto') : __('Cerrado') }}</div>
+                        <div><span class="font-bold">{{ __('Status') }}:</span> {{ $selectedEvent->is_open ? __('Open') : __('Closed') }}</div>
 
                         @if ($selectedEvent->eventType && $selectedEvent->eventType->is_all_day)
                             <div>
-                                <span class="font-bold">{{ __('Autorizado') }}:</span>
+                                <span class="font-bold">{{ __('Authorized') }}:</span>
                                 @if ($selectedEvent->is_authorized)
-                                    {{ __('Sí') }}
+                                    {{ __('Yes') }}
                                     @if ($selectedEvent->authorizedBy)
-                                        ({{ __('por') }} {{ $selectedEvent->authorizedBy->name }} {{ $selectedEvent->authorizedBy->family_name1 }})
+                                        ({{ __('by') }} {{ $selectedEvent->authorizedBy->name }} {{ $selectedEvent->authorizedBy->family_name1 }})
                                     @endif
                                 @else
                                     {{ __('No') }}
@@ -360,8 +360,8 @@
                         @if ($isTeamAdmin)
                             <hr class="md:col-span-2">
                             <div class="md:col-span-2 text-xs text-gray-600">
-                                <div><span class="font-bold">{{ __('Creado el') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}</div>
-                                <div><span class="font-bold">{{ __('Actualizado el') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}</div>
+                                <div><span class="font-bold">{{ __('Created at') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}</div>
+                                <div><span class="font-bold">{{ __('Updated at') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}</div>
                             </div>
                         @endif
                     </div>
@@ -369,7 +369,7 @@
 
                 <x-slot name="footer">
                     <x-jet-secondary-button wire:click="$set('showEventModal', false)">
-                        {{ __('Cerrar') }}
+                        {{ __('Close') }}
                     </x-jet-secondary-button>
                 </x-slot>
             </x-jet-dialog-modal>
