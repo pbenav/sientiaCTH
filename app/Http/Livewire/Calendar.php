@@ -78,6 +78,8 @@ class Calendar extends Component
             return [];
         }
 
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+
         $events = collect();
 
         // Get user events
@@ -93,8 +95,8 @@ class Calendar extends Component
                     'id' => 'event_' . $event->id,
                     'title' => $event->description,
                     'iconHtml' => $iconHtml,
-                    'start' => Carbon::parse($event->start, 'UTC')->setTimezone(config('app.timezone'))->toIso8601String(),
-                    'end' => $event->end ? Carbon::parse($event->end, 'UTC')->setTimezone(config('app.timezone'))->toIso8601String() : null,
+                    'start' => Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
+                    'end' => $event->end ? Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
                     'editable' => $this->canModifyEvent($event),
