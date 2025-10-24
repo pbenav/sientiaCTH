@@ -32,13 +32,13 @@ class Calendar extends Component
     public function eventDrop($eventId, $newStart, $newEnd)
     {
         $event = Event::find($eventId);
-        $appTimezone = config('app.timezone');
+        $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
                 $event->update([
-                    'start' => Carbon::parse($newStart, $appTimezone)->setTimezone('UTC'),
-                    'end' => $newEnd ? Carbon::parse($newEnd, $appTimezone)->setTimezone('UTC') : null,
+                    'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
+                    'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
                 ]);
             }
             $this->refresh();
@@ -48,13 +48,13 @@ class Calendar extends Component
     public function eventResize($eventId, $newStart, $newEnd)
     {
         $event = Event::find($eventId);
-        $appTimezone = config('app.timezone');
+        $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
                 $event->update([
-                    'start' => Carbon::parse($newStart, $appTimezone)->setTimezone('UTC'),
-                    'end' => Carbon::parse($newEnd, $appTimezone)->setTimezone('UTC'),
+                    'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
+                    'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
                 ]);
             }
             $this->refresh();
