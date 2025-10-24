@@ -1,74 +1,56 @@
 <div>
-    <x-jet-authentication-card>
-        <x-slot name="logo">
-            <x-jet-authentication-card-logo />
-        </x-slot>
-
-        @if (session('error'))
-            <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
-                {{ session('error') }}
-            </div>
-            <a href="{{ route('front') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">{{ __('Ir al Escritorio') }}</a>
-        @elseif (session('success'))
-             <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
-                {{ session('success') }}
-            </div>
-            <a href="{{ route('events') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">{{ __('Ir a Eventos') }}</a>
-        @else
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
             @if ($isValidToken)
+                <h2 class="text-2xl font-bold text-center mb-6">{{ __('Regularize Clock-in') }}</h2>
+                <p class="text-center text-gray-600 mb-6">{{ __('Please, enter the start and end times of your workday.') }}</p>
+
                 <form wire:submit.prevent="save">
-                    <h2 class="text-2xl font-bold text-center mb-4">{{ __('Regularizar Fichaje') }}</h2>
-                    <p class="mb-4">{{ __('Por favor, introduce las horas de inicio y fin de tu jornada.') }}</p>
-
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Start Date -->
                         <div>
-                            <x-jet-label for="start_date" value="{{ __('Fecha de Inicio') }}" />
-                            <x-jet-input id="start_date" type="date" class="mt-1 block w-full" wire:model.defer="start_date" />
-                            <x-jet-input-error for="start_date" class="mt-2" />
+                            <label for="start_date" class="block text-sm font-medium text-gray-700">{{ __('Start Date') }}</label>
+                            <input type="date" id="start_date" wire:model.defer="start_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @error('start_date') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
-
-                        <!-- Start Time -->
                         <div>
-                            <x-jet-label for="start_time" value="{{ __('Hora de Inicio') }}" />
-                            <x-jet-input id="start_time" type="time" class="mt-1 block w-full" wire:model.defer="start_time" />
-                             <x-jet-input-error for="start_time" class="mt-2" />
+                            <label for="start_time" class="block text-sm font-medium text-gray-700">{{ __('Start Time') }}</label>
+                            <input type="time" id="start_time" wire:model.defer="start_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @error('start_time') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
-
-                        <!-- End Date -->
                         <div>
-                            <x-jet-label for="end_date" value="{{ __('Fecha de Fin') }}" />
-                            <x-jet-input id="end_date" type="date" class="mt-1 block w-full" wire:model.defer="end_date" />
-                             <x-jet-input-error for="end_date" class="mt-2" />
+                            <label for="end_date" class="block text-sm font-medium text-gray-700">{{ __('End Date') }}</label>
+                            <input type="date" id="end_date" wire:model.defer="end_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @error('end_date') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
-
-                        <!-- End Time -->
                         <div>
-                            <x-jet-label for="end_time" value="{{ __('Hora de Fin') }}" />
-                            <x-jet-input id="end_time" type="time" class="mt-1 block w-full" wire:model.defer="end_time" />
-                            <x-jet-input-error for="end_time" class="mt-2" />
+                            <label for="end_time" class="block text-sm font-medium text-gray-700">{{ __('End Time') }}</label>
+                            <input type="time" id="end_time" wire:model.defer="end_time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @error('end_time') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
-                    <!-- Observations -->
                     <div class="mt-4">
-                        <x-jet-label for="observations" value="{{ __('Motivo del fichaje excepcional') }}" />
-                        <textarea id="observations" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1 block w-full" wire:model.defer="observations"></textarea>
-                        <x-jet-input-error for="observations" class="mt-2" />
+                        <label for="observations" class="block text-sm font-medium text-gray-700">{{ __('Reason for exceptional clock-in') }}</label>
+                        <textarea id="observations" wire:model.defer="observations" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                        @error('observations') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
-                    <div class="flex items-center justify-end mt-4">
-                        <x-jet-button>
-                            {{ __('Guardar') }}
-                        </x-jet-button>
+                    <div class="mt-6">
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">{{ __('Save') }}</button>
                     </div>
                 </form>
             @else
-                <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
-                    {{ __('Este enlace no es válido o ha caducado.') }}
+                <div class="text-center">
+                    <p class="text-red-500">{{ session('error') ?: __('This link is not valid or has expired.') }}</p>
+                    <a href="{{ route('events') }}" class="text-indigo-600 hover:underline mt-4 inline-block">{{ __('Go to Events') }}</a>
                 </div>
-                 <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition">{{ __('Ir al Escritorio') }}</a>
             @endif
-        @endif
-    </x-jet-authentication-card>
+
+            @if(session()->has('success'))
+                <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ session('success') }}</span>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>
