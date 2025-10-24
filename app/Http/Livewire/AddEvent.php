@@ -168,7 +168,7 @@ class AddEvent extends Component
             return;
         }
 
-        $isExtraHours = !$this->isWithinWorkSchedule();
+        $isExtraHours = ($team && $team->force_clock_in_delay) ? !$this->isWithinWorkSchedule($eventStartTime) : false;
 
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;

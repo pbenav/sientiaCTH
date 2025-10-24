@@ -331,8 +331,8 @@ class StatsComponent extends Component
 
         $automaticallyClosedCount = Event::where('user_id', $this->browsedUser)
             ->where('is_closed_automatically', true)
-            ->whereYear('end', $this->selectedYear)
-            ->whereMonth('end', $this->selectedMonth)
+            ->whereYear('updated_at', $this->selectedYear)
+            ->whereMonth('updated_at', $this->selectedMonth)
             ->count();
 
         return [
