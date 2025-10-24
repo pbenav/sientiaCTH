@@ -86,7 +86,7 @@ class Calendar extends Component
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
             ->get()
-            ->map(function ($event) {
+            ->map(function ($event) use ($teamTimezone) {
                 $iconHtml = $event->is_open
                     ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
                     : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
