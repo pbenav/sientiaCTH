@@ -36,10 +36,11 @@ trait HandlesEventAuthorization
     public function isWithinWorkSchedule(Carbon $timeToCheck)
     {
         $user = Auth::user();
+        $team = $user->currentTeam;
         $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
 
-        if (!$workScheduleMeta) {
-            return false; // No schedule defined, so they are always "outside".
+        if (!$workScheduleMeta || !$team) {
+            return false;
         }
 
         $workSchedule = json_decode($workScheduleMeta->meta_value, true);
@@ -47,12 +48,13 @@ trait HandlesEventAuthorization
             return false;
         }
 
+        $delayMinutes = $team->clock_in_delay_minutes ?? 0;
+
         $dayOfWeek = $timeToCheck->format('N');
         $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
         $currentDayLetter = $dayMap[$dayOfWeek];
 
         foreach ($workSchedule as $slot) {
-            // Check if the day is one of the days for this slot and if the slot has start/end times
             if (isset($slot['days']) && in_array($currentDayLetter, $slot['days']) && isset($slot['start']) && isset($slot['end'])) {
                 $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start']);
                 $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end']);
@@ -61,7 +63,10 @@ trait HandlesEventAuthorization
                     $endTime->addDay();
                 }
 
-                if ($timeToCheck->between($startTime, $endTime)) {
+                $startTimeWithGrace = $startTime->copy()->subMinutes($delayMinutes);
+                $endTimeWithGrace = $endTime->copy()->addMinutes($delayMinutes);
+
+                if ($timeToCheck->between($startTimeWithGrace, $endTimeWithGrace)) {
                     return true;
                 }
             }
