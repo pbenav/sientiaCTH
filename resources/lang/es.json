@@ -442,5 +442,6 @@
     "sweetalert.ok_button": "Aceptar",
     "Indica un motivo para la regularización. P. ej.: Olvido": "Indica un motivo para la regularización. P. ej.: Olvido",
     "sweetalert.event_closed.title": "Evento Cerrado",
-    "sweetalert.event_closed.text": "Este evento está cerrado y no se puede modificar."
+    "sweetalert.event_closed.text": "Este evento está cerrado y no se puede modificar.",
+    "Automatic Closures": "Cierres automáticos"
 }
