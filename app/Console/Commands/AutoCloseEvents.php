@@ -64,7 +64,13 @@ class AutoCloseEvents extends Command
             foreach ($todaysSlots as $slot) {
                 $slotStart = Carbon::parse($eventStart->format('Y-m-d') . ' ' . $slot['start']);
                 $slotEnd = Carbon::parse($eventStart->format('Y-m-d') . ' ' . $slot['end']);
-                if ($eventStart->between($slotStart->subMinutes(60), $slotEnd->addMinutes(60))) { // Add a margin
+
+                // Handle overnight shifts
+                if ($slotEnd->lessThan($slotStart)) {
+                    $slotEnd->addDay();
+                }
+
+                if ($eventStart->between($slotStart->subMinutes(15), $slotEnd->addMinutes(15))) { // Add a 15-minute margin
                     $correctSlot = $slot;
                     break;
                 }
@@ -76,6 +82,11 @@ class AutoCloseEvents extends Command
             }
 
             $scheduledEndTime = Carbon::parse($eventStart->format('Y-m-d') . ' ' . $correctSlot['end']);
+
+            // Handle overnight shifts for scheduled end time
+            if ($scheduledEndTime->lessThan($eventStart)) {
+                $scheduledEndTime->addDay();
+            }
 
             if (Carbon::now()->isAfter($scheduledEndTime)) {
                 Log::info("Closing event {$event->id} for user {$user->id}.");
