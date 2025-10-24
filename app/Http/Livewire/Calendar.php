@@ -32,15 +32,15 @@ class Calendar extends Component
     public function eventDrop($eventId, $newStart, $newEnd)
     {
         $event = Event::find($eventId);
+        $appTimezone = config('app.timezone');
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
                 $event->update([
-                    'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-                    'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d H:i:s') : null,
+                    'start' => Carbon::parse($newStart, $appTimezone)->setTimezone('UTC'),
+                    'end' => $newEnd ? Carbon::parse($newEnd, $appTimezone)->setTimezone('UTC') : null,
                 ]);
             }
-
             $this->refresh();
         }
     }
@@ -48,15 +48,15 @@ class Calendar extends Component
     public function eventResize($eventId, $newStart, $newEnd)
     {
         $event = Event::find($eventId);
+        $appTimezone = config('app.timezone');
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
                 $event->update([
-                    'start' => Carbon::parse($newStart)->format('Y-m-d H:i:s'),
-                    'end' => Carbon::parse($newEnd)->format('Y-m-d H:i:s'),
+                    'start' => Carbon::parse($newStart, $appTimezone)->setTimezone('UTC'),
+                    'end' => Carbon::parse($newEnd, $appTimezone)->setTimezone('UTC'),
                 ]);
             }
-
             $this->refresh();
         }
     }
@@ -93,8 +93,8 @@ class Calendar extends Component
                     'id' => 'event_' . $event->id,
                     'title' => $event->description,
                     'iconHtml' => $iconHtml,
-                    'start' => Carbon::parse($event->start, 'UTC')->toIso8601String(),
-                    'end' => $event->end ? Carbon::parse($event->end, 'UTC')->toIso8601String() : null,
+                    'start' => Carbon::parse($event->start)->timezone(config('app.timezone'))->toIso8601String(),
+                    'end' => $event->end ? Carbon::parse($event->end)->timezone(config('app.timezone'))->toIso8601String() : null,
                     'color' => $event->eventType->color ?? '#3788d8',
                     'allDay' => $event->eventType->is_all_day ?? false,
                     'editable' => $this->canModifyEvent($event),
