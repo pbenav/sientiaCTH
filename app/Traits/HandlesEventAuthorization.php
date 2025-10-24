@@ -28,11 +28,12 @@ trait HandlesEventAuthorization
     }
 
     /**
-     * Check if the current time is within the user's work schedule for today.
+     * Check if a given time is within the user's work schedule.
      *
+     * @param Carbon $timeToCheck
      * @return bool
      */
-    public function isWithinWorkSchedule()
+    public function isWithinWorkSchedule(Carbon $timeToCheck)
     {
         $user = Auth::user();
         $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
@@ -46,18 +47,21 @@ trait HandlesEventAuthorization
             return false;
         }
 
-        $dayOfWeek = Carbon::now()->format('N');
+        $dayOfWeek = $timeToCheck->format('N');
         $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
         $currentDayLetter = $dayMap[$dayOfWeek];
-        $now = Carbon::now();
 
         foreach ($workSchedule as $slot) {
-            // Check if today is one of the days for this slot and if the slot has start/end times
+            // Check if the day is one of the days for this slot and if the slot has start/end times
             if (isset($slot['days']) && in_array($currentDayLetter, $slot['days']) && isset($slot['start']) && isset($slot['end'])) {
-                $startTime = Carbon::parse($slot['start']);
-                $endTime = Carbon::parse($slot['end']);
+                $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start']);
+                $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end']);
 
-                if ($now->between($startTime, $endTime)) {
+                if ($endTime->lessThan($startTime)) {
+                    $endTime->addDay();
+                }
+
+                if ($timeToCheck->between($startTime, $endTime)) {
                     return true;
                 }
             }

@@ -127,8 +127,10 @@ class AddEvent extends Component
         $user = Auth::user();
         $team = $user->currentTeam;
 
+        $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'));
+
         // Use the trait to check if the user is within their work schedule
-        if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type && !$this->isWithinWorkSchedule()) {
+        if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type && !$this->isWithinWorkSchedule($eventStartTime)) {
             // If outside the schedule, trigger the exceptional clock-in flow
             $token = Str::random(60);
             ExceptionalClockInToken::create([
