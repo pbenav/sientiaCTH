@@ -116,6 +116,6 @@ class Calendar extends Component
                 ];
             });
 
-        return $userEvents->merge($holidays);
+        return collect(array_merge($userEvents->all(), $holidays->all()));
     }
 }
