@@ -126,8 +126,9 @@ class AddEvent extends Component
 
         $user = Auth::user();
         $team = $user->currentTeam;
+        $appTimezone = config('app.timezone');
 
-        $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'));
+        $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone);
 
         // Use the trait to check if the user is within their work schedule
         if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type && !$this->isWithinWorkSchedule($eventStartTime)) {
@@ -168,7 +169,7 @@ class AddEvent extends Component
             return;
         }
 
-        $isExtraHours = ($team && $team->force_clock_in_delay) ? !$this->isWithinWorkSchedule($eventStartTime) : false;
+        $isExtraHours = !$this->isWithinWorkSchedule($eventStartTime);
 
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
@@ -185,19 +186,10 @@ class AddEvent extends Component
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = Carbon::parse($this->start_date, config('app.timezone'))
-                ->startOfDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $data['end'] = Carbon::parse($this->end_date, config('app.timezone'))
-                ->startOfDay()
-                ->addDay()
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
+            $data['start'] = Carbon::parse($this->start_date, $appTimezone)->startOfDay()->setTimezone('UTC');
+            $data['end'] = Carbon::parse($this->end_date, $appTimezone)->startOfDay()->addDay()->setTimezone('UTC');
         } else {
-            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, config('app.timezone'))
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
+            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone)->setTimezone('UTC');
             $data['end'] = null;
         }
 

@@ -54,6 +54,7 @@ trait HandlesEventAuthorization
         $dayMap = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
         $currentDayLetter = $dayMap[$dayOfWeek];
 
+        $isWithinAnySlot = false;
         foreach ($workSchedule as $slot) {
             if (isset($slot['days']) && in_array($currentDayLetter, $slot['days']) && isset($slot['start']) && isset($slot['end'])) {
                 $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start']);
@@ -67,11 +68,16 @@ trait HandlesEventAuthorization
                 $endTimeWithGrace = $endTime->copy()->addMinutes($delayMinutes);
 
                 if ($timeToCheck->between($startTimeWithGrace, $endTimeWithGrace)) {
-                    return true;
+                    $isWithinAnySlot = true;
+                    break;
                 }
             }
         }
 
-        return false;
+        if (!$team->force_clock_in_delay) {
+            return $isWithinAnySlot;
+        }
+
+        return $isWithinAnySlot;
     }
 }
