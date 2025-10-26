@@ -6,12 +6,19 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Jetstream\Jetstream;
 use Livewire\Component;
 
+/**
+ * A Livewire component for managing clock-in delay and event expiration settings
+ * for a team.
+ *
+ * This component provides a form for team administrators to configure settings
+ * related to clock-in delays and automatic event expiration.
+ */
 class ClockInDelayManager extends Component
 {
     /**
      * The team instance.
      *
-     * @var mixed
+     * @var \App\Models\Team
      */
     public $team;
 
@@ -20,15 +27,15 @@ class ClockInDelayManager extends Component
      *
      * @var array
      */
-    public $state = [];
+    public array $state = [];
 
     /**
      * Mount the component.
      *
-     * @param  mixed  $team
+     * @param  \App\Models\Team  $team
      * @return void
      */
-    public function mount($team)
+    public function mount($team): void
     {
         $this->team = $team;
         $this->state = $team->withoutRelations()->toArray();
@@ -39,7 +46,7 @@ class ClockInDelayManager extends Component
      *
      * @return void
      */
-    public function updateClockInDelaySettings()
+    public function updateClockInDelaySettings(): void
     {
         $this->resetErrorBag();
 
@@ -59,7 +66,7 @@ class ClockInDelayManager extends Component
      *
      * @return void
      */
-    public function updateEventExpirationSettings()
+    public function updateEventExpirationSettings(): void
     {
         $this->resetErrorBag();
 

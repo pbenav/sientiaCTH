@@ -9,27 +9,57 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * A Livewire component that provides a full calendar view of events.
+ *
+ * This component is responsible for rendering the calendar, fetching events,
+ * and handling user interactions such as dragging, dropping, and resizing
+ * events.
+ */
 class Calendar extends Component
 {
     use HandlesEventAuthorization;
 
+    /**
+     * The event listeners for the component.
+     *
+     * @var array
+     */
     protected $listeners = [
         'refreshCalendar' => 'refresh',
         'eventDrop' => 'eventDrop',
         'eventResize' => 'eventResize'
     ];
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.calendar');
     }
 
-    public function refresh()
+    /**
+     * Refresh the calendar with the latest events.
+     *
+     * @return void
+     */
+    public function refresh(): void
     {
         $this->dispatchBrowserEvent('refresh-calendar', ['events' => $this->getEvents()]);
     }
 
-    public function eventDrop($eventId, $newStart, $newEnd)
+    /**
+     * Handle the event drop event.
+     *
+     * @param int $eventId
+     * @param string $newStart
+     * @param string|null $newEnd
+     * @return void
+     */
+    public function eventDrop(int $eventId, string $newStart, ?string $newEnd): void
     {
         $event = Event::find($eventId);
         $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
@@ -45,7 +75,15 @@ class Calendar extends Component
         }
     }
 
-    public function eventResize($eventId, $newStart, $newEnd)
+    /**
+     * Handle the event resize event.
+     *
+     * @param int $eventId
+     * @param string $newStart
+     * @param string $newEnd
+     * @return void
+     */
+    public function eventResize(int $eventId, string $newStart, string $newEnd): void
     {
         $event = Event::find($eventId);
         $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
@@ -61,16 +99,33 @@ class Calendar extends Component
         }
     }
 
-    public function triggerEditModal($eventId)
+    /**
+     * Trigger the edit event modal.
+     *
+     * @param int $eventId
+     * @return void
+     */
+    public function triggerEditModal(int $eventId): void
     {
         $this->emit('edit', $eventId);
     }
 
-    public function triggerAddModal($origin)
+    /**
+     * Trigger the add event modal.
+     *
+     * @param string $origin
+     * @return void
+     */
+    public function triggerAddModal(string $origin): void
     {
         $this->emit('add', $origin);
     }
 
+    /**
+     * Get all events for the current user's team.
+     *
+     * @return \Illuminate\Support\Collection
+     */
     public function getEvents()
     {
         $user = Auth::user();

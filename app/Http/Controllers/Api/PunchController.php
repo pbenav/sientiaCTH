@@ -6,8 +6,19 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EventType;
 
+/**
+ * Handles API requests for clocking in and out.
+ *
+ * This controller is responsible for creating new clock-in and clock-out events.
+ */
 class PunchController extends Controller
 {
+    /**
+     * Store a new clock-in or clock-out event.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         $request->validate([

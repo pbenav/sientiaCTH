@@ -5,8 +5,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+/**
+ * Handles API requests for user profiles.
+ *
+ * This controller is responsible for retrieving and returning user profile
+ * data.
+ */
 class ProfileController extends Controller
 {
+    /**
+     * Display the authenticated user's profile.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(Request $request)
     {
         $user = $request->user();

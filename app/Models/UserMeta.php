@@ -5,20 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents a piece of metadata for a user.
+ *
+ * This model is used to store additional, flexible information about a user,
+ * such as their preferences or settings.
+ */
 class UserMeta extends Model
 {
     use HasFactory;
 
     /**
-     * El nombre de la tabla asociada al modelo.
-     * Por defecto Laravel buscaría 'user_metas'.
+     * The table associated with the model.
+     *
      * @var string
      */
     protected $table = 'user_meta';
 
     /**
-     * Los atributos que son asignables en masa.
-     * Esto es importante para las operaciones de creación y actualización seguras.
+     * The attributes that are mass assignable.
+     *
      * @var array
      */
     protected $fillable = [
@@ -28,8 +34,8 @@ class UserMeta extends Model
     ];
 
     /**
-     * La relación con el modelo User.
-     * Un metadato pertenece a un solo usuario.
+     * Get the user that owns the meta.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()

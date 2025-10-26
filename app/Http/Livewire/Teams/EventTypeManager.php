@@ -6,22 +6,28 @@ use App\Models\EventType;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
+/**
+ * A Livewire component for managing event types for a team.
+ *
+ * This component provides functionality for creating, updating, and deleting
+ * event types.
+ */
 class EventTypeManager extends Component
 {
     public $team;
-    public $isTeamAdmin;
+    public bool $isTeamAdmin;
     public $eventTypes;
-    public $confirmingEventTypeDeletion = false;
-    public $eventTypeToDelete;
-    public $managingEventType = false;
+    public bool $confirmingEventTypeDeletion = false;
+    public ?EventType $eventTypeToDelete;
+    public bool $managingEventType = false;
 
     // Form properties
-    public $eventTypeId;
-    public $name;
-    public $color;
-    public $observations;
-    public $is_all_day;
-    public $is_workday_type;
+    public ?int $eventTypeId;
+    public string $name;
+    public string $color;
+    public ?string $observations;
+    public bool $is_all_day;
+    public bool $is_workday_type;
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -32,31 +38,53 @@ class EventTypeManager extends Component
     ];
 
     protected $validationAttributes = [
-        'name' => 'nombre',
+        'name' => 'name',
         'color' => 'color',
-        'observations' => 'observaciones',
-        'is_all_day' => 'todo el día',
-        'is_workday_type' => 'tipo de jornada',
+        'observations' => 'observations',
+        'is_all_day' => 'all day',
+        'is_workday_type' => 'workday type',
     ];
 
-    public function mount($team)
+    /**
+     * Mount the component.
+     *
+     * @param mixed $team
+     * @return void
+     */
+    public function mount($team): void
     {
         $this->team = $team;
         $this->eventTypes = $team->eventTypes;
         $this->isTeamAdmin = auth()->user()->isTeamAdmin();
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.teams.event-type-manager');
     }
 
-    public function confirmEventTypeDeletion(EventType $eventType)
+    /**
+     * Confirm the deletion of an event type.
+     *
+     * @param \App\Models\EventType $eventType
+     * @return void
+     */
+    public function confirmEventTypeDeletion(EventType $eventType): void
     {
         $this->confirmingEventTypeDeletion = true;
         $this->eventTypeToDelete = $eventType;
     }
 
+    /**
+     * Delete an event type.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function deleteEventType()
     {
         Gate::forUser(auth()->user())->authorize('delete', $this->eventTypeToDelete);
@@ -70,7 +98,13 @@ class EventTypeManager extends Component
         return redirect()->route('teams.show', $this->team);
     }
 
-    public function manageEventType($eventTypeId = null)
+    /**
+     * Show the form for managing an event type.
+     *
+     * @param int|null $eventTypeId
+     * @return void
+     */
+    public function manageEventType(int $eventTypeId = null): void
     {
         $this->resetErrorBag();
         $this->managingEventType = true;
@@ -92,7 +126,12 @@ class EventTypeManager extends Component
         }
     }
 
-    public function saveEventType()
+    /**
+     * Save the event type.
+     *
+     * @return void
+     */
+    public function saveEventType(): void
     {
         $this->validate();
 

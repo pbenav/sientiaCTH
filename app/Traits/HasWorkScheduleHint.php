@@ -4,11 +4,24 @@ namespace App\Traits;
 
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Provides a method for generating a work schedule hint.
+ *
+ * This trait is used in Livewire components to provide users with a helpful
+ * hint about their work schedule for the current day.
+ */
 trait HasWorkScheduleHint
 {
     /**
      * Sets a work schedule hint based on the user's defined schedule.
-     * If the event is open, it may also suggest an end time.
+     *
+     * This method analyzes the user's work schedule and determines the most
+     * relevant time slot for the current time. It then sets a
+     * `workScheduleHint` property on the component with a descriptive
+     * message. If the component has an open event, it may also suggest an end
+     * time.
+     *
+     * @return void
      */
     public function setWorkScheduleHint()
     {
@@ -21,13 +34,13 @@ trait HasWorkScheduleHint
         $workScheduleMeta = $user->meta()->where('meta_key', 'work_schedule')->first();
 
         if (!$workScheduleMeta) {
-            $this->workScheduleHint = 'No hay horario laboral definido.';
+            $this->workScheduleHint = 'No work schedule defined.';
             return;
         }
 
         $schedule = json_decode($workScheduleMeta->meta_value, true);
         if (empty($schedule)) {
-            $this->workScheduleHint = 'El formato del horario laboral es incorrecto.';
+            $this->workScheduleHint = 'The work schedule format is incorrect.';
             return;
         }
 
@@ -48,7 +61,7 @@ trait HasWorkScheduleHint
         }
 
         if (empty($todaysSlots)) {
-            $this->workScheduleHint = 'No hay tramos para hoy.';
+            $this->workScheduleHint = 'No slots for today.';
             return;
         }
 
@@ -74,9 +87,9 @@ trait HasWorkScheduleHint
 
         if ($relevantSlot) {
             if ($currentSlot) {
-                $this->workScheduleHint = "Tramo actual sugerido: {$relevantSlot['start']} - {$relevantSlot['end']}";
+                $this->workScheduleHint = "Suggested current slot: {$relevantSlot['start']} - {$relevantSlot['end']}";
             } else {
-                $this->workScheduleHint = "Último tramo finalizado: {$relevantSlot['start']} - {$relevantSlot['end']}";
+                $this->workScheduleHint = "Last finished slot: {$relevantSlot['start']} - {$relevantSlot['end']}";
             }
 
             // This part will only execute if the component has an 'event' property
@@ -84,7 +97,7 @@ trait HasWorkScheduleHint
                 $this->event->end = date('Y-m-d') . ' ' . $relevantSlot['end'];
             }
         } else {
-            $this->workScheduleHint = 'No se encontró un tramo horario aplicable.';
+            $this->workScheduleHint = 'No applicable time slot found.';
         }
     }
 }

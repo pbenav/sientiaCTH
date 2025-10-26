@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents a token for an exceptional clock-in.
+ *
+ * These tokens are generated when a user tries to clock in outside of their
+ * regular work schedule. They are sent to a supervisor for approval.
+ */
 class ExceptionalClockInToken extends Model
 {
     use HasFactory;
@@ -24,6 +30,8 @@ class ExceptionalClockInToken extends Model
 
     /**
      * Get the user that owns the token.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
     {
@@ -32,6 +40,8 @@ class ExceptionalClockInToken extends Model
 
     /**
      * Get the team that owns the token.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function team()
     {

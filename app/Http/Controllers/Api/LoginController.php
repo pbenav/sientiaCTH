@@ -5,8 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+/**
+ * Handles API authentication.
+ *
+ * This controller is responsible for handling user login and issuing API tokens.
+ */
 class LoginController extends Controller
 {
+    /**
+     * Handle a login request to the application.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         $request->validate([

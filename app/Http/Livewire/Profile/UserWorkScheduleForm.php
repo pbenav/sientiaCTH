@@ -7,17 +7,29 @@ use App\Models\User;
 use App\Models\UserMeta;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * A Livewire component for managing a user's work schedule.
+ *
+ * This component provides a form for users to define their weekly work
+ * schedule, including start and end times for each day.
+ */
 class UserWorkScheduleForm extends Component
 {
     public User $user;
-    public $schedule = [];
+    public array $schedule = [];
 
     protected $rules = [
         'schedule.*.start' => 'required|date_format:H:i',
         'schedule.*.end' => 'required|date_format:H:i|after:schedule.*.start',
     ];
 
-    public function mount(User $user)
+    /**
+     * Mount the component.
+     *
+     * @param \App\Models\User $user
+     * @return void
+     */
+    public function mount(User $user): void
     {
         $this->user = $user;
         $workSchedule = UserMeta::where('user_id', $this->user->id)
@@ -29,18 +41,34 @@ class UserWorkScheduleForm extends Component
         }
     }
 
-    public function addScheduleRow()
+    /**
+     * Add a new row to the schedule.
+     *
+     * @return void
+     */
+    public function addScheduleRow(): void
     {
         $this->schedule[] = ['start' => '', 'end' => '', 'days' => []];
     }
 
-    public function removeScheduleRow($index)
+    /**
+     * Remove a row from the schedule.
+     *
+     * @param int $index
+     * @return void
+     */
+    public function removeScheduleRow(int $index): void
     {
         unset($this->schedule[$index]);
         $this->schedule = array_values($this->schedule);
     }
 
-    public function save()
+    /**
+     * Save the work schedule.
+     *
+     * @return void
+     */
+    public function save(): void
     {
         $this->validate();
 
@@ -49,9 +77,14 @@ class UserWorkScheduleForm extends Component
             ['meta_value' => json_encode($this->schedule)]
         );
 
-        session()->flash('message', 'Horario laboral actualizado con éxito.');
+        session()->flash('message', 'Work schedule updated successfully.');
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.profile.user-work-schedule-form');

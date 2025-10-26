@@ -10,22 +10,34 @@ use App\Services\LoginSecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * A Livewire component for a numeric keypad.
+ *
+ * This component provides a numpad interface for users to enter their code
+ * and log in.
+ */
 class Numpad extends Component
 {
     /**
-     * @var string $user_code Code input by the user.
+     * Code input by the user.
+     *
+     * @var string
      */
-    public $user_code = '';
+    public string $user_code = '';
 
     /**
-     * @var bool $open Indicates whether the numpad is open.
+     * Indicates whether the numpad is open.
+     *
+     * @var bool
      */
-    public $open = true;
+    public bool $open = true;
 
     /**
      * Validates and processes the user code.
      *
-     * @return \Illuminate\Http\RedirectResponse|null Redirects to the appropriate route based on validation results.
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Services\LoginSecurityService $loginSecurityService
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function insertCode(Request $request, LoginSecurityService $loginSecurityService)
     {
@@ -82,12 +94,24 @@ class Numpad extends Component
         return view('livewire.numpad');
     }
 
-    private function findUserByCode($code)
+    /**
+     * Find a user by their code.
+     *
+     * @param string $code
+     * @return \App\Models\User|null
+     */
+    private function findUserByCode(string $code): ?User
     {
         return User::where('user_code', $code)->first();
     }
 
-    private function getOpenEventsForUser($userId)
+    /**
+     * Get the open events for a user.
+     *
+     * @param int $userId
+     * @return \Illuminate\Support\Collection
+     */
+    private function getOpenEventsForUser(int $userId): \Illuminate\Support\Collection
     {
         return DB::table('events')
             ->where('user_id', $userId)

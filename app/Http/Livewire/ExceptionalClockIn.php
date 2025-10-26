@@ -9,18 +9,29 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * A Livewire component for handling exceptional clock-ins.
+ *
+ * This component provides a form for users to regularize their clock-ins when
+ * they are outside of their normal work schedule.
+ */
 class ExceptionalClockIn extends Component
 {
-    public $token;
-    public $start_date;
-    public $start_time;
-    public $end_date;
-    public $end_time;
-    public $observations;
-    public $tokenRecord;
-    public $isValidToken = false;
+    public string $token;
+    public string $start_date;
+    public string $start_time;
+    public string $end_date;
+    public string $end_time;
+    public string $observations;
+    public ExceptionalClockInToken $tokenRecord;
+    public bool $isValidToken = false;
 
-    protected function rules()
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    protected function rules(): array
     {
         return [
             'start_date' => 'required|date',
@@ -31,7 +42,13 @@ class ExceptionalClockIn extends Component
         ];
     }
 
-    public function mount($token)
+    /**
+     * Initialize the component.
+     *
+     * @param string $token
+     * @return void
+     */
+    public function mount(string $token): void
     {
         $this->token = $token;
         $this->tokenRecord = ExceptionalClockInToken::where('token', $token)->first();
@@ -85,6 +102,11 @@ class ExceptionalClockIn extends Component
         }
     }
 
+    /**
+     * Save the exceptional clock-in event.
+     *
+     * @return \Illuminate\Http\RedirectResponse|void
+     */
     public function save()
     {
         $this->validate();
@@ -125,6 +147,11 @@ class ExceptionalClockIn extends Component
         return redirect()->route('events');
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.events.exceptional-clock-in');

@@ -9,24 +9,51 @@ use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
 
+/**
+ * Represents a team of users.
+ *
+ * This model extends the base Jetstream team model to include custom
+ * relationships and properties specific to the application.
+ */
 class Team extends JetstreamTeam
 {
+    use HasFactory;
+
+    /**
+     * Get the event types associated with the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function eventTypes()
     {
         return $this->hasMany(EventType::class);
     }
 
+    /**
+     * Get the work centers associated with the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function workCenters()
     {
         return $this->hasMany(WorkCenter::class);
     }
 
+    /**
+     * Get the holidays associated with the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function holidays()
     {
         return $this->hasMany(Holiday::class);
     }
-    use HasFactory;
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'personal_team' => 'boolean',
         'force_clock_in_delay' => 'boolean',
@@ -34,6 +61,11 @@ class Team extends JetstreamTeam
         'clock_in_grace_period_minutes' => 'integer',
     ];
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'name',
         'personal_team',
@@ -42,6 +74,11 @@ class Team extends JetstreamTeam
         'clock_in_grace_period_minutes',
     ];
 
+    /**
+     * The event map for the model.
+     *
+     * @var array<string, class-string>
+     */
     protected $dispatchesEvents = [
         'created' => TeamCreated::class,
         'updated' => TeamUpdated::class,

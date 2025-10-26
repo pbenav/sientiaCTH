@@ -6,6 +6,13 @@ use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Provides methods for authorizing event-related actions.
+ *
+ * This trait contains the logic for checking if a user is permitted to
+ * modify an event and for verifying if a given time falls within a user's
+ * defined work schedule.
+ */
 trait HandlesEventAuthorization
 {
     /**
@@ -32,6 +39,7 @@ trait HandlesEventAuthorization
      *
      * @param Carbon $timeToCheck
      * @return bool
+     * @uses \Carbon\Carbon
      */
     public function isWithinWorkSchedule(Carbon $timeToCheck)
     {

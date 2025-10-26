@@ -7,19 +7,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
+/**
+ * A Livewire component for handling the internal messaging system.
+ *
+ * This component provides a full-featured messaging interface, including an
+ * inbox, sent items, trash, and notifications.
+ */
 class MessagesComponent extends Component
 {
-    public $view = 'inbox';
-    public $showComposeForm = false;
-    public $recipients = [];
-    public $subject = '';
-    public $body = '';
+    public string $view = 'inbox';
+    public bool $showComposeForm = false;
+    public array $recipients = [];
+    public string $subject = '';
+    public string $body = '';
     public $users;
-    public $selectedMessages = [];
-    public $bulkAction = '';
-    public $selectedNotifications = [];
-    public $bulkAlertAction = '';
-    public $selectAll = false;
+    public array $selectedMessages = [];
+    public string $bulkAction = '';
+    public array $selectedNotifications = [];
+    public string $bulkAlertAction = '';
+    public bool $selectAll = false;
 
     public function mount()
     {
@@ -33,7 +39,13 @@ class MessagesComponent extends Component
         }
     }
 
-    public function updatedSelectAll($value)
+    /**
+     * Handle the update of the selectAll property.
+     *
+     * @param bool $value
+     * @return void
+     */
+    public function updatedSelectAll(bool $value): void
     {
         if ($this->view === 'alerts') {
             if ($value) {
@@ -58,12 +70,22 @@ class MessagesComponent extends Component
         }
     }
 
-    public function toggleComposeForm()
+    /**
+     * Toggle the compose form.
+     *
+     * @return void
+     */
+    public function toggleComposeForm(): void
     {
         $this->showComposeForm = !$this->showComposeForm;
     }
 
-    public function sendMessage()
+    /**
+     * Send a new message.
+     *
+     * @return void
+     */
+    public function sendMessage(): void
     {
         $this->validate([
             'recipients' => 'required|array|min:1',
@@ -87,22 +109,43 @@ class MessagesComponent extends Component
         $this->showSent();
     }
 
-    public function showInbox()
+    /**
+     * Show the inbox view.
+     *
+     * @return void
+     */
+    public function showInbox(): void
     {
         $this->view = 'inbox';
     }
 
-    public function showSent()
+    /**
+     * Show the sent items view.
+     *
+     * @return void
+     */
+    public function showSent(): void
     {
         $this->view = 'sent';
     }
 
-    public function showTrash()
+    /**
+     * Show the trash view.
+     *
+     * @return void
+     */
+    public function showTrash(): void
     {
         $this->view = 'trash';
     }
 
-    public function deleteMessage($messageId)
+    /**
+     * Delete a message.
+     *
+     * @param int $messageId
+     * @return void
+     */
+    public function deleteMessage(int $messageId): void
     {
         if ($this->view === 'sent') {
             $message = Auth::user()->messages()->find($messageId);
@@ -118,7 +161,13 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function restoreMessage($messageId)
+    /**
+     * Restore a message from the trash.
+     *
+     * @param int $messageId
+     * @return void
+     */
+    public function restoreMessage(int $messageId): void
     {
         $message = Message::find($messageId);
 
@@ -133,7 +182,13 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function forceDeleteMessage($messageId)
+    /**
+     * Permanently delete a message.
+     *
+     * @param int $messageId
+     * @return void
+     */
+    public function forceDeleteMessage(int $messageId): void
     {
         $message = Message::find($messageId);
 
@@ -148,7 +203,12 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function emptyTrash()
+    /**
+     * Empty the trash.
+     *
+     * @return void
+     */
+    public function emptyTrash(): void
     {
         // Permanently delete received messages
         $receivedTrashItems = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
@@ -165,14 +225,26 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function markAsRead($messageId)
+    /**
+     * Mark a message as read.
+     *
+     * @param int $messageId
+     * @return void
+     */
+    public function markAsRead(int $messageId): void
     {
         Auth::user()->receivedMessages()->updateExistingPivot($messageId, ['read_at' => now()]);
         $this->emitTo('notification-icon', 'refreshCount');
         $this->showInbox();
     }
 
-    public function replyTo($messageId)
+    /**
+     * Reply to a message.
+     *
+     * @param int $messageId
+     * @return void
+     */
+    public function replyTo(int $messageId): void
     {
         $message = Message::find($messageId);
 
@@ -184,7 +256,12 @@ class MessagesComponent extends Component
         $this->body = "\n\n\n> " . $message->body;
     }
 
-    public function applyBulkAction()
+    /**
+     * Apply a bulk action to the selected messages.
+     *
+     * @return void
+     */
+    public function applyBulkAction(): void
     {
         if (empty($this->bulkAction)) {
             return;
@@ -210,13 +287,24 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function deleteNotification($notificationId)
+    /**
+     * Delete a notification.
+     *
+     * @param string $notificationId
+     * @return void
+     */
+    public function deleteNotification(string $notificationId): void
     {
         Auth::user()->notifications()->find($notificationId)->delete();
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function applyBulkAlertAction()
+    /**
+     * Apply a bulk action to the selected notifications.
+     *
+     * @return void
+     */
+    public function applyBulkAlertAction(): void
     {
         if ($this->bulkAlertAction === 'delete') {
             Auth::user()->notifications()->whereIn('id', $this->selectedNotifications)->delete();
@@ -225,7 +313,12 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
-    public function showAlerts()
+    /**
+     * Show the alerts view.
+     *
+     * @return void
+     */
+    public function showAlerts(): void
     {
         $this->view = 'alerts';
         Auth::user()->unreadNotifications->where('type', '!=', 'App\Notifications\NewMessage')->markAsRead();

@@ -5,6 +5,12 @@ namespace App\Models;
 use Laravel\Jetstream\Jetstream;
 use Laravel\Jetstream\TeamInvitation as JetstreamTeamInvitation;
 
+/**
+ * Represents a pending invitation to join a team.
+ *
+ * This model stores information about an invitation that has been sent to a
+ * user to join a team.
+ */
 class TeamInvitation extends JetstreamTeamInvitation
 {
     /**

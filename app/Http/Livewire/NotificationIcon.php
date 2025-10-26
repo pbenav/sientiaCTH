@@ -5,18 +5,44 @@ namespace App\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * A Livewire component for displaying a notification icon with an unread count.
+ *
+ * This component is responsible for calculating and displaying the number of
+ * unread notifications for the current user.
+ */
 class NotificationIcon extends Component
 {
-    public $unreadCount;
+    /**
+     * The number of unread notifications.
+     *
+     * @var int
+     */
+    public int $unreadCount;
 
+    /**
+     * The event listeners for the component.
+     *
+     * @var array
+     */
     protected $listeners = ['refreshCount'];
 
-    public function mount()
+    /**
+     * Initialize the component.
+     *
+     * @return void
+     */
+    public function mount(): void
     {
         $this->refreshCount();
     }
 
-    public function refreshCount()
+    /**
+     * Refresh the unread notification count.
+     *
+     * @return void
+     */
+    public function refreshCount(): void
     {
         if (Auth::check()) {
             $unreadMessages = Auth::user()->receivedMessages()->whereNull('message_user.read_at')->whereNull('message_user.deleted_at')->count();
@@ -29,6 +55,11 @@ class NotificationIcon extends Component
         }
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.notification-icon');

@@ -5,8 +5,19 @@ namespace App\Http\Livewire\Security;
 use Livewire\Component;
 use App\Models\FailedLoginAttempt;
 
+/**
+ * A Livewire component for managing blocked IP addresses.
+ *
+ * This component provides a list of currently blocked IP addresses and allows
+ * administrators to unblock them.
+ */
 class BlockedIpManager extends Component
 {
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.security.blocked-ip-manager', [
@@ -17,7 +28,13 @@ class BlockedIpManager extends Component
         ]);
     }
 
-    public function unblock($id)
+    /**
+     * Unblock an IP address.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function unblock(int $id): void
     {
         $attempt = FailedLoginAttempt::findOrFail($id);
         $attempt->delete();

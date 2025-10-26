@@ -6,20 +6,37 @@ use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use DateTimeZone;
 
+/**
+ * A Livewire component for managing the timezone for a team.
+ *
+ * This component provides a form for team administrators to select a timezone
+ * for their team.
+ */
 class TimezoneManager extends Component
 {
     public $team;
-    public $state = [];
-    public $timezones;
+    public array $state = [];
+    public array $timezones;
 
-    public function mount($team)
+    /**
+     * Mount the component.
+     *
+     * @param mixed $team
+     * @return void
+     */
+    public function mount($team): void
     {
         $this->team = $team;
         $this->state['timezone'] = $this->team->timezone;
         $this->timezones = $this->getTimezoneList();
     }
 
-    public function updateTimezone()
+    /**
+     * Update the timezone.
+     *
+     * @return void
+     */
+    public function updateTimezone(): void
     {
         $this->resetErrorBag();
         Gate::forUser(auth()->user())->authorize('update', $this->team);
@@ -31,7 +48,12 @@ class TimezoneManager extends Component
         $this->emit('saved');
     }
 
-    protected function getTimezoneList()
+    /**
+     * Get a list of timezones.
+     *
+     * @return array
+     */
+    protected function getTimezoneList(): array
     {
         $timezones = [];
         $identifiers = DateTimeZone::listIdentifiers();
@@ -44,6 +66,11 @@ class TimezoneManager extends Component
         return $timezones;
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.teams.timezone-manager');

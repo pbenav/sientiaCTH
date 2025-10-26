@@ -5,6 +5,12 @@ namespace App\Http\Livewire\Profile;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * A Livewire component for updating user notification preferences.
+ *
+ * This component provides a form for users to manage their notification
+ * settings, such as enabling or disabling email and internal notifications.
+ */
 class UpdateNotificationPreferencesForm extends Component
 {
     /**
@@ -12,14 +18,14 @@ class UpdateNotificationPreferencesForm extends Component
      *
      * @var array
      */
-    public $state = [];
+    public array $state = [];
 
     /**
      * Mount the component.
      *
      * @return void
      */
-    public function mount()
+    public function mount(): void
     {
         $user = Auth::user();
         $notifyByEmail = $user->meta->where('meta_key', 'notify_by_email')->first();
@@ -34,7 +40,7 @@ class UpdateNotificationPreferencesForm extends Component
      *
      * @return void
      */
-    public function updateNotificationPreferences()
+    public function updateNotificationPreferences(): void
     {
         $user = Auth::user();
 

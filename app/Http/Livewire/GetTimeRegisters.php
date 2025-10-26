@@ -13,31 +13,37 @@ use Livewire\WithPagination;
 use Laravel\Jetstream\HasTeams;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * A Livewire component for displaying and managing time registers.
+ *
+ * This component provides a paginated and filterable table of events, with
+ * functionality for searching, sorting, and performing actions on events.
+ */
 class GetTimeRegisters extends Component
 {
     use WithPagination;
     use HasTeams;
 
     protected $events;
-    public $showFiltersModal = false;
-    public $search;
-    public $filter;
-    public $sort = 'start';
-    public $direction = 'desc';
-    public $qtytoshow = '10';
-    public $readyonload = false;
+    public bool $showFiltersModal = false;
+    public string $search;
+    public Event $filter;
+    public string $sort = 'start';
+    public string $direction = 'desc';
+    public string $qtytoshow = '10';
+    public bool $readyonload = false;
     public User $user;
     public Team $team;
-    public $teamUsers;
+    public array $teamUsers;
     public $teamUserList;
     public $eventTypes;
-    public $isTeamAdmin;
-    public $isInspector;
-    public $confirmed;
-    public $filtered;
-    public $showOnlyMine = false;
-    public $showEventModal = false;
-    public $selectedEvent;
+    public bool $isTeamAdmin;
+    public bool $isInspector;
+    public bool $confirmed;
+    public bool $filtered;
+    public bool $showOnlyMine = false;
+    public bool $showEventModal = false;
+    public ?Event $selectedEvent;
 
     protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
 
@@ -91,8 +97,9 @@ class GetTimeRegisters extends Component
      * Toggle the sorting direction for the specified column.
      *
      * @param string $sort The column to sort by.
+     * @return void
      */
-    public function order($sort)
+    public function order(string $sort): void
     {
         if ($this->sort == $sort) {
             if ($this->direction == 'asc') {
@@ -106,7 +113,12 @@ class GetTimeRegisters extends Component
         };
     }
 
-    public function filterOnlyMine()
+    /**
+     * Toggle the filter to show only the current user's events.
+     *
+     * @return void
+     */
+    public function filterOnlyMine(): void
     {
         $this->showOnlyMine = !$this->showOnlyMine;
     }
@@ -114,9 +126,10 @@ class GetTimeRegisters extends Component
     /**
      * Emit the event to edit an existing event.
      *
-     * @param Event $ev The event to edit.
+     * @param \App\Models\Event $ev The event to edit.
+     * @return void
      */
-    public function edit(Event $ev)
+    public function edit(Event $ev): void
     {
         $this->emitTo('edit-event', 'edit', $ev);
     }
@@ -124,9 +137,10 @@ class GetTimeRegisters extends Component
     /**
      * Confirm an event based on user role and event status.
      *
-     * @param Event $ev The event to confirm.
+     * @param \App\Models\Event $ev The event to confirm.
+     * @return void
      */
-    public function confirm(Event $ev)
+    public function confirm(Event $ev): void
     {
         if ($this->isTeamAdmin) {
             $ev->toggleConfirm();
@@ -138,9 +152,10 @@ class GetTimeRegisters extends Component
     /**
      * Emit the confirmation alert for an event.
      *
-     * @param Event $ev The event to confirm.
+     * @param \App\Models\Event $ev The event to confirm.
+     * @return void
      */
-    public function alertConfirm(Event $ev)
+    public function alertConfirm(Event $ev): void
     {
         if (!$ev->is_open && !$this->isTeamAdmin) {
             $this->emit('alertFail', __("This event is already closed and cannot be modified."));
@@ -152,9 +167,10 @@ class GetTimeRegisters extends Component
     /**
      * Emit the deletion alert for an event.
      *
-     * @param Event $ev The event to delete.
+     * @param \App\Models\Event $ev The event to delete.
+     * @return void
      */
-    public function alertDelete(Event $ev)
+    public function alertDelete(Event $ev): void
     {
         if (!$ev->is_open && !$this->isTeamAdmin) {
             $this->emit('alertFail', __("This event is already closed and cannot be modified."));
@@ -166,7 +182,8 @@ class GetTimeRegisters extends Component
     /**
      * Delete an event if authorized.
      *
-     * @param Event $ev The event to delete.
+     * @param \App\Models\Event $ev The event to delete.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function delete(Event $ev)
     {
@@ -179,8 +196,10 @@ class GetTimeRegisters extends Component
 
     /**
      * Unset the filters and reset related flags.
+     *
+     * @return void
      */
-    public function unsetFilter()
+    public function unsetFilter(): void
     {
         $this->showFiltersModal = false;
         $this->filtered = false;
@@ -189,8 +208,10 @@ class GetTimeRegisters extends Component
 
     /**
      * Set the filters and show the modal.
+     *
+     * @return void
      */
-    public function setFilter()
+    public function setFilter(): void
     {
         $this->showFiltersModal = true;
         $this->filtered = true;
@@ -199,8 +220,10 @@ class GetTimeRegisters extends Component
 
     /**
      * Retrieve and filter events based on the current settings.
+     *
+     * @return void
      */
-    public function getEvents()
+    public function getEvents(): void
     {
         if (!$this->readyonload) {
             return;
@@ -269,37 +292,51 @@ class GetTimeRegisters extends Component
 
     /**
      * Reset the pagination when the event is updated.
+     *
+     * @return void
      */
-    public function updatingEvent()
+    public function updatingEvent(): void
     {
         $this->resetPage();
     }
 
     /**
      * Reset the pagination when the confirmation status is updated.
+     *
+     * @return void
      */
-    public function updatingConfirmed()
+    public function updatingConfirmed(): void
     {
         $this->resetPage();
     }
 
     /**
      * Reset the pagination when the quantity to show is updated.
+     *
+     * @return void
      */
-    public function updatingQtytoshow()
+    public function updatingQtytoshow(): void
     {
         $this->resetPage();
     }
 
     /**
      * Mark the events as ready to load.
+     *
+     * @return void
      */
-    public function loadEvents()
+    public function loadEvents(): void
     {
         $this->readyonload = true;
     }
 
-    public function isDark($hexColor)
+    /**
+     * Check if a color is dark.
+     *
+     * @param string $hexColor
+     * @return boolean
+     */
+    public function isDark(string $hexColor): bool
     {
         if(empty($hexColor)) return false;
         $hexColor = str_replace('#', '', $hexColor);
@@ -311,7 +348,13 @@ class GetTimeRegisters extends Component
         return $luminance < 0.5;
     }
 
-    public function toggleAuthorization($eventId)
+    /**
+     * Toggle the authorization status of an event.
+     *
+     * @param int $eventId
+     * @return void
+     */
+    public function toggleAuthorization(int $eventId): void
     {
         if (!$this->isTeamAdmin) {
             $this->emit('alertFail', __('You are not authorized to perform this action.'));
@@ -347,7 +390,13 @@ class GetTimeRegisters extends Component
         $this->emit('eventAuthorizationChanged');
     }
 
-    public function showEventModal($eventId)
+    /**
+     * Show the event details modal.
+     *
+     * @param int $eventId
+     * @return void
+     */
+    public function showEventModal(int $eventId): void
     {
         $this->selectedEvent = Event::with(['eventType', 'authorizedBy'])->findOrFail($eventId);
         $this->showEventModal = true;

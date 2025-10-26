@@ -6,20 +6,26 @@ use App\Models\Holiday;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
+/**
+ * A Livewire component for managing holidays for a team.
+ *
+ * This component provides functionality for creating, updating, and deleting
+ * holidays.
+ */
 class HolidayManager extends Component
 {
     public $team;
-    public $isTeamAdmin;
+    public bool $isTeamAdmin;
     public $holidays;
 
-    public $managingHoliday = false;
-    public $confirmingHolidayDeletion = false;
-    public $holidayId;
+    public bool $managingHoliday = false;
+    public bool $confirmingHolidayDeletion = false;
+    public ?int $holidayId;
 
     // Form properties
-    public $name;
-    public $date;
-    public $type;
+    public string $name;
+    public string $date;
+    public ?string $type;
 
     protected function rules()
     {
@@ -30,19 +36,36 @@ class HolidayManager extends Component
         ];
     }
 
-    public function mount($team)
+    /**
+     * Mount the component.
+     *
+     * @param mixed $team
+     * @return void
+     */
+    public function mount($team): void
     {
         $this->team = $team;
         $this->isTeamAdmin = auth()->user()->isTeamAdmin();
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         $this->holidays = $this->team->holidays()->orderBy('date')->get();
         return view('livewire.teams.holiday-manager');
     }
 
-    public function manageHoliday($holidayId = null)
+    /**
+     * Show the form for managing a holiday.
+     *
+     * @param int|null $holidayId
+     * @return void
+     */
+    public function manageHoliday(int $holidayId = null): void
     {
         $this->resetErrorBag();
         $this->managingHoliday = true;
@@ -60,7 +83,12 @@ class HolidayManager extends Component
         }
     }
 
-    public function saveHoliday()
+    /**
+     * Save the holiday.
+     *
+     * @return void
+     */
+    public function saveHoliday(): void
     {
         $this->validate();
 
@@ -82,13 +110,24 @@ class HolidayManager extends Component
         $this->managingHoliday = false;
     }
 
-    public function confirmHolidayDeletion(Holiday $holiday)
+    /**
+     * Confirm the deletion of a holiday.
+     *
+     * @param \App\Models\Holiday $holiday
+     * @return void
+     */
+    public function confirmHolidayDeletion(Holiday $holiday): void
     {
         $this->confirmingHolidayDeletion = true;
         $this->holidayId = $holiday->id;
     }
 
-    public function deleteHoliday()
+    /**
+     * Delete a holiday.
+     *
+     * @return void
+     */
+    public function deleteHoliday(): void
     {
         $holiday = Holiday::find($this->holidayId);
         Gate::forUser(auth()->user())->authorize('delete', $holiday);

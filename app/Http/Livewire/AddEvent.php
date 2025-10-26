@@ -18,28 +18,39 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * A Livewire component for adding new events.
+ *
+ * This component provides a modal form for creating new events, including
+ * handling for exceptional clock-ins and different event types.
+ */
 class AddEvent extends Component
 {
     use HasWorkScheduleHint;
     use HandlesEventAuthorization;
 
-    public $showAddEventModal = false;
-    public $workScheduleHint = '';
-    public $goDashboardModal = false;
+    public bool $showAddEventModal = false;
+    public string $workScheduleHint = '';
+    public bool $goDashboardModal = false;
     public $now;
-    public $start_date;
-    public $end_date;
-    public $start_time;
-    public $user_id;
-    public $description;
-    public $event_type_id;
+    public string $start_date;
+    public string $end_date;
+    public string $start_time;
+    public int $user_id;
+    public string $description;
+    public int $event_type_id;
     public $eventTypes;
-    public $selectedEventType;
-    public $observations;
-    public $origin;
+    public ?EventType $selectedEventType;
+    public string $observations;
+    public string $origin;
     protected $listeners = ['add'];
 
-    protected function rules()
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    protected function rules(): array
     {
         $rules = [
             'event_type_id' => 'required',
@@ -56,17 +67,34 @@ class AddEvent extends Component
         return $rules;
     }
 
-    public function updated($propertyName)
+    /**
+     * Validate a single property.
+     *
+     * @param string $propertyName
+     * @return void
+     */
+    public function updated(string $propertyName): void
     {
         $this->validateOnly($propertyName);
     }
 
-    public function updatedEventTypeId($value)
+    /**
+     * Handle the update of the event_type_id property.
+     *
+     * @param int $value
+     * @return void
+     */
+    public function updatedEventTypeId(int $value): void
     {
         $this->selectedEventType = EventType::find($value);
     }
 
-    public function mount()
+    /**
+     * Initialize the component.
+     *
+     * @return void
+     */
+    public function mount(): void
     {
         $this->start_date = date('Y-m-d');
         $this->end_date = date('Y-m-d');
@@ -82,7 +110,13 @@ class AddEvent extends Component
         }
     }
 
-    public function add($data)
+    /**
+     * Show the add event modal.
+     *
+     * @param array|string $data
+     * @return void
+     */
+    public function add($data): void
     {
         $this->reset(['description', 'observations', 'event_type_id', 'selectedEventType']);
         if (isset($data['date'])) {
@@ -112,7 +146,12 @@ class AddEvent extends Component
         $this->showAddEventModal = true;
     }
 
-    public function cancel()
+    /**
+     * Close the add event modal.
+     *
+     * @return void
+     */
+    public function cancel(): void
     {
         $this->showAddEventModal = false;
         if ($this->origin !== 'calendar') {
@@ -120,6 +159,11 @@ class AddEvent extends Component
         }
     }
 
+    /**
+     * Save the new event.
+     *
+     * @return \Illuminate\Http\RedirectResponse|void
+     */
     public function save()
     {
         $this->validate();
@@ -227,6 +271,11 @@ class AddEvent extends Component
         }
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.events.add-event');

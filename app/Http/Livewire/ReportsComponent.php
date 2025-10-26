@@ -9,6 +9,12 @@ use App\Exports\EventsExport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * A Livewire component for generating and exporting reports.
+ *
+ * This component provides a form for users to select a worker, date range,
+ * event type, and report type, and then export the corresponding data.
+ */
 class ReportsComponent extends Component
 {
     public User $user;
@@ -16,14 +22,19 @@ class ReportsComponent extends Component
     public bool $isTeamAdmin;
     public bool $isInspector;
     public $workers;
-    public $worker;
-    public $fromdate;
-    public $todate;
+    public int $worker;
+    public string $fromdate;
+    public string $todate;
     public $event_type_id;
     public string $rtype;
-    public $rtypes = ["PDF" => "Dompdf", "XLS" => "Xls", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
+    public array $rtypes = ["PDF" => "Dompdf", "XLS" => "Xls", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
     public $eventTypes;
 
+    /**
+     * The validation rules for the component.
+     *
+     * @var array
+     */
     protected $rules = [
         "worker" => 'required',
         "fromdate" => 'bail|required|date|before_or_equal:todate',
@@ -59,8 +70,9 @@ class ReportsComponent extends Component
      * Validates a single property of the component.
      *
      * @param string $propertyName The name of the property to validate.
+     * @return void
      */
-    public function updated($propertyName)
+    public function updated(string $propertyName): void
     {
         $this->validateOnly($propertyName);
     }
@@ -70,7 +82,7 @@ class ReportsComponent extends Component
      *
      * This method validates the input data, constructs the filename, and returns the Excel file download.
      *
-     * @return \Illuminate\Http\Response The file download response.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function export()
     {

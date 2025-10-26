@@ -11,24 +11,41 @@ use App\Traits\HasWorkScheduleHint;
 use App\Traits\HandlesEventAuthorization;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * A Livewire component for editing existing events.
+ *
+ * This component provides a modal form for editing events, including
+ * authorization checks and history logging.
+ */
 class EditEvent extends Component
 {
     use InsertHistory, HasWorkScheduleHint, HandlesEventAuthorization;
 
     /**
-     * @var bool $canBeModified Determines if the event can be modified by the current user.
+     * Determines if the event can be modified by the current user.
+     *
+     * @var bool
      */
-    public $canBeModified = false;
+    public bool $canBeModified = false;
 
     /**
-     * @var bool $showModalEditEvent Determines if the edit event modal is visible.
+     * Determines if the edit event modal is visible.
+     *
+     * @var bool
      */
-    public $showModalEditEvent = false;
-
-    public $workScheduleHint = '';
+    public bool $showModalEditEvent = false;
 
     /**
-     * @var \Illuminate\Support\Collection $eventTypes Holds the collection of event types.
+     * A hint about the user's work schedule.
+     *
+     * @var string
+     */
+    public string $workScheduleHint = '';
+
+    /**
+     * Holds the collection of event types.
+     *
+     * @var \Illuminate\Support\Collection
      */
     public $eventTypes;
 
@@ -37,22 +54,34 @@ class EditEvent extends Component
      * @var Event $original_event Holds the original state of the event for logging.
      */
     public Event $event, $original_event;
+
+    /**
+     * The start and end date of the event.
+     *
+     * @var string
+     */
     public $start_date, $end_date, $start_datetime, $end_datetime;
 
     /**
-     * @var User $user Holds the user associated with the event.
+     * Holds the user associated with the event.
+     *
+     * @var User
      */
     public User $user;
 
     /**
-     * @var array $listeners Listens for emitted events.
+     * The event listeners for the component.
+     *
+     * @var array
      */
     protected $listeners = ['edit'];
 
     /**
-     * @var array $rules Validation rules for the event.
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
      */
-    protected function rules()
+    protected function rules(): array
     {
         if (isset($this->event->eventType) && $this->event->eventType->is_all_day) {
             return [
@@ -70,11 +99,11 @@ class EditEvent extends Component
     }
 
     /**
-     * Initialize component with default values.
+     * Initialize the component.
      *
      * @return void
      */
-    public function mount()
+    public function mount(): void
     {
         $this->event = new Event();
         $this->user = User::find(Auth::user()->id);
@@ -82,12 +111,12 @@ class EditEvent extends Component
     }
 
     /**
-     * Handles editing of a specific event.
+     * Show the edit event modal.
      *
-     * @param Event $ev The event to edit.
+     * @param \App\Models\Event $ev
      * @return void
      */
-    public function edit(Event $ev)
+    public function edit(Event $ev): void
     {
         $this->event = $ev->load('workCenter');
         $this->original_event = clone $ev;
@@ -162,11 +191,11 @@ class EditEvent extends Component
     }
 
     /**
-     * Updates the event details and logs changes if applicable.
+     * Update the event.
      *
      * @return void
      */
-    public function update()
+    public function update(): void
     {
         if (!$this->canModifyEvent($this->event)) {
             $this->emit('alertFail', __("You are not authorized to perform this action."));
@@ -211,7 +240,7 @@ class EditEvent extends Component
     }
 
     /**
-     * Renders the Livewire view for editing events.
+     * Render the component.
      *
      * @return \Illuminate\View\View
      */
@@ -221,17 +250,23 @@ class EditEvent extends Component
     }
 
     /**
-     * Validates a specific property when it is updated.
+     * Validate a single property.
      *
-     * @param string $propertyName The name of the property being updated.
+     * @param string $propertyName
      * @return void
      */
-    public function updated($propertyName)
+    public function updated(string $propertyName): void
     {
         $this->validateOnly($propertyName);
     }
 
-    public function delete($eventId)
+    /**
+     * Delete an event.
+     *
+     * @param int $eventId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function delete(int $eventId)
     {
         $event = Event::find($eventId);
         if ($event) {

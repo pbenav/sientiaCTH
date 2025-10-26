@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+/**
+ * Handles the logic for exceptional clock-ins.
+ *
+ * This controller is responsible for validating the exceptional clock-in token
+ * and redirecting the user to the regularization form.
+ */
 class ExceptionalClockInController extends Controller
 {
     /**

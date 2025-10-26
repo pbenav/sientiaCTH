@@ -8,20 +8,26 @@ use Illuminate\Support\Facades\Validator;
 use Laravel\Jetstream\Contracts\UpdatesTeamNames;
 use Livewire\Component;
 
+/**
+ * A Livewire component for managing work centers for a team.
+ *
+ * This component provides functionality for creating, updating, and deleting
+ * work centers.
+ */
 class WorkCenterManager extends Component
 {
     use AuthorizesRequests;
 
     public $team;
-    public $managingWorkCenters = true;
+    public bool $managingWorkCenters = true;
 
-    public $confirmingWorkCenterRemoval = false;
-    public $workCenterIdBeingRemoved = null;
+    public bool $confirmingWorkCenterRemoval = false;
+    public ?int $workCenterIdBeingRemoved = null;
 
-    public $confirmingWorkCenterCreation = false;
-    public $confirmingWorkCenterUpdate = false;
+    public bool $confirmingWorkCenterCreation = false;
+    public bool $confirmingWorkCenterUpdate = false;
 
-    public $state = [];
+    public array $state = [];
 
     protected function rules()
     {
@@ -36,19 +42,35 @@ class WorkCenterManager extends Component
         ];
     }
 
-    public function mount($team)
+    /**
+     * Mount the component.
+     *
+     * @param mixed $team
+     * @return void
+     */
+    public function mount($team): void
     {
         $this->team = $team;
     }
 
-    public function confirmWorkCenterCreation()
+    /**
+     * Show the form for creating a new work center.
+     *
+     * @return void
+     */
+    public function confirmWorkCenterCreation(): void
     {
         $this->resetErrorBag();
         $this->state = [];
         $this->confirmingWorkCenterCreation = true;
     }
 
-    public function createWorkCenter()
+    /**
+     * Create a new work center.
+     *
+     * @return void
+     */
+    public function createWorkCenter(): void
     {
         $this->resetErrorBag();
 
@@ -60,14 +82,25 @@ class WorkCenterManager extends Component
         $this->emit('saved');
     }
 
-    public function confirmWorkCenterUpdate(WorkCenter $workCenter)
+    /**
+     * Show the form for updating a work center.
+     *
+     * @param \App\Models\WorkCenter $workCenter
+     * @return void
+     */
+    public function confirmWorkCenterUpdate(WorkCenter $workCenter): void
     {
         $this->resetErrorBag();
         $this->state = $workCenter->toArray();
         $this->confirmingWorkCenterUpdate = true;
     }
 
-    public function updateWorkCenter()
+    /**
+     * Update a work center.
+     *
+     * @return void
+     */
+    public function updateWorkCenter(): void
     {
         $this->resetErrorBag();
 
@@ -79,18 +112,34 @@ class WorkCenterManager extends Component
         $this->emit('saved');
     }
 
-    public function confirmWorkCenterRemoval($workCenterId)
+    /**
+     * Confirm the removal of a work center.
+     *
+     * @param int $workCenterId
+     * @return void
+     */
+    public function confirmWorkCenterRemoval(int $workCenterId): void
     {
         $this->confirmingWorkCenterRemoval = true;
         $this->workCenterIdBeingRemoved = $workCenterId;
     }
 
-    public function removeWorkCenter()
+    /**
+     * Remove a work center.
+     *
+     * @return void
+     */
+    public function removeWorkCenter(): void
     {
         WorkCenter::find($this->workCenterIdBeingRemoved)->delete();
         $this->confirmingWorkCenterRemoval = false;
     }
 
+    /**
+     * Render the component.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.teams.work-center-manager', [

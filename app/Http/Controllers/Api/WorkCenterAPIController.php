@@ -6,8 +6,21 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Encryption\DecryptException;
 
+/**
+ * Handles API requests for work centers.
+ *
+ * This controller is responsible for validating work center codes and listing
+ * work centers.
+ */
 class WorkCenterAPIController extends Controller
 {
+    /**
+     * Validate a work center code.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Services\EncryptionService $encryptionService
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function validateCode(Request $request, \App\Services\EncryptionService $encryptionService)
     {
         $request->validate([
@@ -29,6 +42,11 @@ class WorkCenterAPIController extends Controller
         return response()->json($workCenter);
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index()
     {
         $workCenters = auth()->user()->currentTeam->workCenters;

@@ -2,24 +2,33 @@
 
 namespace App\Models;
 
-use App\Models\Team;
 use App\Models\Event;
 use App\Models\Message;
-use Laravel\Jetstream\HasTeams;
-use Laravel\Sanctum\HasApiTokens;
-use Laravel\Jetstream\HasProfilePhoto;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use App\Models\Team;
+use App\Traits\HasNotificationPreferences;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Jetstream\HasTeams;
+use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Represents a user of the application.
+ *
+ * This model contains all the information related to a user, including their
+ * personal information, authentication details, and relationships to other
+ * models.
+ */
 class User extends Authenticatable
 {
     // Traits
     use HasApiTokens;
     use HasFactory;
+    use HasNotificationPreferences;
     use HasProfilePhoto;
     use HasTeams;
     use Notifiable;
@@ -86,6 +95,11 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    /**
+     * Get the events for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function events()
     {
         return $this->hasMany(Event::class);
@@ -105,8 +119,8 @@ class User extends Authenticatable
     }
 
     /**
-     * 
-     * Interact with the user's first familyname1.
+     *
+     * Interact with the user's first family name.
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
@@ -119,7 +133,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Interact with the user's first familyname2.
+     * Interact with the user's second family name.
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
@@ -131,54 +145,57 @@ class User extends Authenticatable
         );
     }
 
-    public function isTeamAdmin(\App\Models\Team $team = null){
+    /**
+     * Check if the user is an administrator of a given team.
+     *
+     * @param \App\Models\Team|null $team
+     * @return boolean
+     */
+    public function isTeamAdmin(\App\Models\Team $team = null): bool
+    {
         $team = $team ?: $this->currentTeam;
         return $this->hasTeamRole($team, 'admin');
     }
 
-    public function isInspector(){
+    /**
+     * Check if the user has the inspector role in the current team.
+     *
+     * @return boolean
+     */
+    public function isInspector(): bool
+    {
         return $this->hasTeamRole($this->currentTeam, 'inspect');
     }
 
-     public function meta()
+    /**
+     * Get the metadata associated with the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function meta()
     {
         return $this->hasMany(UserMeta::class);
     }
 
+    /**
+     * Get the messages sent by the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function messages()
     {
         return $this->hasMany(Message::class, 'sender_id');
     }
 
+    /**
+     * Get the messages received by the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function receivedMessages()
     {
         return $this->belongsToMany(Message::class, 'message_user')
             ->withPivot('read_at', 'deleted_at')
             ->withTimestamps();
-    }
-
-    /**
-     * Check if the user wants to receive email notifications.
-     *
-     * @return bool
-     */
-    public function wantsEmailNotifications()
-    {
-        $preference = $this->meta->where('meta_key', 'notify_by_email')->first();
-
-        return $preference && $preference->meta_value == '1';
-    }
-
-    /**
-     * Check if the user wants to receive internal notifications.
-     *
-     * @return bool
-     */
-    public function wantsInternalNotifications()
-    {
-        $preference = $this->meta->where('meta_key', 'notify_by_internal_message')->first();
-
-        // Default to true if not set
-        return $preference ? (bool)$preference->meta_value : true;
     }
 }
