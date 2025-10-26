@@ -36,7 +36,6 @@
                     </div>
 
                     <div x-show="tab === 'settings'" class="py-6">
-                        @livewire('teams.update-irregular-event-color-form', ['team' => $team])
                     </div>
 
                     <div x-show="tab === 'work_centers'" class="py-6" style="display: none;">
