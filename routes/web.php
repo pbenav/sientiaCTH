@@ -6,9 +6,6 @@ use App\Http\Livewire\ReportsComponent;
 use App\Http\Livewire\StatsComponent;
 use Illuminate\Support\Facades\Route;
 
-
-
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
