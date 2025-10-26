@@ -23,7 +23,7 @@ class UpdateDefaultWorkCenterForm extends Component
      *
      * @var int|null
      */
-    public ?int $defaultWorkCenterId;
+    public ?int $defaultWorkCenterId = null;
 
     /**
      * Initialize the component.
