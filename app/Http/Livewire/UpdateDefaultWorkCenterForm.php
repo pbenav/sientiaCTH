@@ -21,9 +21,9 @@ class UpdateDefaultWorkCenterForm extends Component
     /**
      * The ID of the default work center.
      *
-     * @var int
+     * @var int|null
      */
-    public int $defaultWorkCenterId;
+    public ?int $defaultWorkCenterId;
 
     /**
      * Initialize the component.
@@ -34,7 +34,7 @@ class UpdateDefaultWorkCenterForm extends Component
     {
         $this->workCenters = auth()->user()->currentTeam->workCenters;
         $defaultWorkCenter = auth()->user()->meta->where('meta_key', 'default_work_center_id')->first();
-        $this->defaultWorkCenterId = $defaultWorkCenter ? $defaultWorkCenter->meta_value : '';
+        $this->defaultWorkCenterId = $defaultWorkCenter ? (int) $defaultWorkCenter->meta_value : null;
     }
 
     /**
