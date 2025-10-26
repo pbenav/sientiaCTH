@@ -17,7 +17,7 @@
                 </label>
             </div>
 
-            @if ($state['force_clock_in_delay'])
+            @if (isset($state['force_clock_in_delay']) && $state['force_clock_in_delay'])
                 <!-- Clock-in Delay Minutes -->
                 <div class="col-span-6 sm:col-span-4">
                     <x-jet-label for="clock_in_delay_minutes" value="{{ __('Margen de Minutos para Fichar') }}" />

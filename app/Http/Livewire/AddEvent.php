@@ -37,11 +37,11 @@ class AddEvent extends Component
     public string $end_date;
     public string $start_time;
     public ?int $user_id = null;
-    public string $description;
-    public ?int $event_type_id;
+    public string $description = '';
+    public ?int $event_type_id = null;
     public $eventTypes;
-    public ?EventType $selectedEventType;
-    public string $observations;
+    public ?EventType $selectedEventType = null;
+    public string $observations = '';
     public string $origin;
     protected $listeners = ['add'];
 
