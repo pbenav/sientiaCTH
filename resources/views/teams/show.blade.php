@@ -7,55 +7,57 @@
 
     <div>
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            @livewire('teams.update-team-name-form', ['team' => $team])
-
-            @livewire('teams.team-member-manager', ['team' => $team])
-
-            @if (Gate::check('delete', $team) && ! $team->personal_team)
-                <x-jet-section-border />
-
-                <div class="mt-10 sm:mt-0">
-                    @livewire('teams.delete-team-form', ['team' => $team])
+            <div x-data="{ tab: new URLSearchParams(window.location.search).get('tab') || 'settings' }" class="w-full">
+                <div class="flex border-b border-gray-200">
+                    <button @click="tab = 'settings'" :class="{ 'border-b-2 border-indigo-500': tab === 'settings' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+                        {{ __('Team Preferences') }}
+                    </button>
+                    <button @click="tab = 'event_management'" :class="{ 'border-b-2 border-indigo-500': tab === 'event_management' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+                        {{ __('Event Management') }}
+                    </button>
+                    <button @click="tab = 'work_centers'" :class="{ 'border-b-2 border-indigo-500': tab === 'work_centers' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+                        {{ __('Work Centers') }}
+                    </button>
                 </div>
-            @endif
 
-            <x-jet-section-border />
+                {{-- Team Preferences Tab --}}
+                <div x-show="tab === 'settings'" class="py-6">
+                    @livewire('teams.update-team-name-form', ['team' => $team])
 
-            <div class="mt-10 sm:mt-0">
-                <div x-data="{ tab: new URLSearchParams(window.location.search).get('tab') || 'settings' }" class="w-full">
-                    <div class="flex border-b border-gray-200">
-                        <button @click="tab = 'settings'" :class="{ 'border-b-2 border-indigo-500': tab === 'settings' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                            {{ __('Team Settings') }}
-                        </button>
-                        <button @click="tab = 'work_centers'" :class="{ 'border-b-2 border-indigo-500': tab === 'work_centers' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                            {{ __('Work Centers') }}
-                        </button>
-                        <button @click="tab = 'event_management'" :class="{ 'border-b-2 border-indigo-500': tab === 'event_management' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                            {{ __('Event Management') }}
-                        </button>
+                    <x-jet-section-border />
+
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.team-member-manager', ['team' => $team])
                     </div>
 
-                    <div x-show="tab === 'settings'" class="py-6">
-                    </div>
+                    @if (Gate::check('delete', $team) && ! $team->personal_team)
+                        <x-jet-section-border />
 
-                    <div x-show="tab === 'work_centers'" class="py-6" style="display: none;">
-                        @livewire('teams.work-center-manager', ['team' => $team])
-                        <x-jet-section-border />
                         <div class="mt-10 sm:mt-0">
-                            @livewire('teams.timezone-manager', ['team' => $team])
+                            @livewire('teams.delete-team-form', ['team' => $team])
                         </div>
-                    </div>
+                    @endif
+                </div>
 
-                    <div x-show="tab === 'event_management'" class="py-6" style="display: none;">
-                        @livewire('teams.event-type-manager', ['team' => $team])
-                        <x-jet-section-border />
-                        <div class="mt-10 sm:mt-0">
-                            @livewire('teams.clock-in-delay-manager', ['team' => $team])
-                        </div>
-                        <x-jet-section-border />
-                        <div class="mt-10 sm:mt-0">
-                            @livewire('teams.holiday-manager', ['team' => $team])
-                        </div>
+                {{-- Event Management Tab --}}
+                <div x-show="tab === 'event_management'" class="py-6" style="display: none;">
+                    @livewire('teams.event-type-manager', ['team' => $team])
+                    <x-jet-section-border />
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.clock-in-delay-manager', ['team' => $team])
+                    </div>
+                    <x-jet-section-border />
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.holiday-manager', ['team' => $team])
+                    </div>
+                </div>
+
+                {{-- Work Centers Tab --}}
+                <div x-show="tab === 'work_centers'" class="py-6" style="display: none;">
+                    @livewire('teams.work-center-manager', ['team' => $team])
+                    <x-jet-section-border />
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.timezone-manager', ['team' => $team])
                     </div>
                 </div>
             </div>
