@@ -21,28 +21,23 @@ class EventTypeManager extends Component
     public ?EventType $eventTypeToDelete;
     public bool $managingEventType = false;
 
-    // Form properties
-    public ?int $eventTypeId;
-    public string $name;
-    public string $color;
-    public ?string $observations;
-    public bool $is_all_day;
-    public bool $is_workday_type;
+    // Form state
+    public array $state = [];
 
     protected $rules = [
-        'name' => 'required|string|max:255',
-        'color' => 'required|string|max:255',
-        'observations' => 'nullable|string',
-        'is_all_day' => 'required|boolean',
-        'is_workday_type' => 'required|boolean',
+        'state.name' => 'required|string|max:255',
+        'state.color' => 'required|string|max:255',
+        'state.observations' => 'nullable|string',
+        'state.is_all_day' => 'required|boolean',
+        'state.is_workday_type' => 'required|boolean',
     ];
 
     protected $validationAttributes = [
-        'name' => 'name',
-        'color' => 'color',
-        'observations' => 'observations',
-        'is_all_day' => 'all day',
-        'is_workday_type' => 'workday type',
+        'state.name' => 'name',
+        'state.color' => 'color',
+        'state.observations' => 'observations',
+        'state.is_all_day' => 'all day',
+        'state.is_workday_type' => 'workday type',
     ];
 
     /**
@@ -107,23 +102,21 @@ class EventTypeManager extends Component
     public function manageEventType(int $eventTypeId = null): void
     {
         $this->resetErrorBag();
-        $this->managingEventType = true;
-        $this->eventTypeId = $eventTypeId;
 
         if ($eventTypeId) {
             $eventType = EventType::find($eventTypeId);
-            $this->name = $eventType->name;
-            $this->color = $eventType->color;
-            $this->observations = $eventType->observations;
-            $this->is_all_day = $eventType->is_all_day;
-            $this->is_workday_type = $eventType->is_workday_type;
+            $this->state = $eventType->toArray();
         } else {
-            $this->name = '';
-            $this->color = '#000000';
-            $this->observations = '';
-            $this->is_all_day = false;
-            $this->is_workday_type = false;
+            $this->state = [
+                'name' => '',
+                'color' => '#000000',
+                'observations' => '',
+                'is_all_day' => false,
+                'is_workday_type' => false,
+            ];
         }
+
+        $this->managingEventType = true;
     }
 
     /**
@@ -135,25 +128,17 @@ class EventTypeManager extends Component
     {
         $this->validate();
 
-        $data = [
-            'name' => $this->name,
-            'color' => $this->color,
-            'observations' => $this->observations,
-            'is_all_day' => $this->is_all_day,
-            'is_workday_type' => $this->is_workday_type,
-        ];
-
-        if ($this->is_workday_type) {
-            $this->team->eventTypes()->where('id', '!=', $this->eventTypeId)->update(['is_workday_type' => false]);
+        if (isset($this->state['is_workday_type']) && $this->state['is_workday_type']) {
+            $this->team->eventTypes()->where('id', '!=', $this->state['id'] ?? null)->update(['is_workday_type' => false]);
         }
 
-        if ($this->eventTypeId) {
-            $eventType = EventType::find($this->eventTypeId);
+        if (isset($this->state['id'])) {
+            $eventType = EventType::find($this->state['id']);
             Gate::forUser(auth()->user())->authorize('update', $eventType);
-            $eventType->update($data);
+            $eventType->update($this->state);
         } else {
             Gate::forUser(auth()->user())->authorize('create', [EventType::class, $this->team]);
-            $this->team->eventTypes()->create($data);
+            $this->team->eventTypes()->create($this->state);
         }
 
         $this->eventTypes = $this->team->eventTypes()->get();

@@ -106,35 +106,35 @@
     <!-- Manage Event Type Modal -->
     <x-jet-dialog-modal wire:model="managingEventType">
         <x-slot name="title">
-            {{ $eventTypeId ? __('Editar tipo de evento') : __('Añadir tipo de evento') }}
+            {{ isset($state['id']) ? __('Editar tipo de evento') : __('Añadir tipo de evento') }}
         </x-slot>
 
         <x-slot name="content">
             <div class="space-y-4">
                 <div>
                     <x-jet-label for="name" value="{{ __('Nombre') }}" />
-                    <x-jet-input id="name" type="text" class="mt-1 block w-full" wire:model.defer="name" />
-                    <x-jet-input-error for="name" class="mt-2" />
+                    <x-jet-input id="name" type="text" class="mt-1 block w-full" wire:model.defer="state.name" />
+                    <x-jet-input-error for="state.name" class="mt-2" />
                 </div>
                 <div>
                     <x-jet-label for="color" value="{{ __('Color') }}" />
-                    <x-jet-input id="color" type="color" class="mt-1 block w-full" wire:model.defer="color" />
-                    <x-jet-input-error for="color" class="mt-2" />
+                    <x-jet-input id="color" type="color" class="mt-1 block w-full" wire:model.defer="state.color" />
+                    <x-jet-input-error for="state.color" class="mt-2" />
                 </div>
                 <div>
                     <x-jet-label for="observations" value="{{ __('Observaciones') }}" />
-                    <textarea id="observations" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" wire:model.defer="observations"></textarea>
-                    <x-jet-input-error for="observations" class="mt-2" />
+                    <textarea id="observations" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" wire:model.defer="state.observations"></textarea>
+                    <x-jet-input-error for="state.observations" class="mt-2" />
                 </div>
                 <div class="flex items-center">
-                    <x-jet-checkbox id="is_all_day" wire:model.defer="is_all_day" />
+                    <x-jet-checkbox id="is_all_day" wire:model.defer="state.is_all_day" />
                     <x-jet-label for="is_all_day" class="ml-2" value="{{ __('Evento de día completo') }}" />
-                    <x-jet-input-error for="is_all_day" class="mt-2" />
+                    <x-jet-input-error for="state.is_all_day" class="mt-2" />
                 </div>
                 <div class="flex items-center">
-                    <x-jet-checkbox id="is_workday_type" wire:model.defer="is_workday_type" />
+                    <x-jet-checkbox id="is_workday_type" wire:model.defer="state.is_workday_type" />
                     <x-jet-label for="is_workday_type" class="ml-2" value="{{ __('Tipo de Jornada Principal') }}" />
-                    <x-jet-input-error for="is_workday_type" class="mt-2" />
+                    <x-jet-input-error for="state.is_workday_type" class="mt-2" />
                 </div>
             </div>
         </x-slot>
