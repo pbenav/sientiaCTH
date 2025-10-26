@@ -26,7 +26,7 @@ class GetTimeRegisters extends Component
 
     protected $events;
     public bool $showFiltersModal = false;
-    public string $search;
+    public string $search = '';
     public Event $filter;
     public string $sort = 'start';
     public string $direction = 'desc';
