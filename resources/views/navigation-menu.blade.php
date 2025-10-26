@@ -95,8 +95,8 @@
                         <x-slot name="trigger">
                             @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                                 <span class="inline-flex rounded-md">
-                                    <p class="text-formatted">
-                                        {{ Auth::user()->name . ' ' . Auth::user()->family_name1 }}</p>
+                                    <span class="text-formatted">
+                                        {{ Auth::user()->name . ' ' . Auth::user()->family_name1 }}</span>
                                     <button
                                         class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
                                         <img class="h-8 w-8 rounded-full object-cover"

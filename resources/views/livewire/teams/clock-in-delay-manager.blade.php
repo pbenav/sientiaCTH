@@ -23,9 +23,9 @@
                     <x-jet-label for="clock_in_delay_minutes" value="{{ __('Margen de Minutos para Fichar') }}" />
                     <x-jet-input id="clock_in_delay_minutes" type="number" class="mt-1 block w-full" wire:model.defer="state.clock_in_delay_minutes" />
                     <x-jet-input-error for="clock_in_delay_minutes" class="mt-2" />
-                    <p class="mt-1 text-xs text-gray-500">
+                    <span class="mt-1 text-xs text-gray-500">
                         {{ __('Número de minutos antes y después de la hora de inicio/fin programada que el usuario tiene permitido fichar. Por ejemplo, si el margen es de 15 minutos, un usuario programado para empezar a las 08:00 podrá fichar entre las 07:45 y las 08:15.') }}
-                    </p>
+                    </span>
                 </div>
 
                 <!-- Clock-in Grace Period Minutes -->
@@ -33,9 +33,9 @@
                     <x-jet-label for="clock_in_grace_period_minutes" value="{{ __('Periodo de Gracia para Fichaje Excepcional (Minutos)') }}" />
                     <x-jet-input id="clock_in_grace_period_minutes" type="number" class="mt-1 block w-full" wire:model.defer="state.clock_in_grace_period_minutes" />
                     <x-jet-input-error for="clock_in_grace_period_minutes" class="mt-2" />
-                    <p class="mt-1 text-xs text-gray-500">
+                    <span class="mt-1 text-xs text-gray-500">
                         {{ __('Si un usuario supera el margen, se le enviará un enlace para fichar. Este enlace será válido durante el número de minutos que definas aquí.') }}
-                    </p>
+                    </span>
                 </div>
             @endif
         </x-slot>
