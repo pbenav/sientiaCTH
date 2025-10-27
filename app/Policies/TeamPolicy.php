@@ -11,6 +11,22 @@ class TeamPolicy
     use HandlesAuthorization;
 
     /**
+     * Bypass para administradores globales.
+     * Devuelve true si el usuario es admin global (propiedad is_admin o rol 'admin').
+     * Devuelve null para que continúe la evaluación normal en caso contrario.
+     */
+    public function before(User $user, $ability)
+    {
+        if (property_exists($user, 'is_admin') && $user->is_admin) {
+            return true;
+        }
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
+            return true;
+        }
+        return null;
+    }
+
+    /**
      * Determine whether the user can view any models.
      *
      * @param  \App\Models\User  $user
@@ -53,7 +69,10 @@ class TeamPolicy
      */
     public function update(User $user, Team $team)
     {
-        return $user->ownsTeam($team);
+        if (!$team) {
+            return false;
+        }
+        return $user->id === $team->user_id || method_exists($user, 'isTeamAdmin') && $user->isTeamAdmin($team);
     }
 
     /**

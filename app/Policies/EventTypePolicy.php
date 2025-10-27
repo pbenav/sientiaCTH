@@ -18,9 +18,9 @@ class EventTypePolicy
      * @param  \App\Models\Team  $team
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user, Team $team)
+    public function create(User $user, Team $team): bool
     {
-        return $user->ownsTeam($team);
+        return $user->id === $team->user_id || method_exists($user, 'isTeamAdmin') && $user->isTeamAdmin($team);
     }
 
     /**
@@ -30,11 +30,14 @@ class EventTypePolicy
      * @param  \App\Models\EventType  $eventType
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, EventType $eventType)
+    public function update(User $user, EventType $eventType): bool
     {
-        return $user->ownsTeam($eventType->team);
+        $team = $eventType->team ?? $eventType->team()->first();
+        if (!$team) {
+            return false;
+        }
+        return $user->id === $team->user_id || method_exists($user, 'isTeamAdmin') && $user->isTeamAdmin($team);
     }
-
     /**
      * Determine whether the user can delete the model.
      *
@@ -42,8 +45,12 @@ class EventTypePolicy
      * @param  \App\Models\EventType  $eventType
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, EventType $eventType)
+    public function delete(User $user, EventType $eventType): bool
     {
-        return $user->ownsTeam($eventType->team);
+        $team = $eventType->team ?? $eventType->team()->first();
+        if (!$team) {
+            return false;
+        }
+        return $user->id === $team->user_id || method_exists($user, 'isTeamAdmin') && $user->isTeamAdmin($team);
     }
 }

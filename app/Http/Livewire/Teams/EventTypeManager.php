@@ -127,17 +127,16 @@ class EventTypeManager extends Component
     public function saveEventType(): void
     {
         $this->validate();
-
-        if (isset($this->state['is_workday_type']) && $this->state['is_workday_type']) {
+        if (!empty($this->state['is_workday_type']) && $this->state['is_workday_type']) {
             $this->team->eventTypes()->where('id', '!=', $this->state['id'] ?? null)->update(['is_workday_type' => false]);
         }
 
-        if (isset($this->state['id'])) {
-            $eventType = EventType::find($this->state['id']);
+        if (!empty($this->state['id'])) {
+            $eventType = EventType::where('id', $this->state['id'])->where('team_id', $this->team->id)->firstOrFail();
             Gate::forUser(auth()->user())->authorize('update', $eventType);
             $eventType->update($this->state);
         } else {
-            Gate::forUser(auth()->user())->authorize('create', [EventType::class, $this->team]);
+            Gate::forUser(auth()->user())->authorize('create', $this->team);
             $this->team->eventTypes()->create($this->state);
         }
 

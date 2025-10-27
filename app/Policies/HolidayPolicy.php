@@ -22,7 +22,7 @@ class HolidayPolicy
      */
     public function update(User $user, Holiday $holiday): bool
     {
-        return $user->isTeamAdmin() && $user->current_team_id === $holiday->team_id;
+        return $user->isTeamAdmin();
     }
 
     /**
@@ -30,6 +30,6 @@ class HolidayPolicy
      */
     public function delete(User $user, Holiday $holiday): bool
     {
-        return $user->isTeamAdmin() && $user->current_team_id === $holiday->team_id;
+        return $user->isTeamAdmin() ;
     }
 }

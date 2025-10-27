@@ -17,11 +17,13 @@
                         </div>
 
                         <div class="flex items-center">
-                            <button class="cursor-pointer ml-6 text-sm text-gray-500" wire:click="editHoliday({{ $holiday->id }})">
+                            <button class="cursor-pointer ml-6 text-sm text-gray-500"
+                                wire:click="editHoliday({{ $holiday->id }})">
                                 {{ __('Edit') }}
                             </button>
 
-                            <button class="cursor-pointer ml-6 text-sm text-red-500" wire:click="confirmHolidayDeletion({{ $holiday->id }})">
+                            <button class="cursor-pointer ml-6 text-sm text-red-500"
+                                wire:click="confirmHolidayDeletion({{ $holiday->id }})">
                                 {{ __('Delete') }}
                             </button>
                         </div>
@@ -30,7 +32,7 @@
             </div>
 
             <div class="mt-4">
-                <x-jet-button wire:click="managingHolidays(true)">
+                <x-jet-button wire:click="$set('managingHoliday', true)">
                     {{ __('Add Holiday') }}
                 </x-jet-button>
             </div>
@@ -38,7 +40,7 @@
     </x-jet-action-section>
 
     <!-- Add Holiday Modal -->
-    <x-jet-dialog-modal wire:model="managingHolidays">
+    <x-jet-dialog-modal wire:model="managingHoliday">
         <x-slot name="title">
             {{ $holidayId ? __('Edit Holiday') : __('Add Holiday') }}
         </x-slot>
@@ -46,19 +48,21 @@
         <x-slot name="content">
             <div class="col-span-6 sm:col-span-4">
                 <x-jet-label for="name" value="{{ __('Name') }}" />
-                <x-jet-input id="name" type="text" class="mt-1 block w-full" wire:model.defer="holidayForm.name" />
+                <x-jet-input id="name" type="text" class="mt-1 block w-full"
+                    wire:model.defer="holidayForm.name" />
                 <x-jet-input-error for="holidayForm.name" class="mt-2" />
             </div>
 
-             <div class="col-span-6 sm:col-span-4 mt-4">
+            <div class="col-span-6 sm:col-span-4 mt-4">
                 <x-jet-label for="date" value="{{ __('Date') }}" />
-                <x-jet-input id="date" type="date" class="mt-1 block w-full" wire:model.defer="holidayForm.date" />
+                <x-jet-input id="date" type="date" class="mt-1 block w-full"
+                    wire:model.defer="holidayForm.date" />
                 <x-jet-input-error for="holidayForm.date" class="mt-2" />
             </div>
         </x-slot>
 
         <x-slot name="footer">
-            <x-jet-secondary-button wire:click="managingHolidays(false)" wire:loading.attr="disabled">
+            <x-jet-secondary-button wire:click="managingHoliday(false)" wire:loading.attr="disabled">
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 

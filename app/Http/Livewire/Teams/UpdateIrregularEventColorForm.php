@@ -30,7 +30,7 @@ class UpdateIrregularEventColorForm extends Component
     public function mount($team): void
     {
         $this->team = $team;
-        $this->state['irregular_event_color'] = $this->team->irregular_event_color ?? '#000000';
+        $this->state['irregular_event_color'] = $this->team->irregular_event_color ?? '#EA8000';
     }
 
     /**

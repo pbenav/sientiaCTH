@@ -3,15 +3,9 @@
 namespace App\Http\Livewire\Teams;
 
 use App\Models\Holiday;
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * A Livewire component for managing holidays for a team.
- *
- * This component provides functionality for creating, updating, and deleting
- * holidays.
- */
 class HolidayManager extends Component
 {
     public $team;
@@ -20,118 +14,114 @@ class HolidayManager extends Component
 
     public bool $managingHoliday = false;
     public bool $confirmingHolidayDeletion = false;
-    public ?int $holidayId;
+    public ?int $holidayId = null;
 
-    // Form properties
-    public string $name;
-    public string $date;
-    public ?string $type;
+    // Form state
+    public array $holidayForm = [
+        'name' => '',
+        'date' => null,
+        'type' => null,
+    ];
 
-    protected function rules()
+    protected function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'date' => 'required|date',
-            'type' => 'nullable|string|max:255',
+            'holidayForm.name' => 'required|string|max:255',
+            'holidayForm.date' => 'required|date',
+            'holidayForm.type' => 'nullable|string|max:255',
         ];
     }
 
-    /**
-     * Mount the component.
-     *
-     * @param mixed $team
-     * @return void
-     */
     public function mount($team): void
     {
         $this->team = $team;
-        $this->isTeamAdmin = auth()->user()->isTeamAdmin();
+        $this->isTeamAdmin = method_exists(auth()->user(), 'isTeamAdmin') ? auth()->user()->isTeamAdmin($team) : false;
+        $this->loadHolidays();
     }
 
-    /**
-     * Render the component.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function render()
+    protected function loadHolidays(): void
     {
+        // Asume relación team->holidays()
         $this->holidays = $this->team->holidays()->orderBy('date')->get();
-        return view('livewire.teams.holiday-manager');
     }
 
-    /**
-     * Show the form for managing a holiday.
-     *
-     * @param int|null $holidayId
-     * @return void
-     */
-    public function manageHoliday(int $holidayId = null): void
+    // Alias/compatibilidad con vistas que llaman managingHoliday(...) como método
+    public function managingHoliday($flag = true): void
     {
-        $this->resetErrorBag();
-        $this->managingHoliday = true;
-        $this->holidayId = $holidayId;
-
-        if ($holidayId) {
-            $holiday = Holiday::find($holidayId);
-            $this->name = $holiday->name;
-            $this->date = $holiday->date->format('Y-m-d');
-            $this->type = $holiday->type;
-        } else {
-            $this->name = '';
-            $this->date = '';
-            $this->type = '';
+        $this->managingHoliday = (bool) $flag;
+        if ($this->managingHoliday === false) {
+            $this->resetForm();
         }
     }
 
-    /**
-     * Save the holiday.
-     *
-     * @return void
-     */
+    protected function resetForm(): void
+    {
+        $this->holidayId = null;
+        $this->holidayForm = ['name' => '', 'date' => null, 'type' => null];
+    }
+
+    public function editHoliday(int $id): void
+    {
+        $holiday = Holiday::findOrFail($id);
+        $this->holidayId = $holiday->id;
+        $this->holidayForm = [
+            'name' => $holiday->name,
+            'date' => $holiday->date ? $holiday->date->format('Y-m-d') : null,
+            'type' => $holiday->type,
+        ];
+        $this->managingHoliday = true;
+    }
+
+    public function confirmHolidayDeletion(int $id): void
+    {
+        $this->holidayId = $id;
+        $this->confirmingHolidayDeletion = true;
+    }
+
     public function saveHoliday(): void
     {
         $this->validate();
 
-        $data = [
-            'name' => $this->name,
-            'date' => $this->date,
-            'type' => $this->type,
-        ];
-
         if ($this->holidayId) {
-            $holiday = Holiday::find($this->holidayId);
-            Gate::forUser(auth()->user())->authorize('update', $holiday);
-            $holiday->update($data);
+            $h = Holiday::findOrFail($this->holidayId);
+            $h->update([
+                'name' => $this->holidayForm['name'],
+                'date' => $this->holidayForm['date'],
+                'type' => $this->holidayForm['type'],
+            ]);
+            session()->flash('success', __('Holiday updated.'));
         } else {
-            Gate::forUser(auth()->user())->authorize('create', [Holiday::class, $this->team]);
-            $this->team->holidays()->create($data);
+            $this->team->holidays()->create([
+                'name' => $this->holidayForm['name'],
+                'date' => $this->holidayForm['date'],
+                'type' => $this->holidayForm['type'],
+            ]);
+            session()->flash('success', __('Holiday created.'));
         }
 
         $this->managingHoliday = false;
+        $this->resetForm();
+        $this->loadHolidays();
     }
 
-    /**
-     * Confirm the deletion of a holiday.
-     *
-     * @param \App\Models\Holiday $holiday
-     * @return void
-     */
-    public function confirmHolidayDeletion(Holiday $holiday): void
-    {
-        $this->confirmingHolidayDeletion = true;
-        $this->holidayId = $holiday->id;
-    }
-
-    /**
-     * Delete a holiday.
-     *
-     * @return void
-     */
     public function deleteHoliday(): void
     {
-        $holiday = Holiday::find($this->holidayId);
-        Gate::forUser(auth()->user())->authorize('delete', $holiday);
-        $holiday->delete();
+        if ($this->holidayId) {
+            $h = Holiday::find($this->holidayId);
+            if ($h) {
+                $h->delete();
+                session()->flash('success', __('Holiday deleted.'));
+            }
+        }
         $this->confirmingHolidayDeletion = false;
+        $this->holidayId = null;
+        $this->loadHolidays();
+    }
+
+    public function render()
+    {
+        return view('livewire.teams.holiday-manager', [
+            'team' => $this->team,
+        ]);
     }
 }

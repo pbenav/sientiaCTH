@@ -49,7 +49,7 @@ class TimezoneManager extends Component
     }
 
     /**
-     * Get a list of timezones.
+     * Get a list of timezones with 'Europe/Madrid' as the first option.
      *
      * @return array
      */
@@ -57,15 +57,31 @@ class TimezoneManager extends Component
     {
         $timezones = [];
         $identifiers = DateTimeZone::listIdentifiers();
+        $madridTimezone = 'Europe/Madrid';
+
         foreach ($identifiers as $identifier) {
             $dateTime = new \DateTime('now', new DateTimeZone($identifier));
             $offset = $dateTime->getOffset() / 3600;
             $offsetFormatted = 'UTC' . ($offset >= 0 ? '+' : '') . $offset;
+            
             $timezones[$identifier] = "($offsetFormatted) $identifier";
         }
-        return $timezones;
-    }
 
+        if (isset($timezones[$madridTimezone])) {
+            $madridEntry = $timezones[$madridTimezone];
+            unset($timezones[$madridTimezone]);
+        } else {
+            $madridEntry = null; 
+        }
+        
+        $sortedTimezones = [];
+        if ($madridEntry) {
+            $sortedTimezones[$madridTimezone] = $madridEntry;
+        }
+        $sortedTimezones = array_merge($sortedTimezones, $timezones);
+
+        return $sortedTimezones;
+    }
     /**
      * Render the component.
      *
