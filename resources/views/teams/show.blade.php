@@ -50,6 +50,10 @@
                     <div class="mt-10 sm:mt-0">
                         @livewire('teams.holiday-manager', ['team' => $team])
                     </div>
+                    <x-jet-section-border />
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.update-irregular-event-color-form', ['team' => $team])
+                    </div>
                 </div>
 
                 {{-- Work Centers Tab --}}

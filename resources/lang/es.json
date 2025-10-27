@@ -148,7 +148,7 @@
     "Once a team is deleted, all of its resources and data will be permanently deleted. Before deleting this team, please download any data or information regarding this team that you wish to retain.": "Una vez que se elimina un equipo, todos sus recursos y datos se eliminarán de forma permanente. Antes de eliminar este equipo, descargue cualquier dato o información sobre este equipo que desee conservar.",
     "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.": "Una vez su cuenta sea borrada, todos sus recursos y datos se eliminarán de forma permanente. Antes de borrar su cuenta, por favor descargue cualquier dato o información que desee conservar.",
     "Page Expired": "Página expirada",
-    "Page Not Found": "Página no encontrada",
+    "Page Not Found": "Página no encontrado",
     "Pagination Navigation": "Navegación por los enlaces de paginación",
     "Pending Team Invitations": "Invitaciones de equipo pendientes",
     "Permanently delete this team.": "Eliminar este equipo de forma permanente",
@@ -430,5 +430,9 @@
     "No": "No",
     "Irregular Closures": "Cierres Irregulares",
     "Exceptional Clock-ins": "Fichajes Excepcionales",
-    "Save": "Guardar"
+    "Save": "Guardar",
+    "You have a new message from a team member.": "Tienes un nuevo mensaje de un miembro del equipo.",
+    "You have a new message.": "Tienes un nuevo mensaje.",
+    "Irregular Event Color": "Color para Eventos Irregulares",
+    "Choose a color for irregular events. This color will be used for events that are not exceptional, but do not belong to the main workday type.": "Elige un color para los eventos irregulares. Este color se usará para los eventos que no son excepcionales, pero que no pertenecen al tipo de jornada principal."
 }

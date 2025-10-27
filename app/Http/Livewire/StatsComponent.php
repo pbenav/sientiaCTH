@@ -64,7 +64,7 @@ class StatsComponent extends Component
         $this->isTeamAdmin = $this->actualUser->isTeamAdmin();
         $this->isInspector = $this->actualUser->isInspector();
         if ($this->isTeamAdmin || $this->isInspector) {
-            $this->workers = $this->actualUser->currentTeam->allUsers();
+            $this->workers = $this->actualUser->currentTeam->allUsers()->toArray();
         }
         $this->eventTypes = $this->actualUser->currentTeam->eventTypes ?? collect();
         $this->eventTypeId = null;

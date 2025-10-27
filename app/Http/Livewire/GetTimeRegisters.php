@@ -83,13 +83,10 @@ class GetTimeRegisters extends Component
         $this->confirmed = false;
         $this->filtered = false;
 
-        $this->teamUsers = array();
         if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
-            foreach ($this->team->allUsers() as $us) {
-                array_push($this->teamUsers, $us->id);
-            }
+            $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();
         } else {
-            array_push($this->teamUsers, $this->user->id);
+            $this->teamUsers = [$this->user->id];
         }
     }
 

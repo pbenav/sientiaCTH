@@ -113,10 +113,10 @@ class Calendar extends Component
     /**
      * Trigger the add event modal.
      *
-     * @param string $origin
+     * @param array $origin
      * @return void
      */
-    public function triggerAddModal(string $origin): void
+    public function triggerAddModal(array $origin): void
     {
         $this->emit('add', $origin);
     }

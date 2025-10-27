@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->boolean('is_closed_automatically')->default(false)->after('is_authorized');
+        Schema::table('teams', function (Blueprint $table) {
+            $table->string('irregular_event_color')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn('is_closed_automatically');
+        Schema::table('teams', function (Blueprint $table) {
+            $table->dropColumn('irregular_event_color');
         });
     }
 };
