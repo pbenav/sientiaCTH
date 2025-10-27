@@ -89,7 +89,7 @@ trait HasWorkScheduleHint
             if ($currentSlot) {
                 $this->workScheduleHint = "Suggested current slot: {$relevantSlot['start']} - {$relevantSlot['end']}";
             } else {
-                $this->workScheduleHint = "Last finished slot: {$relevantSlot['start']} - {$relevantSlot['end']}";
+                $this->workScheduleHint = __('Last finished slot').":- {$relevantSlot['start']} - {$relevantSlot['end']}";
             }
 
             // This part will only execute if the component has an 'event' property

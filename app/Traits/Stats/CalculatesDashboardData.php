@@ -5,6 +5,7 @@ namespace App\Traits\Stats;
 use App\Models\Event;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
 
 trait CalculatesDashboardData
 {
@@ -118,6 +119,24 @@ trait CalculatesDashboardData
         $minConfidence = !empty($confidenceScores) ? round(min($confidenceScores), 2) : 0;
         $maxConfidence = !empty($confidenceScores) ? round(max($confidenceScores), 2) : 0;
 
+        // Clasificar según umbrales configurables
+        $thresholds = Config::get('stats.confidence_thresholds', [
+            'very_high' => 90,
+            'high' => 75,
+            'moderate' => 50,
+            'low' => 20,
+        ]);
+
+        $classify = function (float $value) use ($thresholds): string {
+            if ($value >= $thresholds['very_high']) return 'very_high';
+            if ($value >= $thresholds['high']) return 'high';
+            if ($value >= $thresholds['moderate']) return 'moderate';
+            if ($value >= $thresholds['low']) return 'low';
+            return 'very_low';
+        };
+
+        $avgConfidenceCategory = $classify($avgConfidence);
+
         $exceptionalEventsCount = Event::where('user_id', $this->browsedUser)
             ->where('is_exceptional', true)
             ->whereYear('start', $this->selectedYear)
@@ -142,6 +161,9 @@ trait CalculatesDashboardData
             'avg_confidence' => $avgConfidence,
             'min_confidence' => $minConfidence,
             'max_confidence' => $maxConfidence,
+            // Añadimos categoría media y umbrales usados
+            'avg_confidence_category' => $avgConfidenceCategory,
+            'confidence_thresholds' => $thresholds,
         ];
     }
 }

@@ -14,9 +14,6 @@ use Livewire\Attributes\On;
 
 /**
  * A Livewire component for displaying statistics and charts.
- *
- * This component provides a dashboard with charts and key performance indicators
- * related to user activity and work schedules.
  */
 class StatsComponent extends Component
 {
@@ -38,35 +35,49 @@ class StatsComponent extends Component
 
         $this->dispatch('open-events-modal', events: $events->toArray());
     }
-    public float $totalHours;
-    public int $selectedMonth;
-    public int $selectedYear;
-    public ?int $eventTypeId;
-    public $eventTypes;
+
+    // Inicializaciones por defecto para evitar "accessed before initialization"
+    public float $totalHours = 0.0;
+    public int $selectedMonth = 1;
+    public int $selectedYear = 0;
+    public ?int $eventTypeId = null;
+    public array|object $eventTypes = [];
     public bool $firstRun = true;
     public bool $showDataLabels = true;
     public bool $hasData = true;
-    public User $actualUser;
-    public int $browsedUser;
-    public bool $isTeamAdmin;
-    public bool $isInspector;
+    public ?User $actualUser = null;
+    public ?int $browsedUser = null;
+    public bool $isTeamAdmin = false;
+    public bool $isInspector = false;
     public array $workers = [];
-    public $paso;
+    public $paso = null;
     public int $totalDays = 0;
     public array $dashboardData = [];
 
     public function mount()
     {
-        $this->selectedMonth = date('m');
-        $this->selectedYear = date('Y');
-        $this->actualUser = User::find(Auth::user()->id);
-        $this->browsedUser = $this->actualUser->id;
-        $this->isTeamAdmin = $this->actualUser->isTeamAdmin();
-        $this->isInspector = $this->actualUser->isInspector();
+        // Inicialización segura
+        $this->selectedMonth = (int) date('m');
+        $this->selectedYear = (int) date('Y');
+
+        $this->actualUser = Auth::user() ? User::find(Auth::user()->id) : null;
+        $this->browsedUser = $this->actualUser->id ?? null;
+        $this->isTeamAdmin = $this->actualUser?->isTeamAdmin() ?? false;
+        $this->isInspector = $this->actualUser?->isInspector() ?? false;
+
         if ($this->isTeamAdmin || $this->isInspector) {
+            // allUsers() puede devolver array o collection; normalizar después
             $this->workers = $this->actualUser->currentTeam->allUsers()->toArray();
         }
-        $this->eventTypes = $this->actualUser->currentTeam->eventTypes ?? collect();
+
+        // Normalizar eventTypes (collection/array)
+        $this->eventTypes = $this->actualUser?->currentTeam?->eventTypes ?? collect();
+
+        // Normalizar workers: convertir arrays a objetos para la vista
+        $this->workers = collect($this->workers)->map(function ($w) {
+            return is_array($w) ? (object) $w : $w;
+        })->all();
+
         $this->eventTypeId = null;
     }
 
@@ -74,20 +85,11 @@ class StatsComponent extends Component
         'browsedUser' => 'required|exists:users',
     ];
 
-    /**
-     * Handle the update of the browsedUser property.
-     *
-     * @return void
-     */
     public function updatedBrowsedUser(): void
     {
+        // placeholder: añadir lógica si hace falta
     }
 
-    /**
-     * Get the data for the chart.
-     *
-     * @return array
-     */
     public function getData(): array
     {
         $start = microtime(true);
@@ -225,11 +227,6 @@ class StatsComponent extends Component
         return [$columnChart, $elapsedTime];
     }
 
-    /**
-     * Render the component.
-     *
-     * @return \Illuminate\View\View
-     */
     public function render()
     {
         list($columnChartModel, $elapsedTime) = $this->getData();
@@ -245,5 +242,4 @@ class StatsComponent extends Component
                 'dashboardData' => $this->dashboardData,
             ]);
     }
-
 }

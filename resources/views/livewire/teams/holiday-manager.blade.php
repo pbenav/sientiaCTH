@@ -13,7 +13,7 @@
                 @foreach ($holidays as $holiday)
                     <div class="flex items-center justify-between">
                         <div>
-                            {{ $holiday->name }} ({{ $holiday->date->format('d/m/Y') }})
+                            {{ $holiday->name }} ({{ $holiday->date->format('d/m/Y') }}) {{ $holiday->type }}
                         </div>
 
                         <div class="flex items-center">
@@ -58,6 +58,13 @@
                 <x-jet-input id="date" type="date" class="mt-1 block w-full"
                     wire:model.defer="holidayForm.date" />
                 <x-jet-input-error for="holidayForm.date" class="mt-2" />
+            </div>
+
+            <div class="col-span-6 sm:col-span-4">
+                <x-jet-label for="type" value="{{ __('Type') }}" />
+                <x-jet-input id="name" type="text" class="mt-1 block w-full"
+                    wire:model.defer="holidayForm.type" />
+                <x-jet-input-error for="holidayForm.type" class="mt-2" />
             </div>
         </x-slot>
 
