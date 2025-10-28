@@ -24,8 +24,8 @@ class MoveUserForm extends Component
 
     public function moveUser()
     {
-        // Get the user's role in the source team
-        $role = $this->user->teamRole($this->team)->key;
+        // Get the user's role in the source team, or default to 'editor'
+        $role = optional($this->user->teamRole($this->team))->key ?? 'editor';
 
         // Detach from the source team and attach to the destination team with the same role
         $this->user->teams()->detach($this->team->id);
