@@ -19,7 +19,7 @@ class MoveUserForm extends Component
     {
         $this->team = $team;
         $this->user = $user;
-        $this->eligibleTeams = Auth::user()->allTeams()->where('id', '!=', $this->team->id);
+        $this->eligibleTeams = Auth::user()->ownedTeams->where('id', '!=', $this->team->id);
     }
 
     public function moveUser()
