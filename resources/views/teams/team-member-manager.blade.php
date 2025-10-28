@@ -165,7 +165,7 @@
                                     @endif
 
                                     <!-- Move Team Member -->
-                                    @if (Gate::check('removeTeamMember', $team) && auth()->user()->isOwnerOf($team))
+                                    @if (Gate::check('removeTeamMember', $team) && auth()->user()->ownsTeam($team))
                                         <div class="ml-6">
                                             @livewire('teams.move-user-form', ['team' => $team, 'user' => $user], key('move-user-'.$user->id))
                                         </div>
