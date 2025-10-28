@@ -24,9 +24,12 @@ class MoveUserForm extends Component
 
     public function moveUser()
     {
-        // Detach from the source team and attach to the destination team
+        // Get the user's role in the source team
+        $role = $this->user->teamRole($this->team)->key;
+
+        // Detach from the source team and attach to the destination team with the same role
         $this->user->teams()->detach($this->team->id);
-        $this->user->teams()->attach($this->destinationTeamId);
+        $this->user->teams()->attach($this->destinationTeamId, ['role' => $role]);
 
         // Move events from the source team to the destination team
         $this->user->events()->where('team_id', $this->team->id)->update(['team_id' => $this->destinationTeamId]);

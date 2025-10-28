@@ -436,6 +436,11 @@
     "Irregular Event Color": "Color para Eventos Irregulares",
     "Last finished slot": "Último intervalo finalizado",
     "Choose a color for irregular events. This color will be used for events that are not exceptional, but do not belong to the main workday type.": "Elige un color para los eventos irregulares. Este color se usará para los eventos que no son excepcionales, pero que no pertenecen al tipo de jornada principal.",
-    "Closed automatically due to expiration.": "Cerrado automáticamente por expiración."
-    
+    "Closed automatically due to expiration.": "Cerrado automáticamente por expiración.",
+    "Move": "Mover",
+    "Move User": "Mover Usuario",
+    "Select a destination team for": "Selecciona un equipo de destino para",
+    "Destination Team": "Equipo de Destino",
+    "Select a team": "Selecciona un equipo",
+    "User Management": "Gestión de Usuarios"
 }

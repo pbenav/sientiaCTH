@@ -220,6 +220,7 @@ class AddEvent extends Component
 
         $data = [
             'user_id' => Auth::user()->id,
+            'team_id' => $team->id,
             'work_center_id' => $defaultWorkCenterId,
             'description' => $this->selectedEventType->name,
             'observations' => $this->observations,
