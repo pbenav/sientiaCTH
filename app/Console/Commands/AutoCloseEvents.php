@@ -39,7 +39,7 @@ class AutoCloseEvents extends Command
             $expirationDays = $team->event_expiration_days;
             $expirationDate = Carbon::now()->subDays($expirationDays);
 
-            $events = Event::where('is_authorized', false)
+            $events = Event::where('is_open', true)
                 ->where('created_at', '<=', $expirationDate)
                 ->whereHas('user.teams', function ($query) use ($team) {
                     $query->where('team_id', $team->id);
@@ -48,8 +48,13 @@ class AutoCloseEvents extends Command
 
             foreach ($events as $event) {
                 Log::info("Closing event {$event->id} for user {$event->user->id} in team {$team->id}.");
+                
+                if ($event->end === null) {
+                    $event->end = Carbon::parse($event->start)->addHours(1);
+                } 
+
                 $event->update([
-                    'end' => $event->start,
+                    'end' => $event->end,
                     'is_open' => false,
                     'is_closed_automatically' => true,
                     'observations' => ($event->observations ? $event->observations . ' ' : '') . __('Closed automatically due to expiration.'),

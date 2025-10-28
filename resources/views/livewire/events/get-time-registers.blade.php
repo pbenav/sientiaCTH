@@ -339,7 +339,7 @@
                         <div><span class="font-bold">{{ __('Duration') }}:</span> {{ $selectedEvent->getPeriod() }}</div>
                         <div><span class="font-bold">{{ __('Event Type') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Work Shift') }}</div>
 
-                        <div class="md:col-span-2"><span class="font-bold">{{ __('Observations') }}:</span> {{ $selectedEvent->observations }}</div>
+                        <div class="md:col-span-2"><span class="font-bold">{{ __('Observations') }}:</span> {{ __($selectedEvent->observations) }}</div>
 
                         <div><span class="font-bold">{{ __('Status') }}:</span> {{ $selectedEvent->is_open ? __('Open') : __('Closed') }}</div>
 
