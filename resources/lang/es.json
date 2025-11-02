@@ -226,6 +226,9 @@
     "User": "Usuario",
     "Inspector": "Inspector",
     "User Code": "Código de usuario",
+    "Week starts on": "La semana empieza en",
+    "Monday": "Lunes",
+    "Sunday": "Domingo",
     "We were unable to find a registered with this email address.": "No pudimos encontrar un usuario registrado con esta dirección de correo electrónico.",
     "We won't ask for your password again for a few hours.": "No pediremos su contraseña de nuevo por unas horas.",
     "When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your phone's Google Authenticator application.": "Cuando la autenticación de dos factores esté habilitada, le pediremos un token aleatorio seguro durante la autenticación. Puede recuperar este token desde la aplicación Google Authenticator de su teléfono.",
@@ -443,5 +446,8 @@
     "Select a destination team for": "Selecciona un equipo de destino para",
     "Destination Team": "Equipo de Destino",
     "Select a team": "Selecciona un equipo",
-    "User Management": "Gestión de Usuarios"
+    "User Management": "Gestión de Usuarios",
+    "Calendar Preferences": "Preferencias del Calendario",
+    "Configure your calendar display preferences.": "Configure las preferencias de visualización de su calendario.",
+    "Choose which day your calendar week should start on.": "Elija qué día debe comenzar su semana del calendario."
 }

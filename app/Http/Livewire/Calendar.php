@@ -38,7 +38,8 @@ class Calendar extends Component
      */
     public function render()
     {
-        return view('livewire.calendar');
+        $weekStartsOn = Auth::user()->week_starts_on ?? 1; // Default to Monday
+        return view('livewire.calendar', ['weekStartsOn' => $weekStartsOn]);
     }
 
     /**

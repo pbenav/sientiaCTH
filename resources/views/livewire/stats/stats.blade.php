@@ -114,165 +114,258 @@
                 @endif
             </div>
 
-            <!-- Middle Row: KPIs -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Punctuality Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-blue-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Punctuality') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality'] ?? '0' }}%</p>
+            <!-- KPIs Section -->
+            
+            <!-- Cumplimiento de Jornada -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.workday_compliance') }}</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Punctuality Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Punctuality') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality'] ?? '0' }}%</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Completion Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-indigo-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Workday Completion') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">
-                                {{ round($dashboardData['percentage_completion'] ?? 0) }}%</p>
+                    <!-- Cumplimiento de jornada: Entrada -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('stats.entry') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</p>
+                                <p class="text-xs text-gray-400">{{ $dashboardData['punctuality_entry_minutes'] ?? '0' }} {{ __('stats.min') }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Scheduled Hours Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-gray-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Scheduled Hours') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $scheduledHours }}</p>
+                    <!-- Cumplimiento de jornada: Salida -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-green-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16l4-4m0 0l-4-4m4 4H3m4 0V7a3 3 0 013-3h7a3 3 0 013 3v10a3 3 0 01-3 3h-7a3 3 0 01-3-3v-1"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('stats.exit') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</p>
+                                <p class="text-xs text-gray-400">{{ $dashboardData['punctuality_exit_minutes'] ?? '0' }} {{ __('stats.min') }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Registered Hours Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-gray-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Registered Hours') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $totalHours }}</p>
+                    <!-- Cumplimiento de jornada: Combinado -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-indigo-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('stats.combined') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</p>
+                                <p class="text-xs text-gray-400">{{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0' }} {{ __('stats.min') }} backdate</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Confidence Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-purple-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Records Confidence') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['avg_confidence'] ?? '0' }}%
-                            </p>
-                            <p class="text-xs text-gray-500">{{ __('Min') }}:
-                                {{ $dashboardData['min_confidence'] ?? '0' }}% / {{ __('Max') }}:
-                                {{ $dashboardData['max_confidence'] ?? '0' }}%</p>
+                    <!-- Completion Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-indigo-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Workday Completion') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ round($dashboardData['percentage_completion'] ?? 0) }}%</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Extra Hours Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-green-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['extra_hours'] ?? '0' }}</p>
+                    <!-- Extra Hours Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-green-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['extra_hours'] ?? '0' }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Absenteeism Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-red-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Absenteeism (days)') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Exceptional Events Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-yellow-500 p-3 rounded-full text-white">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                </path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Exceptional Clock-ins') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">
-                                {{ $dashboardData['exceptional_events_count'] ?? '0' }}</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Automatically Closed Events Card -->
-                <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <div class="flex items-center">
-                        <div class="bg-orange-500 p-3 rounded-full text-white">
-                            <i class="fas fa-robot w-6 h-6"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-sm font-medium text-gray-500">{{ __('Automatic Closures') }}</h3>
-                            <p class="text-2xl font-bold text-gray-800">
-                                {{ $dashboardData['automatically_closed_count'] ?? '0' }}</p>
+                    <!-- Absenteeism Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-red-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Absenteeism (days)') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Horas y Registros -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.hours_and_records') }}</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Scheduled Hours Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-gray-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Scheduled Hours') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $scheduledHours }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registered Hours Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-gray-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Registered Hours') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $totalHours }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-purple-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Records Confidence') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['avg_confidence'] ?? '0' }}%
+                                </p>
+                                <p class="text-xs text-gray-500">{{ __('Min') }}:
+                                    {{ $dashboardData['min_confidence'] ?? '0' }}% / {{ __('Max') }}:
+                                    {{ $dashboardData['max_confidence'] ?? '0' }}%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exceptional Events Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-yellow-500 p-3 rounded-full text-white">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Exceptional Clock-ins') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ $dashboardData['exceptional_events_count'] ?? '0' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Automatically Closed Events Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                        <div class="flex items-center">
+                            <div class="bg-orange-500 p-3 rounded-full text-white">
+                                <i class="fas fa-robot w-6 h-6"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Automatic Closures') }}</h3>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ $dashboardData['automatically_closed_count'] ?? '0' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authorizable Events Section -->
+            @if (!empty($dashboardData['authorizable_events']) && count($dashboardData['authorizable_events']) > 0)
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.authorizable_events') }} ({{ now()->year }})</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        @foreach ($dashboardData['authorizable_events'] as $authEvent)
+                            <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
+                                <div class="flex items-center">
+                                    <div class="p-3 rounded-full text-white" style="background-color: {{ $authEvent['color'] ?? '#9333ea' }}">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-sm font-medium text-gray-500">{{ $authEvent['description'] }}</h3>
+                                        <p class="text-2xl font-bold text-gray-800">{{ $authEvent['days'] }}</p>
+                                        <p class="text-xs text-gray-400">{{ __('stats.days_in') }} {{ now()->year }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

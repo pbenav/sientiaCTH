@@ -27,6 +27,7 @@
                     },
                     allDayText: 'todo el día',
                     locale: 'es',
+                    firstDay: {{ $weekStartsOn }}, // 0 = Sunday, 1 = Monday
                     initialView: 'timeGridWeek',
                     events: @json($this->getEvents()),
                     editable: true,

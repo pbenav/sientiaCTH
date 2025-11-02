@@ -63,6 +63,7 @@ class User extends Authenticatable
         'family_name2',
         'email',
         'password',
+        'week_starts_on',
     ];
 
     /**
