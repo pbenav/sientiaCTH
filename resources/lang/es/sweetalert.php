@@ -26,6 +26,11 @@ return [
     'alert_fail' => [
         'title' => '¡Ups!. Algo ha ocurrido. ¡Comprueba los datos!',
     ],
+    'incomplete_event_confirmation' => [
+        'title' => 'No se puede confirmar',
+        'text' => 'El evento no puede ser confirmado porque no tiene fecha/hora de inicio y fin completas.',
+        'confirmButtonText' => 'Entendido',
+    ],
     'confirm_confirmation' => [
         'title' => '¿Estás seguro?',
         'text' => '¡No podrás deshacer esta acción!',

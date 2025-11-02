@@ -256,6 +256,7 @@
     "Confirmed!": "¡Confirmado!",
     "Yes, I am sure. Do it!": "Sí. ¡Estoy seguro. Hazlo!",
     "Event has been confirmed!": "¡Se ha confirmado el evento!",
+    "The event cannot be confirmed because it does not have both start and end dates/times.": "El evento no puede ser confirmado porque no tiene fecha/hora de inicio y fin completas.",
     "Event Details": "Detalles del Evento",
     "Work Shift": "Jornada Laboral",
     "by": "por",

@@ -27,6 +27,7 @@ class EventType extends Model
         'color',
         'is_all_day',
         'is_workday_type',
+        'is_authorizable',
     ];
 
     /**
@@ -37,6 +38,7 @@ class EventType extends Model
     protected $casts = [
         'is_all_day' => 'boolean',
         'is_workday_type' => 'boolean',
+        'is_authorizable' => 'boolean',
     ];
 
     /**

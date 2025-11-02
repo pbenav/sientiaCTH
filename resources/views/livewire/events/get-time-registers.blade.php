@@ -278,7 +278,7 @@
                                 <td class="p-1 text-center md:table-cell w-1/12">{{ $ev->getPeriod() }}</td>
 
                                 <td class="p-1 text-center md:table-cell md:w-1/12">
-                                    @if ($ev->eventType && $ev->eventType->is_all_day)
+                                    @if ($ev->eventType && $ev->eventType->is_authorizable)
                                         <input type="checkbox" wire:click="toggleAuthorization({{ $ev->id }})"
                                             @checked($ev->is_authorized) @disabled(!$isTeamAdmin) />
                                     @endif
@@ -343,7 +343,7 @@
 
                         <div><span class="font-bold">{{ __('Status') }}:</span> {{ $selectedEvent->is_open ? __('Open') : __('Closed') }}</div>
 
-                        @if ($selectedEvent->eventType && $selectedEvent->eventType->is_all_day)
+                        @if ($selectedEvent->eventType && $selectedEvent->eventType->is_authorizable)
                             <div>
                                 <span class="font-bold">{{ __('Authorized') }}:</span>
                                 @if ($selectedEvent->is_authorized)
@@ -395,6 +395,15 @@
                         text: message,
                         timer: 1500,
                         timerProgressBar: true
+                    });
+                });
+
+                Livewire.on('incompleteEventConfirmation', function() {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: "{{ __('sweetalert.incomplete_event_confirmation.title') }}",
+                        text: "{{ __('sweetalert.incomplete_event_confirmation.text') }}",
+                        confirmButtonText: "{{ __('sweetalert.incomplete_event_confirmation.confirmButtonText') }}",
                     });
                 });
 

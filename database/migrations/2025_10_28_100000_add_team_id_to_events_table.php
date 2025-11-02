@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->foreignId('team_id')->nullable()->constrained()->onDelete('cascade');
+            if (!Schema::hasColumn('events', 'team_id')) {
+                $table->foreignId('team_id')->nullable()->constrained()->onDelete('cascade');
+            }
         });
     }
 
@@ -26,8 +28,10 @@ return new class extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropForeign(['team_id']);
-            $table->dropColumn('team_id');
+            if (Schema::hasColumn('events', 'team_id')) {
+                $table->dropForeign(['team_id']);
+                $table->dropColumn('team_id');
+            }
         });
     }
 };

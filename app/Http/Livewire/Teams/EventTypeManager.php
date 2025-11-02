@@ -30,6 +30,7 @@ class EventTypeManager extends Component
         'state.observations' => 'nullable|string',
         'state.is_all_day' => 'required|boolean',
         'state.is_workday_type' => 'required|boolean',
+        'state.is_authorizable' => 'required|boolean',
     ];
 
     protected $validationAttributes = [
@@ -38,6 +39,7 @@ class EventTypeManager extends Component
         'state.observations' => 'observations',
         'state.is_all_day' => 'all day',
         'state.is_workday_type' => 'workday type',
+        'state.is_authorizable' => 'authorizable',
     ];
 
     /**
@@ -113,6 +115,7 @@ class EventTypeManager extends Component
                 'observations' => '',
                 'is_all_day' => false,
                 'is_workday_type' => false,
+                'is_authorizable' => false,
             ];
         }
 

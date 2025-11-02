@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->string('timezone')->nullable()->after('personal_team');
+            if (!Schema::hasColumn('teams', 'timezone')) {
+                $table->string('timezone')->nullable()->after('personal_team');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->dropColumn('timezone');
+            if (Schema::hasColumn('teams', 'timezone')) {
+                $table->dropColumn('timezone');
+            }
         });
     }
 };

@@ -139,10 +139,23 @@ class GetTimeRegisters extends Component
      */
     public function confirm(Event $ev): void
     {
+        if (!$ev->hasCompleteDates()) {
+            $this->emit('incompleteEventConfirmation');
+            return;
+        }
+
         if ($this->isTeamAdmin) {
-            $ev->toggleConfirm();
+            if ($ev->toggleConfirm()) {
+                $this->emit('alert', __('Event has been confirmed!'));
+            } else {
+                $this->emit('incompleteEventConfirmation');
+            }
         } else if ($ev->is_open) {
-            $ev->Confirm();
+            if ($ev->confirm()) {
+                $this->emit('alert', __('Event has been confirmed!'));
+            } else {
+                $this->emit('incompleteEventConfirmation');
+            }
         }
     }
 
@@ -158,6 +171,12 @@ class GetTimeRegisters extends Component
             $this->emit('alertFail', __("This event is already closed and cannot be modified."));
             return;
         }
+        
+        if (!$ev->hasCompleteDates()) {
+            $this->emit('incompleteEventConfirmation');
+            return;
+        }
+        
         $this->emit('confirmConfirmation', $ev);
     }
 
@@ -360,7 +379,7 @@ class GetTimeRegisters extends Component
 
         $event = Event::find($eventId);
 
-        if (!$event || !$event->eventType || !$event->eventType->is_all_day) {
+        if (!$event || !$event->eventType || !$event->eventType->is_authorizable) {
             $this->emit('alertFail', __('This event cannot be authorized.'));
             return;
         }

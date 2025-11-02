@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->string('irregular_event_color')->nullable();
+            if (!Schema::hasColumn('teams', 'irregular_event_color')) {
+                $table->string('irregular_event_color')->nullable();
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->dropColumn('irregular_event_color');
+            if (Schema::hasColumn('teams', 'irregular_event_color')) {
+                $table->dropColumn('irregular_event_color');
+            }
         });
     }
 };

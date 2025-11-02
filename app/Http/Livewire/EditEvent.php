@@ -230,11 +230,7 @@ class EditEvent extends Component
         }
 
         $this->reset(["showModalEditEvent"]);
-        $this->dispatchBrowserEvent('swal:alert', [
-            'title' => __('Success'),
-            'text' => __('Event updated!'),
-            'icon' => 'success',
-        ]);
+        $this->emit('alert', __('Event updated!'));
         $this->emitTo('get-time-registers', 'render');
         $this->emit('refreshCalendar');
     }

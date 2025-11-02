@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('is_exceptional')->default(false)->after('is_closed_automatically');
+            if (!Schema::hasColumn('events', 'is_exceptional')) {
+                $table->boolean('is_exceptional')->default(false)->after('is_closed_automatically');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn('is_exceptional');
+            if (Schema::hasColumn('events', 'is_exceptional')) {
+                $table->dropColumn('is_exceptional');
+            }
         });
     }
 };

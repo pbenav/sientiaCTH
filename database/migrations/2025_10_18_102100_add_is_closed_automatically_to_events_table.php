@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('is_closed_automatically')->default(false)->after('is_authorized');
+            if (!Schema::hasColumn('events', 'is_closed_automatically')) {
+                $table->boolean('is_closed_automatically')->default(false)->after('is_authorized');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn('is_closed_automatically');
+            if (Schema::hasColumn('events', 'is_closed_automatically')) {
+                $table->dropColumn('is_closed_automatically');
+            }
         });
     }
 };

@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('is_extra_hours')->default(false)->after('is_authorized');
+            if (!Schema::hasColumn('events', 'is_extra_hours')) {
+                $table->boolean('is_extra_hours')->default(false)->after('is_authorized');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn('is_extra_hours');
+            if (Schema::hasColumn('events', 'is_extra_hours')) {
+                $table->dropColumn('is_extra_hours');
+            }
         });
     }
 };

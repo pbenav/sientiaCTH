@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->unsignedInteger('event_expiration_days')->nullable()->after('personal_team');
+            if (!Schema::hasColumn('teams', 'event_expiration_days')) {
+                $table->unsignedInteger('event_expiration_days')->nullable()->after('personal_team');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->dropColumn('event_expiration_days');
+            if (Schema::hasColumn('teams', 'event_expiration_days')) {
+                $table->dropColumn('event_expiration_days');
+            }
         });
     }
 };

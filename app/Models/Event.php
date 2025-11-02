@@ -107,24 +107,35 @@ class Event extends Model
     /**
      * Mark the event as confirmed (closed).
      *
-     * @return void
+     * @return bool Returns true if the event was confirmed, false otherwise.
      */
-    public function confirm()
+    public function confirm(): bool
     {
+        if (!$this->hasCompleteDates()) {
+            return false;
+        }
+        
         error_log('Confirm...');
         if ($this->is_open === true) {
             $this->is_open = false;
+            $this->save();
+            return true;
         }
-        $this->save();
+        return false;
     }
 
     /**
      * Toggle the confirmation status of the event.
      *
-     * @return void
+     * @return bool Returns true if the event status was toggled, false otherwise.
      */
-    public function toggleConfirm()
+    public function toggleConfirm(): bool
     {
+        // If trying to close an event, check if it has complete dates
+        if ($this->is_open && !$this->hasCompleteDates()) {
+            return false;
+        }
+        
         $orig_ev = clone $this;        
         $this->is_open = !$this->is_open;
         $this->save();
@@ -132,6 +143,17 @@ class Event extends Model
             $this->insertHistory('events', $orig_ev, $this);
         }
         unset($orig_ev);
+        return true;
+    }
+
+    /**
+     * Check if the event has both start and end dates/times.
+     *
+     * @return bool
+     */
+    public function hasCompleteDates(): bool
+    {
+        return !is_null($this->start) && !is_null($this->end);
     }
 
     /**

@@ -14,9 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->boolean('force_clock_in_delay')->default(false)->after('personal_team');
-            $table->unsignedInteger('clock_in_delay_minutes')->nullable()->after('force_clock_in_delay');
-            $table->unsignedInteger('clock_in_grace_period_minutes')->nullable()->after('clock_in_delay_minutes');
+            if (!Schema::hasColumn('teams', 'force_clock_in_delay')) {
+                $table->boolean('force_clock_in_delay')->default(false)->after('personal_team');
+            }
+            if (!Schema::hasColumn('teams', 'clock_in_delay_minutes')) {
+                $table->unsignedInteger('clock_in_delay_minutes')->nullable()->after('force_clock_in_delay');
+            }
+            if (!Schema::hasColumn('teams', 'clock_in_grace_period_minutes')) {
+                $table->unsignedInteger('clock_in_grace_period_minutes')->nullable()->after('clock_in_delay_minutes');
+            }
         });
     }
 
@@ -28,11 +34,21 @@ return new class extends Migration
     public function down()
     {
         Schema::table('teams', function (Blueprint $table) {
-            $table->dropColumn([
-                'force_clock_in_delay',
-                'clock_in_delay_minutes',
-                'clock_in_grace_period_minutes',
-            ]);
+            $columnsToRemove = [];
+            
+            if (Schema::hasColumn('teams', 'force_clock_in_delay')) {
+                $columnsToRemove[] = 'force_clock_in_delay';
+            }
+            if (Schema::hasColumn('teams', 'clock_in_delay_minutes')) {
+                $columnsToRemove[] = 'clock_in_delay_minutes';
+            }
+            if (Schema::hasColumn('teams', 'clock_in_grace_period_minutes')) {
+                $columnsToRemove[] = 'clock_in_grace_period_minutes';
+            }
+            
+            if (!empty($columnsToRemove)) {
+                $table->dropColumn($columnsToRemove);
+            }
         });
     }
 };
