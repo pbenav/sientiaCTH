@@ -331,10 +331,10 @@ class MessagesComponent extends Component
         if ($this->view === 'inbox') {
             $messageList = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->get();
         } elseif ($this->view === 'sent') {
-            $messageList = Auth::user()->messages()->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+            $messageList = Auth::user()->messages()->with('recipients')->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
         } elseif ($this->view === 'trash') {
             $received = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
-            $sent = Auth::user()->messages()->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+            $sent = Auth::user()->messages()->with('recipients')->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
             $messageList = $received->merge($sent);
         } elseif ($this->view === 'alerts') {
             $messageList = Auth::user()->notifications->filter(function ($notification) {

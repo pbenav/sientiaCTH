@@ -289,17 +289,17 @@
                                         <div class="flex float-right">
                                             <button class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
                                                     wire:click="edit({{ $ev }})"
-                                                    @if(!$ev->is_open) onclick="showClosedEventAlert()" @endif>
+                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
                                                     wire:click="alertConfirm({{ $ev }})"
-                                                    @if(!$ev->is_open) onclick="showClosedEventAlert()" @endif>
+                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
                                                 <i class="fas fa-check"></i>
                                             </button>
                                             <button class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
                                                     wire:click="alertDelete({{ $ev }})"
-                                                    @if(!$ev->is_open) onclick="showClosedEventAlert()" @endif>
+                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>

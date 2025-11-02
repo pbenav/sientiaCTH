@@ -40,7 +40,7 @@ class StatsComponent extends Component
     public float $totalHours = 0.0;
     public int $selectedMonth = 1;
     public int $selectedYear = 0;
-    public ?int $eventTypeId = null;
+    public string|int|null $eventTypeId = null;
     public array|object $eventTypes = [];
     public bool $firstRun = true;
     public bool $showDataLabels = true;
@@ -88,6 +88,14 @@ class StatsComponent extends Component
     public function updatedBrowsedUser(): void
     {
         // placeholder: añadir lógica si hace falta
+    }
+
+    public function updatedEventTypeId($value): void
+    {
+        // Convert empty string to null for proper type handling
+        if ($value === '' || $value === 'all') {
+            $this->eventTypeId = null;
+        }
     }
 
     public function getData(): array

@@ -1,6 +1,7 @@
 <div>
     @livewire('add-event')
     @livewire('edit-event')
+    
     <div id='calendar-container' wire:ignore>
         <div id='calendar'></div>
     </div>
@@ -29,6 +30,9 @@
                     locale: 'es',
                     firstDay: {{ $weekStartsOn }}, // 0 = Sunday, 1 = Monday
                     initialView: 'timeGridWeek',
+                    height: '100%',
+                    contentHeight: 'auto',
+                    expandRows: true,
                     events: @json($this->getEvents()),
                     editable: true,
                     eventDurationEditable: true,
@@ -119,6 +123,124 @@
                 });
 
                 calendar.render();
+                
+                // Inyectar estilos CSS después del render para sobrescribir FullCalendar
+                const style = document.createElement('style');
+                style.textContent = `
+                    /* Altura del contenedor */
+                    #calendar-container {
+                        height: calc(100vh - 120px);
+                        overflow: hidden;
+                    }
+                    
+                    #calendar {
+                        height: 100%;
+                    }
+                    
+                    .fc {
+                        height: 100% !important;
+                    }
+                    
+                    /* Ajustes responsive para móviles */
+                    @media (max-width: 768px) {
+                        #calendar-container {
+                            height: calc(100vh - 80px);
+                        }
+                        
+                        .fc .fc-toolbar-title {
+                            font-size: 0.85rem !important;
+                        }
+                        
+                        .fc .fc-button {
+                            font-size: 0.65rem !important;
+                            padding: 0.2rem 0.4rem !important;
+                        }
+                        
+                        .fc .fc-col-header-cell-cushion {
+                            font-size: 0.65rem !important;
+                            padding: 0.2rem !important;
+                        }
+                        
+                        .fc .fc-daygrid-day-number {
+                            font-size: 0.65rem !important;
+                            padding: 0.2rem !important;
+                        }
+                        
+                        .fc .fc-event-title,
+                        .fc .fc-event-time,
+                        .fc .fc-title {
+                            font-size: 0.6rem !important;
+                            line-height: 1.2 !important;
+                        }
+                        
+                        .fc .fc-event {
+                            padding: 1px 2px !important;
+                        }
+                        
+                        .fc .fc-timegrid-slot-label-cushion {
+                            font-size: 0.55rem !important;
+                            padding: 0 2px !important;
+                        }
+                        
+                        .fc .fc-timegrid-axis-cushion {
+                            font-size: 0.55rem !important;
+                        }
+                        
+                        .fc .fc-timegrid-slot {
+                            height: 2em !important;
+                        }
+                        
+                        .fc .fc-toolbar {
+                            padding: 0.5rem 0 !important;
+                        }
+                        
+                        .fc .fc-toolbar-chunk {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.2rem;
+                        }
+                    }
+                    
+                    @media (max-width: 480px) {
+                        .fc .fc-toolbar-title {
+                            font-size: 0.75rem !important;
+                        }
+                        
+                        .fc .fc-button {
+                            font-size: 0.55rem !important;
+                            padding: 0.15rem 0.3rem !important;
+                        }
+                        
+                        .fc .fc-col-header-cell-cushion {
+                            font-size: 0.55rem !important;
+                            padding: 0.15rem !important;
+                        }
+                        
+                        .fc .fc-daygrid-day-number {
+                            font-size: 0.55rem !important;
+                        }
+                        
+                        .fc .fc-event-title,
+                        .fc .fc-event-time,
+                        .fc .fc-title {
+                            font-size: 0.5rem !important;
+                            line-height: 1.1 !important;
+                        }
+                        
+                        .fc .fc-timegrid-slot-label-cushion {
+                            font-size: 0.5rem !important;
+                        }
+                        
+                        .fc .fc-timegrid-slot {
+                            height: 1.5em !important;
+                        }
+                        
+                        .fc .fc-icon {
+                            font-size: 0.5rem !important;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
 
                 window.addEventListener('refresh-calendar', event => {
                     calendar.removeAllEvents();

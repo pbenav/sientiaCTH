@@ -91,7 +91,7 @@
 
             <div class="">
                 <x-jet-label value="{{ __('Event Type') }}" />
-                <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="eventTypeId">
+                <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model.live="eventTypeId">
                     <option value="">{{ __('All') }}</option>
                     @foreach ($eventTypes as $eventType)
                         <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
