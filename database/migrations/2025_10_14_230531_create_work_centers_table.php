@@ -13,18 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('work_centers', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('team_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->string('code')->unique();
-            $table->string('address')->nullable();
-            $table->string('city')->nullable();
-            $table->string('postal_code')->nullable();
-            $table->string('state')->nullable();
-            $table->string('country')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('work_centers')) {
+            Schema::create('work_centers', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('team_id')->constrained()->onDelete('cascade');
+                $table->string('name');
+                $table->string('code')->unique();
+                $table->string('address')->nullable();
+                $table->string('city')->nullable();
+                $table->string('postal_code')->nullable();
+                $table->string('state')->nullable();
+                $table->string('country')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

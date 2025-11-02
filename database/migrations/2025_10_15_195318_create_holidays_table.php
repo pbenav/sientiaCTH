@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('holidays', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->date('date')->index();
-            $table->string('type')->nullable()->index(); // e.g., 'local', 'national'
-            $table->foreignId('team_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
+        if (!Schema::hasTable('holidays')) {
+            Schema::create('holidays', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->date('date')->index();
+                $table->string('type')->nullable()->index(); // e.g., 'local', 'national'
+                $table->foreignId('team_id')->constrained()->cascadeOnDelete();
+                $table->timestamps();
 
-            $table->unique(['date', 'team_id']);
-        });
+                $table->unique(['date', 'team_id']);
+            });
+        }
     }
 
     /**

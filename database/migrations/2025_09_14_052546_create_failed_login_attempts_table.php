@@ -13,13 +13,15 @@ class CreateFailedLoginAttemptsTable extends Migration
      */
     public function up()
     {
-        Schema::create('failed_login_attempts', function (Blueprint $table) {
-            $table->id();
-            $table->string('ip_address', 45);
-            $table->timestamp('timestamp');
-            $table->integer('lockout_time')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('failed_login_attempts')) {
+            Schema::create('failed_login_attempts', function (Blueprint $table) {
+                $table->id();
+                $table->string('ip_address', 45);
+                $table->timestamp('timestamp');
+                $table->integer('lockout_time')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

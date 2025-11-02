@@ -13,14 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('message_user', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('message_id')->constrained('messages')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->timestamp('read_at')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('message_user')) {
+            Schema::create('message_user', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('message_id')->constrained('messages')->onDelete('cascade');
+                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->timestamp('read_at')->nullable();
+                $table->softDeletes();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

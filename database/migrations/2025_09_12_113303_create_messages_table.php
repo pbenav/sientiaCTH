@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('sender_id')->constrained('users');
-            $table->string('subject');
-            $table->text('body');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('messages')) {
+            Schema::create('messages', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('sender_id')->constrained('users');
+                $table->string('subject');
+                $table->text('body');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

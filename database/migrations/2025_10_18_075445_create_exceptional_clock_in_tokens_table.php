@@ -13,15 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('exceptional_clock_in_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('team_id')->constrained()->onDelete('cascade');
-            $table->string('token')->unique();
-            $table->timestamp('expires_at');
-            $table->timestamp('used_at')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('exceptional_clock_in_tokens')) {
+            Schema::create('exceptional_clock_in_tokens', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('team_id')->constrained()->onDelete('cascade');
+                $table->string('token')->unique();
+                $table->timestamp('expires_at');
+                $table->timestamp('used_at')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
