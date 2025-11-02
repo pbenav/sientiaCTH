@@ -16,24 +16,30 @@ class WorkCenterSeeder extends Seeder
     {
         $team = \App\Models\Team::first();
 
-        $team->workCenters()->create([
-            'name' => 'Oficina Central',
-            'code' => 'OC-001',
-            'address' => 'Calle Principal 123',
-            'city' => 'Ciudad Principal',
-            'postal_code' => '12345',
-            'state' => 'Provincia Principal',
-            'country' => 'País Principal',
-        ]);
+        if ($team) {
+            $team->workCenters()->firstOrCreate(
+                ['code' => 'OC-001'],
+                [
+                    'name' => 'Oficina Central',
+                    'address' => 'Calle Principal 123',
+                    'city' => 'Ciudad Principal',
+                    'postal_code' => '12345',
+                    'state' => 'Provincia Principal',
+                    'country' => 'País Principal',
+                ]
+            );
 
-        $team->workCenters()->create([
-            'name' => 'Sede Secundaria',
-            'code' => 'SS-002',
-            'address' => 'Avenida Secundaria 456',
-            'city' => 'Ciudad Secundaria',
-            'postal_code' => '67890',
-            'state' => 'Provincia Secundaria',
-            'country' => 'País Secundario',
-        ]);
+            $team->workCenters()->firstOrCreate(
+                ['code' => 'SS-002'],
+                [
+                    'name' => 'Sede Secundaria',
+                    'address' => 'Avenida Secundaria 456',
+                    'city' => 'Ciudad Secundaria',
+                    'postal_code' => '67890',
+                    'state' => 'Provincia Secundaria',
+                    'country' => 'País Secundario',
+                ]
+            );
+        }
     }
 }
