@@ -30,7 +30,7 @@ class EventTypeManager extends Component
         'state.observations' => 'nullable|string',
         'state.is_all_day' => 'required|boolean',
         'state.is_workday_type' => 'required|boolean',
-        'state.is_authorizable' => 'required|boolean',
+        'state.is_authorizable' => 'boolean',
     ];
 
     protected $validationAttributes = [
