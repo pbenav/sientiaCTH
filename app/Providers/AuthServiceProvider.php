@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Models\EventType;
 use App\Models\Holiday;
 use App\Models\Team;
+use App\Models\TeamAnnouncement;
 use App\Models\User;
 use App\Policies\EventTypePolicy;
 use App\Policies\HolidayPolicy;
+use App\Policies\TeamAnnouncementPolicy;
 use App\Policies\TeamPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +26,7 @@ class AuthServiceProvider extends ServiceProvider
         Team::class => TeamPolicy::class,
         EventType::class => EventTypePolicy::class,
         Holiday::class => HolidayPolicy::class,
+        TeamAnnouncement::class => TeamAnnouncementPolicy::class,
     ];
 
     /**

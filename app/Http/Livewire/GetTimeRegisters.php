@@ -44,6 +44,7 @@ class GetTimeRegisters extends Component
     public bool $showOnlyMine = false;
     public bool $showEventModal = false;
     public ?Event $selectedEvent;
+    public $announcements;
 
     protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
 
@@ -82,6 +83,17 @@ class GetTimeRegisters extends Component
         $this->isInspector = $this->user->isInspector();
         $this->confirmed = false;
         $this->filtered = false;
+        
+        // Cargar anuncios activos del equipo
+        if ($this->team) {
+            $this->announcements = $this->team->announcements()
+                ->active()
+                ->with('creator')
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $this->announcements = collect();
+        }
 
         if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
             $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();

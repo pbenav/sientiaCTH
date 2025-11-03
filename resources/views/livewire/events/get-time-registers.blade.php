@@ -3,84 +3,49 @@
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">{{ __('Events') }}</h2>
 
-        @if (!$isInspector && !$isTeamAdmin)
-            <div class="p-4 mx-auto mt-4 w-full bg-green-200 border-2 border-green-400 rounded-lg shadow-md">
-                <div class="flex items-center justify-between cursor-pointer" id="toggleButton">
-                    <p class="text-xl font-bold text-red-500">¡NUEVAS FUNCIONALIDADES!</p>
-                    <i id="toggleIcon" class="fas fa-chevron-down text-gray-700 transition-transform duration-300"></i>
+        <!-- Team Announcements Section -->
+        @if ($announcements->count() > 0)
+            <div class="p-4 mx-auto mt-4 w-full bg-blue-100 border-2 border-blue-400 rounded-lg shadow-md" x-data="{ open: false }">
+                <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
+                    <p class="text-xl font-bold text-blue-700">
+                        <i class="fas fa-bullhorn mr-2"></i>
+                        Anuncios del Equipo
+                    </p>
+                    <i :class="open ? 'fa-chevron-up' : 'fa-chevron-down'" class="fas text-gray-700 transition-transform duration-300"></i>
                 </div>
 
-                <div id="collapsibleContent" class="hidden overflow-hidden transition-all duration-300">
-                    <p class="mt-2 text-gray-700">
-                        Se han añadido nuevas funcionalidades a la aplicación:<br>Para los usuarios:
-                    <ul class="list-none space-y-2">
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            En el perfil de usuario podrás definir tu horario laboral de modo que al añadir o editar un
-                            evento te dirá en qué tramo horario estás. Esto es importante de cara al cierre de los
-                            eventos.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Ahora cada tipo de evento tendrá un color distinto para facilitar su identificación.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Se han creado eventos de día completo, para ser usados por ejemplo en días de vacaciones o
-                            asuntos propios.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Los eventos de día entero deberán ser autorizados por un administrador de modo que se
-                            llevará la contabilidad de estos días de una forma fácil y simple.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Se ha añadido una vista de calendario, para que podáis ver de un vistazo todos los eventos
-                            cercanos en el tiempo.
-                        </li>
-                        Para los administradores
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Podrán añadir o cambiar los tipos de evento.
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Tendrán la posibilidad de autorizar eventos de día entero.
-
-                        </li>
-                        <li>
-                            <span class="text-green-500 mr-2">
-                                <i class="fas fa-check-circle"></i>
-                            </span>
-                            Cada equipo mostrará solo los eventos que le correspondan.
-                        </li>
-                    </ul>
-                    </p>
-
-                    <p class="text-xl font-bold text-red-500 mt-4">¡IMPORTANTE!</p>
-                    <p class="text-gray-700">
-                        <strong>Recuerda</strong> que debes confirmar los eventos, haciendo clic en el botón
-                        <span
-                            class="inline-flex items-center justify-center w-8 h-8 px-2 py-1 rounded text-lg text-white bg-green-500">
-                            <i class="fas fa-check"></i>
-                        </span>, una vez que hayas <u>verificado</u> que las fechas y las horas son correctas.
-                        <strong>¡Gracias!</strong>
-                    </p>
+                <div x-show="open" x-transition class="mt-4 space-y-4">
+                    @foreach ($announcements as $announcement)
+                        <div class="p-4 bg-white rounded-lg shadow border-l-4 border-blue-500">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-gray-900">{{ $announcement->title }}</h3>
+                                    <div class="mt-2 prose prose-sm max-w-none text-gray-700">
+                                        {!! $announcement->content !!}
+                                    </div>
+                                    
+                                    <div class="mt-3 text-sm text-gray-500 space-y-1">
+                                        @if ($announcement->start_date || $announcement->end_date)
+                                            <div>
+                                                <i class="far fa-calendar mr-1"></i>
+                                                @if ($announcement->start_date && $announcement->end_date)
+                                                    Del {{ $announcement->start_date->format('d/m/Y') }} al {{ $announcement->end_date->format('d/m/Y') }}
+                                                @elseif ($announcement->start_date)
+                                                    Desde {{ $announcement->start_date->format('d/m/Y') }}
+                                                @else
+                                                    Hasta {{ $announcement->end_date->format('d/m/Y') }}
+                                                @endif
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <i class="far fa-user mr-1"></i>
+                                            Publicado por {{ $announcement->creator->name }} el {{ $announcement->created_at->format('d/m/Y') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         @endif

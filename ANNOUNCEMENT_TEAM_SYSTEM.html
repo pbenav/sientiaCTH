@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Funcionalidad: Sistema de Anuncios de Equipo</title>
+</head>
+<body>
+    <!-- Este contenido está listo para copiar y pegar en el editor de anuncios -->
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-lg shadow-lg mb-6">
+        <h1 class="text-3xl font-bold mb-2">🎉 ¡Nueva Funcionalidad Disponible!</h1>
+        <h2 class="text-xl font-semibold">Sistema de Anuncios de Equipo</h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">📢 ¿Qué es?</h3>
+        <p class="text-gray-700 mb-4">
+            Hemos implementado un <strong>sistema completo de anuncios</strong> que permite a los administradores de equipo 
+            comunicar información importante a todos los miembros de forma visual y efectiva.
+        </p>
+    </div>
+
+    <div class="bg-blue-50 p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-2xl font-bold text-blue-800 mb-4">✨ Características Principales</h3>
+        <ul class="space-y-3">
+            <li class="flex items-start">
+                <span class="text-green-500 mr-3 text-xl">✓</span>
+                <div>
+                    <strong class="text-gray-800">Editor WYSIWYG con Modo HTML</strong>
+                    <p class="text-gray-600">Crea anuncios con formato rico usando el editor visual o edita directamente el código HTML.</p>
+                </div>
+            </li>
+            <li class="flex items-start">
+                <span class="text-green-500 mr-3 text-xl">✓</span>
+                <div>
+                    <strong class="text-gray-800">Estilos Personalizados</strong>
+                    <p class="text-gray-600">Usa todas las clases de TailwindCSS para crear anuncios atractivos y profesionales.</p>
+                </div>
+            </li>
+            <li class="flex items-start">
+                <span class="text-green-500 mr-3 text-xl">✓</span>
+                <div>
+                    <strong class="text-gray-800">Fechas Opcionales</strong>
+                    <p class="text-gray-600">Define fechas de inicio y fin para anuncios temporales que se ocultan automáticamente.</p>
+                </div>
+            </li>
+            <li class="flex items-start">
+                <span class="text-green-500 mr-3 text-xl">✓</span>
+                <div>
+                    <strong class="text-gray-800">Control de Activación</strong>
+                    <p class="text-gray-600">Activa o desactiva anuncios sin eliminarlos, manteniendo un historial completo.</p>
+                </div>
+            </li>
+            <li class="flex items-start">
+                <span class="text-green-500 mr-3 text-xl">✓</span>
+                <div>
+                    <strong class="text-gray-800">Visualización Inteligente</strong>
+                    <p class="text-gray-600">Los anuncios aparecen colapsados por defecto en la página de eventos para no ser intrusivos.</p>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="bg-green-50 p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-2xl font-bold text-green-800 mb-4">👨‍💼 Para Administradores</h3>
+        <div class="space-y-3">
+            <p class="text-gray-700">
+                <strong>📍 Ubicación:</strong> Ve a <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono text-sm">Configuración del Equipo</span> 
+                → pestaña <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-mono text-sm">Anuncios</span>
+            </p>
+            <p class="text-gray-700">
+                <strong>➕ Crear anuncio:</strong> Haz clic en "Crear Anuncio" y usa el editor para dar formato a tu mensaje.
+            </p>
+            <p class="text-gray-700">
+                <strong>✏️ Editar:</strong> Puedes editar cualquier anuncio existente haciendo clic en el ícono de lápiz.
+            </p>
+            <p class="text-gray-700">
+                <strong>🔄 Activar/Desactivar:</strong> Usa el botón de encendido para mostrar u ocultar anuncios temporalmente.
+            </p>
+            <p class="text-gray-700">
+                <strong>🗑️ Eliminar:</strong> Elimina anuncios que ya no sean necesarios (requiere confirmación).
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-purple-50 p-6 rounded-lg shadow-md mb-6">
+        <h3 class="text-2xl font-bold text-purple-800 mb-4">👥 Para Usuarios</h3>
+        <div class="space-y-3">
+            <p class="text-gray-700">
+                Los anuncios activos de tu equipo aparecen en la <strong>página de Eventos</strong>, en un panel azul 
+                con el ícono de megáfono 📢.
+            </p>
+            <p class="text-gray-700">
+                Haz clic en el panel para expandirlo y ver todos los anuncios disponibles con su información completa.
+            </p>
+            <p class="text-gray-700">
+                Los anuncios pueden incluir fechas de vigencia y muestran quién los publicó y cuándo.
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg shadow-md mb-6">
+        <h3 class="text-2xl font-bold text-red-800 mb-4">🔒 Seguridad</h3>
+        <p class="text-gray-700 mb-3">
+            Esta funcionalidad ha sido desarrollada con <strong>máxima prioridad en seguridad</strong>:
+        </p>
+        <ul class="space-y-2 text-gray-700">
+            <li>✓ <strong>Autorización basada en Policies:</strong> Solo administradores de equipo pueden gestionar anuncios</li>
+            <li>✓ <strong>Protección IDOR:</strong> Verificación estricta de permisos en cada operación</li>
+            <li>✓ <strong>Sanitización HTML:</strong> Todo el contenido HTML es filtrado para prevenir ataques XSS</li>
+            <li>✓ <strong>Mass Assignment Protection:</strong> Campos sensibles protegidos contra modificación</li>
+            <li>✓ <strong>Auditoría completa:</strong> Registro de quién creó cada anuncio y cuándo</li>
+        </ul>
+    </div>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-r-lg shadow-md mb-6">
+        <h3 class="text-2xl font-bold text-yellow-800 mb-4">💡 Casos de Uso</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h4 class="font-bold text-gray-800 mb-2">🎉 Celebraciones</h4>
+                <p class="text-gray-600 text-sm">Anuncia cumpleaños, aniversarios o logros del equipo.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h4 class="font-bold text-gray-800 mb-2">📅 Eventos Importantes</h4>
+                <p class="text-gray-600 text-sm">Recuerda reuniones, fechas límite o eventos especiales.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h4 class="font-bold text-gray-800 mb-2">⚠️ Avisos Urgentes</h4>
+                <p class="text-gray-600 text-sm">Comunica cambios de última hora o información crítica.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h4 class="font-bold text-gray-800 mb-2">📢 Novedades</h4>
+                <p class="text-gray-600 text-sm">Informa sobre nuevas funcionalidades o procedimientos.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-green-500 to-teal-600 text-white p-6 rounded-lg shadow-lg">
+        <h3 class="text-2xl font-bold mb-3">🚀 Detalles Técnicos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+                <h4 class="font-bold mb-2">Frontend</h4>
+                <ul class="space-y-1">
+                    <li>• Editor Quill.js 1.3.7 (auto-alojado)</li>
+                    <li>• Livewire 2.x para reactividad</li>
+                    <li>• Alpine.js para UI interactiva</li>
+                    <li>• TailwindCSS para estilos</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-2">Backend</h4>
+                <ul class="space-y-1">
+                    <li>• Laravel Policies para autorización</li>
+                    <li>• HTMLPurifier 4.19 para sanitización</li>
+                    <li>• Migraciones con FK cascade</li>
+                    <li>• Eloquent con scopes y relaciones</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 p-6 bg-gray-100 rounded-lg">
+        <p class="text-center text-gray-600 text-sm">
+            <strong>Fecha de implementación:</strong> 3 de noviembre de 2025<br>
+            <strong>Versión:</strong> 1.0.0<br>
+            <em>Desarrollado con ❤️ para mejorar la comunicación del equipo</em>
+        </p>
+    </div>
+</body>
+</html>

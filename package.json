@@ -33,6 +33,7 @@
         "@fullcalendar/daygrid": "^6.1.14",
         "@fullcalendar/interaction": "^6.1.14",
         "flatpickr": "^4.6.13",
+        "quill": "^2.0.3",
         "sweetalert2": "^11.23.0"
     }
 }

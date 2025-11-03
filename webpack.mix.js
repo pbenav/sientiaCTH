@@ -19,7 +19,9 @@ mix.js('resources/js/app.js', 'public/js')
     .postCss('resources/css/app.css', 'public/css', [
         require('postcss-import'),
         require('tailwindcss'),
-    ]);
+    ])
+    .copy('node_modules/quill/dist/quill.snow.css', 'public/css/quill.snow.css')
+    .copy('node_modules/quill/dist/quill.js', 'public/js/quill.js');
 
 if (mix.inProduction()) {
     mix.version();

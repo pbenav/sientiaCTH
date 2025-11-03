@@ -27,6 +27,7 @@ yarn-error.log
 /storage/framework/cache/
 /storage/framework/sessions/
 /storage/framework/views/
+/storage/app/purifier/
 
 # Archivos específicos de sistemas operativos y editores
 .DS_Store

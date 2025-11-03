@@ -84,4 +84,14 @@ class Team extends JetstreamTeam
         'updated' => TeamUpdated::class,
         'deleted' => TeamDeleted::class,
     ];
+
+    /**
+     * Get the announcements for the team.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function announcements()
+    {
+        return $this->hasMany(TeamAnnouncement::class);
+    }
 }
