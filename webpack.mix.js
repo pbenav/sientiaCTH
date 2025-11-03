@@ -21,7 +21,9 @@ mix.js('resources/js/app.js', 'public/js')
         require('tailwindcss'),
     ])
     .copy('node_modules/quill/dist/quill.snow.css', 'public/css/quill.snow.css')
-    .copy('node_modules/quill/dist/quill.js', 'public/js/quill.js');
+    .copy('node_modules/quill/dist/quill.js', 'public/js/quill.js')
+    .copy('node_modules/@fullcalendar/core/index.global.min.js', 'public/js/fullcalendar.min.js')
+    .copy('node_modules/@fullcalendar/core/locales-all.global.min.js', 'public/js/fullcalendar-locales.min.js');
 
 if (mix.inProduction()) {
     mix.version();

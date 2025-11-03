@@ -2,5 +2,7 @@
     "/js/app.js": "/js/app.js",
     "/css/app.css": "/css/app.css",
     "/css/quill.snow.css": "/css/quill.snow.css",
-    "/js/quill.js": "/js/quill.js"
+    "/js/quill.js": "/js/quill.js",
+    "/js/fullcalendar.min.js": "/js/fullcalendar.min.js",
+    "/js/fullcalendar-locales.min.js": "/js/fullcalendar-locales.min.js"
 }
