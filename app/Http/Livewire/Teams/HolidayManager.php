@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Teams;
 use App\Models\Holiday;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class HolidayManager extends Component
 {
@@ -37,6 +38,9 @@ class HolidayManager extends Component
         $this->team = $team;
         $this->isTeamAdmin = method_exists(auth()->user(), 'isTeamAdmin') ? auth()->user()->isTeamAdmin($team) : false;
         $this->loadHolidays();
+        
+        // Pre-rellenar fecha con hoy
+        $this->holidayForm['date'] = now()->format('Y-m-d');
     }
 
     protected function loadHolidays(): void
@@ -57,16 +61,26 @@ class HolidayManager extends Component
     protected function resetForm(): void
     {
         $this->holidayId = null;
-        $this->holidayForm = ['name' => '', 'date' => null, 'type' => null];
+        $this->holidayForm = [
+            'name' => '', 
+            'date' => now()->format('Y-m-d'), 
+            'type' => null
+        ];
     }
 
     public function editHoliday(int $id): void
     {
         $holiday = Holiday::findOrFail($id);
+        
+        // Verificar autorización
+        if (!Gate::allows('update', $holiday)) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $this->holidayId = $holiday->id;
         $this->holidayForm = [
             'name' => $holiday->name,
-            'date' => $holiday->date ? $holiday->date->format('Y-m-d') : null,
+            'date' => $holiday->date ? $holiday->date->format('Y-m-d') : now()->format('Y-m-d'),
             'type' => $holiday->type,
         ];
         $this->managingHoliday = true;
@@ -84,6 +98,12 @@ class HolidayManager extends Component
 
         if ($this->holidayId) {
             $h = Holiday::findOrFail($this->holidayId);
+            
+            // Verificar autorización para actualizar
+            if (!Gate::allows('update', $h)) {
+                abort(403, 'Unauthorized action.');
+            }
+            
             $h->update([
                 'name' => $this->holidayForm['name'],
                 'date' => $this->holidayForm['date'],
@@ -91,6 +111,11 @@ class HolidayManager extends Component
             ]);
             session()->flash('success', __('Holiday updated.'));
         } else {
+            // Verificar autorización para crear
+            if (!Gate::allows('create', [Holiday::class, $this->team])) {
+                abort(403, 'Unauthorized action.');
+            }
+            
             $this->team->holidays()->create([
                 'name' => $this->holidayForm['name'],
                 'date' => $this->holidayForm['date'],
@@ -109,6 +134,11 @@ class HolidayManager extends Component
         if ($this->holidayId) {
             $h = Holiday::find($this->holidayId);
             if ($h) {
+                // Verificar autorización para eliminar
+                if (!Gate::allows('delete', $h)) {
+                    abort(403, 'Unauthorized action.');
+                }
+                
                 $h->delete();
                 session()->flash('success', __('Holiday deleted.'));
             }

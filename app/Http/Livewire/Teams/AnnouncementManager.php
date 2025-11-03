@@ -202,8 +202,8 @@ class AnnouncementManager extends Component
         $this->title = '';
         $this->content = '';
         $this->is_active = true;
-        $this->start_date = null;
-        $this->end_date = null;
+        $this->start_date = now()->format('Y-m-d');
+        $this->end_date = now()->format('Y-m-d');
         $this->resetValidation();
     }
 

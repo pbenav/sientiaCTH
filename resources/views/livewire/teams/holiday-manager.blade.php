@@ -16,26 +16,30 @@
                             {{ $holiday->name }} ({{ $holiday->date->format('d/m/Y') }}) {{ $holiday->type }}
                         </div>
 
-                        <div class="flex items-center">
-                            <button class="cursor-pointer ml-6 text-sm text-gray-500"
-                                wire:click="editHoliday({{ $holiday->id }})">
-                                {{ __('Edit') }}
-                            </button>
+                        @if($isTeamAdmin)
+                            <div class="flex items-center">
+                                <button class="cursor-pointer ml-6 text-sm text-gray-500"
+                                    wire:click="editHoliday({{ $holiday->id }})">
+                                    {{ __('Edit') }}
+                                </button>
 
-                            <button class="cursor-pointer ml-6 text-sm text-red-500"
-                                wire:click="confirmHolidayDeletion({{ $holiday->id }})">
-                                {{ __('Delete') }}
-                            </button>
-                        </div>
+                                <button class="cursor-pointer ml-6 text-sm text-red-500"
+                                    wire:click="confirmHolidayDeletion({{ $holiday->id }})">
+                                    {{ __('Delete') }}
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>
 
-            <div class="mt-4">
-                <x-jet-button wire:click="$set('managingHoliday', true)">
-                    {{ __('Add Holiday') }}
-                </x-jet-button>
-            </div>
+            @if($isTeamAdmin)
+                <div class="mt-4">
+                    <x-jet-button wire:click="$set('managingHoliday', true)">
+                        {{ __('Add Holiday') }}
+                    </x-jet-button>
+                </div>
+            @endif
         </x-slot>
     </x-jet-action-section>
 
