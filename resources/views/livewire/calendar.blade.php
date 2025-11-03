@@ -33,6 +33,9 @@
                     height: '100%',
                     contentHeight: 'auto',
                     expandRows: true,
+                    slotMinTime: '00:00:00',
+                    slotMaxTime: '24:00:00',
+                    scrollTime: '08:00:00',
                     events: @json($this->getEvents()),
                     editable: true,
                     eventDurationEditable: true,
@@ -130,21 +133,32 @@
                     /* Altura del contenedor */
                     #calendar-container {
                         height: calc(100vh - 120px);
-                        overflow: hidden;
+                        overflow: auto;
                     }
                     
                     #calendar {
                         height: 100%;
+                        min-height: 600px;
                     }
                     
                     .fc {
                         height: 100% !important;
                     }
                     
+                    .fc-scroller {
+                        overflow-y: auto !important;
+                        overflow-x: hidden !important;
+                    }
+                    
                     /* Ajustes responsive para móviles */
                     @media (max-width: 768px) {
                         #calendar-container {
                             height: calc(100vh - 80px);
+                            overflow: auto;
+                        }
+                        
+                        #calendar {
+                            min-height: 800px;
                         }
                         
                         .fc .fc-toolbar-title {
@@ -152,24 +166,24 @@
                         }
                         
                         .fc .fc-button {
-                            font-size: 0.65rem !important;
+                            font-size: 0.7rem !important;
                             padding: 0.2rem 0.4rem !important;
                         }
                         
                         .fc .fc-col-header-cell-cushion {
-                            font-size: 0.65rem !important;
+                            font-size: 0.8rem !important;
                             padding: 0.2rem !important;
                         }
                         
                         .fc .fc-daygrid-day-number {
-                            font-size: 0.65rem !important;
+                            font-size: 0.8rem !important;
                             padding: 0.2rem !important;
                         }
                         
                         .fc .fc-event-title,
                         .fc .fc-event-time,
                         .fc .fc-title {
-                            font-size: 0.6rem !important;
+                            font-size: 0.85rem !important;
                             line-height: 1.2 !important;
                         }
                         
@@ -178,12 +192,12 @@
                         }
                         
                         .fc .fc-timegrid-slot-label-cushion {
-                            font-size: 0.55rem !important;
+                            font-size: 0.75rem !important;
                             padding: 0 2px !important;
                         }
                         
                         .fc .fc-timegrid-axis-cushion {
-                            font-size: 0.55rem !important;
+                            font-size: 0.75rem !important;
                         }
                         
                         .fc .fc-timegrid-slot {
@@ -207,28 +221,28 @@
                         }
                         
                         .fc .fc-button {
-                            font-size: 0.55rem !important;
+                            font-size: 0.6rem !important;
                             padding: 0.15rem 0.3rem !important;
                         }
                         
                         .fc .fc-col-header-cell-cushion {
-                            font-size: 0.55rem !important;
+                            font-size: 0.7rem !important;
                             padding: 0.15rem !important;
                         }
                         
                         .fc .fc-daygrid-day-number {
-                            font-size: 0.55rem !important;
+                            font-size: 0.7rem !important;
                         }
                         
                         .fc .fc-event-title,
                         .fc .fc-event-time,
                         .fc .fc-title {
-                            font-size: 0.5rem !important;
+                            font-size: 0.75rem !important;
                             line-height: 1.1 !important;
                         }
                         
                         .fc .fc-timegrid-slot-label-cushion {
-                            font-size: 0.5rem !important;
+                            font-size: 0.7rem !important;
                         }
                         
                         .fc .fc-timegrid-slot {
@@ -236,7 +250,7 @@
                         }
                         
                         .fc .fc-icon {
-                            font-size: 0.5rem !important;
+                            font-size: 0.65rem !important;
                         }
                     }
                 `;

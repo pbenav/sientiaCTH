@@ -32,24 +32,24 @@
                 {{-- All-day event: show only date inputs --}}
                 <div class="mb-4">
                     <x-jet-label value="{{ __('Start date') }}" />
-                    <x-jet-input type="date" wire:model="start_date" :disabled="!$canBeModified" />
+                    <x-jet-input type="date" wire:model="start_date" {{ $canBeModified ? '' : 'disabled' }} />
                     <x-jet-input-error for="start_date" />
                 </div>
                 <div class="mb-4">
                     <x-jet-label value="{{ __('End date') }}" />
-                    <x-jet-input type="date" wire:model="end_date" :disabled="!$canBeModified" />
+                    <x-jet-input type="date" wire:model="end_date" {{ $canBeModified ? '' : 'disabled' }} />
                     <x-jet-input-error for="end_date" />
                 </div>
             @else
                 {{-- Non-all-day event: show datetime inputs --}}
                 <div class="mb-4">
                     <x-jet-label value="{{ __('Start date and time') }}" />
-                    <x-jet-input type="datetime-local" wire:model="start_datetime" :disabled="!$canBeModified" />
+                    <x-jet-input type="datetime-local" wire:model="start_datetime" {{ $canBeModified ? '' : 'disabled' }} />
                     <x-jet-input-error for="start_datetime" />
                 </div>
                 <div class="mb-4">
                     <x-jet-label value="{{ __('End date and time') }}" />
-                    <x-jet-input type="datetime-local" wire:model="end_datetime" :disabled="!$canBeModified" />
+                    <x-jet-input type="datetime-local" wire:model="end_datetime" {{ $canBeModified ? '' : 'disabled' }} />
                     <x-jet-input-error for="end_datetime" />
                 </div>
             @endif
@@ -63,7 +63,7 @@
                  name="observations"
                  id="observations"
                  maxlength="255"
-                 :disabled="!$canBeModified"></textarea>
+                 {{ $canBeModified ? '' : 'disabled' }}></textarea>
                 <x-jet-input-error for='event.observations' />
             </div>
 
