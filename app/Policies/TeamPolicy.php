@@ -51,8 +51,11 @@ class TeamPolicy
             return true;
         }
         
-        // Verificar si el usuario es miembro del equipo
-        return $user->teams()->where('teams.id', $team->id)->exists();
+        // Verificar si el usuario es miembro del equipo en la tabla pivot team_user
+        return \DB::table('team_user')
+            ->where('team_id', $team->id)
+            ->where('user_id', $user->id)
+            ->exists();
     }
 
     /**
