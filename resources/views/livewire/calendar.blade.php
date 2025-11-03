@@ -7,13 +7,18 @@
     </div>
 
     @push('scripts')
-        <script src='{{ asset('js/fullcalendar.min.js') }}'></script>
-        <script src='{{ asset('js/fullcalendar-locales.min.js') }}'></script>
+        <script src='{{ asset('js/fullcalendar-bundle.js') }}'></script>
         <script>
             document.addEventListener('livewire:load', function() {
                 var calendarEl = document.getElementById('calendar');
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
+                    plugins: [
+                        FullCalendar.dayGridPlugin,
+                        FullCalendar.timeGridPlugin,
+                        FullCalendar.listPlugin,
+                        FullCalendar.interactionPlugin
+                    ],
                     headerToolbar: {
                         left: 'prev,next today',
                         center: 'title',
