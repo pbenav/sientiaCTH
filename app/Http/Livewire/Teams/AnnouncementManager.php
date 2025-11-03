@@ -36,14 +36,9 @@ class AnnouncementManager extends Component
      */
     public function mount(Team $team)
     {
-        // Verificar que el usuario pertenece al equipo
-        if (!auth()->user()->belongsToTeam($team)) {
-            abort(403, 'You do not belong to this team.');
-        }
-        
-        // Verificar autorización para gestionar anuncios
-        if (!Gate::allows('create', [TeamAnnouncement::class, $team])) {
-            abort(403, 'Unauthorized action.');
+        // Verificar que el usuario pertenece al equipo (puede ver anuncios)
+        if (!Gate::allows('viewAny', [TeamAnnouncement::class, $team])) {
+            abort(403, 'You do not have permission to view team announcements.');
         }
         
         $this->team = $team;

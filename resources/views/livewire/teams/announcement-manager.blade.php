@@ -16,11 +16,13 @@
             @endif
 
             <div class="space-y-4">
-                <div class="flex justify-end">
-                    <x-jet-button wire:click="create">
-                        {{ __('Create Announcement') }}
-                    </x-jet-button>
-                </div>
+                @can('create', [App\Models\TeamAnnouncement::class, $team])
+                    <div class="flex justify-end">
+                        <x-jet-button wire:click="create">
+                            {{ __('Create Announcement') }}
+                        </x-jet-button>
+                    </div>
+                @endcan
 
                 @if ($announcements->isEmpty())
                     <p class="text-gray-500">{{ __('No announcements yet.') }}</p>
@@ -68,24 +70,26 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="ml-4 flex space-x-2">
-                                        <button wire:click="toggleActive({{ $announcement->id }})" 
-                                                class="text-gray-400 hover:text-gray-600"
-                                                title="{{ $announcement->is_active ? __('Deactivate') : __('Activate') }}">
-                                            <i class="fas fa-power-off"></i>
-                                        </button>
-                                        <button wire:click="edit({{ $announcement->id }})" 
-                                                class="text-blue-400 hover:text-blue-600"
-                                                title="{{ __('Edit') }}">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button wire:click="delete({{ $announcement->id }})" 
-                                                onclick="return confirm('{{ __('Are you sure you want to delete this announcement?') }}')"
-                                                class="text-red-400 hover:text-red-600"
-                                                title="{{ __('Delete') }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
+                                    @can('update', $announcement)
+                                        <div class="ml-4 flex space-x-2">
+                                            <button wire:click="toggleActive({{ $announcement->id }})" 
+                                                    class="text-gray-400 hover:text-gray-600"
+                                                    title="{{ $announcement->is_active ? __('Deactivate') : __('Activate') }}">
+                                                <i class="fas fa-power-off"></i>
+                                            </button>
+                                            <button wire:click="edit({{ $announcement->id }})" 
+                                                    class="text-blue-400 hover:text-blue-600"
+                                                    title="{{ __('Edit') }}">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button wire:click="delete({{ $announcement->id }})" 
+                                                    onclick="return confirm('{{ __('Are you sure you want to delete this announcement?') }}')"
+                                                    class="text-red-400 hover:text-red-600"
+                                                    title="{{ __('Delete') }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    @endcan
                                 </div>
                             </div>
                         @endforeach

@@ -16,7 +16,12 @@ class TeamAnnouncementPolicy
      */
     public function viewAny(User $user, Team $team): bool
     {
-        return $user->belongsToTeam($team);
+        // Verificar si el usuario es propietario o miembro del equipo
+        return $user->id === $team->user_id 
+            || \DB::table('team_user')
+                ->where('team_id', $team->id)
+                ->where('user_id', $user->id)
+                ->exists();
     }
 
     /**
@@ -24,7 +29,12 @@ class TeamAnnouncementPolicy
      */
     public function view(User $user, TeamAnnouncement $announcement): bool
     {
-        return $user->belongsToTeam($announcement->team);
+        // Verificar si el usuario es propietario o miembro del equipo
+        return $user->id === $announcement->team->user_id
+            || \DB::table('team_user')
+                ->where('team_id', $announcement->team_id)
+                ->where('user_id', $user->id)
+                ->exists();
     }
 
     /**
@@ -32,7 +42,13 @@ class TeamAnnouncementPolicy
      */
     public function create(User $user, Team $team): bool
     {
-        return $user->belongsToTeam($team)
+        $isMember = $user->id === $team->user_id 
+            || \DB::table('team_user')
+                ->where('team_id', $team->id)
+                ->where('user_id', $user->id)
+                ->exists();
+                
+        return $isMember
             && ($user->hasTeamPermission($team, 'team:update') || $user->ownsTeam($team));
     }
 
@@ -41,7 +57,13 @@ class TeamAnnouncementPolicy
      */
     public function update(User $user, TeamAnnouncement $announcement): bool
     {
-        return $user->belongsToTeam($announcement->team)
+        $isMember = $user->id === $announcement->team->user_id
+            || \DB::table('team_user')
+                ->where('team_id', $announcement->team_id)
+                ->where('user_id', $user->id)
+                ->exists();
+                
+        return $isMember
             && ($user->hasTeamPermission($announcement->team, 'team:update') || $user->ownsTeam($announcement->team));
     }
 
@@ -50,7 +72,13 @@ class TeamAnnouncementPolicy
      */
     public function delete(User $user, TeamAnnouncement $announcement): bool
     {
-        return $user->belongsToTeam($announcement->team)
+        $isMember = $user->id === $announcement->team->user_id
+            || \DB::table('team_user')
+                ->where('team_id', $announcement->team_id)
+                ->where('user_id', $user->id)
+                ->exists();
+                
+        return $isMember
             && ($user->hasTeamPermission($announcement->team, 'team:update') || $user->ownsTeam($announcement->team));
     }
 }
