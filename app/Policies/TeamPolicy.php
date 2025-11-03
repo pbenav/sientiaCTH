@@ -46,7 +46,13 @@ class TeamPolicy
      */
     public function view(User $user, Team $team)
     {
-        return $user->belongsToTeam($team);
+        // Verificar si el usuario es el propietario del equipo
+        if ($user->id === $team->user_id) {
+            return true;
+        }
+        
+        // Verificar si el usuario es miembro del equipo
+        return $user->teams()->where('teams.id', $team->id)->exists();
     }
 
     /**
