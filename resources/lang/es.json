@@ -499,5 +499,6 @@
     "The event has been registered as overtime as it was not found in a defined time slot.": "El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.",
     "Work schedule updated successfully.": "Horario de trabajo actualizado correctamente.",
     "You do not have permission to view team announcements.": "No tienes permiso para ver los anuncios del equipo.",
-    "Unauthorized action": "Acción no autorizada"
+    "Unauthorized action": "Acción no autorizada",
+    "No configurada": "No configurada"
 }

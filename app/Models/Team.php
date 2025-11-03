@@ -69,6 +69,7 @@ class Team extends JetstreamTeam
     protected $fillable = [
         'name',
         'personal_team',
+        'timezone',
         'force_clock_in_delay',
         'clock_in_delay_minutes',
         'clock_in_grace_period_minutes',

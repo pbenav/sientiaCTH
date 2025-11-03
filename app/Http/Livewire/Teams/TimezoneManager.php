@@ -15,6 +15,7 @@ use DateTimeZone;
 class TimezoneManager extends Component
 {
     public $team;
+    public bool $isTeamAdmin;
     public array $state = [];
     public array $timezones;
 
@@ -27,7 +28,8 @@ class TimezoneManager extends Component
     public function mount($team): void
     {
         $this->team = $team;
-        $this->state['timezone'] = $this->team->timezone;
+        $this->isTeamAdmin = method_exists(auth()->user(), 'isTeamAdmin') ? auth()->user()->isTeamAdmin($team) : false;
+        $this->state['timezone'] = $this->team->timezone ?? 'Europe/Madrid';
         $this->timezones = $this->getTimezoneList();
     }
 
