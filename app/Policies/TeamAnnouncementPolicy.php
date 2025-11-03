@@ -39,6 +39,7 @@ class TeamAnnouncementPolicy
 
     /**
      * Determine if the user can create announcements.
+     * Only team admins and owners can create announcements.
      */
     public function create(User $user, Team $team): bool
     {
@@ -48,12 +49,12 @@ class TeamAnnouncementPolicy
                 ->where('user_id', $user->id)
                 ->exists();
                 
-        return $isMember
-            && ($user->hasTeamPermission($team, 'team:update') || $user->ownsTeam($team));
+        return $isMember && ($user->ownsTeam($team) || $user->hasTeamRole($team, 'admin'));
     }
 
     /**
      * Determine if the user can update the announcement.
+     * Only team admins and owners can update announcements.
      */
     public function update(User $user, TeamAnnouncement $announcement): bool
     {
@@ -63,12 +64,12 @@ class TeamAnnouncementPolicy
                 ->where('user_id', $user->id)
                 ->exists();
                 
-        return $isMember
-            && ($user->hasTeamPermission($announcement->team, 'team:update') || $user->ownsTeam($announcement->team));
+        return $isMember && ($user->ownsTeam($announcement->team) || $user->hasTeamRole($announcement->team, 'admin'));
     }
 
     /**
      * Determine if the user can delete the announcement.
+     * Only team admins and owners can delete announcements.
      */
     public function delete(User $user, TeamAnnouncement $announcement): bool
     {
@@ -78,7 +79,6 @@ class TeamAnnouncementPolicy
                 ->where('user_id', $user->id)
                 ->exists();
                 
-        return $isMember
-            && ($user->hasTeamPermission($announcement->team, 'team:update') || $user->ownsTeam($announcement->team));
+        return $isMember && ($user->ownsTeam($announcement->team) || $user->hasTeamRole($announcement->team, 'admin'));
     }
 }
