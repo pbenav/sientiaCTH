@@ -493,5 +493,11 @@
     "Cannot remove team members": "No puede eliminar miembros del equipo",
     "Can delete team": "Puede eliminar el equipo",
     "Cannot delete team": "No puede eliminar el equipo",
-    "Personal Team": "Equipo personal"
+    "Personal Team": "Equipo personal",
+    "Suggested current slot": "Tramo horario sugerido actual",
+    "No applicable time slot found": "No se encontró ningún tramo horario aplicable",
+    "The event has been registered as overtime as it was not found in a defined time slot.": "El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.",
+    "Work schedule updated successfully.": "Horario de trabajo actualizado correctamente.",
+    "You do not have permission to view team announcements.": "No tienes permiso para ver los anuncios del equipo.",
+    "Unauthorized action": "Acción no autorizada"
 }

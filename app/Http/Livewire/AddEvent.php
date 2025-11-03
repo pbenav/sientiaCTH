@@ -245,7 +245,7 @@ class AddEvent extends Component
         $event = Event::create($data);
 
         if ($isExtraHours) {
-            session()->flash('info', 'El evento se ha registrado como horas extra al no encontrarse en un tramo horario definido.');
+            session()->flash('info', __('The event has been registered as overtime as it was not found in a defined time slot.'));
         }
 
         if ($event->eventType && $event->eventType->is_all_day) {

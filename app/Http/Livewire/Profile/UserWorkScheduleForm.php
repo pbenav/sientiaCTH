@@ -77,7 +77,7 @@ class UserWorkScheduleForm extends Component
             ['meta_value' => json_encode($this->schedule)]
         );
 
-        session()->flash('message', 'Work schedule updated successfully.');
+        session()->flash('message', __('Work schedule updated successfully.'));
     }
 
     /**

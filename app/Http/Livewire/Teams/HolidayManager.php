@@ -74,7 +74,7 @@ class HolidayManager extends Component
         
         // Verificar autorización
         if (!Gate::allows('update', $holiday)) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         $this->holidayId = $holiday->id;
@@ -101,7 +101,7 @@ class HolidayManager extends Component
             
             // Verificar autorización para actualizar
             if (!Gate::allows('update', $h)) {
-                abort(403, 'Unauthorized action.');
+                abort(403, __('Unauthorized action'));
             }
             
             $h->update([
@@ -113,7 +113,7 @@ class HolidayManager extends Component
         } else {
             // Verificar autorización para crear
             if (!Gate::allows('create', [Holiday::class, $this->team])) {
-                abort(403, 'Unauthorized action.');
+                abort(403, __('Unauthorized action'));
             }
             
             $this->team->holidays()->create([
@@ -136,7 +136,7 @@ class HolidayManager extends Component
             if ($h) {
                 // Verificar autorización para eliminar
                 if (!Gate::allows('delete', $h)) {
-                    abort(403, 'Unauthorized action.');
+                    abort(403, __('Unauthorized action'));
                 }
                 
                 $h->delete();

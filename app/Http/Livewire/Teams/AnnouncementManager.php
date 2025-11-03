@@ -38,7 +38,7 @@ class AnnouncementManager extends Component
     {
         // Verificar que el usuario pertenece al equipo (puede ver anuncios)
         if (!Gate::allows('viewAny', [TeamAnnouncement::class, $team])) {
-            abort(403, 'You do not have permission to view team announcements.');
+            abort(403, __('You do not have permission to view team announcements.'));
         }
         
         $this->team = $team;
@@ -62,12 +62,12 @@ class AnnouncementManager extends Component
         
         // Verificar autorización
         if (!Gate::allows('update', $announcement)) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         // Verificar que el anuncio pertenece al equipo actual (protección IDOR)
         if ($announcement->team_id !== $this->team->id) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         $this->editingId = $announcement->id;
@@ -98,12 +98,12 @@ class AnnouncementManager extends Component
             
             // Verificar autorización
             if (!Gate::allows('update', $announcement)) {
-                abort(403, 'Unauthorized action.');
+                abort(403, __('Unauthorized action'));
             }
             
             // Verificar que el anuncio pertenece al equipo actual
             if ($announcement->team_id !== $this->team->id) {
-                abort(403, 'Unauthorized action.');
+                abort(403, __('Unauthorized action'));
             }
             
             // Actualizar sin incluir team_id ni created_by (protección mass assignment)
@@ -119,7 +119,7 @@ class AnnouncementManager extends Component
         } else {
             // Verificar autorización para crear
             if (!Gate::allows('create', [TeamAnnouncement::class, $this->team])) {
-                abort(403, 'Unauthorized action.');
+                abort(403, __('Unauthorized action'));
             }
             
             // Crear nuevo anuncio con forceFill para campos guarded
@@ -150,12 +150,12 @@ class AnnouncementManager extends Component
         
         // Verificar autorización
         if (!Gate::allows('delete', $announcement)) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         // Verificar que el anuncio pertenece al equipo actual
         if ($announcement->team_id !== $this->team->id) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         $announcement->delete();
@@ -172,12 +172,12 @@ class AnnouncementManager extends Component
         
         // Verificar autorización
         if (!Gate::allows('update', $announcement)) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         // Verificar que el anuncio pertenece al equipo actual
         if ($announcement->team_id !== $this->team->id) {
-            abort(403, 'Unauthorized action.');
+            abort(403, __('Unauthorized action'));
         }
         
         $announcement->update(['is_active' => !$announcement->is_active]);
