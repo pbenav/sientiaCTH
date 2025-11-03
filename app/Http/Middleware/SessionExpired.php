@@ -14,7 +14,8 @@ class SessionExpired {
     public function __construct(Store $session){
         $this->session = $session;
         // SESSION_LIFETIME is in minutes, convert to seconds
-        $this->timeout = env('SESSION_LIFETIME', 120) * 60;
+        // Use config() instead of env() to respect cached configuration
+        $this->timeout = config('session.lifetime', 120) * 60;
     }
     
     public function handle($request, Closure $next){
