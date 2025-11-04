@@ -1,6 +1,11 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
+    // Asegurar que las clases usadas por SweetAlert2 no sean purgadas
+    safelist: [
+        'swal2-popup', 'swal2-modal', 'swal2-title', 'swal2-content', 'swal2-actions',
+        'swal2-confirm', 'swal2-cancel', 'swal2-icon', 'swal2-html-container'
+    ],
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './vendor/laravel/jetstream/**/*.blade.php',
@@ -38,3 +43,4 @@ module.exports = {
 
     plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
+

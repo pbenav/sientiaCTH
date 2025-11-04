@@ -8,3 +8,28 @@
 @import 'style.css';
 
 @import 'flatpickr/dist/flatpickr.css';
+
+/* SweetAlert2 overrides: asegurar estilo mínimo de botones si reglas globales los rompen */
+.swal2-popup .swal2-confirm,
+.swal2-popup .swal2-cancel {
+	all: unset;
+	box-sizing: border-box;
+	display: inline-block;
+	padding: .5rem 1rem;
+	border-radius: .375rem;
+	font-weight: 600;
+	cursor: pointer;
+	text-align: center;
+	vertical-align: middle;
+}
+.swal2-popup .swal2-confirm {
+	background-color: #3085d6;
+	color: #fff;
+}
+.swal2-popup .swal2-cancel {
+	background-color: #e5e7eb;
+	color: #111827;
+}
+
+/* Evitar que reglas muy globales como 'button { all: unset }' afecten a SweetAlert */
+.swal2-popup button { all: revert; }

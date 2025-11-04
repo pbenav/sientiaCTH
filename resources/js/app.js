@@ -8,6 +8,8 @@ flatpickr.localize(lang); // default locale is now Spanish
 
 import Swal from 'sweetalert2';
 window.Swal = Swal;
+// Import SweetAlert2 CSS so it's included in the compiled bundle
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 import Alpine from 'alpinejs';
 

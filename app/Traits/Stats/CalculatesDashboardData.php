@@ -76,7 +76,13 @@ trait CalculatesDashboardData
         // Calcular horas por día para evitar desajustes: solo contar horas de jornada laboral
         // y computar horas no-jornada solo en los días programados.
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
-        $endDate = $startDate->copy()->endOfMonth();
+        // Si la petición es para el mes en curso, limitar el cálculo hasta hoy; si es mes pasado, usar todo el mes
+        $today = Carbon::today();
+        if ($this->selectedYear === (int) $today->year && $this->selectedMonth === (int) $today->month) {
+            $endDate = $today;
+        } else {
+            $endDate = $startDate->copy()->endOfMonth();
+        }
 
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
         $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
@@ -256,7 +262,13 @@ trait CalculatesDashboardData
         $workedDays = collect($dailyWorked);
 
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
-        $endDate = $startDate->copy()->endOfMonth();
+        // Reutilizar la misma lógica: si es mes en curso, considerar hasta hoy
+        $today = Carbon::today();
+        if ($this->selectedYear === (int) $today->year && $this->selectedMonth === (int) $today->month) {
+            $endDate = $today;
+        } else {
+            $endDate = $startDate->copy()->endOfMonth();
+        }
 
         $holidays = $this->actualUser->currentTeam->holidays()
             ->whereBetween('date', [$startDate, $endDate])
