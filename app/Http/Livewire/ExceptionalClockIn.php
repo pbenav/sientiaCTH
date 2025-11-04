@@ -96,7 +96,8 @@ class ExceptionalClockIn extends Component
                 $this->end_time = now()->addMinutes(1)->format('H:i');
             }
 
-            $this->observations = __('Provide a reason for the regularization. E.g.: Forgot to clock in');
+            // Dejar el campo observations vacío para que funcione como placeholder
+            $this->observations = '';
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));
         }
@@ -113,6 +114,12 @@ class ExceptionalClockIn extends Component
 
         if (!$this->isValidToken) {
             return;
+        }
+
+        // Anteponer "Evento excepcional:" a las observaciones si no lo tiene ya
+        $exceptionalPrefix = __('exceptional_event.prefix');
+        if (!empty($this->observations) && !str_starts_with($this->observations, $exceptionalPrefix)) {
+            $this->observations = $exceptionalPrefix . ' ' . $this->observations;
         }
 
         $user = User::find($this->tokenRecord->user_id);

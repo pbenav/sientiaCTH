@@ -41,16 +41,38 @@
                     <x-jet-input-error for="end_date" />
                 </div>
             @else
-                {{-- Non-all-day event: show datetime inputs --}}
+                {{-- Non-all-day event: show separate date and time inputs --}}
                 <div class="mb-4">
-                    <x-jet-label value="{{ __('Start date and time') }}" />
-                    <x-jet-input type="datetime-local" wire:model="start_datetime" {{ $canBeModified ? '' : 'disabled' }} />
-                    <x-jet-input-error for="start_datetime" />
+                    <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
+                    <input type="date" 
+                           class="form-control mr-2 block w-full border-gray-300 rounded-md shadow-sm" 
+                           wire:model.live="start_date" 
+                           {{ $canBeModified ? '' : 'disabled' }} />
+                    <x-jet-input-error for="start_date" />
+                    
+                    <x-jet-label value="{{ __('Start time') }}" class="mt-3 mr-2 required" />
+                    <input type="time" 
+                           class="form-control block w-full border-gray-300 rounded-md shadow-sm" 
+                           wire:model.live="start_time" 
+                           {{ $canBeModified ? '' : 'disabled' }} 
+                           step="300" />
+                    <x-jet-input-error for="start_time" />
                 </div>
                 <div class="mb-4">
-                    <x-jet-label value="{{ __('End date and time') }}" />
-                    <x-jet-input type="datetime-local" wire:model="end_datetime" {{ $canBeModified ? '' : 'disabled' }} />
-                    <x-jet-input-error for="end_datetime" />
+                    <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2 required" />
+                    <input type="date" 
+                           class="form-control mr-2 block w-full border-gray-300 rounded-md shadow-sm" 
+                           wire:model.live="end_date" 
+                           {{ $canBeModified ? '' : 'disabled' }} />
+                    <x-jet-input-error for="end_date" />
+                    
+                    <x-jet-label value="{{ __('End time') }}" class="mt-3 mr-2 required" />
+                    <input type="time" 
+                           class="form-control block w-full border-gray-300 rounded-md shadow-sm" 
+                           wire:model.live="end_time" 
+                           {{ $canBeModified ? '' : 'disabled' }} 
+                           step="300" />
+                    <x-jet-input-error for="end_time" />
                 </div>
             @endif
 
@@ -59,7 +81,7 @@
                 <textarea class="w-full form-control"
                  wire:model.defer="event.observations"
                  rows="4"
-                 placeholder="{{ __('Indica un motivo para la regularización. P. ej.: Olvido') }}"
+                 placeholder="{{ $event->is_exceptional ? __('exceptional_event.reason_placeholder') : __('Indica un motivo para la regularización. P. ej.: Olvido') }}"
                  name="observations"
                  id="observations"
                  maxlength="255"

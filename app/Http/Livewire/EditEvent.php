@@ -56,11 +56,11 @@ class EditEvent extends Component
     public Event $event, $original_event;
 
     /**
-     * The start and end date of the event.
+     * The start and end date/time of the event.
      *
      * @var string
      */
-    public $start_date, $end_date, $start_datetime, $end_datetime;
+    public $start_date, $end_date, $start_time, $end_time, $start_datetime, $end_datetime;
 
     /**
      * Holds the user associated with the event.
@@ -92,8 +92,10 @@ class EditEvent extends Component
         }
 
         return [
-            'start_datetime' => 'required|date',
-            'end_datetime' => 'required|date|after_or_equal:start_datetime',
+            'start_date' => 'required|date',
+            'start_time' => 'required',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_time' => 'required',
             'event.observations' => 'nullable|string|max:255',
         ];
     }
@@ -108,6 +110,14 @@ class EditEvent extends Component
         $this->event = new Event();
         $this->user = User::find(Auth::user()->id);
         $this->eventTypes = collect();
+        
+        // Initialize all date/time fields
+        $this->start_date = '';
+        $this->end_date = '';
+        $this->start_time = '';
+        $this->end_time = '';
+        $this->start_datetime = '';
+        $this->end_datetime = '';
     }
 
     /**
@@ -122,25 +132,30 @@ class EditEvent extends Component
         $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
 
-        // Populate the new properties for the form, converting from UTC to the app's timezone
-        $this->start_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->start, 'UTC')
-            ->setTimezone(config('app.timezone'))
-            ->toDateTimeLocalString();
-        $this->start_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->start, 'UTC')
-            ->setTimezone(config('app.timezone'))
-            ->format('Y-m-d');
+        // Populate the properties for the form, converting from UTC to the app's timezone
+        $startCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->start, 'UTC')
+            ->setTimezone(config('app.timezone'));
+        
+        $this->start_datetime = $startCarbon->toDateTimeLocalString();
+        $this->start_date = $startCarbon->format('Y-m-d');
+        $this->start_time = $startCarbon->format('H:i');
 
         if ($ev->end) {
-            $this->end_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->end, 'UTC')
-                ->setTimezone(config('app.timezone'))
-                ->toDateTimeLocalString();
-            $this->end_date = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->end, 'UTC')
-                ->setTimezone(config('app.timezone'))
-                ->format('Y-m-d');
+            $endCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->end, 'UTC')
+                ->setTimezone(config('app.timezone'));
+            
+            $this->end_datetime = $endCarbon->toDateTimeLocalString();
+            $this->end_date = $endCarbon->format('Y-m-d');
+            $this->end_time = $endCarbon->format('H:i');
         } else {
-            $this->end_datetime = \Carbon\Carbon::now(config('app.timezone'))->toDateTimeLocalString();
-            $this->end_date = \Carbon\Carbon::now(config('app.timezone'))->format('Y-m-d');
+            $nowCarbon = \Carbon\Carbon::now(config('app.timezone'));
+            $this->end_datetime = $nowCarbon->toDateTimeLocalString();
+            $this->end_date = $nowCarbon->format('Y-m-d');
+            $this->end_time = $nowCarbon->format('H:i');
         }
+
+        // Force refresh the component to ensure values are updated
+        $this->dispatchBrowserEvent('refresh-edit-modal');
 
         if ($this->event->is_exceptional) {
             $workScheduleMeta = $this->user->meta()->where('meta_key', 'work_schedule')->first();
@@ -205,6 +220,15 @@ class EditEvent extends Component
 
         $this->validate();
 
+        // Si es un evento excepcional y hay observaciones, anteponer "Evento excepcional:"
+        if ($this->event->is_exceptional && !empty($this->event->observations)) {
+            // Solo añadir el prefijo si no lo tiene ya
+            $exceptionalPrefix = __('exceptional_event.prefix');
+            if (!str_starts_with($this->event->observations, $exceptionalPrefix)) {
+                $this->event->observations = $exceptionalPrefix . ' ' . $this->event->observations;
+            }
+        }
+
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
             $this->event->start = Carbon::parse($this->start_date, config('app.timezone'))
                 ->setTimezone('UTC')
@@ -214,10 +238,14 @@ class EditEvent extends Component
                 ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
         } else {
-            $this->event->start = Carbon::parse($this->start_datetime, config('app.timezone'))
+            // Combine separate date and time fields
+            $startDateTime = $this->start_date . ' ' . $this->start_time;
+            $endDateTime = $this->end_date . ' ' . $this->end_time;
+            
+            $this->event->start = Carbon::parse($startDateTime, config('app.timezone'))
                 ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
-            $this->event->end = Carbon::parse($this->end_datetime, config('app.timezone'))
+            $this->event->end = Carbon::parse($endDateTime, config('app.timezone'))
                 ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
         }

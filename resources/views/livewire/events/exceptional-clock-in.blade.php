@@ -31,7 +31,7 @@
 
                     <div class="mt-4">
                         <label for="observations" class="block text-sm font-medium text-gray-700">{{ __('Reason for exceptional clock-in') }}</label>
-                        <textarea id="observations" wire:model.defer="observations" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"></textarea>
+                        <textarea id="observations" wire:model.defer="observations" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="{{ __('exceptional_event.reason_placeholder') }}" rows="3"></textarea>
                         @error('observations') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 

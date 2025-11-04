@@ -185,13 +185,15 @@ trait CalculatesDashboardData
                     $intStart = $evStart2->max($slotStart);
                     $intEnd = $evEnd2->min($slotEnd);
                     $intSeconds = max(0, $intEnd->diffInSeconds($intStart));
-                    $dayWithinScheduledSeconds += $intSeconds;
 
                     if ($intSeconds > $bestIntersectionSeconds) {
                         $bestIntersectionSeconds = $intSeconds;
                         $bestEventForSlot = $ev2;
                     }
                 }
+
+                // Solo acumular la mejor intersección por slot para evitar doble conteo
+                $dayWithinScheduledSeconds += $bestIntersectionSeconds;
 
                 // Si encontramos un evento principal para esta franja, calcular desviaciones
                 if ($bestEventForSlot) {
@@ -227,13 +229,14 @@ trait CalculatesDashboardData
 
             $dayOutsideSeconds = max(0, $dayWorkSeconds - $dayWithinScheduledSeconds);
 
-            if ($dayWorkSeconds > 0) {
-                $dailyWorked[] = $date->format('Y-m-d');
-            }
-
             // registeredHours ya se calculó antes del loop (total del mes)
             $registeredWithinScheduledSeconds += $dayWithinScheduledSeconds;
-            $extraSeconds += $dayOutsideSeconds;
+            
+            // Solo acumular horas extra si realmente hay tiempo fuera del horario programado
+            // y si el día tuvo actividad laboral
+            if ($dayWorkSeconds > 0) {
+                $extraSeconds += $dayOutsideSeconds;
+            }
             $nonWorkdayHours += $dayNonWorkSeconds / 3600;
         }
 
@@ -353,20 +356,9 @@ trait CalculatesDashboardData
     $avgEntryBackdateMin = round($avgEntryBackdateSec / 60, 2);
     $avgExitBackdateMin = round($avgExitBackdateSec / 60, 2);
 
-        // Calcular mediana de porcentajes por franja para reducir impacto de outliers
-        $median = function (array $a) {
-            if (empty($a)) return 0;
-            sort($a);
-            $count = count($a);
-            $mid = intdiv($count, 2);
-            if ($count % 2 === 1) {
-                return $a[$mid];
-            }
-            return ($a[$mid - 1] + $a[$mid]) / 2.0;
-        };
-
-        $avgEntryPct = !empty($entryPctList) ? round($median($entryPctList) * 100, 2) : 0;
-        $avgExitPct = !empty($exitPctList) ? round($median($exitPctList) * 100, 2) : 0;
+        // Calcular promedio de porcentajes por franja (no mediana para obtener valores más precisos con pocos registros)
+        $avgEntryPct = !empty($entryPctList) ? round((array_sum($entryPctList) / count($entryPctList)) * 100, 2) : 0;
+        $avgExitPct = !empty($exitPctList) ? round((array_sum($exitPctList) / count($exitPctList)) * 100, 2) : 0;
 
         // Combinado: mediana/porcentaje promedio simple de entrada y salida
         $punctualityEntryWeighted = $avgEntryPct;

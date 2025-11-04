@@ -157,14 +157,21 @@ class GetTimeRegisters extends Component
         }
 
         if ($this->isTeamAdmin) {
+            $wasOpen = $ev->is_open; // Guardar el estado anterior
             if ($ev->toggleConfirm()) {
-                $this->emit('alert', __('Event has been confirmed!'));
+                // Si estaba abierto (is_open = true) y se cerró, se confirmó
+                // Si estaba cerrado (is_open = false) y se abrió, se desconfirmó
+                if ($wasOpen) {
+                    $this->emit('alert', __('event_confirmation.confirmed'));
+                } else {
+                    $this->emit('alert', __('event_confirmation.unconfirmed'));
+                }
             } else {
                 $this->emit('incompleteEventConfirmation');
             }
         } else if ($ev->is_open) {
             if ($ev->confirm()) {
-                $this->emit('alert', __('Event has been confirmed!'));
+                $this->emit('alert', __('event_confirmation.confirmed'));
             } else {
                 $this->emit('incompleteEventConfirmation');
             }
