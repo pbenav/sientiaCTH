@@ -19,6 +19,7 @@ trait CalculatesDashboardData
     private function getDashboardData(float $scheduledHours, int $scheduledDays): array
     {
         $user = User::find($this->browsedUser);
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
         $workdayEventType = $user->currentTeam->eventTypes()->where('is_workday_type', true)->first();
         if (!$workdayEventType) {
             return [];
@@ -49,16 +50,17 @@ trait CalculatesDashboardData
             })
             ->get()
             ->groupBy('event_type_id')
-            ->map(function ($events, $typeId) {
+            ->map(function ($events, $typeId) use ($teamTimezone) {
                 $eventType = $events->first()->eventType;
                 
                 // Calcular la suma de días de todos los eventos de este tipo
-                $totalDays = $events->sum(function ($event) {
+                $totalDays = $events->sum(function ($event) use ($teamTimezone) {
                     if (empty($event->start) || empty($event->end)) {
                         return 0;
                     }
-                    $start = Carbon::parse($event->start);
-                    $end = Carbon::parse($event->end);
+                    // Parse as UTC (how Laravel stores timestamps) then convert to team timezone
+                    $start = Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);
+                    $end = Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone);
                     // Si el evento es del mismo día, cuenta como 1 día
                     // Si es de varios días, cuenta los días completos
                     return max(1, $start->startOfDay()->diffInDays($end->startOfDay()) + 1);
@@ -75,9 +77,12 @@ trait CalculatesDashboardData
 
         // Calcular horas por día para evitar desajustes: solo contar horas de jornada laboral
         // y computar horas no-jornada solo en los días programados.
-        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
+        
+        // Use team's timezone for consistent date/time operations (already defined above)
+        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1, 0, 0, 0, $teamTimezone);
+        
         // Si la petición es para el mes en curso, limitar el cálculo hasta hoy; si es mes pasado, usar todo el mes
-        $today = Carbon::today();
+        $today = Carbon::today($teamTimezone);
         if ($this->selectedYear === (int) $today->year && $this->selectedMonth === (int) $today->month) {
             $endDate = $today;
         } else {
@@ -105,8 +110,8 @@ trait CalculatesDashboardData
 
         // PRIMER PASO: contar TODAS las horas registradas del tipo principal (incluyendo días sin schedule)
         foreach ($workdayEvents as $ev) {
-            $evStart = Carbon::parse($ev->start);
-            $evEnd = Carbon::parse($ev->end);
+            $evStart = Carbon::parse($ev->start, 'UTC')->setTimezone($teamTimezone);
+            $evEnd = Carbon::parse($ev->end, 'UTC')->setTimezone($teamTimezone);
             $hours = $evStart->diffInSeconds($evEnd) / 3600;
             $registeredHours += $hours;
         }
@@ -128,8 +133,8 @@ trait CalculatesDashboardData
             // Duración programada del día: sumar todas las franjas (slots) del día
             foreach ($daySchedules as $daySchedule) {
                 if (! empty($daySchedule['start']) && ! empty($daySchedule['end'])) {
-                    $scheduledStartTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start']);
-                    $scheduledEndTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['end']);
+                    $scheduledStartTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start'], $teamTimezone);
+                    $scheduledEndTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['end'], $teamTimezone);
                     $scheduledSeconds += max(0, $scheduledEndTime->diffInSeconds($scheduledStartTime));
                 }
             }
@@ -138,9 +143,9 @@ trait CalculatesDashboardData
             $dayEnd = $date->copy()->endOfDay();
 
             // eventos que intersectan este día
-            $eventsOfDay = $closedEvents->filter(function ($ev) use ($dayStart, $dayEnd) {
-                $evStart = Carbon::parse($ev->start);
-                $evEnd = Carbon::parse($ev->end);
+                        $eventsOfDay = $closedEvents->filter(function ($ev) use ($dayStart, $dayEnd, $teamTimezone) {
+                $evStart = Carbon::parse($ev->start, 'UTC')->setTimezone($teamTimezone);
+                $evEnd = Carbon::parse($ev->end, 'UTC')->setTimezone($teamTimezone);
                 return $evStart->lte($dayEnd) && $evEnd->gte($dayStart);
             });
 
@@ -148,8 +153,8 @@ trait CalculatesDashboardData
             $dayNonWorkSeconds = 0;
 
             foreach ($eventsOfDay as $ev) {
-                $evStart = Carbon::parse($ev->start)->max($dayStart);
-                $evEnd = Carbon::parse($ev->end)->min($dayEnd);
+                $evStart = Carbon::parse($ev->start, 'UTC')->setTimezone($teamTimezone)->max($dayStart);
+                $evEnd = Carbon::parse($ev->end, 'UTC')->setTimezone($teamTimezone)->min($dayEnd);
                 $seconds = max(0, $evEnd->diffInSeconds($evStart));
 
                 if ($ev->event_type_id == $workdayEventType->id) {
@@ -169,8 +174,8 @@ trait CalculatesDashboardData
             foreach ($daySchedules as $daySchedule) {
                 if (empty($daySchedule['start']) || empty($daySchedule['end'])) continue;
 
-                $slotStart = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start']);
-                $slotEnd = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['end']);
+                $slotStart = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start'], $teamTimezone);
+                $slotEnd = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['end'], $teamTimezone);
 
                 // Para detectar la mejor intersección por franja (si hay varios eventos que tocan la franja),
                 // guardamos el evento con mayor tiempo de intersección y calculamos desviaciones a partir de él.
@@ -179,8 +184,8 @@ trait CalculatesDashboardData
 
                 foreach ($eventsOfDay as $ev2) {
                     if ($ev2->event_type_id != $workdayEventType->id) continue;
-                    $evStart2 = Carbon::parse($ev2->start)->max($dayStart);
-                    $evEnd2 = Carbon::parse($ev2->end)->min($dayEnd);
+                    $evStart2 = Carbon::parse($ev2->start, 'UTC')->setTimezone($teamTimezone)->max($dayStart);
+                    $evEnd2 = Carbon::parse($ev2->end, 'UTC')->setTimezone($teamTimezone)->min($dayEnd);
                     // intersección con el slot
                     $intStart = $evStart2->max($slotStart);
                     $intEnd = $evEnd2->min($slotEnd);
@@ -198,10 +203,10 @@ trait CalculatesDashboardData
                 // Si encontramos un evento principal para esta franja, calcular desviaciones
                 if ($bestEventForSlot) {
                     try {
-                        $eventStart = Carbon::parse($bestEventForSlot->start);
-                        $eventEnd = Carbon::parse($bestEventForSlot->end);
-                        $createdAt = Carbon::parse($bestEventForSlot->created_at);
-                        $updatedAt = Carbon::parse($bestEventForSlot->updated_at);
+                        $eventStart = Carbon::parse($bestEventForSlot->start, 'UTC')->setTimezone($teamTimezone);
+                        $eventEnd = Carbon::parse($bestEventForSlot->end, 'UTC')->setTimezone($teamTimezone);
+                        $createdAt = Carbon::parse($bestEventForSlot->created_at, 'UTC')->setTimezone($teamTimezone);
+                        $updatedAt = Carbon::parse($bestEventForSlot->updated_at, 'UTC')->setTimezone($teamTimezone);
 
                         $entryDeviationsSeconds[] = abs($eventStart->diffInSeconds($slotStart));
                         $exitDeviationsSeconds[] = abs($eventEnd->diffInSeconds($slotEnd));
@@ -264,9 +269,9 @@ trait CalculatesDashboardData
         // Los días trabajados se calculan a partir de la iteración diaria anterior
         $workedDays = collect($dailyWorked);
 
-        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1);
+        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1, 0, 0, 0, $teamTimezone);
         // Reutilizar la misma lógica: si es mes en curso, considerar hasta hoy
-        $today = Carbon::today();
+        $today = Carbon::today($teamTimezone);
         if ($this->selectedYear === (int) $today->year && $this->selectedMonth === (int) $today->month) {
             $endDate = $today;
         } else {
@@ -295,13 +300,13 @@ trait CalculatesDashboardData
                     $absentDays++;
                 } else {
                     // Buscar el primer evento del día entre los eventos de jornada laboral
-                    $firstEvent = $workdayEvents->first(function ($event) use ($date) {
-                        return Carbon::parse($event->start)->isSameDay($date);
+                    $firstEvent = $workdayEvents->first(function ($event) use ($date, $teamTimezone) {
+                        return Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone)->isSameDay($date);
                     });
 
                     if ($firstEvent) {
-                        $scheduledStartTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start']);
-                        $actualStartTime = Carbon::parse($firstEvent->start);
+                        $scheduledStartTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start'], $teamTimezone);
+                        $actualStartTime = Carbon::parse($firstEvent->start, 'UTC')->setTimezone($teamTimezone);
                         if ($actualStartTime <= $scheduledStartTime) {
                             $punctualDays++;
                         }
