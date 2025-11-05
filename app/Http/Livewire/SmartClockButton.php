@@ -18,6 +18,8 @@ class SmartClockButton extends Component
     public $errorMessage = '';
     public $statusMessage = '';
 
+    protected $listeners = ['saved' => 'refreshClockData'];
+
     public function mount()
     {
         $this->refreshClockData();
