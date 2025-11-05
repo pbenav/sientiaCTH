@@ -5,7 +5,37 @@
         </h2>
     </x-slot>
 
-    <div x-data="{ tab: 'account' }">
+    <div x-data="{ 
+        tab: new URLSearchParams(window.location.search).get('tab') || 'account',
+        init() {
+            // Check for work schedule navigation
+            if (window.location.hash === '#work-schedule-section' || new URLSearchParams(window.location.search).get('tab') === 'preferences') {
+                this.tab = 'preferences'; // Ensure preferences tab is active
+                
+                // Try multiple times to find the element (wait for Livewire to load)
+                const attemptScroll = (attempts = 0) => {
+                    const scheduleSection = document.getElementById('work-schedule-section');
+                    if (scheduleSection) {
+                        scheduleSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Add highlight effect
+                        scheduleSection.style.backgroundColor = '#dbeafe';
+                        scheduleSection.style.transition = 'background-color 0.3s';
+                        setTimeout(() => {
+                            scheduleSection.style.backgroundColor = '';
+                        }, 2000);
+                    } else if (attempts < 10) {
+                        // Try again after 500ms, up to 10 times (5 seconds total)
+                        setTimeout(() => attemptScroll(attempts + 1), 500);
+                    }
+                };
+                
+                // Start attempting after DOM is ready
+                this.$nextTick(() => {
+                    setTimeout(() => attemptScroll(), 100);
+                });
+            }
+        }
+    }">
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
             <!-- Tab Headers -->
             <div class="mb-4 border-b border-gray-200">
@@ -108,4 +138,53 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Additional script to handle navigation after Livewire loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle navigation to work schedule section
+            function scrollToWorkSchedule() {
+                const hash = window.location.hash;
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                if (hash === '#work-schedule-section' || urlParams.get('tab') === 'preferences') {
+                    // Wait for Livewire components to load
+                    const checkAndScroll = () => {
+                        const scheduleSection = document.getElementById('work-schedule-section');
+                        if (scheduleSection) {
+                            setTimeout(() => {
+                                scheduleSection.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'center' 
+                                });
+                                
+                                // Highlight effect
+                                scheduleSection.style.backgroundColor = '#dbeafe';
+                                scheduleSection.style.borderRadius = '8px';
+                                scheduleSection.style.padding = '1rem';
+                                scheduleSection.style.transition = 'all 0.3s ease';
+                                
+                                setTimeout(() => {
+                                    scheduleSection.style.backgroundColor = '';
+                                    scheduleSection.style.padding = '';
+                                }, 3000);
+                            }, 300);
+                        } else {
+                            // Try again after 500ms
+                            setTimeout(checkAndScroll, 500);
+                        }
+                    };
+                    
+                    checkAndScroll();
+                }
+            }
+            
+            // Run immediately
+            scrollToWorkSchedule();
+            
+            // Also run after Livewire updates
+            document.addEventListener('livewire:load', scrollToWorkSchedule);
+            document.addEventListener('livewire:update', scrollToWorkSchedule);
+        });
+    </script>
 </x-app-layout>

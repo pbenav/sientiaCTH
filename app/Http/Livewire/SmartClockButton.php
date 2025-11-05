@@ -62,9 +62,9 @@ class SmartClockButton extends Component
 
         return [
             'name' => $user->name,
-            'family_name_1' => $user->family_name_1,
-            'family_name_2' => $user->family_name_2,
-            'full_name' => trim($user->name . ' ' . $user->family_name_1 . ' ' . $user->family_name_2),
+            'family_name_1' => $user->family_name1,
+            'family_name_2' => $user->family_name2,
+            'full_name' => trim($user->name . ' ' . $user->family_name1 . ' ' . $user->family_name2),
             'team' => $user->currentTeam ? $user->currentTeam->name : __('No team'),
             'user_code' => $user->user_code,
         ];
@@ -111,6 +111,14 @@ class SmartClockButton extends Component
             }
             
             $result = $this->getSmartClockService()->clockOut($user, $openEventId);
+        } elseif ($this->clockData['action'] === 'redirect_to_events') {
+            // Redirect to events when outside grace period
+            session()->flash('alertFail', $this->clockData['message']);
+            return $this->redirect(route('events'));
+        } elseif ($this->clockData['action'] === 'redirect_to_profile') {
+            // Redirect to profile to configure schedule
+            session()->flash('message', $this->clockData['message']);
+            return $this->redirect($this->clockData['redirect_url']);
         } else {
             $this->message = __('Unknown action');
             $this->messageType = 'error';

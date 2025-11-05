@@ -5,11 +5,18 @@ namespace App\Services;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\EventType;
+use App\Models\ExceptionalClockInToken;
+use App\Models\Message;
+use App\Notifications\NewMessage;
+use App\Traits\HandlesEventAuthorization;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class SmartClockInService
 {
+    use HandlesEventAuthorization;
+
     /**
      * Determine the action needed for smart clock-in/out
      * 
@@ -43,10 +50,11 @@ class SmartClockInService
         if (empty($schedule)) {
             return [
                 'can_clock' => false,
-                'action' => null,
-                'message' => __('No work schedule configured'),
-                'button_text' => __('Clock In/Out'),
-                'button_class' => 'bg-gray-400 cursor-not-allowed'
+                'action' => 'redirect_to_profile',
+                'message' => __('No work schedule configured. Configure your schedule to use smart clock-in.'),
+                'button_text' => __('Configure Schedule'),
+                'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
+                'redirect_url' => route('profile.show') . '?tab=preferences#work-schedule-section'
             ];
         }
 
@@ -87,7 +95,22 @@ class SmartClockInService
             ];
         }
 
-        // Clock in action - Allow clocking in anytime if user has a schedule
+        // Check if force_clock_in_delay is enabled and user is outside work schedule
+        if ($user->currentTeam->force_clock_in_delay && !$this->isWithinWorkSchedule($now)) {
+            // User is outside the allowed time window, create exceptional clock-in token
+            $this->createExceptionalClockInToken($user);
+            
+            return [
+                'can_clock' => false,
+                'action' => 'redirect_to_events',
+                'message' => __('exceptional_clock_in.validation_error'),
+                'button_text' => __('Go to Events'),
+                'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
+                'redirect_url' => route('events')
+            ];
+        }
+
+        // Clock in action - Allow clocking in if within schedule or force delay is disabled
         return [
             'can_clock' => true,
             'action' => 'clock_in',
@@ -192,6 +215,42 @@ class SmartClockInService
                 'message' => __('Error clocking out: :error', ['error' => $e->getMessage()])
             ];
         }
+    }
+
+    /**
+     * Create an exceptional clock-in token and send notification
+     * 
+     * @param User $user
+     * @return void
+     */
+    private function createExceptionalClockInToken(User $user): void
+    {
+        $team = $user->currentTeam;
+        $token = Str::random(60);
+        
+        ExceptionalClockInToken::create([
+            'user_id' => $user->id,
+            'team_id' => $team->id,
+            'token' => $token,
+            'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 10),
+        ]);
+
+        $adminSender = $team->owner;
+        $url = route('exceptional.clock-in.form', ['token' => $token]);
+        $messageContent = __('exceptional_clock_in.message_content', [
+            'minutes' => $team->clock_in_grace_period_minutes ?? 10,
+            'url' => $url
+        ]);
+
+        $message = Message::create([
+            'sender_id' => $adminSender->id,
+            'subject' => __('exceptional_clock_in.message_subject'),
+            'body' => $messageContent,
+            'is_log' => true,
+        ]);
+
+        $message->recipients()->attach($user->id);
+        $user->notify(new NewMessage($message));
     }
 
     /**

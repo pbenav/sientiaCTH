@@ -107,12 +107,41 @@
             @endif
         @else
             <div class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <div class="flex items-center justify-center text-gray-500 dark:text-gray-400">
-                    <i class="fas fa-clock mr-2"></i>
-                    <p class="text-center">
-                        {{ $clockData['message'] ?? __('Cannot clock in/out at this time') }}
-                    </p>
-                </div>
+                @if(($clockData['action'] ?? '') === 'redirect_to_events')
+                    <div class="text-center">
+                        <div class="flex items-center justify-center text-orange-600 dark:text-orange-400 mb-3">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <p class="font-medium">{{ $clockData['message'] ?? __('Cannot clock in/out at this time') }}</p>
+                        </div>
+                        <button 
+                            onclick="window.location.href='{{ route('events') }}'"
+                            class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <i class="fas fa-calendar-alt mr-2"></i>{{ $clockData['button_text'] ?? __('Go to Events') }}
+                        </button>
+                    </div>
+                @elseif(($clockData['action'] ?? '') === 'redirect_to_profile')
+                    <div class="text-center">
+                        <div class="flex items-center justify-center text-blue-600 dark:text-blue-400 mb-3">
+                            <i class="fas fa-cog mr-2"></i>
+                            <p class="font-medium">{{ $clockData['message'] ?? __('No work schedule configured') }}</p>
+                        </div>
+                        <button 
+                            onclick="
+                                console.log('Redirecting to:', '{{ $clockData['redirect_url'] ?? route('profile.show') . '?tab=preferences#work-schedule-section' }}');
+                                window.location.href='{{ $clockData['redirect_url'] ?? route('profile.show') . '?tab=preferences#work-schedule-section' }}';
+                            "
+                            class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <i class="fas fa-user-cog mr-2"></i>{{ $clockData['button_text'] ?? __('Configure Schedule') }}
+                        </button>
+                    </div>
+                @else
+                    <div class="flex items-center justify-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-clock mr-2"></i>
+                        <p class="text-center">
+                            {{ $clockData['message'] ?? __('Cannot clock in/out at this time') }}
+                        </p>
+                    </div>
+                @endif
             </div>
         @endif
         

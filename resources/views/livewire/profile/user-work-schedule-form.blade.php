@@ -1,7 +1,8 @@
-<x-jet-form-section submit="save">
-    <x-slot name="title">
-        {{ __('Horario Laboral') }}
-    </x-slot>
+<div id="work-schedule-section">
+    <x-jet-form-section submit="save">
+        <x-slot name="title">
+            {{ __('Horario Laboral') }}
+        </x-slot>
 
     <x-slot name="description">
         {{ __('Define los tramos horarios de tu jornada laboral. Esto ayudará a que el sistema te sugiera la hora de entrada y salida al crear un nuevo evento.') }}
@@ -70,3 +71,4 @@
         </x-jet-button>
     </x-slot>
 </x-jet-form-section>
+</div>
