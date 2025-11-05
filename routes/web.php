@@ -17,8 +17,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// This route renders a view without the need of a controller
+// This route renders different views based on authentication
 Route::get('/', function () {
+    if (auth()->check()) {
+        return view('dashboard');
+    }
     return view('welcome');
 })->name('front');
 
