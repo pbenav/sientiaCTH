@@ -6,7 +6,7 @@
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
             <div class="text-white">
                 <!-- Nombre del Usuario -->
-                <h3 class="text-lg font-semibold mb-2">{{ $this->getUserInfo()['full_name'] }}</h3>
+                <h3 class="text-lg font-semibold mb-1">{{ $this->getUserInfo()['full_name'] }}</h3>
                 
                 <!-- Información del Equipo y Centro de Trabajo -->
                 <div class="flex items-center justify-between text-blue-100 text-sm">
