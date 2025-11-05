@@ -30860,6 +30860,59 @@ window.Swal = (sweetalert2__WEBPACK_IMPORTED_MODULE_0___default());
 window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_2__["default"];
 alpinejs__WEBPACK_IMPORTED_MODULE_2__["default"].start();
 
+// Auto-select text content when input fields get focus
+document.addEventListener('DOMContentLoaded', function () {
+  // Function to add auto-select behavior to input fields
+  function addAutoSelectBehavior() {
+    var inputSelectors = ['input[type="text"]', 'input[type="email"]', 'input[type="number"]', 'input[type="tel"]', 'input[type="url"]', 'textarea'];
+    inputSelectors.forEach(function (selector) {
+      document.querySelectorAll(selector).forEach(function (input) {
+        // Only add if not already added (to avoid duplicate listeners)
+        if (!input.hasAttribute('data-auto-select')) {
+          input.setAttribute('data-auto-select', 'true');
+          input.addEventListener('focus', function () {
+            var _this = this;
+            // Use setTimeout to ensure the cursor is properly positioned
+            setTimeout(function () {
+              _this.select();
+            }, 50);
+          });
+        }
+      });
+    });
+  }
+
+  // Add behavior to existing elements
+  addAutoSelectBehavior();
+
+  // Also add behavior when Livewire updates the DOM
+  document.addEventListener('livewire:load', addAutoSelectBehavior);
+  document.addEventListener('livewire:update', addAutoSelectBehavior);
+
+  // For dynamically added content (modals, etc.)
+  var observer = new MutationObserver(function (mutations) {
+    var shouldUpdate = false;
+    mutations.forEach(function (mutation) {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType === Node.ELEMENT_NODE && (node.matches('input, textarea') || node.querySelector('input, textarea'))) {
+            shouldUpdate = true;
+          }
+        });
+      }
+    });
+    if (shouldUpdate) {
+      setTimeout(addAutoSelectBehavior, 100);
+    }
+  });
+
+  // Start observing
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+});
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":

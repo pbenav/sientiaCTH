@@ -1,6 +1,7 @@
 <div>
     @livewire('add-event')
     @livewire('edit-event')
+    @livewire('event-info-modal')
     
     <div id='calendar-container' wire:ignore>
         <div id='calendar'></div>
@@ -56,7 +57,18 @@
                     eventClick: function(info) {
                         // Only allow editing user events, not holidays
                         if (info.event.id.startsWith('event_')) {
-                            @this.call('triggerEditModal', info.event.id.replace('event_', ''));
+                            const eventId = info.event.id.replace('event_', '');
+                            // Check if event is closed by looking at the icon
+                            const iconHtml = info.event.extendedProps.iconHtml || '';
+                            const isClosed = iconHtml.includes('fa-lock') && !iconHtml.includes('fa-lock-open');
+                            
+                            if (isClosed) {
+                                // Show info modal for closed events
+                                @this.call('showEventInfo', eventId);
+                            } else {
+                                // Allow editing open events
+                                @this.call('triggerEditModal', eventId);
+                            }
                         }
                     },
 

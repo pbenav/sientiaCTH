@@ -123,6 +123,40 @@ class Calendar extends Component
     }
 
     /**
+     * Show event information modal for closed events.
+     *
+     * @param int $eventId
+     * @return void
+     */
+    public function showEventInfo(int $eventId): void
+    {
+        $event = Event::with(['eventType', 'workCenter', 'user'])
+            ->find($eventId);
+            
+        if ($event) {
+            // Format the event data for the modal
+            $eventData = $event->toArray();
+            
+            // Add formatted dates in the user's timezone
+            $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
+            
+            if ($event->start) {
+                $eventData['start'] = Carbon::parse($event->start, 'UTC')
+                    ->setTimezone($teamTimezone)
+                    ->toIso8601String();
+            }
+            
+            if ($event->end) {
+                $eventData['end'] = Carbon::parse($event->end, 'UTC')
+                    ->setTimezone($teamTimezone)
+                    ->toIso8601String();
+            }
+            
+            $this->emit('showEventInfoModal', $eventData);
+        }
+    }
+
+    /**
      * Get all events for the current user's team.
      *
      * @return \Illuminate\Support\Collection
@@ -142,20 +176,20 @@ class Calendar extends Component
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
             ->get()
-            ->map(function ($event) use ($teamTimezone) {
-                $iconHtml = $event->is_open
+            ->map(function ($eventModel) use ($teamTimezone, $user) {
+                $iconHtml = $eventModel->is_open
                     ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
                     : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
 
                 return [
-                    'id' => 'event_' . $event->id,
-                    'title' => $event->description,
+                    'id' => 'event_' . $eventModel->id,
+                    'title' => $eventModel->description,
                     'iconHtml' => $iconHtml,
-                    'start' => Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
-                    'end' => $event->end ? Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String() : null,
-                    'color' => $event->eventType->color ?? '#3788d8',
-                    'allDay' => $event->eventType->is_all_day ?? false,
-                    'editable' => $this->canModifyEvent($event),
+                    'start' => Carbon::parse($eventModel->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
+                    'end' => $eventModel->end ? Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String() : null,
+                    'color' => $eventModel->eventType->color ?? '#3788d8',
+                    'allDay' => $eventModel->eventType->is_all_day ?? false,
+                    'editable' => $eventModel->is_open && ($user->hasTeamRole($user->currentTeam, 'admin') || $eventModel->user_id === $user->id),
                 ];
             });
 

@@ -95,18 +95,19 @@ class SmartClockInService
             ];
         }
 
-        // Check if force_clock_in_delay is enabled and user is outside work schedule
-        if ($user->currentTeam->force_clock_in_delay && !$this->isWithinWorkSchedule($now)) {
-            // User is outside the allowed time window, create exceptional clock-in token
-            $this->createExceptionalClockInToken($user);
-            
+        // Check if user is outside work schedule (either with or without force_clock_in_delay)
+        $isOutsideSchedule = !$this->isWithinWorkSchedule($now);
+        
+        if ($isOutsideSchedule) {
             return [
                 'can_clock' => false,
-                'action' => 'redirect_to_events',
-                'message' => __('exceptional_clock_in.validation_error'),
-                'button_text' => __('Go to Events'),
-                'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
-                'redirect_url' => route('events')
+                'action' => 'confirm_exceptional_clock_in',
+                'message' => __('You are outside your work schedule. Do you want to make an exceptional clock-in?'),
+                'button_text' => __('Exceptional Clock In'),
+                'button_class' => 'bg-yellow-600 hover:bg-yellow-700 text-white',
+                'outside_schedule' => true,
+                'next_slot' => $this->getNextScheduledSlot($now, $schedule),
+                'event_type_id' => $workdayEventType->id
             ];
         }
 
@@ -218,10 +219,23 @@ class SmartClockInService
     }
 
     /**
-     * Create an exceptional clock-in token and send notification
-     * 
-     * @param User $user
-     * @return void
+     * Handle exceptional clock-in request when user is outside schedule
+     */
+    public function requestExceptionalClockIn(User $user, int $eventTypeId): array
+    {
+        // Create exceptional clock-in token
+        $this->createExceptionalClockInToken($user);
+        
+        return [
+            'success' => true,
+            'action' => 'redirect_to_exceptional_clock_in',
+            'message' => __('Exceptional clock-in request created. Please complete the process.'),
+            'redirect_url' => route('events')
+        ];
+    }
+
+    /**
+     * Create exceptional clock-in token and send message to admin
      */
     private function createExceptionalClockInToken(User $user): void
     {

@@ -17,12 +17,12 @@
                     const scheduleSection = document.getElementById('work-schedule-section');
                     if (scheduleSection) {
                         scheduleSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Add highlight effect
-                        scheduleSection.style.backgroundColor = '#dbeafe';
-                        scheduleSection.style.transition = 'background-color 0.3s';
+                        // Add subtle highlight effect
+                        scheduleSection.style.backgroundColor = '#f0f9ff';
+                        scheduleSection.style.transition = 'background-color 0.3s ease';
                         setTimeout(() => {
                             scheduleSection.style.backgroundColor = '';
-                        }, 2000);
+                        }, 2500);
                     } else if (attempts < 10) {
                         // Try again after 500ms, up to 10 times (5 seconds total)
                         setTimeout(() => attemptScroll(attempts + 1), 500);
@@ -158,16 +158,13 @@
                                     block: 'center' 
                                 });
                                 
-                                // Highlight effect
-                                scheduleSection.style.backgroundColor = '#dbeafe';
-                                scheduleSection.style.borderRadius = '8px';
-                                scheduleSection.style.padding = '1rem';
-                                scheduleSection.style.transition = 'all 0.3s ease';
+                                // Subtle highlight effect
+                                scheduleSection.style.backgroundColor = '#f0f9ff';
+                                scheduleSection.style.transition = 'background-color 0.3s ease';
                                 
                                 setTimeout(() => {
                                     scheduleSection.style.backgroundColor = '';
-                                    scheduleSection.style.padding = '';
-                                }, 3000);
+                                }, 2500);
                             }, 300);
                         } else {
                             // Try again after 500ms

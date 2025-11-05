@@ -567,5 +567,17 @@
     "Events": "Eventos",
     "Calendar": "Calendario",
     "Stats": "Estadísticas", 
-    "Reports": "Informes"
+    "Reports": "Informes",
+    "Event Details": "Detalles del Evento",
+    "Open": "Abierto",
+    "Closed": "Cerrado",
+    "This event is closed and cannot be modified.": "Este evento está cerrado y no se puede modificar.",
+    "N/A": "No disponible",
+    "Yes": "Sí",
+    "Pending": "Pendiente",
+    "Created": "Creado",
+    "Updated": "Actualizado",
+    "You are outside your work schedule. Do you want to make an exceptional clock-in?": "Está fuera de su horario laboral. ¿Desea realizar un fichaje excepcional?",
+    "Exceptional Clock In": "Fichaje Excepcional",
+    "Exceptional clock-in request created. Please complete the process.": "Solicitud de fichaje excepcional creada. Complete el proceso."
 }
