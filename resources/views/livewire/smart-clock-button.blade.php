@@ -7,16 +7,16 @@
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between text-white">
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold">{{ $this->getUserInfo()['full_name'] }}</h3>
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4 text-blue-100 text-sm mt-1">
+                    <div class="flex flex-col sm:flex-row sm:items-center text-blue-100 text-sm mt-1 space-y-1 sm:space-y-0 sm:space-x-6">
                         <div class="flex items-center">
-                            <i class="fas fa-users mr-1"></i>
+                            <i class="fas fa-users mr-2"></i>
                             <span>{{ $this->getUserInfo()['team'] }}</span>
                         </div>
                         @if($this->getUserInfo()['work_center'])
-                        <div class="flex items-center mt-1 sm:mt-0">
-                            <i class="fas fa-building mr-1"></i>
-                            <span class="hidden sm:inline">{{ $this->getUserInfo()['work_center'] }}</span>
+                        <div class="flex items-center lg:hidden">
+                            <i class="fas fa-building mr-2"></i>
                             <span class="sm:hidden">{{ $this->getUserInfo()['work_center_code'] ?? $this->getUserInfo()['work_center'] }}</span>
+                            <span class="hidden sm:inline">{{ $this->getUserInfo()['work_center'] }}</span>
                         </div>
                         @endif
                     </div>
