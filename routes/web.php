@@ -17,12 +17,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// This route renders different views based on authentication
+// Landing page - NumPad for unauthenticated users
 Route::get('/', function () {
+    // Unauthenticated users see NumPad, authenticated users go to Start menu
     if (auth()->check()) {
-        return view('dashboard');
+        return redirect()->route('inicio');
     }
-    return view('welcome');
+    return view('welcome'); // NumPad only
 })->name('front');
 
 // Route to Presentation_TFG.svg
@@ -31,17 +32,31 @@ Route::get('/pres', function () {
     return response()->file($pathToFile);
 })->name('pres');
 
-// This route calls a component whose default template is layouts.app.blade.php
+// Authenticated routes with logical names
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified'
 ])->group(function () {
+    // Start menu - Main dashboard with clock-in button
+    Route::get('/inicio', function () {
+        return view('inicio'); // Previously dashboard.blade.php
+    })->name('inicio');
+    
+    // Events - Time registration management  
     Route::get('/events', GetTimeRegisters::class)->name('events');
-    Route::get('/userstats', StatsComponent::class)->name('stats');
-    Route::get('/reports', ReportsComponent::class)->name('reports');
-    Route::get('/calendar', \App\Http\Livewire\Calendar::class)->name('calendar');
-    Route::get('/messages', \App\Http\Livewire\MessagesComponent::class)->name('messages');
+    
+    // Calendar - Calendar view
+    Route::get('/calendario', \App\Http\Livewire\Calendar::class)->name('calendar');
+    
+    // Statistics - User stats dashboard
+    Route::get('/estadisticas', StatsComponent::class)->name('stats');
+    
+    // Reports - Reporting functionality
+    Route::get('/informes', ReportsComponent::class)->name('reports');
+    
+    // Messages - Team messages
+    Route::get('/mensajes', \App\Http\Livewire\MessagesComponent::class)->name('messages');
 
     Route::prefix('users/{user}')->group(function () {
         // Ruta para mostrar todos los metadatos del usuario

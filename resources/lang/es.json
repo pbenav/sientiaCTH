@@ -547,5 +547,10 @@
     "Error clocking out: :error": "Error al fichar salida: :error",
     "Cannot clock in/out at this time": "No se puede fichar en este momento",
     "Clock in to work (outside schedule)": "Fichar entrada al trabajo (fuera de horario)",
-    "Clocked in successfully at :time (outside schedule)": "Fichaje de entrada exitoso a las :time (fuera de horario)"
+    "Clocked in successfully at :time (outside schedule)": "Fichaje de entrada exitoso a las :time (fuera de horario)",
+    "Start": "Inicio",
+    "Events": "Eventos",
+    "Calendar": "Calendario",
+    "Stats": "Estadísticas", 
+    "Reports": "Informes"
 }

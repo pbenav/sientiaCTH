@@ -38,19 +38,7 @@
                 <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
                     <!-- Bottom links -->
                     <div class="text-sm text-center text-gray-500 sm:text-left">
-                        <div class="flex items-center">
-
-                            @if (auth()->check())
-                            <a href="{{ route('events') }}" class="ml-1">
-                                <i class="ml-1 fas fa-sign-in"></i>
-                                {{ __('Events') }}
-                            </a>
-
-                            <a href="{{ route('logout') }}" class="ml-3">
-                                <i class="ml-1 fas fa-user-plus"></i>
-                                {{ __('Logout') }}
-                            </a>
-                            @else
+                        <div class="flex items-center justify-center">
                             <a href="{{ route('login') }}" class="ml-1">
                                 <i class="ml-1 fas fa-sign-in"></i>
                                 {{ __('Login') }}
@@ -60,7 +48,6 @@
                                 <i class="ml-1 fas fa-user-plus"></i>
                                 {{ __('Register') }}
                             </a>
-                            @endif
                         </div>
                     </div>
 

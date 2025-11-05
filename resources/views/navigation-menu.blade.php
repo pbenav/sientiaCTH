@@ -12,7 +12,7 @@
 
                 <!-- Navigation Links -->
                 <div class="align-middle ml-1 flex flex-wrap gap-4 py-4">
-                    <x-jet-nav-link href="{{ route('front') }}" :active="request()->routeIs('front')">
+                    <x-jet-nav-link href="{{ route('inicio') }}" :active="request()->routeIs('inicio')">
                         {{ __('Start') }}
                     </x-jet-nav-link>
                     <x-jet-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">

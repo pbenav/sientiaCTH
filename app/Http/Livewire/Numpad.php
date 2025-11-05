@@ -74,11 +74,12 @@ class Numpad extends Component
 
         $events = $this->getOpenEventsForUser($user->id);
 
-        // If there are no open events, or the user has specific roles, redirect or emit an event
+        // After authentication, redirect to Start menu (Inicio) where user can clock in/out
         if ($events->count() || $user->isTeamAdmin() || $user->isInspector()) {
-            return redirect()->route('events');
+            return redirect()->route('inicio');
         } else {
-            $this->emitTo('add-event', 'add', 'numpad');
+            // For users without open events, go to Start menu to clock in
+            return redirect()->route('inicio');
         }
 
         $this->reset('user_code');
