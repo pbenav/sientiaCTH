@@ -51,7 +51,15 @@ class GetTimeRegisters extends Component
     protected $queryString = [
         'sort' => ['except' => 'start'],
         'direction' => ['except' => 'desc'],
-        'qtytoshow' => ['except' => '10']
+        'qtytoshow' => ['except' => '10'],
+        'search' => ['except' => ''],
+        'confirmed' => ['except' => false],
+        'filtered' => ['except' => false],
+        'showOnlyMine' => [],
+        'filter.start' => ['except' => '', 'as' => 'start'],
+        'filter.end' => ['except' => '', 'as' => 'end'],
+        'filter.user_id' => ['except' => '', 'as' => 'user'],
+        'filter.event_type_id' => ['except' => '', 'as' => 'type']
     ];
 
     protected $rules = [
@@ -68,11 +76,11 @@ class GetTimeRegisters extends Component
     public function mount()
     {
         $this->filter = new Event([
-            "start" => date('Y-m-01'),
-            "end" => date('Y-m-t'),
-            "user_id" => null,
+            "start" => request('start', date('Y-m-01')),
+            "end" => request('end', date('Y-m-t')),
+            "user_id" => request('user', null),
             "is_open" => false,
-            "event_type_id" => null,
+            "event_type_id" => request('type', null),
         ]);
         $this->user = Auth::user();
         $this->events = $this->user->events()->Paginate($this->qtytoshow);
@@ -81,11 +89,18 @@ class GetTimeRegisters extends Component
         $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
-        $this->confirmed = false;
-        $this->filtered = false;
         
-        // Para administradores, inicializar con showOnlyMine = true (mostrar solo mis registros por defecto)
-        $this->showOnlyMine = $this->isTeamAdmin;
+        // Establecer valores por defecto solo si no vienen de la URL
+        if (!request()->has('confirmed')) {
+            $this->confirmed = false;
+        }
+        if (!request()->has('filtered')) {
+            $this->filtered = false;
+        }
+        if (!request()->has('showOnlyMine')) {
+            // Para administradores, inicializar con showOnlyMine = true por defecto
+            $this->showOnlyMine = $this->isTeamAdmin;
+        }
         
         // Cargar anuncios activos del equipo
         if ($this->team) {
