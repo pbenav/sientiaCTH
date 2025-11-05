@@ -84,6 +84,9 @@ class GetTimeRegisters extends Component
         $this->confirmed = false;
         $this->filtered = false;
         
+        // Para administradores, inicializar con showOnlyMine = true (mostrar solo mis registros por defecto)
+        $this->showOnlyMine = $this->isTeamAdmin;
+        
         // Cargar anuncios activos del equipo
         if ($this->team) {
             $this->announcements = $this->team->announcements()
@@ -303,10 +306,18 @@ class GetTimeRegisters extends Component
             $q->where('events.is_open', '=', '1');
         });
 
-        // "Show only mine" toggle for admins
-        $query->when($this->showOnlyMine, function ($q) {
-            $q->where('events.user_id', Auth::id());
-        });
+        // Lógica del filtro "Mis registros" - comportamiento inverso para admins
+        if ($this->isTeamAdmin) {
+            // Para administradores: showOnlyMine=true muestra solo mis registros
+            $query->when($this->showOnlyMine, function ($q) {
+                $q->where('events.user_id', Auth::id());
+            });
+        } else {
+            // Para usuarios normales: showOnlyMine=true muestra solo mis registros (comportamiento original)
+            $query->when($this->showOnlyMine, function ($q) {
+                $q->where('events.user_id', Auth::id());
+            });
+        }
 
         $this->events = $query->orderBy($this->sort, $this->direction)->paginate($this->qtytoshow);
     }

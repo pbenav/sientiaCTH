@@ -121,7 +121,12 @@
                 <div class="mx-auto w-48 sm:mx-0">
                     <x-jet-button class="w-48 h-8 justify-center {{ $showOnlyMine ? 'bg-green-500' : '' }}"
                         wire:click="filterOnlyMine">
-                        <i class="fa-solid fa-person-military-pointing mr-2"></i>{{ __('My Records') }}
+                        <i class="fa-solid fa-person-military-pointing mr-2"></i>
+                        @if ($showOnlyMine)
+                            {{ __('All Records') }}
+                        @else
+                            {{ __('My Records') }}
+                        @endif
                     </x-jet-button>
                 </div>
             @endif
