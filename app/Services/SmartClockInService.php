@@ -95,10 +95,11 @@ class SmartClockInService
             ];
         }
 
-        // Check if user is outside work schedule (either with or without force_clock_in_delay)
+        // Check if user is outside work schedule
         $isOutsideSchedule = !$this->isWithinWorkSchedule($now);
         
-        if ($isOutsideSchedule) {
+        // If outside schedule and force_clock_in_delay is enabled, require exceptional clock-in
+        if ($isOutsideSchedule && $user->currentTeam->force_clock_in_delay) {
             return [
                 'can_clock' => false,
                 'action' => 'confirm_exceptional_clock_in',
@@ -112,12 +113,21 @@ class SmartClockInService
         }
 
         // Clock in action - Allow clocking in if within schedule or force delay is disabled
+        $message = __('Clock in to work');
+        $buttonClass = 'bg-green-600 hover:bg-green-700 text-white';
+        
+        // If outside schedule but force_clock_in_delay is disabled, show warning but allow clock-in
+        if ($isOutsideSchedule && !$user->currentTeam->force_clock_in_delay) {
+            $message = __('Clock in to work (outside schedule)');
+            $buttonClass = 'bg-orange-600 hover:bg-orange-700 text-white';
+        }
+        
         return [
             'can_clock' => true,
             'action' => 'clock_in',
-            'message' => $currentSlot ? __('Clock in to work') : __('Clock in to work (outside schedule)'),
+            'message' => $message,
             'button_text' => __('Clock In'),
-            'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
+            'button_class' => $buttonClass,
             'current_slot' => $currentSlot,
             'event_type_id' => $workdayEventType->id,
             'overtime' => !$currentSlot
