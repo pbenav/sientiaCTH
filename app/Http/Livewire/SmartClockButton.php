@@ -22,6 +22,7 @@ class SmartClockButton extends Component
 
     public function mount()
     {
+        $this->smartClockService = app(SmartClockInService::class);
         $this->refreshClockData();
     }
 
@@ -33,7 +34,7 @@ class SmartClockButton extends Component
         }
 
         try {
-            $clockData = $this->clockService->getClockAction($user);
+            $clockData = $this->smartClockService->getClockAction($user);
             
             $this->canClock = $clockData['can_clock'];
             $this->clockAction = $clockData['action'];

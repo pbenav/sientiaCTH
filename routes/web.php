@@ -52,6 +52,67 @@ Route::middleware([
         Route::delete('/meta/{meta}', [UserMetaController::class, 'destroy'])->name('users.meta.destroy');
     });
 
+    // Debug route for clock issues
+    Route::get('/debug-clock', function() {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Not authenticated']);
+        }
+        
+        $user = auth()->user();
+        $clockService = app(\App\Services\SmartClockInService::class);
+        
+        // Get user metadata
+        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+        $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+        
+        // Get team info
+        $team = $user->currentTeam;
+        $teamTimezone = $team ? ($team->timezone ?? config('app.timezone')) : config('app.timezone');
+        $now = \Carbon\Carbon::now($teamTimezone);
+        
+        // Get workday event type
+        $workdayEventType = $team ? $team->eventTypes()->where('is_workday_type', true)->first() : null;
+        
+        // Get clock action result
+        $clockResult = $clockService->getClockAction($user);
+        
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'current_team_id' => $user->current_team_id,
+            ],
+            'team' => $team ? [
+                'id' => $team->id,
+                'name' => $team->name,
+                'timezone' => $team->timezone,
+            ] : null,
+            'timezone' => $teamTimezone,
+            'current_time' => $now->format('Y-m-d H:i:s'),
+            'day_of_week' => $now->format('N'),
+            'day_letter' => ['L', 'M', 'X', 'J', 'V', 'S', 'D'][$now->format('N') - 1],
+            'schedule' => [
+                'exists' => !empty($schedule),
+                'raw' => $schedule,
+                'meta_id' => $scheduleMeta ? $scheduleMeta->id : null,
+            ],
+            'workday_event_type' => $workdayEventType ? [
+                'id' => $workdayEventType->id,
+                'name' => $workdayEventType->name,
+                'is_workday_type' => $workdayEventType->is_workday_type,
+            ] : null,
+            'clock_service_result' => $clockResult,
+            'open_events' => $user->events()->where('is_open', true)->whereNull('end')->get()->map(function($event) {
+                return [
+                    'id' => $event->id,
+                    'start' => $event->start,
+                    'event_type_id' => $event->event_type_id,
+                    'is_open' => $event->is_open,
+                ];
+            }),
+        ], JSON_PRETTY_PRINT);
+    });
+
     Route::prefix('fichaje-excepcional')->name('exceptional.clock-in')->group(function () {
         Route::get('/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn']);
         Route::get('/formulario/{token}', \App\Http\Livewire\ExceptionalClockIn::class)->name('.form');
