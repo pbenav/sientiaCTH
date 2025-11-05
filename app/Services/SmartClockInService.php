@@ -1,0 +1,307 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Event;
+use App\Models\User;
+use App\Models\EventType;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+
+class SmartClockInService
+{
+    /**
+     * Determine the action needed for smart clock-in/out
+     * 
+     * @param User|null $user
+     * @return array
+     */
+    public function getClockAction(?User $user = null): array
+    {
+        if (!$user) {
+            $user = Auth::user();
+        }
+
+        if (!$user || !$user->currentTeam) {
+            return [
+                'can_clock' => false,
+                'action' => null,
+                'message' => __('User or team not found'),
+                'button_text' => __('Clock In/Out'),
+                'button_class' => 'bg-gray-400 cursor-not-allowed'
+            ];
+        }
+
+        // Get team timezone
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $now = Carbon::now($teamTimezone);
+
+        // Get work schedule
+        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+        $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+
+        if (empty($schedule)) {
+            return [
+                'can_clock' => false,
+                'action' => null,
+                'message' => __('No work schedule configured'),
+                'button_text' => __('Clock In/Out'),
+                'button_class' => 'bg-gray-400 cursor-not-allowed'
+            ];
+        }
+
+        // Check if we're in a scheduled time slot
+        $currentSlot = $this->getCurrentScheduledSlot($now, $schedule);
+        
+        // Get workday event type
+        $workdayEventType = $user->currentTeam->eventTypes()
+            ->where('is_workday_type', true)
+            ->first();
+
+        if (!$workdayEventType) {
+            return [
+                'can_clock' => false,
+                'action' => null,
+                'message' => __('No workday event type configured'),
+                'button_text' => __('Clock In/Out'),
+                'button_class' => 'bg-gray-400 cursor-not-allowed'
+            ];
+        }
+
+        // Check for open events
+        $openEvent = $this->getOpenEvent($user, $workdayEventType);
+
+        if ($openEvent) {
+            // Clock out action
+            return [
+                'can_clock' => true,
+                'action' => 'clock_out',
+                'message' => __('Clock out from work'),
+                'button_text' => __('Clock Out'),
+                'button_class' => 'bg-red-600 hover:bg-red-700 text-white',
+                'open_event_id' => $openEvent->id,
+                'started_at' => Carbon::parse($openEvent->start, 'UTC')
+                    ->setTimezone($teamTimezone)
+                    ->format('H:i'),
+                'current_slot' => $currentSlot
+            ];
+        }
+
+        // Clock in action
+        if ($currentSlot || $this->isNearScheduledTime($now, $schedule)) {
+            return [
+                'can_clock' => true,
+                'action' => 'clock_in',
+                'message' => __('Clock in to work'),
+                'button_text' => __('Clock In'),
+                'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
+                'current_slot' => $currentSlot,
+                'event_type_id' => $workdayEventType->id
+            ];
+        }
+
+        // Outside work hours
+        return [
+            'can_clock' => false,
+            'action' => null,
+            'message' => __('Outside scheduled work hours'),
+            'button_text' => __('Outside Hours'),
+            'button_class' => 'bg-gray-400 cursor-not-allowed',
+            'next_slot' => $this->getNextScheduledSlot($now, $schedule)
+        ];
+    }
+
+    /**
+     * Execute the clock in action
+     */
+    public function clockIn(User $user, int $eventTypeId): array
+    {
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $now = Carbon::now($teamTimezone);
+
+        // Convert to UTC for storage
+        $nowUTC = $now->copy()->setTimezone('UTC');
+
+        try {
+            $event = Event::create([
+                'user_id' => $user->id,
+                'event_type_id' => $eventTypeId,
+                'team_id' => $user->current_team_id,
+                'work_center_id' => $user->currentTeam->work_centers()->first()?->id,
+                'start' => $nowUTC->format('Y-m-d H:i:s'),
+                'end' => null,
+                'is_open' => true,
+                'is_authorized' => false,
+                'is_exceptional' => false,
+                'is_closed_automatically' => false,
+            ]);
+
+            return [
+                'success' => true,
+                'message' => __('Clocked in successfully at :time', ['time' => $now->format('H:i')]),
+                'event_id' => $event->id
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => __('Error clocking in: :error', ['error' => $e->getMessage()])
+            ];
+        }
+    }
+
+    /**
+     * Execute the clock out action
+     */
+    public function clockOut(User $user, int $eventId): array
+    {
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $now = Carbon::now($teamTimezone);
+
+        // Convert to UTC for storage
+        $nowUTC = $now->copy()->setTimezone('UTC');
+
+        try {
+            $event = Event::where('id', $eventId)
+                ->where('user_id', $user->id)
+                ->where('is_open', true)
+                ->first();
+
+            if (!$event) {
+                return [
+                    'success' => false,
+                    'message' => __('Event not found or already closed')
+                ];
+            }
+
+            $event->update([
+                'end' => $nowUTC->format('Y-m-d H:i:s'),
+                'is_open' => false,
+            ]);
+
+            $startTime = Carbon::parse($event->start, 'UTC')
+                ->setTimezone($teamTimezone)
+                ->format('H:i');
+
+            return [
+                'success' => true,
+                'message' => __('Clocked out successfully. Worked from :start to :end', [
+                    'start' => $startTime,
+                    'end' => $now->format('H:i')
+                ]),
+                'event_id' => $event->id
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => __('Error clocking out: :error', ['error' => $e->getMessage()])
+            ];
+        }
+    }
+
+    /**
+     * Check if current time is within a scheduled slot
+     */
+    private function getCurrentScheduledSlot(Carbon $now, array $schedule): ?array
+    {
+        $dayInitial = $this->getDayInitial($now->format('N'));
+
+        foreach ($schedule as $slot) {
+            if (!in_array($dayInitial, $slot['days'])) {
+                continue;
+            }
+
+            $slotStart = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['start'], $now->getTimezone());
+            $slotEnd = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['end'], $now->getTimezone());
+
+            if ($now->between($slotStart, $slotEnd)) {
+                return array_merge($slot, [
+                    'start_time' => $slotStart,
+                    'end_time' => $slotEnd
+                ]);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if current time is near (within 15 minutes) of a scheduled slot
+     */
+    private function isNearScheduledTime(Carbon $now, array $schedule): bool
+    {
+        $dayInitial = $this->getDayInitial($now->format('N'));
+        $tolerance = 15; // minutes
+
+        foreach ($schedule as $slot) {
+            if (!in_array($dayInitial, $slot['days'])) {
+                continue;
+            }
+
+            $slotStart = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['start'], $now->getTimezone());
+            $slotEnd = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['end'], $now->getTimezone());
+
+            // Check if within tolerance of start or end time
+            if ($now->between($slotStart->copy()->subMinutes($tolerance), $slotEnd->copy()->addMinutes($tolerance))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get next scheduled slot
+     */
+    private function getNextScheduledSlot(Carbon $now, array $schedule): ?array
+    {
+        $dayInitial = $this->getDayInitial($now->format('N'));
+        $nextSlot = null;
+        $minDiff = null;
+
+        foreach ($schedule as $slot) {
+            if (!in_array($dayInitial, $slot['days'])) {
+                continue;
+            }
+
+            $slotStart = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['start'], $now->getTimezone());
+            
+            if ($slotStart->gt($now)) {
+                $diff = $now->diffInMinutes($slotStart);
+                
+                if ($minDiff === null || $diff < $minDiff) {
+                    $minDiff = $diff;
+                    $nextSlot = array_merge($slot, [
+                        'start_time' => $slotStart,
+                        'minutes_until' => $diff
+                    ]);
+                }
+            }
+        }
+
+        return $nextSlot;
+    }
+
+    /**
+     * Get open event for user
+     */
+    private function getOpenEvent(User $user, EventType $workdayEventType): ?Event
+    {
+        return Event::where('user_id', $user->id)
+            ->where('event_type_id', $workdayEventType->id)
+            ->where('is_open', true)
+            ->whereNull('end')
+            ->orderBy('start', 'desc')
+            ->first();
+    }
+
+    /**
+     * Get day initial from day number
+     */
+    private function getDayInitial(int $dayOfWeek): string
+    {
+        $days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+        return $days[$dayOfWeek - 1];
+    }
+}

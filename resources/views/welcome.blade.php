@@ -31,9 +31,16 @@
         <!-- Main content -->
         <div class="mx-auto max-w-6xl sm:px-6 lg:px-8">
 
-            <!-- Numpad -->
+            <!-- Main Interface -->
             <div class="p-4 mt-8 bg-gray-500 shadow dark:bg-gray-800 sm:rounded-lg">
+                @guest
+                <!-- Numpad for non-authenticated users -->
                 @livewire('numpad')
+                @else
+                <!-- Smart Clock Interface for authenticated users -->
+                @livewire('smart-clock-button')
+                @endguest
+                
                 <!-- Footer -->
                 <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
                     <!-- Bottom links -->
