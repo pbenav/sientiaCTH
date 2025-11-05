@@ -52,10 +52,21 @@ class ClockInDelayManager extends Component
 
         Gate::forUser(auth()->user())->authorize('update', $this->team);
 
+        // Convert empty strings to null for integer fields
+        $clockInDelayMinutes = $this->state['clock_in_delay_minutes'] ?? null;
+        if ($clockInDelayMinutes === '') {
+            $clockInDelayMinutes = null;
+        }
+
+        $clockInGracePeriodMinutes = $this->state['clock_in_grace_period_minutes'] ?? null;
+        if ($clockInGracePeriodMinutes === '') {
+            $clockInGracePeriodMinutes = null;
+        }
+
         $this->team->forceFill([
             'force_clock_in_delay' => $this->state['force_clock_in_delay'] ?? false,
-            'clock_in_delay_minutes' => $this->state['clock_in_delay_minutes'] ?? null,
-            'clock_in_grace_period_minutes' => $this->state['clock_in_grace_period_minutes'] ?? null,
+            'clock_in_delay_minutes' => $clockInDelayMinutes,
+            'clock_in_grace_period_minutes' => $clockInGracePeriodMinutes,
         ])->save();
 
         $this->emit('saved');
@@ -72,8 +83,14 @@ class ClockInDelayManager extends Component
 
         Gate::forUser(auth()->user())->authorize('update', $this->team);
 
+        // Convert empty string to null for integer fields
+        $eventExpirationDays = $this->state['event_expiration_days'] ?? null;
+        if ($eventExpirationDays === '') {
+            $eventExpirationDays = null;
+        }
+
         $this->team->forceFill([
-            'event_expiration_days' => $this->state['event_expiration_days'] ?? null,
+            'event_expiration_days' => $eventExpirationDays,
         ])->save();
 
         $this->emit('saved');
