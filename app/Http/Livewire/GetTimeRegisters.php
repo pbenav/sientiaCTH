@@ -265,9 +265,9 @@ class GetTimeRegisters extends Component
     {
         if ($this->isTeamAdmin || $ev->is_open) {
             $ev->delete();
+            // Emitir alerta sin recargar la página
+            $this->emit('alert', __('Event has been removed!'));
         }
-        // Redirect to avoid not found errors
-        return redirect()->route('events');
     }
 
     /**
