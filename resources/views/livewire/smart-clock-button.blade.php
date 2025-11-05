@@ -12,10 +12,6 @@
                         {{ $this->getUserInfo()['team'] }}
                     </p>
                 </div>
-                <div class="text-right">
-                    <p class="text-blue-100 text-sm">{{ __('User Code') }}</p>
-                    <p class="font-mono text-lg">#{{ $this->getUserInfo()['user_code'] }}</p>
-                </div>
             </div>
         </div>
         
@@ -46,7 +42,7 @@
     @endif
 
     <!-- Current Shift Status -->
-    @if($clockData['current_event'] ?? false)
+    @if(($clockData['action'] ?? '') === 'clock_out' && isset($clockData['started_at']))
         <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -54,18 +50,14 @@
                     <div>
                         <h4 class="font-medium text-blue-900 dark:text-blue-100">{{ __('Current shift') }}</h4>
                         <p class="text-blue-700 dark:text-blue-300 text-sm">
-                            {{ __('Started at') }}: {{ \Carbon\Carbon::parse($clockData['current_event']['start'])->locale('es')->format('H:i') }}
-                            @if($clockData['current_event']['overtime'] ?? false)
+                            {{ __('Started at') }}: {{ $clockData['started_at'] }}
+                            @if($clockData['current_slot'] ?? false)
+                                <span class="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded">{{ __('In schedule') }}</span>
+                            @else
                                 <span class="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">{{ __('Outside schedule') }}</span>
                             @endif
                         </p>
                     </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm text-blue-600 dark:text-blue-400">{{ __('Duration') }}</p>
-                    <p class="font-mono text-lg text-blue-900 dark:text-blue-100">
-                        {{ \Carbon\Carbon::parse($clockData['current_event']['start'])->locale('es')->diffForHumans(null, true, false, 2) }}
-                    </p>
                 </div>
             </div>
         </div>

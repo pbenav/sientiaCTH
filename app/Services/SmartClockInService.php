@@ -116,7 +116,7 @@ class SmartClockInService
                 'user_id' => $user->id,
                 'event_type_id' => $eventTypeId,
                 'team_id' => $user->current_team_id,
-                'work_center_id' => $user->currentTeam->work_centers()->first()?->id,
+                'work_center_id' => $user->currentTeam->workCenters()->first()?->id,
                 'start' => $nowUTC->format('Y-m-d H:i:s'),
                 'end' => null,
                 'is_open' => true,

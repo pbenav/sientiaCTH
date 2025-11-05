@@ -18,12 +18,17 @@ class SmartClockButton extends Component
     public $errorMessage = '';
     public $statusMessage = '';
 
-    protected $smartClockService;
-
     public function mount()
     {
-        $this->smartClockService = app(SmartClockInService::class);
         $this->refreshClockData();
+    }
+
+    /**
+     * Get fresh instance of SmartClockInService
+     */
+    private function getSmartClockService(): SmartClockInService
+    {
+        return app(SmartClockInService::class);
     }
 
     public function refreshClockData()
@@ -34,17 +39,17 @@ class SmartClockButton extends Component
         }
 
         try {
-            $clockData = $this->smartClockService->getClockAction($user);
+            $this->clockData = $this->getSmartClockService()->getClockAction($user);
             
-            $this->canClock = $clockData['can_clock'];
-            $this->clockAction = $clockData['action'];
-            $this->currentEvent = $clockData['current_event'] ?? null;
-            $this->errorMessage = $clockData['error'] ?? null;
-            $this->statusMessage = $clockData['message'] ?? '';
+            $this->canClock = $this->clockData['can_clock'];
+            $this->clockAction = $this->clockData['action'] ?? '';
+            $this->errorMessage = '';
+            $this->statusMessage = $this->clockData['message'] ?? '';
             
         } catch (\Exception $e) {
             $this->errorMessage = __('Error loading clock data');
             $this->canClock = false;
+            $this->clockData = [];
         }
     }
 
@@ -77,7 +82,7 @@ class SmartClockButton extends Component
 
     public function handleClockAction()
     {
-        if (!$this->clockData['can_clock']) {
+        if (!$this->canClock || empty($this->clockData)) {
             $this->message = $this->clockData['message'] ?? __('Cannot clock in/out at this time');
             $this->messageType = 'error';
             return;
@@ -87,9 +92,25 @@ class SmartClockButton extends Component
         
         if ($this->clockData['action'] === 'clock_in') {
             $overtime = $this->clockData['overtime'] ?? false;
-            $result = $this->smartClockService->clockIn($user, $this->clockData['event_type_id'], $overtime);
+            $eventTypeId = $this->clockData['event_type_id'] ?? null;
+            
+            if (!$eventTypeId) {
+                $this->message = __('No event type configured');
+                $this->messageType = 'error';
+                return;
+            }
+            
+            $result = $this->getSmartClockService()->clockIn($user, $eventTypeId, $overtime);
         } elseif ($this->clockData['action'] === 'clock_out') {
-            $result = $this->smartClockService->clockOut($user, $this->clockData['open_event_id']);
+            $openEventId = $this->clockData['open_event_id'] ?? null;
+            
+            if (!$openEventId) {
+                $this->message = __('No open event found');
+                $this->messageType = 'error';
+                return;
+            }
+            
+            $result = $this->getSmartClockService()->clockOut($user, $openEventId);
         } else {
             $this->message = __('Unknown action');
             $this->messageType = 'error';
@@ -98,6 +119,9 @@ class SmartClockButton extends Component
 
         $this->message = $result['message'];
         $this->messageType = $result['success'] ? 'success' : 'error';
+        
+        // Close confirmation dialog
+        $this->showConfirmation = false;
 
         if ($result['success']) {
             // Refresh the clock data to update the button state
