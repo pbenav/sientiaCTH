@@ -8,8 +8,6 @@
                 <!-- Nombre del Usuario -->
                 <h3 class="text-lg font-semibold mb-1">{{ $this->getUserInfo()['full_name'] }}</h3>
                 
-                <!-- Información del Equipo y Centro de Trabajo -->
-                            <div class="space-y-1">
                 <!-- Team and Work Center Information -->
                 <div class="text-xs text-white mb-1 flex justify-between items-start gap-2">
                     <!-- Team Information -->
@@ -24,6 +22,7 @@
                             {{ $workCenter }}
                         @endif
                     </div>
+                </div>
             </div>
         </div>
         
