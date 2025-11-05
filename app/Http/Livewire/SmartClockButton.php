@@ -193,6 +193,11 @@ class SmartClockButton extends Component
 
     public function render()
     {
-        return view('livewire.smart-clock-button');
+        $userInfo = $this->getUserInfo();
+        
+        return view('livewire.smart-clock-button', [
+            'team' => $userInfo['team'] ?? null,
+            'workCenter' => $userInfo['work_center'] ?? null,
+        ]);
     }
 }
