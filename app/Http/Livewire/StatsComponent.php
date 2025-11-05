@@ -56,7 +56,7 @@ class StatsComponent extends Component
 
     public function mount()
     {
-        // Inicialización segura
+        // Safe initialization
         $this->selectedMonth = (int) date('m');
         $this->selectedYear = (int) date('Y');
 
@@ -66,7 +66,7 @@ class StatsComponent extends Component
         $this->isInspector = $this->actualUser?->isInspector() ?? false;
 
         if ($this->isTeamAdmin || $this->isInspector) {
-            // allUsers() puede devolver array o collection; normalizar después
+            // allUsers() can return array or collection; normalize afterwards
             $this->workers = $this->actualUser->currentTeam->allUsers()->toArray();
         }
 
@@ -87,7 +87,7 @@ class StatsComponent extends Component
 
     public function updatedBrowsedUser(): void
     {
-        // placeholder: añadir lógica si hace falta
+        // placeholder: add logic if needed
     }
 
     public function updatedEventTypeId($value): void

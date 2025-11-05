@@ -45,11 +45,11 @@ class HolidayManager extends Component
 
     protected function loadHolidays(): void
     {
-        // Asume relación team->holidays()
+        // Assumes team->holidays() relationship
         $this->holidays = $this->team->holidays()->orderBy('date')->get();
     }
 
-    // Alias/compatibilidad con vistas que llaman managingHoliday(...) como método
+    // Alias/compatibility with views that call managingHoliday(...) as a method
     public function managingHoliday($flag = true): void
     {
         $this->managingHoliday = (bool) $flag;
@@ -72,7 +72,7 @@ class HolidayManager extends Component
     {
         $holiday = Holiday::findOrFail($id);
         
-        // Verificar autorización
+        // Verify authorization
         if (!Gate::allows('update', $holiday)) {
             abort(403, __('Unauthorized action'));
         }
@@ -99,7 +99,7 @@ class HolidayManager extends Component
         if ($this->holidayId) {
             $h = Holiday::findOrFail($this->holidayId);
             
-            // Verificar autorización para actualizar
+            // Verify authorization to update
             if (!Gate::allows('update', $h)) {
                 abort(403, __('Unauthorized action'));
             }
@@ -111,7 +111,7 @@ class HolidayManager extends Component
             ]);
             session()->flash('success', __('Holiday updated.'));
         } else {
-            // Verificar autorización para crear
+            // Verify authorization to create
             if (!Gate::allows('create', [Holiday::class, $this->team])) {
                 abort(403, __('Unauthorized action'));
             }
@@ -134,7 +134,7 @@ class HolidayManager extends Component
         if ($this->holidayId) {
             $h = Holiday::find($this->holidayId);
             if ($h) {
-                // Verificar autorización para eliminar
+                // Verify authorization to delete
                 if (!Gate::allows('delete', $h)) {
                     abort(403, __('Unauthorized action'));
                 }

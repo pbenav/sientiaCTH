@@ -47,9 +47,9 @@
                     eventDurationEditable: true,
                     selectable: true,
                     eventAllow: function(dropInfo, draggedEvent) {
-                        // Permitir el drop salvo que la propiedad editable exista y sea false.
-                        // Algunos draggedEvent (p. ej. externos) no tienen la propiedad editable definida,
-                        // y en ese caso FullCalendar debe permitir el drop si no está explícitamente denegado.
+                        // Allow drop unless the editable property exists and is false.
+                        // Some draggedEvent (e.g. external) don't have the editable property defined,
+                        // and in that case FullCalendar should allow the drop if not explicitly denied.
                         return !(draggedEvent && draggedEvent.editable === false);
                     },
 
@@ -144,7 +144,7 @@
 
                 calendar.render();
                 
-                // Inyectar estilos CSS después del render para sobrescribir FullCalendar
+                // Inject CSS styles after render to override FullCalendar
                 const style = document.createElement('style');
                 style.textContent = `
                     /* Altura del contenedor */
@@ -167,7 +167,7 @@
                         overflow-x: hidden !important;
                     }
                     
-                    /* Ajustes responsive para móviles */
+                    /* Responsive adjustments for mobile */
                     @media (max-width: 768px) {
                         #calendar-container {
                             height: calc(100vh - 80px);

@@ -51,7 +51,7 @@ trait CalculatesScheduledData
         // Use the team's timezone (if available) so "today" matches the team's local day
         $teamTimezone = $this->actualUser->currentTeam->timezone ?? config('app.timezone');
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1, 0, 0, 0, $teamTimezone);
-        // Si la petición es para el mes en curso (en la zona horaria del equipo), limitar hasta hoy; si es mes pasado, usar todo el mes
+        // If the request is for the current month (in team timezone), limit to today; if past month, use whole month
         $today = Carbon::today($teamTimezone);
         if ($this->selectedYear === (int) $today->year && $this->selectedMonth === (int) $today->month) {
             // keep endDate at the end of 'today' in team timezone

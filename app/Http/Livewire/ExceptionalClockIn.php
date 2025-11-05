@@ -96,7 +96,7 @@ class ExceptionalClockIn extends Component
                 $this->end_time = now()->addMinutes(1)->format('H:i');
             }
 
-            // Dejar el campo observations vacío para que funcione como placeholder
+            // Leave observations field empty so it works as a placeholder
             $this->observations = '';
         } else {
             session()->flash('error', __('exceptional_clock_in.invalid_link'));

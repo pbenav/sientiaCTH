@@ -9,26 +9,21 @@
                 <h3 class="text-lg font-semibold mb-1">{{ $this->getUserInfo()['full_name'] }}</h3>
                 
                 <!-- Información del Equipo y Centro de Trabajo -->
-                <div class="flex items-center justify-between text-blue-100 text-sm">
-                    <!-- Información del Equipo -->
-                    <div class="flex items-center">
-                        <i class="fas fa-users mr-2"></i>
-                        <span class="font-medium">{{ $this->getUserInfo()['team'] }}</span>
+                            <div class="space-y-1">
+                <!-- Team and Work Center Information -->
+                <div class="text-xs text-white mb-1 flex justify-between items-start gap-2">
+                    <!-- Team Information -->
+                    <div class="flex-1 truncate">
+                        @if($team)
+                            <strong>{{ $team }}</strong>
+                        @endif
                     </div>
-                    
-                    <!-- Información del Centro de Trabajo -->
-                    @if($this->getUserInfo()['work_center'])
-                    <div class="flex items-center">
-                        <i class="fas fa-building mr-2"></i>
-                        <div class="text-right">
-                            <div class="font-medium">{{ $this->getUserInfo()['work_center'] }}</div>
-                            @if($this->getUserInfo()['work_center_code'])
-                            <div class="text-xs opacity-75">({{ $this->getUserInfo()['work_center_code'] }})</div>
-                            @endif
-                        </div>
+                    <!-- Work Center Information -->
+                    <div class="flex-1 text-right truncate">
+                        @if($workCenter)
+                            {{ $workCenter }}
+                        @endif
                     </div>
-                    @endif
-                </div>
             </div>
         </div>
         

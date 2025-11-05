@@ -220,9 +220,9 @@ class EditEvent extends Component
 
         $this->validate();
 
-        // Si es un evento excepcional y hay observaciones, anteponer "Evento excepcional:"
+        // If it's an exceptional event and has observations, prepend "Exceptional event:"
         if ($this->event->is_exceptional && !empty($this->event->observations)) {
-            // Solo añadir el prefijo si no lo tiene ya
+            // Only add the prefix if it doesn't already have it
             $exceptionalPrefix = __('exceptional_event.prefix');
             if (!str_starts_with($this->event->observations, $exceptionalPrefix)) {
                 $this->event->observations = $exceptionalPrefix . ' ' . $this->event->observations;

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('events_history', function (Blueprint $table) {
-            // Modificar el tamaño del campo original_event a 2048 caracteres
+            // Modify the original_event field size to 2048 characters
             $table->string('original_event', 2048)->change();
             $table->string('modified_event', 2048)->change();
         });
@@ -28,7 +28,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('events_history', function (Blueprint $table) {
-            // Revertir el tamaño del campo original_event a su configuración anterior (255 por defecto)
+            // Revert the original_event field size to its previous configuration (255 by default)
             $table->string('original_event')->change();
             $table->string('modified_event')->change();
         });

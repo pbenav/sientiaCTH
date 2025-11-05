@@ -158,7 +158,7 @@ class FixEventsData extends Command
         try {
             DB::beginTransaction();
 
-            // Establecer end = start + 8 horas (jornada típica)
+            // Set end = start + 8 hours (typical workday)
             $start = Carbon::parse($event->start);
             $end = $start->copy()->addHours(8);
 
@@ -310,7 +310,7 @@ class FixEventsData extends Command
             $this->info("✓ No se encontraron eventos sin tipo");
         }
 
-        // Eventos con fechas inválidas
+        // Events with invalid dates
         $count = count($this->issues['invalid_dates']);
         if ($count > 0) {
             $this->warn("❌ Eventos con START > END encontrados: {$count}");

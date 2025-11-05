@@ -60,12 +60,12 @@ class AnnouncementManager extends Component
     {
         $announcement = TeamAnnouncement::findOrFail($id);
         
-        // Verificar autorización
+        // Verify authorization
         if (!Gate::allows('update', $announcement)) {
             abort(403, __('Unauthorized action'));
         }
         
-        // Verificar que el anuncio pertenece al equipo actual (protección IDOR)
+        // Verify the announcement belongs to the current team (IDOR protection)
         if ($announcement->team_id !== $this->team->id) {
             abort(403, __('Unauthorized action'));
         }
@@ -96,17 +96,17 @@ class AnnouncementManager extends Component
         if ($this->editingId) {
             $announcement = TeamAnnouncement::findOrFail($this->editingId);
             
-            // Verificar autorización
+            // Verify authorization
             if (!Gate::allows('update', $announcement)) {
                 abort(403, __('Unauthorized action'));
             }
             
-            // Verificar que el anuncio pertenece al equipo actual
+            // Verify the announcement belongs to the current team
             if ($announcement->team_id !== $this->team->id) {
                 abort(403, __('Unauthorized action'));
             }
             
-            // Actualizar sin incluir team_id ni created_by (protección mass assignment)
+            // Update without including team_id or created_by (mass assignment protection)
             $announcement->update([
                 'title' => $this->title,
                 'content' => $sanitizedContent,
@@ -117,7 +117,7 @@ class AnnouncementManager extends Component
             
             session()->flash('message', __('Announcement updated successfully.'));
         } else {
-            // Verificar autorización para crear
+            // Verify authorization to create
             if (!Gate::allows('create', [TeamAnnouncement::class, $this->team])) {
                 abort(403, __('Unauthorized action'));
             }
@@ -148,12 +148,12 @@ class AnnouncementManager extends Component
     {
         $announcement = TeamAnnouncement::findOrFail($id);
         
-        // Verificar autorización
+        // Verify authorization
         if (!Gate::allows('delete', $announcement)) {
             abort(403, __('Unauthorized action'));
         }
         
-        // Verificar que el anuncio pertenece al equipo actual
+        // Verify the announcement belongs to the current team
         if ($announcement->team_id !== $this->team->id) {
             abort(403, __('Unauthorized action'));
         }
@@ -170,12 +170,12 @@ class AnnouncementManager extends Component
     {
         $announcement = TeamAnnouncement::findOrFail($id);
         
-        // Verificar autorización
+        // Verify authorization
         if (!Gate::allows('update', $announcement)) {
             abort(403, __('Unauthorized action'));
         }
         
-        // Verificar que el anuncio pertenece al equipo actual
+        // Verify the announcement belongs to the current team
         if ($announcement->team_id !== $this->team->id) {
             abort(403, __('Unauthorized action'));
         }

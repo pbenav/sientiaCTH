@@ -249,7 +249,7 @@
                     document.getElementById('announcement-content').value = content;
                 }
                 
-                // Asegurarse de que está en modo visual
+                // Ensure it's in visual mode
                 isHtmlMode = false;
                 document.getElementById('quill-editor').style.display = 'block';
                 document.getElementById('html-editor').style.display = 'none';
@@ -258,7 +258,7 @@
         });
         
         Livewire.hook('message.processed', (message, component) => {
-            // Solo reinicializar si el modal está visible y el editor no existe
+            // Only reinitialize if modal is visible and editor doesn't exist
             const modal = document.querySelector('[role="dialog"]');
             const editorContainer = document.querySelector('#quill-editor');
             

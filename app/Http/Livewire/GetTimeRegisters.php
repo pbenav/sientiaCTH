@@ -198,10 +198,10 @@ class GetTimeRegisters extends Component
         }
 
         if ($this->isTeamAdmin) {
-            $wasOpen = $ev->is_open; // Guardar el estado anterior
+            $wasOpen = $ev->is_open; // Save previous state
             if ($ev->toggleConfirm()) {
-                // Si estaba abierto (is_open = true) y se cerró, se confirmó
-                // Si estaba cerrado (is_open = false) y se abrió, se desconfirmó
+                // If it was open (is_open = true) and closed, it was confirmed
+                // If it was closed (is_open = false) and opened, it was unconfirmed
                 if ($wasOpen) {
                     $this->emit('alert', __('event_confirmation.confirmed'));
                 } else {
@@ -265,7 +265,7 @@ class GetTimeRegisters extends Component
     {
         if ($this->isTeamAdmin || $ev->is_open) {
             $ev->delete();
-            // Emitir alerta sin recargar la página
+            // Emit alert without reloading the page
             $this->emit('alert', __('Event has been removed!'));
         }
     }
@@ -355,14 +355,14 @@ class GetTimeRegisters extends Component
             $q->where('events.is_open', '=', '1');
         });
 
-        // Lógica del filtro "Mis registros" - comportamiento inverso para admins
+        // "My Records" filter logic - inverted behavior for admins
         if ($this->isTeamAdmin) {
-            // Para administradores: showOnlyMine=true muestra solo mis registros
+            // For administrators: showOnlyMine=true shows only my records
             $query->when($this->showOnlyMine, function ($q) {
                 $q->where('events.user_id', Auth::id());
             });
         } else {
-            // Para usuarios normales: showOnlyMine=true muestra solo mis registros (comportamiento original)
+            // For normal users: showOnlyMine=true shows only my records (original behavior)
             $query->when($this->showOnlyMine, function ($q) {
                 $q->where('events.user_id', Auth::id());
             });

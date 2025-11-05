@@ -37,10 +37,10 @@ trait CalculatesDashboardData
             return ! empty($event->end);
         })->values();
 
-        // Colección de eventos del tipo jornada laboral
+        // Collection of workday type events
         $workdayEvents = $closedEvents->where('event_type_id', $workdayEventType->id);
 
-        // Calcular eventos autorizables del año en curso (año completo, no solo el mes actual)
+        // Calculate authorizable events for current year (full year, not just current month)
         $currentYear = now()->year;
         $authorizableEventsByType = Event::with('eventType')
             ->where('user_id', $user->id)
@@ -53,7 +53,7 @@ trait CalculatesDashboardData
             ->map(function ($events, $typeId) use ($teamTimezone) {
                 $eventType = $events->first()->eventType;
                 
-                // Calcular la suma de días de todos los eventos de este tipo
+                // Calculate the sum of days for all events of this type
                 $totalDays = $events->sum(function ($event) use ($teamTimezone) {
                     if (empty($event->start) || empty($event->end)) {
                         return 0;
@@ -61,8 +61,8 @@ trait CalculatesDashboardData
                     // Parse as UTC (how Laravel stores timestamps) then convert to team timezone
                     $start = Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);
                     $end = Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone);
-                    // Si el evento es del mismo día, cuenta como 1 día
-                    // Si es de varios días, cuenta los días completos
+                    // If the event is on the same day, count as 1 day
+                    // If it's multiple days, count the full days
                     return max(1, $start->startOfDay()->diffInDays($end->startOfDay()) + 1);
                 });
                 
@@ -75,13 +75,13 @@ trait CalculatesDashboardData
             ->values()
             ->toArray();
 
-        // Calcular horas por día para evitar desajustes: solo contar horas de jornada laboral
-        // y computar horas no-jornada solo en los días programados.
+        // Calculate hours per day to avoid mismatches: only count workday hours
+        // and compute non-workday hours only on scheduled days.
         
         // Use team's timezone for consistent date/time operations (already defined above)
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1, 0, 0, 0, $teamTimezone);
         
-        // Si la petición es para el mes en curso, limitar el cálculo hasta hoy; si es mes pasado, usar todo el mes
+        // If the request is for the current month, limit calculation to today; if past month, use whole month
         $today = Carbon::today($teamTimezone);
         if ($this->selectedYear === (int) $today->year && $this->selectedMonth === (int) $today->month) {
             $endDate = $today;
