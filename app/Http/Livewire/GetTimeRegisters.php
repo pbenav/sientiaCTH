@@ -45,6 +45,12 @@ class GetTimeRegisters extends Component
     public bool $showEventModal = false;
     public ?Event $selectedEvent;
     public $announcements;
+    
+    // Propiedades individuales para el filtro (para queryString)
+    public string $filterStart = '';
+    public string $filterEnd = '';
+    public ?int $filterUserId = null;
+    public ?int $filterEventTypeId = null;
 
     protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
 
@@ -56,10 +62,10 @@ class GetTimeRegisters extends Component
         'confirmed' => ['except' => false],
         'filtered' => ['except' => false],
         'showOnlyMine' => [],
-        'filter.start' => ['except' => '', 'as' => 'start'],
-        'filter.end' => ['except' => '', 'as' => 'end'],
-        'filter.user_id' => ['except' => '', 'as' => 'user'],
-        'filter.event_type_id' => ['except' => '', 'as' => 'type']
+        'filterStart' => ['except' => '', 'as' => 'start'],
+        'filterEnd' => ['except' => '', 'as' => 'end'],
+        'filterUserId' => ['except' => null, 'as' => 'user'],
+        'filterEventTypeId' => ['except' => null, 'as' => 'type']
     ];
 
     protected $rules = [
@@ -68,6 +74,10 @@ class GetTimeRegisters extends Component
         'filter.user_id' => 'nullable|integer',
         'filter.is_open' => 'boolean',
         'filter.event_type_id' => 'nullable|integer',
+        'filterStart' => 'required|date',
+        'filterEnd' => 'required|date|after:filterStart',
+        'filterUserId' => 'nullable|integer',
+        'filterEventTypeId' => 'nullable|integer',
     ];
 
     /**
@@ -75,13 +85,26 @@ class GetTimeRegisters extends Component
      */
     public function mount()
     {
+        // Inicializar propiedades del filtro si no vienen de URL
+        if (empty($this->filterStart)) {
+            $this->filterStart = date('Y-m-01');
+        }
+        if (empty($this->filterEnd)) {
+            $this->filterEnd = date('Y-m-t');
+        }
+        
+        // Crear objeto filter sincronizado con las propiedades individuales
         $this->filter = new Event([
-            "start" => request('start', date('Y-m-01')),
-            "end" => request('end', date('Y-m-t')),
-            "user_id" => request('user', null),
+            "start" => $this->filterStart,
+            "end" => $this->filterEnd,
+            "user_id" => $this->filterUserId,
             "is_open" => false,
-            "event_type_id" => request('type', null),
+            "event_type_id" => $this->filterEventTypeId,
         ]);
+        
+        // Sincronizar propiedades individuales con el objeto
+        $this->syncFilterProperties();
+        
         $this->user = Auth::user();
         $this->events = $this->user->events()->Paginate($this->qtytoshow);
         $this->team = $this->user->currentTeam;
@@ -269,6 +292,17 @@ class GetTimeRegisters extends Component
         $this->showFiltersModal = true;
         $this->filtered = true;
         $this->confirmed = false;
+    }
+
+    /**
+     * Sincronizar propiedades individuales con el objeto filter
+     */
+    public function syncFilterProperties(): void
+    {
+        $this->filterStart = $this->filter->start ?? date('Y-m-01');
+        $this->filterEnd = $this->filter->end ?? date('Y-m-t');
+        $this->filterUserId = $this->filter->user_id;
+        $this->filterEventTypeId = $this->filter->event_type_id;
     }
 
     /**
