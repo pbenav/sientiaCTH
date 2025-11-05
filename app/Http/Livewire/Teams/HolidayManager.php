@@ -21,7 +21,7 @@ class HolidayManager extends Component
     public array $holidayForm = [
         'name' => '',
         'date' => null,
-        'type' => null,
+        'type' => '',
     ];
 
     protected function rules(): array
@@ -29,7 +29,7 @@ class HolidayManager extends Component
         return [
             'holidayForm.name' => 'required|string|max:255',
             'holidayForm.date' => 'required|date',
-            'holidayForm.type' => 'nullable|string|max:255',
+            'holidayForm.type' => 'required|string|in:Nacional,Regional,Local,Otros',
         ];
     }
 
@@ -64,7 +64,7 @@ class HolidayManager extends Component
         $this->holidayForm = [
             'name' => '', 
             'date' => now()->format('Y-m-d'), 
-            'type' => null
+            'type' => ''
         ];
     }
 

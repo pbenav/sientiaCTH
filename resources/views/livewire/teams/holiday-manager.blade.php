@@ -66,8 +66,14 @@
 
             <div class="col-span-6 sm:col-span-4">
                 <x-jet-label for="type" value="{{ __('Type') }}" />
-                <x-jet-input id="name" type="text" class="mt-1 block w-full"
-                    wire:model.defer="holidayForm.type" />
+                <select id="type" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                    wire:model.defer="holidayForm.type">
+                    <option value="">{{ __('Select type...') }}</option>
+                    <option value="Nacional">{{ __('Nacional') }}</option>
+                    <option value="Regional">{{ __('Regional') }}</option>
+                    <option value="Local">{{ __('Local') }}</option>
+                    <option value="Otros">{{ __('Otros') }}</option>
+                </select>
                 <x-jet-input-error for="holidayForm.type" class="mt-2" />
             </div>
         </x-slot>
