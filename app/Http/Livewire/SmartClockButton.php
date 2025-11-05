@@ -71,7 +71,7 @@ class SmartClockButton extends Component
             ? ($user->currentTeam->timezone ?? config('app.timezone'))
             : config('app.timezone');
             
-        return now($teamTimezone);
+        return now($teamTimezone)->locale('es');
     }
 
     public function handleClockAction()

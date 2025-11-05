@@ -18,7 +18,7 @@
                         </div>
                         <div class="text-sm text-gray-500">
                             <i class="fas fa-calendar-alt mr-1"></i>
-                            {{ now()->format('l, F j, Y') }}
+                            {{ now()->locale('es')->translatedFormat('l, j \d\e F \d\e Y') }}
                         </div>
                     </div>
                     

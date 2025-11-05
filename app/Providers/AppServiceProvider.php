@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Set Carbon locale to Spanish
+        \Carbon\Carbon::setLocale('es');
+        
+        // Also set the application locale for consistency
+        app()->setLocale('es');
     }
 }

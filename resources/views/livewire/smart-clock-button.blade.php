@@ -24,7 +24,7 @@
             <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
                 <div class="flex items-center">
                     <i class="fas fa-calendar-alt mr-2"></i>
-                    <span>{{ $this->getCurrentDateTime()->format('l, F j, Y') }}</span>
+                    <span>{{ $this->getCurrentDateTime()->translatedFormat('l, j \d\e F \d\e Y') }}</span>
                 </div>
                 <div class="flex items-center font-mono text-lg">
                     <i class="fas fa-clock mr-2"></i>
@@ -54,7 +54,7 @@
                     <div>
                         <h4 class="font-medium text-blue-900 dark:text-blue-100">{{ __('Current shift') }}</h4>
                         <p class="text-blue-700 dark:text-blue-300 text-sm">
-                            {{ __('Started at') }}: {{ \Carbon\Carbon::parse($clockData['current_event']['start'])->format('H:i') }}
+                            {{ __('Started at') }}: {{ \Carbon\Carbon::parse($clockData['current_event']['start'])->locale('es')->format('H:i') }}
                             @if($clockData['current_event']['overtime'] ?? false)
                                 <span class="ml-2 px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">{{ __('Outside schedule') }}</span>
                             @endif
@@ -64,7 +64,7 @@
                 <div class="text-right">
                     <p class="text-sm text-blue-600 dark:text-blue-400">{{ __('Duration') }}</p>
                     <p class="font-mono text-lg text-blue-900 dark:text-blue-100">
-                        {{ \Carbon\Carbon::parse($clockData['current_event']['start'])->diffForHumans(null, true, false, 2) }}
+                        {{ \Carbon\Carbon::parse($clockData['current_event']['start'])->locale('es')->diffForHumans(null, true, false, 2) }}
                     </p>
                 </div>
             </div>
