@@ -533,5 +533,19 @@
     "Ready to start your shift": "Listo para comenzar tu turno",
     "Ready to end your shift": "Listo para finalizar tu turno",
     "Refresh Status": "Actualizar Estado",
-    "Manage your work time registration": "Gestiona tu registro de tiempo de trabajo"
+    "Manage your work time registration": "Gestiona tu registro de tiempo de trabajo",
+    "User or team not found": "Usuario o equipo no encontrado",
+    "No workday event type configured": "Tipo de evento de jornada laboral no configurado",
+    "Clock out from work": "Fichar salida del trabajo",
+    "Clock in to work": "Fichar entrada al trabajo",
+    "Outside scheduled work hours": "Fuera del horario de trabajo programado",
+    "Outside Hours": "Fuera de Horario",
+    "Clocked in successfully at :time": "Fichaje de entrada exitoso a las :time",
+    "Error clocking in: :error": "Error al fichar entrada: :error",
+    "Event not found or already closed": "Evento no encontrado o ya cerrado",
+    "Clocked out successfully. Worked from :start to :end": "Fichaje de salida exitoso. Trabajó de :start a :end",
+    "Error clocking out: :error": "Error al fichar salida: :error",
+    "Cannot clock in/out at this time": "No se puede fichar en este momento",
+    "Clock in to work (outside schedule)": "Fichar entrada al trabajo (fuera de horario)",
+    "Clocked in successfully at :time (outside schedule)": "Fichaje de entrada exitoso a las :time (fuera de horario)"
 }

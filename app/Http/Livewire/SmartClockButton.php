@@ -85,7 +85,8 @@ class SmartClockButton extends Component
         $user = Auth::user();
         
         if ($this->clockData['action'] === 'clock_in') {
-            $result = $this->smartClockService->clockIn($user, $this->clockData['event_type_id']);
+            $overtime = $this->clockData['overtime'] ?? false;
+            $result = $this->smartClockService->clockIn($user, $this->clockData['event_type_id'], $overtime);
         } elseif ($this->clockData['action'] === 'clock_out') {
             $result = $this->smartClockService->clockOut($user, $this->clockData['open_event_id']);
         } else {

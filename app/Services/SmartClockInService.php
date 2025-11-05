@@ -87,34 +87,23 @@ class SmartClockInService
             ];
         }
 
-        // Clock in action
-        if ($currentSlot || $this->isNearScheduledTime($now, $schedule)) {
-            return [
-                'can_clock' => true,
-                'action' => 'clock_in',
-                'message' => __('Clock in to work'),
-                'button_text' => __('Clock In'),
-                'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
-                'current_slot' => $currentSlot,
-                'event_type_id' => $workdayEventType->id
-            ];
-        }
-
-        // Outside work hours
+        // Clock in action - Allow clocking in anytime if user has a schedule
         return [
-            'can_clock' => false,
-            'action' => null,
-            'message' => __('Outside scheduled work hours'),
-            'button_text' => __('Outside Hours'),
-            'button_class' => 'bg-gray-400 cursor-not-allowed',
-            'next_slot' => $this->getNextScheduledSlot($now, $schedule)
+            'can_clock' => true,
+            'action' => 'clock_in',
+            'message' => $currentSlot ? __('Clock in to work') : __('Clock in to work (outside schedule)'),
+            'button_text' => __('Clock In'),
+            'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
+            'current_slot' => $currentSlot,
+            'event_type_id' => $workdayEventType->id,
+            'overtime' => !$currentSlot
         ];
     }
 
     /**
      * Execute the clock in action
      */
-    public function clockIn(User $user, int $eventTypeId): array
+    public function clockIn(User $user, int $eventTypeId, bool $overtime = false): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
         $now = Carbon::now($teamTimezone);
@@ -132,14 +121,19 @@ class SmartClockInService
                 'end' => null,
                 'is_open' => true,
                 'is_authorized' => false,
-                'is_exceptional' => false,
+                'is_exceptional' => $overtime,
                 'is_closed_automatically' => false,
             ]);
 
+            $message = $overtime 
+                ? __('Clocked in successfully at :time (outside schedule)', ['time' => $now->format('H:i')])
+                : __('Clocked in successfully at :time', ['time' => $now->format('H:i')]);
+
             return [
                 'success' => true,
-                'message' => __('Clocked in successfully at :time', ['time' => $now->format('H:i')]),
-                'event_id' => $event->id
+                'message' => $message,
+                'event_id' => $event->id,
+                'overtime' => $overtime
             ];
 
         } catch (\Exception $e) {

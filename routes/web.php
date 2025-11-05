@@ -52,6 +52,33 @@ Route::middleware([
         Route::delete('/meta/{meta}', [UserMetaController::class, 'destroy'])->name('users.meta.destroy');
     });
 
+    // Debug route for work schedule
+    Route::get('/debug-schedule', function() {
+        if (!auth()->check()) {
+            return 'Not authenticated';
+        }
+        
+        $user = auth()->user();
+        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+        $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+        
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $now = \Carbon\Carbon::now($teamTimezone);
+        
+        return [
+            'user' => $user->name,
+            'team' => $user->currentTeam->name ?? 'No team',
+            'timezone' => $teamTimezone,
+            'current_time' => $now->format('Y-m-d H:i:s'),
+            'day_of_week' => $now->format('N'),
+            'day_letter' => ['L', 'M', 'X', 'J', 'V', 'S', 'D'][$now->format('N') - 1],
+            'schedule' => $schedule,
+            'has_schedule' => !empty($schedule),
+            'workday_event_type' => $user->currentTeam->eventTypes()->where('is_workday_type', true)->first(),
+            'clock_service_result' => app(\App\Services\SmartClockInService::class)->getClockAction($user)
+        ];
+    });
+
     Route::prefix('fichaje-excepcional')->name('exceptional.clock-in')->group(function () {
         Route::get('/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn']);
         Route::get('/formulario/{token}', \App\Http\Livewire\ExceptionalClockIn::class)->name('.form');
