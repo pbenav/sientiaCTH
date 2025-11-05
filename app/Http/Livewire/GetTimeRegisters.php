@@ -37,10 +37,10 @@ class GetTimeRegisters extends Component
     public array $teamUsers;
     public $teamUserList;
     public $eventTypes;
-    public bool $isTeamAdmin;
-    public bool $isInspector;
-    public bool $confirmed;
-    public bool $filtered;
+    public bool $isTeamAdmin = false;
+    public bool $isInspector = false;
+    public bool $confirmed = false;
+    public bool $filtered = false;
     public bool $showOnlyMine = false;
     public bool $showEventModal = false;
     public ?Event $selectedEvent;
