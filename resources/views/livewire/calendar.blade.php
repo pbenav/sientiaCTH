@@ -46,6 +46,46 @@
                     editable: true,
                     eventDurationEditable: true,
                     selectable: true,
+                    
+                    // Force scroll when view is mounted
+                    viewDidMount: function(info) {
+                        console.log('View mounted, forcing scroll to {{ $scrollTime }}');
+                        setTimeout(() => {
+                            const scrollTime = '{{ $scrollTime }}';
+                            console.log('Attempting to scroll to time:', scrollTime);
+                            
+                            // Method 1: Use FullCalendar's built-in scrollToTime method
+                            try {
+                                calendar.scrollToTime(scrollTime);
+                                console.log('Successfully used scrollToTime method');
+                            } catch (e) {
+                                console.log('scrollToTime failed, trying manual scroll:', e);
+                                
+                                // Method 2: Manual scroll calculation
+                                const [hours, minutes] = scrollTime.split(':').map(Number);
+                                const totalMinutes = hours * 60 + minutes;
+                                
+                                // Find the scrollable container
+                                const scrollContainer = calendarEl.querySelector('.fc-scroller');
+                                if (scrollContainer) {
+                                    // FullCalendar typically uses 48px per hour with 30min slots
+                                    const pixelsPerHour = 96; // 2 slots of 48px each
+                                    const scrollTop = (totalMinutes / 60) * pixelsPerHour;
+                                    
+                                    console.log('Manual scroll calculation:', {
+                                        totalMinutes,
+                                        pixelsPerHour,
+                                        scrollTop
+                                    });
+                                    
+                                    scrollContainer.scrollTop = scrollTop;
+                                } else {
+                                    console.log('Could not find scroll container');
+                                }
+                            }
+                        }, 200);
+                    },
+                    
                     eventAllow: function(dropInfo, draggedEvent) {
                         // Allow drop unless the editable property exists and is false.
                         // Some draggedEvent (e.g. external) don't have the editable property defined,
@@ -143,30 +183,6 @@
                 });
 
                 calendar.render();
-                
-                // Force scroll to the configured time after render
-                setTimeout(() => {
-                    console.log('Forcing scroll to:', '{{ $scrollTime }}');
-                    const scrollContainer = calendarEl.querySelector('.fc-scroller-harness');
-                    if (scrollContainer) {
-                        const scroller = scrollContainer.querySelector('.fc-scroller');
-                        if (scroller) {
-                            const timeSlot = calendarEl.querySelector('.fc-timegrid-slot[data-time="{{ substr($scrollTime, 0, 5) }}"]');
-                            if (timeSlot) {
-                                console.log('Found time slot, scrolling to it');
-                                timeSlot.scrollIntoView({ behavior: 'auto', block: 'start' });
-                            } else {
-                                console.log('Time slot not found, trying alternative method');
-                                // Calculate scroll position based on time
-                                const [hours, minutes] = '{{ $scrollTime }}'.split(':').map(Number);
-                                const totalMinutes = hours * 60 + minutes;
-                                const slotHeight = 48; // Default FullCalendar slot height
-                                const scrollTop = (totalMinutes / 30) * slotHeight; // 30-minute slots
-                                scroller.scrollTop = scrollTop;
-                            }
-                        }
-                    }
-                }, 100);
                 
                 // Inject CSS styles after render to override FullCalendar
                 const style = document.createElement('style');
