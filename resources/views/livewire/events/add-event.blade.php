@@ -1,5 +1,5 @@
 <div>
-    <x-jet-dialog-modal wire:model="showAddEventModal">
+    <x-jet-dialog-modal wire:model="showAddEventModal" maxWidth="2xl">
 
         <x-slot name="title">
             {{ __('Add new event') }}

@@ -576,5 +576,22 @@
     "Import All": "Importar Todo",
     "Select All": "Seleccionar Todo",
     "No holidays available to import.": "No hay días festivos disponibles para importar.",
-    "Successfully imported all :count holidays.": "Se han importado correctamente todos los :count días festivos."
+    "Successfully imported all :count holidays.": "Se han importado correctamente todos los :count días festivos.",
+    "Working": "Trabajando",
+    "On Pause": "En Pausa",
+    "Pause Workday": "Pausar Jornada",
+    "Resume Work": "Continuar Trabajo",
+    "End Workday": "Finalizar Jornada",
+    "Paused at": "Pausado a las",
+    "Ready to resume your workday": "Listo para continuar tu jornada laboral",
+    "Currently working": "Trabajando actualmente",
+    "Resume workday from pause": "Reanudar jornada desde pausa",
+    "Workday paused at :time": "Jornada pausada a las :time",
+    "Workday resumed at :time (paused from :start)": "Jornada reanudada a las :time (pausada desde las :start)",
+    "No active workday to pause": "No hay jornada activa para pausar",
+    "Invalid pause event type": "Tipo de evento de pausa inválido",
+    "Pause event not found or already closed": "Evento de pausa no encontrado o ya cerrado",
+    "Error pausing workday: :error": "Error al pausar jornada: :error",
+    "Error resuming workday: :error": "Error al reanudar jornada: :error",
+    "Pause event type not configured": "Tipo de evento de pausa no configurado"
 }

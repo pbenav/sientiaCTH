@@ -1,6 +1,6 @@
 <div>
     <!-- Event detail. Modal table -->
-    <x-jet-dialog-modal wire:model="showModalEditEvent" maxWidth="4xl">
+    <x-jet-dialog-modal wire:model="showModalEditEvent" maxWidth="2xl">
 
         <x-slot name='title'>
             <div class="flex items-center justify-between">
@@ -32,7 +32,7 @@
             @endif
 
             <!-- Main Form Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 <!-- Left Column: Date & Time -->
                 <div class="space-y-4">

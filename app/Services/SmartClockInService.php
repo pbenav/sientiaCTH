@@ -78,21 +78,74 @@ class SmartClockInService
 
         // Check for open events
         $openEvent = $this->getOpenEvent($user, $workdayEventType);
+        
+        // Check for active pause (safely handle if pause type doesn't exist)
+        $pauseEventType = null;
+        $activePause = null;
+        
+        try {
+            $pauseEventType = $user->currentTeam->eventTypes()
+                ->where('name', 'Pausa')
+                ->where('is_break_type', true)
+                ->first();
+                
+            if ($pauseEventType) {
+                $activePause = $this->getOpenEvent($user, $pauseEventType);
+            }
+        } catch (\Exception $e) {
+            // If pause detection fails, continue with normal flow
+            $pauseEventType = null;
+            $activePause = null;
+        }
 
-        if ($openEvent) {
-            // Clock out action
+        if ($openEvent && $activePause) {
+            // Resume from pause action
             return [
                 'can_clock' => true,
-                'action' => 'clock_out',
-                'message' => __('Clock out from work'),
-                'button_text' => __('Clock Out'),
-                'button_class' => 'bg-red-600 hover:bg-red-700 text-white',
+                'action' => 'resume_workday',
+                'message' => __('Resume workday from pause'),
+                'button_text' => __('Resume Work'),
+                'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
                 'open_event_id' => $openEvent->id,
-                'started_at' => Carbon::parse($openEvent->start, 'UTC')
+                'pause_event_id' => $activePause->id,
+                'paused_at' => Carbon::parse($activePause->start, 'UTC')
                     ->setTimezone($teamTimezone)
                     ->format('H:i'),
                 'current_slot' => $currentSlot
             ];
+        } elseif ($openEvent && !$activePause) {
+            // Working - show pause and clock out options if pause type exists, otherwise normal clock out
+            if ($pauseEventType) {
+                return [
+                    'can_clock' => true,
+                    'action' => 'working_options',
+                    'message' => __('Currently working'),
+                    'button_text' => __('Working'),
+                    'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
+                    'open_event_id' => $openEvent->id,
+                    'started_at' => Carbon::parse($openEvent->start, 'UTC')
+                        ->setTimezone($teamTimezone)
+                        ->format('H:i'),
+                    'current_slot' => $currentSlot,
+                    'show_pause_option' => true,
+                    'show_clock_out_option' => true,
+                    'pause_event_type_id' => $pauseEventType->id
+                ];
+            } else {
+                // Fallback to normal clock out behavior if no pause type
+                return [
+                    'can_clock' => true,
+                    'action' => 'clock_out',
+                    'message' => __('Clock out from work'),
+                    'button_text' => __('Clock Out'),
+                    'button_class' => 'bg-red-600 hover:bg-red-700 text-white',
+                    'open_event_id' => $openEvent->id,
+                    'started_at' => Carbon::parse($openEvent->start, 'UTC')
+                        ->setTimezone($teamTimezone)
+                        ->format('H:i'),
+                    'current_slot' => $currentSlot
+                ];
+            }
         }
 
         // Check if user is outside work schedule
@@ -229,6 +282,125 @@ class SmartClockInService
             return [
                 'success' => false,
                 'message' => __('Error clocking out: :error', ['error' => $e->getMessage()])
+            ];
+        }
+    }
+
+    /**
+     * Pause the current workday
+     */
+    public function pauseWorkday(User $user, int $pauseEventTypeId): array
+    {
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $now = Carbon::now($teamTimezone);
+        $nowUTC = $now->copy()->setTimezone('UTC');
+
+        try {
+            // Verify there's an active workday event
+            $workdayEventType = $user->currentTeam->eventTypes()
+                ->where('is_workday_type', true)
+                ->first();
+                
+            if (!$workdayEventType) {
+                return [
+                    'success' => false,
+                    'message' => __('No workday event type configured')
+                ];
+            }
+
+            $openWorkdayEvent = $this->getOpenEvent($user, $workdayEventType);
+            if (!$openWorkdayEvent) {
+                return [
+                    'success' => false,
+                    'message' => __('No active workday to pause')
+                ];
+            }
+
+            // Get pause event type
+            $pauseEventType = EventType::find($pauseEventTypeId);
+            if (!$pauseEventType || !$pauseEventType->is_break_type) {
+                return [
+                    'success' => false,
+                    'message' => __('Invalid pause event type')
+                ];
+            }
+
+            // Create pause event
+            $pauseEvent = Event::create([
+                'user_id' => $user->id,
+                'event_type_id' => $pauseEventTypeId,
+                'team_id' => $user->current_team_id,
+                'work_center_id' => $user->currentTeam->workCenters()->first()?->id,
+                'start' => $nowUTC->format('Y-m-d H:i:s'),
+                'end' => null,
+                'description' => $pauseEventType->name,
+                'is_open' => true,
+                'is_authorized' => false,
+                'is_exceptional' => false,
+                'is_extra_hours' => false, // Pause is not work time
+                'is_closed_automatically' => false,
+            ]);
+
+            return [
+                'success' => true,
+                'message' => __('Workday paused at :time', ['time' => $now->format('H:i')]),
+                'pause_event_id' => $pauseEvent->id
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => __('Error pausing workday: :error', ['error' => $e->getMessage()])
+            ];
+        }
+    }
+
+    /**
+     * Resume workday from pause
+     */
+    public function resumeWorkday(User $user, int $pauseEventId): array
+    {
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $now = Carbon::now($teamTimezone);
+        $nowUTC = $now->copy()->setTimezone('UTC');
+
+        try {
+            // Find and close the pause event
+            $pauseEvent = Event::where('id', $pauseEventId)
+                ->where('user_id', $user->id)
+                ->where('is_open', true)
+                ->first();
+
+            if (!$pauseEvent) {
+                return [
+                    'success' => false,
+                    'message' => __('Pause event not found or already closed')
+                ];
+            }
+
+            // Close the pause event
+            $pauseEvent->update([
+                'end' => $nowUTC->format('Y-m-d H:i:s'),
+                'is_open' => false,
+            ]);
+
+            $pauseStartTime = Carbon::parse($pauseEvent->start, 'UTC')
+                ->setTimezone($teamTimezone)
+                ->format('H:i');
+
+            return [
+                'success' => true,
+                'message' => __('Workday resumed at :time (paused from :start)', [
+                    'time' => $now->format('H:i'),
+                    'start' => $pauseStartTime
+                ]),
+                'pause_event_id' => $pauseEvent->id
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => __('Error resuming workday: :error', ['error' => $e->getMessage()])
             ];
         }
     }

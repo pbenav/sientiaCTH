@@ -224,26 +224,84 @@ Para situaciones fuera del horario normal.
 ![Fichaje Excepcional](images/fichaje-excepcional.png)
 *Diálogo de confirmación para fichaje excepcional*
 
+#### D. Sistema de Pausas en la Jornada
+**¡NUEVA FUNCIONALIDAD!** Sistema de pausas para interrumpir temporalmente la jornada laboral.
+
+**¿Cuándo usar el sistema de pausas?**
+- **Citas médicas** durante la jornada
+- **Gestiones personales** fuera de la oficina
+- **Descansos largos** no programados
+- **Cambios de ubicación** de trabajo
+- **Interrupciones** por emergencias familiares
+
+**Flujo del sistema de pausas:**
+```
+🟢 TRABAJANDO → [Pausar Jornada] → 🟠 EN PAUSA → [Continuar Trabajo] → 🟢 TRABAJANDO
+```
+
+![Sistema de Pausas](images/sistema-pausas.png)
+*Interfaz del sistema de pausas en SmartClockIn*
+
+**Cómo usar las pausas:**
+
+1. **Durante tu jornada laboral**, verás dos opciones:
+   - **"Pausar Jornada"** (botón naranja)
+   - **"Finalizar Jornada"** (botón rojo)
+
+2. **Al pausar la jornada:**
+   - Se crea automáticamente un evento de pausa
+   - El tiempo de pausa NO cuenta como horas trabajadas
+   - El sistema te mostrará el estado "En Pausa"
+
+3. **Para continuar trabajando:**
+   - Haz clic en **"Continuar Trabajo"** (botón azul)
+   - Se cierra automáticamente el evento de pausa
+   - Reanudas tu jornada laboral normal
+
+**Ventajas del sistema de pausas:**
+- ✅ **Flexibilidad** para gestionar interrupciones imprevistas
+- ✅ **Precisión** en el registro de tiempo trabajado vs. no trabajado
+- ✅ **Transparencia** con historial claro de pausas y reinicios
+- ✅ **Cumplimiento** de horarios reales sin penalizaciones injustas
+
+> **💡 Tip**: Las pausas aparecen en color naranja en tu calendario y histórico de eventos, diferenciándose claramente del tiempo de trabajo productivo.
+
 ### Estados de Fichaje
 
 #### Indicadores Visuales
 El sistema usa colores para mostrar tu estado actual:
 
 - 🟢 **Verde**: Trabajando normalmente
-- 🟡 **Amarillo**: En descanso
+- � **Naranja**: En pausa de jornada (NUEVO)
+- �🟡 **Amarillo**: En descanso programado
 - 🔴 **Rojo**: Fuera de horario laboral
 - 🔵 **Azul**: Evento especial o excepcional
 
-#### Panel de Estado Actual
+#### Paneles de Estado Actual
+
+**Estado: Trabajando**
 ```
 ┌─────────────────────────────────────┐
 │  Estado Actual: 🟢 TRABAJANDO      │
 │                                     │
 │  Entrada: 09:00                    │
 │  Tiempo transcurrido: 3h 45m       │
-│  Descanso programado: 13:00        │
+│  En horario: Sí                    │
 │                                     │
-│  [ Ir a Descanso ]  [ Fin Jornada ]│
+│  [ Pausar Jornada ] [ Fin Jornada ]│
+└─────────────────────────────────────┘
+```
+
+**Estado: En Pausa**
+```
+┌─────────────────────────────────────┐
+│  Estado Actual: 🟠 EN PAUSA        │
+│                                     │
+│  Jornada iniciada: 09:00           │
+│  Pausado desde: 12:30              │
+│  Tiempo en pausa: 15m              │
+│                                     │
+│      [ CONTINUAR TRABAJO ]          │
 └─────────────────────────────────────┘
 ```
 

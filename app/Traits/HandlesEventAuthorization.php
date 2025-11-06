@@ -24,6 +24,10 @@ trait HandlesEventAuthorization
     public function canModifyEvent(Event $event)
     {
         $user = Auth::user();
+        
+        if (!$user || !$user->currentTeam) {
+            return false;
+        }
 
         // Admins can always modify events.
         if ($user->hasTeamRole($user->currentTeam, 'admin')) {
@@ -44,6 +48,11 @@ trait HandlesEventAuthorization
     public function isWithinWorkSchedule(Carbon $timeToCheck)
     {
         $user = Auth::user();
+        
+        if (!$user || !$user->currentTeam) {
+            return false;
+        }
+        
         $team = $user->currentTeam;
         $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
 

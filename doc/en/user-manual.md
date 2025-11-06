@@ -224,26 +224,84 @@ For situations outside normal schedule.
 ![Exceptional Clock-In](images/fichaje-excepcional.png)
 *Confirmation dialog for exceptional clock-in*
 
+#### D. Workday Pause System
+**NEW FEATURE!** Pause system to temporarily interrupt the workday.
+
+**When to use the pause system:**
+- **Medical appointments** during workday
+- **Personal errands** outside the office
+- **Long unscheduled breaks**
+- **Work location changes**
+- **Family emergency interruptions**
+
+**Pause system workflow:**
+```
+🟢 WORKING → [Pause Workday] → 🟠 ON PAUSE → [Resume Work] → 🟢 WORKING
+```
+
+![Pause System](images/sistema-pausas.png)
+*Pause system interface in SmartClockIn*
+
+**How to use pauses:**
+
+1. **During your workday**, you'll see two options:
+   - **"Pause Workday"** (orange button)
+   - **"End Workday"** (red button)
+
+2. **When pausing workday:**
+   - A pause event is automatically created
+   - Pause time does NOT count as worked hours
+   - System shows you "On Pause" status
+
+3. **To continue working:**
+   - Click **"Resume Work"** (blue button)
+   - Pause event is automatically closed
+   - Resume normal workday
+
+**Pause system advantages:**
+- ✅ **Flexibility** to manage unexpected interruptions
+- ✅ **Accuracy** in recording worked vs. non-worked time
+- ✅ **Transparency** with clear history of pauses and resumptions
+- ✅ **Compliance** with real schedules without unfair penalties
+
+> **💡 Tip**: Pauses appear in orange color in your calendar and event history, clearly distinguished from productive work time.
+
 ### Clock-In States
 
 #### Visual Indicators
 The system uses colors to show your current state:
 
 - 🟢 **Green**: Working normally
-- 🟡 **Yellow**: On break
+- � **Orange**: On workday pause (NEW)
+- �🟡 **Yellow**: On scheduled break
 - 🔴 **Red**: Outside work hours
 - 🔵 **Blue**: Special or exceptional event
 
-#### Current Status Panel
+#### Current Status Panels
+
+**Status: Working**
 ```
 ┌─────────────────────────────────────┐
 │  Current Status: 🟢 WORKING        │
 │                                     │
 │  Entry: 09:00                      │
 │  Elapsed time: 3h 45m              │
-│  Scheduled break: 13:00            │
+│  In schedule: Yes                  │
 │                                     │
-│  [ Go to Break ]  [ End Workday ]  │
+│  [ Pause Workday ]  [ End Workday ]│
+└─────────────────────────────────────┘
+```
+
+**Status: On Pause**
+```
+┌─────────────────────────────────────┐
+│  Current Status: 🟠 ON PAUSE       │
+│                                     │
+│  Workday started: 09:00            │
+│  Paused since: 12:30               │
+│  Pause duration: 15m               │
+│                                     │
+│      [ RESUME WORK ]                │
 └─────────────────────────────────────┘
 ```
 

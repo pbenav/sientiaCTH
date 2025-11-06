@@ -136,6 +136,19 @@ class SmartClockButton extends Component
             // Show confirmation dialog for exceptional clock-in
             $this->showConfirmation = true;
             return;
+        } elseif ($this->clockData['action'] === 'working_options') {
+            // Working state - no automatic action, show options
+            return;
+        } elseif ($this->clockData['action'] === 'resume_workday') {
+            $pauseEventId = $this->clockData['pause_event_id'] ?? null;
+            
+            if (!$pauseEventId) {
+                $this->message = __('No pause event found');
+                $this->messageType = 'error';
+                return;
+            }
+            
+            $result = $this->getSmartClockService()->resumeWorkday($user, $pauseEventId);
         } else {
             $this->message = __('Unknown action');
             $this->messageType = 'error';
@@ -190,6 +203,56 @@ class SmartClockButton extends Component
         } else {
             $this->message = $result['message'];
             $this->messageType = 'error';
+        }
+    }
+
+    public function pauseWorkday()
+    {
+        $user = Auth::user();
+        $pauseEventTypeId = $this->clockData['pause_event_type_id'] ?? null;
+
+        if (!$pauseEventTypeId) {
+            $this->message = __('Pause event type not configured');
+            $this->messageType = 'error';
+            return;
+        }
+
+        $result = $this->getSmartClockService()->pauseWorkday($user, $pauseEventTypeId);
+        
+        $this->message = $result['message'];
+        $this->messageType = $result['success'] ? 'success' : 'error';
+
+        if ($result['success']) {
+            // Refresh the clock data to update the button state
+            $this->refreshClockData();
+            
+            // Emit event to refresh other components if needed
+            $this->emit('eventCreated');
+        }
+    }
+
+    public function clockOutFromWork()
+    {
+        $user = Auth::user();
+        $openEventId = $this->clockData['open_event_id'] ?? null;
+        
+        if (!$openEventId) {
+            $this->message = __('No open event found');
+            $this->messageType = 'error';
+            return;
+        }
+        
+        $result = $this->getSmartClockService()->clockOut($user, $openEventId);
+        
+        $this->message = $result['message'];
+        $this->messageType = $result['success'] ? 'success' : 'error';
+
+        if ($result['success']) {
+            // Refresh the clock data to update the button state
+            $this->refreshClockData();
+            
+            // Emit event to refresh other components if needed
+            $this->emit('eventCreated');
         }
     }
 
