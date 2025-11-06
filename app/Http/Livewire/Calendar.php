@@ -39,7 +39,88 @@ class Calendar extends Component
     public function render()
     {
         $weekStartsOn = Auth::user()->week_starts_on ?? 1; // Default to Monday
-        return view('livewire.calendar', ['weekStartsOn' => $weekStartsOn]);
+        $scrollTime = $this->getOptimalScrollTime();
+        
+        return view('livewire.calendar', [
+            'weekStartsOn' => $weekStartsOn,
+            'scrollTime' => $scrollTime
+        ]);
+    }
+
+    /**
+     * Get optimal scroll time based on user's work schedule
+     */
+    private function getOptimalScrollTime(): string
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return '08:00:00'; // Default fallback
+        }
+
+        // Get work schedule from user meta
+        $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+        
+        if (!$scheduleMeta || !$scheduleMeta->meta_value) {
+            return '08:00:00'; // Default fallback
+        }
+
+        $schedule = json_decode($scheduleMeta->meta_value, true);
+        
+        if (empty($schedule)) {
+            return '08:00:00'; // Default fallback
+        }
+
+        $earliestTime = null;
+        
+        // Find the earliest start time across all days and time slots
+        foreach ($schedule as $daySchedule) {
+            if (!empty($daySchedule['slots'])) {
+                foreach ($daySchedule['slots'] as $slot) {
+                    if (isset($slot['start']) && !empty($slot['start'])) {
+                        $startTime = $slot['start'];
+                        
+                        // Convert to minutes for comparison
+                        $timeInMinutes = $this->timeToMinutes($startTime);
+                        
+                        if ($earliestTime === null || $timeInMinutes < $earliestTime) {
+                            $earliestTime = $timeInMinutes;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if ($earliestTime !== null) {
+            // Subtract 30 minutes to show a bit before the start time
+            $scrollTimeMinutes = max(0, $earliestTime - 30);
+            return $this->minutesToTimeString($scrollTimeMinutes);
+        }
+        
+        return '08:00:00'; // Default fallback
+    }
+
+    /**
+     * Convert time string (HH:MM) to minutes
+     */
+    private function timeToMinutes(string $time): int
+    {
+        $parts = explode(':', $time);
+        $hours = (int)($parts[0] ?? 0);
+        $minutes = (int)($parts[1] ?? 0);
+        
+        return ($hours * 60) + $minutes;
+    }
+
+    /**
+     * Convert minutes to time string (HH:MM:SS)
+     */
+    private function minutesToTimeString(int $minutes): string
+    {
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+        
+        return sprintf('%02d:%02d:00', $hours, $remainingMinutes);
     }
 
     /**

@@ -41,7 +41,7 @@
                     expandRows: true,
                     slotMinTime: '00:00:00',
                     slotMaxTime: '24:00:00',
-                    scrollTime: '08:00:00',
+                    scrollTime: '{{ $scrollTime }}',
                     events: @json($this->getEvents()),
                     editable: true,
                     eventDurationEditable: true,
