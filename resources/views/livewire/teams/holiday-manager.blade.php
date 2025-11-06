@@ -116,7 +116,7 @@
     </x-jet-confirmation-modal>
 
     <!-- Import Holidays Modal -->
-    <x-jet-dialog-modal wire:model="importingHolidays" max-width="4xl">
+    <x-jet-dialog-modal wire:model="importingHolidays" max-width="2xl">
         <x-slot name="title">
             {{ __('Import Holidays') }}
         </x-slot>
