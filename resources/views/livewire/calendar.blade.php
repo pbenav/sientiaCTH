@@ -13,7 +13,7 @@
             document.addEventListener('livewire:load', function() {
                 var calendarEl = document.getElementById('calendar');
 
-                console.log('Calendar scroll time:', '{{ $scrollTime }}');
+
                 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     plugins: [
@@ -47,40 +47,24 @@
                     eventDurationEditable: true,
                     selectable: true,
                     
-                    // Force scroll when view is mounted
+                    // Auto-scroll to user's work schedule start time
                     viewDidMount: function(info) {
-                        console.log('View mounted, forcing scroll to {{ $scrollTime }}');
                         setTimeout(() => {
                             const scrollTime = '{{ $scrollTime }}';
-                            console.log('Attempting to scroll to time:', scrollTime);
                             
-                            // Method 1: Use FullCalendar's built-in scrollToTime method
+                            // Use FullCalendar's built-in scrollToTime method
                             try {
                                 calendar.scrollToTime(scrollTime);
-                                console.log('Successfully used scrollToTime method');
                             } catch (e) {
-                                console.log('scrollToTime failed, trying manual scroll:', e);
-                                
-                                // Method 2: Manual scroll calculation
+                                // Fallback: Manual scroll calculation
                                 const [hours, minutes] = scrollTime.split(':').map(Number);
                                 const totalMinutes = hours * 60 + minutes;
                                 
-                                // Find the scrollable container
                                 const scrollContainer = calendarEl.querySelector('.fc-scroller');
                                 if (scrollContainer) {
-                                    // FullCalendar typically uses 48px per hour with 30min slots
                                     const pixelsPerHour = 96; // 2 slots of 48px each
                                     const scrollTop = (totalMinutes / 60) * pixelsPerHour;
-                                    
-                                    console.log('Manual scroll calculation:', {
-                                        totalMinutes,
-                                        pixelsPerHour,
-                                        scrollTop
-                                    });
-                                    
                                     scrollContainer.scrollTop = scrollTop;
-                                } else {
-                                    console.log('Could not find scroll container');
                                 }
                             }
                         }, 200);
