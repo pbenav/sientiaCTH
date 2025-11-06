@@ -80,11 +80,23 @@ class MobileClockController extends Controller
             $clockAction = $this->smartClockInService->getClockAction($user);
 
             if (!$clockAction['can_clock']) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'cannot_clock',
-                    'message' => $clockAction['message']
-                ], 400);
+                // For mobile API, automatically allow exceptional clock-ins
+                if ($clockAction['action'] === 'confirm_exceptional_clock_in') {
+                    // Override to allow exceptional clock-in
+                    $clockAction = [
+                        'can_clock' => true,
+                        'action' => 'clock_in',
+                        'event_type_id' => $clockAction['event_type_id'],
+                        'overtime' => true, // Mark as overtime/exceptional
+                        'message' => 'Exceptional clock-in allowed'
+                    ];
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'cannot_clock',
+                        'message' => $clockAction['message']
+                    ], 400);
+                }
             }
 
             // Execute the clock action
@@ -263,8 +275,8 @@ class MobileClockController extends Controller
             return [
                 'id' => $event->id,
                 'type' => $event->eventType->name ?? 'Unknown',
-                'start' => $event->start->toISOString(),
-                'end' => $event->end ? $event->end->toISOString() : null,
+                'start' => Carbon::parse($event->start)->toISOString(),
+                'end' => $event->end ? Carbon::parse($event->end)->toISOString() : null,
                 'observations' => $event->observations,
                 'is_closed' => $event->is_closed
             ];
