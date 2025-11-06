@@ -57,6 +57,7 @@
     "Add new event": "Añadir nuevo evento",
     "Cancel": "Cancelar",
     "Create Event": "Crear nuevo evento",
+    "event.observations.placeholder": "Añade notas adicionales o comentarios sobre este evento...",
     "Time Stamp": "Marca de tiempo",
     "Start date": "Fecha inicio",
     "End date": "Fecha fin",

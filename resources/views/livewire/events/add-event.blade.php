@@ -50,22 +50,32 @@
                 <x-jet-input-error for='event_type_id' />
             </div>
 
-            <div class="mb-4">
-                <x-jet-label value="{{ __('Start date') }}" class="mt-3 mr-2 required" />
-                <x-jet-input type="date" class="mr-2" wire:model.defer="start_date" />
-                <x-jet-input-error for="start_date" />
-
-                @if ($selectedEventType && !$selectedEventType->is_all_day)
-                    <x-jet-input type="time" class="" wire:model.defer="start_time" />
-                    <x-jet-input-error for="start_time" />
-                @endif
-            </div>
-
             @if ($selectedEventType && $selectedEventType->is_all_day)
+                {{-- All-day event: show only date inputs --}}
                 <div class="mb-4">
-                    <x-jet-label value="{{ __('End date') }}" class="mt-3 mr-2 required" />
-                    <x-jet-input type="date" class="mr-2" wire:model.defer="end_date" />
+                    <x-jet-label value="{{ __('Start date') }}" class="mb-2 required" />
+                    <x-jet-input type="date" class="block w-full" wire:model.defer="start_date" />
+                    <x-jet-input-error for="start_date" />
+                </div>
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('End date') }}" class="mb-2 required" />
+                    <x-jet-input type="date" class="block w-full" wire:model.defer="end_date" />
                     <x-jet-input-error for="end_date" />
+                </div>
+            @else
+                {{-- Non-all-day event: show date and time in same row --}}
+                <div class="mb-4">
+                    <x-jet-label value="{{ __('Start date and time') }}" class="mb-2 required" />
+                    <div class="flex gap-3">
+                        <div class="flex-1">
+                            <x-jet-input type="date" class="block w-full" wire:model.defer="start_date" />
+                            <x-jet-input-error for="start_date" />
+                        </div>
+                        <div class="flex-1">
+                            <x-jet-input type="time" class="block w-full" wire:model.defer="start_time" />
+                            <x-jet-input-error for="start_time" />
+                        </div>
+                    </div>
                 </div>
             @endif
 
