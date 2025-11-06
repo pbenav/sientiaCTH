@@ -41,6 +41,18 @@ class Calendar extends Component
         $weekStartsOn = Auth::user()->week_starts_on ?? 1; // Default to Monday
         $scrollTime = $this->getOptimalScrollTime();
         
+        // Temporary debugging
+        \Log::info('CALENDAR DEBUG - Final scroll time', [
+            'user_id' => Auth::id(),
+            'calculated_scroll_time' => $scrollTime
+        ]);
+        
+        // Force a specific time to test if the mechanism works
+        $scrollTime = '09:00:00';
+        \Log::info('CALENDAR DEBUG - FORCED scroll time for testing', [
+            'forced_scroll_time' => $scrollTime
+        ]);
+        
         return view('livewire.calendar', [
             'weekStartsOn' => $weekStartsOn,
             'scrollTime' => $scrollTime

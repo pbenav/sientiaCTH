@@ -49,25 +49,49 @@
                     
                     // Auto-scroll to user's work schedule start time
                     viewDidMount: function(info) {
+                        console.log('=== CALENDAR SCROLL DEBUG ===');
+                        console.log('Calculated scroll time:', '{{ $scrollTime }}');
+                        
                         setTimeout(() => {
                             const scrollTime = '{{ $scrollTime }}';
+                            console.log('Attempting scroll to:', scrollTime);
                             
                             // Use FullCalendar's built-in scrollToTime method
                             try {
                                 calendar.scrollToTime(scrollTime);
+                                console.log('✅ scrollToTime executed successfully');
                             } catch (e) {
+                                console.log('❌ scrollToTime failed:', e);
+                                
                                 // Fallback: Manual scroll calculation
                                 const [hours, minutes] = scrollTime.split(':').map(Number);
                                 const totalMinutes = hours * 60 + minutes;
+                                
+                                console.log('Manual scroll data:', {
+                                    hours, minutes, totalMinutes
+                                });
                                 
                                 const scrollContainer = calendarEl.querySelector('.fc-scroller');
                                 if (scrollContainer) {
                                     const pixelsPerHour = 96; // 2 slots of 48px each
                                     const scrollTop = (totalMinutes / 60) * pixelsPerHour;
+                                    
+                                    console.log('Scroll calculation:', {
+                                        pixelsPerHour,
+                                        scrollTop,
+                                        currentScrollTop: scrollContainer.scrollTop
+                                    });
+                                    
                                     scrollContainer.scrollTop = scrollTop;
+                                    
+                                    console.log('After manual scroll:', {
+                                        newScrollTop: scrollContainer.scrollTop
+                                    });
+                                } else {
+                                    console.log('❌ Could not find scroll container');
                                 }
                             }
-                        }, 200);
+                        }, 500); // Increased delay
                     },
                     
                     eventAllow: function(dropInfo, draggedEvent) {
