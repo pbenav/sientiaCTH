@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::post('login', [\App\Http\Controllers\Api\LoginController::class, 'login']);
+    
+    // Mobile clock-in API - no authentication required, uses work center code + user secret code
+    Route::post('mobile/clock', [\App\Http\Controllers\Api\MobileClockController::class, 'clock']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
