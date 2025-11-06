@@ -269,13 +269,32 @@ class Calendar extends Component
                     ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
                     : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
 
+                // Determine event color based on type and properties
+                $eventColor = '#3788d8'; // Default color
+                
+                if ($eventModel->is_exceptional) {
+                    // Use special event color if event is exceptional
+                    $eventColor = $user->currentTeam->special_event_color ?? '#DC2626';
+                } elseif ($eventModel->eventType) {
+                    if ($eventModel->eventType->color) {
+                        // Use event type color if available
+                        $eventColor = $eventModel->eventType->color;
+                    } elseif (!$eventModel->eventType->is_workday_type) {
+                        // Use special event color for non-workday types without specific color
+                        $eventColor = $user->currentTeam->special_event_color ?? '#EA8000';
+                    }
+                } else {
+                    // Use special event color for events without type
+                    $eventColor = $user->currentTeam->special_event_color ?? '#EA8000';
+                }
+                
                 return [
                     'id' => 'event_' . $eventModel->id,
                     'title' => $eventModel->description,
                     'iconHtml' => $iconHtml,
                     'start' => Carbon::parse($eventModel->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
                     'end' => $eventModel->end ? Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String() : null,
-                    'color' => $eventModel->eventType->color ?? '#3788d8',
+                    'color' => $eventColor,
                     'allDay' => $eventModel->eventType->is_all_day ?? false,
                     'editable' => $eventModel->is_open && ($user->hasTeamRole($user->currentTeam, 'admin') || $eventModel->user_id === $user->id),
                 ];

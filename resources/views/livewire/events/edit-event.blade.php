@@ -14,7 +14,21 @@
                     @endif
                     @if($event->eventType)
                         <div class="flex items-center justify-end mt-1">
-                            <span class="inline-block w-3 h-3 rounded-full mr-1" style="background-color: {{ $event->eventType->color ?? '#3788d8' }}"></span>
+                            @php
+                                $eventColor = '#3788d8'; // Default color
+                                if ($event->is_exceptional) {
+                                    $eventColor = auth()->user()->currentTeam->special_event_color ?? '#DC2626';
+                                } elseif ($event->eventType) {
+                                    if ($event->eventType->color) {
+                                        $eventColor = $event->eventType->color;
+                                    } elseif (!$event->eventType->is_workday_type) {
+                                        $eventColor = auth()->user()->currentTeam->special_event_color ?? '#EA8000';
+                                    }
+                                } else {
+                                    $eventColor = auth()->user()->currentTeam->special_event_color ?? '#EA8000';
+                                }
+                            @endphp
+                            <span class="inline-block w-3 h-3 rounded-full mr-1" style="background-color: {{ $eventColor }}"></span>
                             {{ $event->eventType->name }}
                         </div>
                     @endif

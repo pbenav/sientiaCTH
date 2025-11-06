@@ -215,9 +215,12 @@
                     <tbody class="block md:table-row-group">
                         @foreach ($events as $ev)
                             <tr class="block border md:table-row">
+                                @php
+                                    $eventColor = $this->getEventColor($ev);
+                                @endphp
                                 <td class="p-1 text-center md:table-cell w-1/12 cursor-pointer hover:bg-gray-200"
                                     wire:click="showEventModal({{ $ev->id }})"
-                                    style="background-color: {{ $ev->eventType->color ?? 'transparent' }}; color: {{ $ev->eventType && $this->isDark($ev->eventType->color) ? 'white' : 'black' }}">
+                                    style="background-color: {{ $eventColor }}; color: {{ $this->isDark($eventColor) ? 'white' : 'black' }}">
                                     {{ $ev->id }}
                                 </td>
 
@@ -238,10 +241,18 @@
                                 <td class="p-1 text-left md:table-cell w-3/12">
                                     @if ($ev->eventType)
                                         <span class="inline-block w-3 h-3 mr-2 rounded-full"
-                                            style="background-color: {{ $ev->eventType->color }}"></span>
+                                            style="background-color: {{ $eventColor }}"></span>
                                         <span>{{ $ev->eventType->name }}</span>
+                                        @if($ev->is_exceptional)
+                                            <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
+                                        @endif
                                     @else
+                                        <span class="inline-block w-3 h-3 mr-2 rounded-full"
+                                            style="background-color: {{ $eventColor }}"></span>
                                         {{ __($ev->description) }}
+                                        @if($ev->is_exceptional)
+                                            <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
+                                        @endif
                                     @endif
                                 </td>
 

@@ -320,7 +320,7 @@ class GetTimeRegisters extends Component
             ->select(
                 'events.id', 'events.user_id', 'users.name', 'users.family_name1',
                 'events.start', 'events.end', 'events.description', 'events.is_open', 'events.event_type_id',
-                'events.is_authorized', 'events.observations'
+                'events.is_authorized', 'events.observations', 'events.is_exceptional'
             )
             ->join('users', 'events.user_id', '=', 'users.id')
             ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
@@ -486,7 +486,7 @@ class GetTimeRegisters extends Component
     }
 
     /**
-     * Show the event details modal.
+     * Show the event modal with the event details.
      *
      * @param int $eventId
      * @return void
@@ -495,5 +495,34 @@ class GetTimeRegisters extends Component
     {
         $this->selectedEvent = Event::with(['eventType', 'authorizedBy'])->findOrFail($eventId);
         $this->showEventModal = true;
+    }
+
+    /**
+     * Get the color for an event based on its type and properties.
+     *
+     * @param Event $event
+     * @return string
+     */
+    public function getEventColor(Event $event): string
+    {
+        $defaultColor = '#3788d8';
+        
+        if ($event->is_exceptional) {
+            // Use special event color if event is exceptional
+            return $this->team->special_event_color ?? '#DC2626';
+        } elseif ($event->eventType) {
+            if ($event->eventType->color) {
+                // Use event type color if available
+                return $event->eventType->color;
+            } elseif (!$event->eventType->is_workday_type) {
+                // Use special event color for non-workday types without specific color
+                return $this->team->special_event_color ?? '#EA8000';
+            }
+        } else {
+            // Use special event color for events without type
+            return $this->team->special_event_color ?? '#EA8000';
+        }
+        
+        return $defaultColor;
     }
 }

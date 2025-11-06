@@ -2,10 +2,10 @@
 
 namespace App\Http\Livewire\Teams;
 
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Illuminate\Support\Facades\Gate;
 
-class UpdateIrregularEventColorForm extends Component
+class UpdateSpecialEventColorForm extends Component
 {
     /**
      * The team instance.
@@ -19,7 +19,7 @@ class UpdateIrregularEventColorForm extends Component
      *
      * @var array
      */
-    public array $state = [];
+    public $state = [];
 
     /**
      * Mount the component.
@@ -30,23 +30,34 @@ class UpdateIrregularEventColorForm extends Component
     public function mount($team): void
     {
         $this->team = $team;
-        $this->state['irregular_event_color'] = $this->team->irregular_event_color ?? '#EA8000';
+
+        $this->state['special_event_color'] = $this->team->special_event_color ?? '#EA8000';
     }
 
     /**
-     * Update the irregular event color for the team.
+     * Update the special event color for the team.
      *
      * @return void
      */
-    public function updateIrregularEventColor(): void
+    public function updateSpecialEventColor(): void
     {
         Gate::forUser(auth()->user())->authorize('update', $this->team);
 
-        $this->team->forceFill([
-            'irregular_event_color' => $this->state['irregular_event_color'],
-        ])->save();
+        $this->team->update([
+            'special_event_color' => $this->state['special_event_color'],
+        ]);
 
         $this->emit('saved');
+    }
+
+    /**
+     * Get the current user of the application.
+     *
+     * @return mixed
+     */
+    public function getUserProperty()
+    {
+        return auth()->user();
     }
 
     /**
@@ -56,6 +67,6 @@ class UpdateIrregularEventColorForm extends Component
      */
     public function render()
     {
-        return view('livewire.teams.update-irregular-event-color-form');
+        return view('livewire.teams.update-special-event-color-form');
     }
 }

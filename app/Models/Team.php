@@ -73,6 +73,7 @@ class Team extends JetstreamTeam
         'force_clock_in_delay',
         'clock_in_delay_minutes',
         'clock_in_grace_period_minutes',
+        'special_event_color',
     ];
 
     /**

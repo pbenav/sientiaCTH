@@ -58,7 +58,7 @@
                     </div>
                     <x-jet-section-border />
                     <div class="mt-10 sm:mt-0">
-                        @livewire('teams.update-irregular-event-color-form', ['team' => $team])
+                        @livewire('teams.update-special-event-color-form', ['team' => $team])
                     </div>
                 </div>
 
