@@ -41,6 +41,8 @@ class Calendar extends Component
         $weekStartsOn = Auth::user()->week_starts_on ?? 1; // Default to Monday
         $scrollTime = $this->getOptimalScrollTime();
         
+        \Log::info('Calendar render: scroll time passed to view', ['scrollTime' => $scrollTime]);
+        
         return view('livewire.calendar', [
             'weekStartsOn' => $weekStartsOn,
             'scrollTime' => $scrollTime
@@ -67,48 +69,62 @@ class Calendar extends Component
             return '08:00:00'; // Default fallback
         }
 
-        $schedule = json_decode($scheduleMeta->meta_value, true);
-        
-        if (empty($schedule)) {
-            \Log::info('Calendar: Empty work schedule for user ' . $user->id . ', using default scroll time');
-            return '08:00:00'; // Default fallback
-        }
+        try {
+            $schedule = json_decode($scheduleMeta->meta_value, true);
+            
+            if (empty($schedule) || !is_array($schedule)) {
+                \Log::info('Calendar: Empty or invalid work schedule for user ' . $user->id . ', using default scroll time');
+                return '08:00:00'; // Default fallback
+            }
 
-        \Log::info('Calendar: Processing work schedule for user ' . $user->id, ['schedule' => $schedule]);
-        $earliestTime = null;
-        
-        // Find the earliest start time across all days and time slots
-        foreach ($schedule as $daySchedule) {
-            if (!empty($daySchedule['slots'])) {
-                foreach ($daySchedule['slots'] as $slot) {
-                    if (isset($slot['start']) && !empty($slot['start'])) {
-                        $startTime = $slot['start'];
-                        
-                        // Convert to minutes for comparison
-                        $timeInMinutes = $this->timeToMinutes($startTime);
-                        
-                        if ($earliestTime === null || $timeInMinutes < $earliestTime) {
-                            $earliestTime = $timeInMinutes;
+            \Log::info('Calendar: Processing work schedule for user ' . $user->id, ['schedule' => $schedule]);
+            $earliestTime = null;
+            
+            // Find the earliest start time across all days and time slots
+            foreach ($schedule as $dayKey => $daySchedule) {
+                if (isset($daySchedule['slots']) && is_array($daySchedule['slots'])) {
+                    foreach ($daySchedule['slots'] as $slot) {
+                        if (isset($slot['start']) && !empty($slot['start'])) {
+                            $startTime = $slot['start'];
+                            
+                            // Convert to minutes for comparison
+                            $timeInMinutes = $this->timeToMinutes($startTime);
+                            \Log::info('Calendar: Found time slot', [
+                                'day' => $dayKey,
+                                'start_time' => $startTime, 
+                                'minutes' => $timeInMinutes
+                            ]);
+                            
+                            if ($earliestTime === null || $timeInMinutes < $earliestTime) {
+                                $earliestTime = $timeInMinutes;
+                            }
                         }
                     }
                 }
             }
-        }
-        
-        if ($earliestTime !== null) {
-            // Subtract 30 minutes to show a bit before the start time
-            $scrollTimeMinutes = max(0, $earliestTime - 30);
-            $scrollTime = $this->minutesToTimeString($scrollTimeMinutes);
-            \Log::info('Calendar: Calculated scroll time', [
-                'earliest_time_minutes' => $earliestTime,
-                'scroll_time_minutes' => $scrollTimeMinutes,
-                'scroll_time' => $scrollTime
+            
+            if ($earliestTime !== null) {
+                // Subtract 30 minutes to show a bit before the start time
+                $scrollTimeMinutes = max(0, $earliestTime - 30);
+                $scrollTime = $this->minutesToTimeString($scrollTimeMinutes);
+                \Log::info('Calendar: Calculated scroll time', [
+                    'earliest_time_minutes' => $earliestTime,
+                    'scroll_time_minutes' => $scrollTimeMinutes,
+                    'scroll_time' => $scrollTime
+                ]);
+                return $scrollTime;
+            }
+            
+            \Log::info('Calendar: No earliest time found, using default scroll time');
+            return '08:00:00'; // Default fallback
+            
+        } catch (\Exception $e) {
+            \Log::error('Calendar: Error processing work schedule', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
             ]);
-            return $scrollTime;
+            return '08:00:00'; // Default fallback
         }
-        
-        \Log::info('Calendar: No earliest time found, using default scroll time');
-        return '08:00:00'; // Default fallback
     }
 
     /**
