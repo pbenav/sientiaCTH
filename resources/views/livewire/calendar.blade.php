@@ -13,6 +13,8 @@
             document.addEventListener('livewire:load', function() {
                 var calendarEl = document.getElementById('calendar');
 
+                console.log('Calendar scroll time:', '{{ $scrollTime }}');
+                
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     plugins: [
                         FullCalendar.dayGridPlugin,

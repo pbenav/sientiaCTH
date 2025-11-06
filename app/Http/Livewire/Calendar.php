@@ -55,6 +55,7 @@ class Calendar extends Component
         $user = Auth::user();
         
         if (!$user) {
+            \Log::info('Calendar: No user authenticated, using default scroll time');
             return '08:00:00'; // Default fallback
         }
 
@@ -62,15 +63,18 @@ class Calendar extends Component
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
         
         if (!$scheduleMeta || !$scheduleMeta->meta_value) {
+            \Log::info('Calendar: No work schedule found for user ' . $user->id . ', using default scroll time');
             return '08:00:00'; // Default fallback
         }
 
         $schedule = json_decode($scheduleMeta->meta_value, true);
         
         if (empty($schedule)) {
+            \Log::info('Calendar: Empty work schedule for user ' . $user->id . ', using default scroll time');
             return '08:00:00'; // Default fallback
         }
 
+        \Log::info('Calendar: Processing work schedule for user ' . $user->id, ['schedule' => $schedule]);
         $earliestTime = null;
         
         // Find the earliest start time across all days and time slots
@@ -94,9 +98,16 @@ class Calendar extends Component
         if ($earliestTime !== null) {
             // Subtract 30 minutes to show a bit before the start time
             $scrollTimeMinutes = max(0, $earliestTime - 30);
-            return $this->minutesToTimeString($scrollTimeMinutes);
+            $scrollTime = $this->minutesToTimeString($scrollTimeMinutes);
+            \Log::info('Calendar: Calculated scroll time', [
+                'earliest_time_minutes' => $earliestTime,
+                'scroll_time_minutes' => $scrollTimeMinutes,
+                'scroll_time' => $scrollTime
+            ]);
+            return $scrollTime;
         }
         
+        \Log::info('Calendar: No earliest time found, using default scroll time');
         return '08:00:00'; // Default fallback
     }
 
