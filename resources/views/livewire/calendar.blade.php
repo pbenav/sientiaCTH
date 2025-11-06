@@ -38,9 +38,7 @@
                     locale: 'es',
                     firstDay: {{ $weekStartsOn }}, // 0 = Sunday, 1 = Monday
                     initialView: 'timeGridWeek',
-                    height: '100%',
-                    contentHeight: 'auto',
-                    expandRows: true,
+                    height: 'auto',
                     slotMinTime: '00:00:00',
                     slotMaxTime: '24:00:00',
                     scrollTime: '{{ $scrollTime }}',
@@ -145,6 +143,30 @@
                 });
 
                 calendar.render();
+                
+                // Force scroll to the configured time after render
+                setTimeout(() => {
+                    console.log('Forcing scroll to:', '{{ $scrollTime }}');
+                    const scrollContainer = calendarEl.querySelector('.fc-scroller-harness');
+                    if (scrollContainer) {
+                        const scroller = scrollContainer.querySelector('.fc-scroller');
+                        if (scroller) {
+                            const timeSlot = calendarEl.querySelector('.fc-timegrid-slot[data-time="{{ substr($scrollTime, 0, 5) }}"]');
+                            if (timeSlot) {
+                                console.log('Found time slot, scrolling to it');
+                                timeSlot.scrollIntoView({ behavior: 'auto', block: 'start' });
+                            } else {
+                                console.log('Time slot not found, trying alternative method');
+                                // Calculate scroll position based on time
+                                const [hours, minutes] = '{{ $scrollTime }}'.split(':').map(Number);
+                                const totalMinutes = hours * 60 + minutes;
+                                const slotHeight = 48; // Default FullCalendar slot height
+                                const scrollTop = (totalMinutes / 30) * slotHeight; // 30-minute slots
+                                scroller.scrollTop = scrollTop;
+                            }
+                        }
+                    }
+                }, 100);
                 
                 // Inject CSS styles after render to override FullCalendar
                 const style = document.createElement('style');
