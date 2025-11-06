@@ -58,8 +58,8 @@ class MobileClockController extends Controller
                 ], 404);
             }
 
-            // Find user by secret code and work center
-            $user = User::where('secret_code', $request->user_secret_code)
+            // Find user by user code and work center
+            $user = User::where('user_code', $request->user_secret_code)
                        ->whereHas('teams', function($query) use ($workCenter) {
                            $query->where('teams.id', $workCenter->team_id);
                        })
