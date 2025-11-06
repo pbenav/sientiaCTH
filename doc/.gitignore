@@ -1,0 +1,28 @@
+# Documentation directory .gitignore
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.pdf
+*.html.tmp
+
+# Draft files
+draft-*
+*-draft.*
+
+# Personal notes
+notes.txt
+todo.md

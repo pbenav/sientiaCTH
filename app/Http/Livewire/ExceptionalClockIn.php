@@ -145,6 +145,7 @@ class ExceptionalClockIn extends Component
             'is_open' => false,
             'is_authorized' => false,
             'is_exceptional' => true,
+            'is_extra_hours' => false, // Since it uses workday event type, it's not overtime
         ]);
 
         $this->tokenRecord->update(['used_at' => now()]);

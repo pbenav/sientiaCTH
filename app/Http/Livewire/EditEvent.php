@@ -250,6 +250,16 @@ class EditEvent extends Component
                 ->format('Y-m-d H:i:s');
         }
 
+        // If description is empty, use event type name
+        if (empty($this->event->description) && $this->event->eventType) {
+            $this->event->description = $this->event->eventType->name;
+        }
+
+        // Update is_extra_hours based on new logic: only main workday events are NOT overtime
+        if ($this->event->eventType) {
+            $this->event->is_extra_hours = !$this->event->eventType->is_workday_type;
+        }
+
         $this->event->save();
 
         if (auth()->user()->isTeamAdmin()) {

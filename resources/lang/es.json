@@ -68,6 +68,7 @@
     "Reset": "Resetear",
     "Delete": "Eliminar",
     "Add a description": "Añade una descripción",
+    "If empty, event type name will be used": "Si está vacío, se usará el nombre del tipo de evento",
     "Workday": "Jornada de trabajo",
     "Pause": "Pausa",
     "Others": "Otros",
@@ -571,5 +572,9 @@
     "Pending": "Pendiente",
     "You are outside your work schedule. Do you want to make an exceptional clock-in?": "Está fuera de su horario laboral. ¿Desea realizar un fichaje excepcional?",
     "Exceptional Clock In": "Fichaje Excepcional",
-    "Exceptional clock-in request created. Please complete the process.": "Solicitud de fichaje excepcional creada. Complete el proceso."
+    "Exceptional clock-in request created. Please complete the process.": "Solicitud de fichaje excepcional creada. Complete el proceso.",
+    "Import All": "Importar Todo",
+    "Select All": "Seleccionar Todo",
+    "No holidays available to import.": "No hay días festivos disponibles para importar.",
+    "Successfully imported all :count holidays.": "Se han importado correctamente todos los :count días festivos."
 }

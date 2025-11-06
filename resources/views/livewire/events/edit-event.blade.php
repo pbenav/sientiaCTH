@@ -1,103 +1,125 @@
 <div>
     <!-- Event detail. Modal table -->
-    <x-jet-dialog-modal wire:model="showModalEditEvent">
+    <x-jet-dialog-modal wire:model="showModalEditEvent" maxWidth="4xl">
 
         <x-slot name='title'>
-            {{ __('Edit event') }}: <span>{{ $event->id }}</span>
-            <p>{{ __('Worker')}}: {{ $user->name }} {{ $user->family_name1 }}</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold">{{ __('Edit event') }} #{{ $event->id }}</h3>
+                    <p class="text-sm text-gray-600">{{ $user->name }} {{ $user->family_name1 }}</p>
+                </div>
+                <div class="text-right text-sm text-gray-500">
+                    @if($event->workCenter)
+                        <div>📍 {{ $event->workCenter->name }}</div>
+                    @endif
+                    @if($event->eventType)
+                        <div class="flex items-center justify-end mt-1">
+                            <span class="inline-block w-3 h-3 rounded-full mr-1" style="background-color: {{ $event->eventType->color ?? '#3788d8' }}"></span>
+                            {{ $event->eventType->name }}
+                        </div>
+                    @endif
+                </div>
+            </div>
         </x-slot>
 
         <x-slot name='content'>
-            <div class="mb-4 p-3 border-l-4 border-blue-400 bg-blue-50 rounded">
-                @if($event->workCenter)
-                    <div>
-                        <p class="font-bold text-blue-800">{{ __('Work Center') }}: <span class="font-medium text-gray-700">{{ $event->workCenter->name }}</span></p>
-                    </div>
-                @endif
-
-                @if($workScheduleHint)
-                    <div>
-                        <p class="font-bold text-blue-800 mt-2">{{ __('Work Schedule Hint') }}: <span class="font-medium text-gray-700">{{ $workScheduleHint }}</span></p>
-                    </div>
-                @endif
-            </div>
-            <div class="mb-4">
-                <x-jet-label value="{{ __('Event Type') }}" />
-                <div class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-                    {{ $event->eventType->name ?? '' }}
-                </div>
-            </div>
-
-            @if (isset($event->eventType) && $event->eventType->is_all_day)
-                {{-- All-day event: show only date inputs --}}
-                <div class="mb-4">
-                    <x-jet-label value="{{ __('Start date') }}" />
-                    <x-jet-input type="date" wire:model="start_date" {{ $canBeModified ? '' : 'disabled' }} />
-                    <x-jet-input-error for="start_date" />
-                </div>
-                <div class="mb-4">
-                    <x-jet-label value="{{ __('End date') }}" />
-                    <x-jet-input type="date" wire:model="end_date" {{ $canBeModified ? '' : 'disabled' }} />
-                    <x-jet-input-error for="end_date" />
-                </div>
-            @else
-                {{-- Non-all-day event: show date and time in same rows --}}
-                {{-- Start Date & Time Row --}}
-                <div class="mb-4">
-                    <x-jet-label value="{{ __('Start date and time') }}" class="mb-2 required" />
-                    <div class="flex gap-3 items-start">
-                        <div class="w-40">
-                            <input type="date" 
-                                   class="form-control block w-full border-gray-300 rounded-md shadow-sm" 
-                                   wire:model.live="start_date" 
-                                   {{ $canBeModified ? '' : 'disabled' }} />
-                            <x-jet-input-error for="start_date" />
-                        </div>
-                        <div class="w-32">
-                            <input type="time" 
-                                   class="form-control block w-full border-gray-300 rounded-md shadow-sm" 
-                                   wire:model.live="start_time" 
-                                   {{ $canBeModified ? '' : 'disabled' }} 
-                                   step="300" />
-                            <x-jet-input-error for="start_time" />
-                        </div>
-                    </div>
-                </div>
-
-                {{-- End Date & Time Row --}}
-                <div class="mb-4">
-                    <x-jet-label value="{{ __('End date and time') }}" class="mb-2 required" />
-                    <div class="flex gap-3 items-start">
-                        <div class="w-40">
-                            <input type="date" 
-                                   class="form-control block w-full border-gray-300 rounded-md shadow-sm" 
-                                   wire:model.live="end_date" 
-                                   {{ $canBeModified ? '' : 'disabled' }} />
-                            <x-jet-input-error for="end_date" />
-                        </div>
-                        <div class="w-32">
-                            <input type="time" 
-                                   class="form-control block w-full border-gray-300 rounded-md shadow-sm" 
-                                   wire:model.live="end_time" 
-                                   {{ $canBeModified ? '' : 'disabled' }} 
-                                   step="300" />
-                            <x-jet-input-error for="end_time" />
-                        </div>
-                    </div>
+            <!-- Context Info Bar -->
+            @if($workScheduleHint)
+                <div class="mb-4 p-2 border-l-4 border-blue-400 bg-blue-50 rounded text-sm">
+                    <span class="font-medium text-blue-800">{{ __('Work Schedule Hint') }}:</span>
+                    <span class="text-gray-700">{{ $workScheduleHint }}</span>
                 </div>
             @endif
 
-            <div class="mx-auto mb-4">
-                <x-jet-label value="{{ __('Observations') }}" />
-                <textarea class="w-full form-control"
-                 wire:model.defer="event.observations"
-                 rows="4"
-                 placeholder="{{ __('event.observations.placeholder') }}"
-                 name="observations"
-                 id="observations"
-                 maxlength="255"
-                 {{ $canBeModified ? '' : 'disabled' }}></textarea>
-                <x-jet-input-error for='event.observations' />
+            <!-- Main Form Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Left Column: Date & Time -->
+                <div class="space-y-4">
+                    @if (isset($event->eventType) && $event->eventType->is_all_day)
+                        {{-- All-day event: show only date inputs --}}
+                        <div>
+                            <x-jet-label value="{{ __('Start date') }}" class="text-sm font-medium" />
+                            <x-jet-input type="date" wire:model="start_date" class="mt-1" {{ $canBeModified ? '' : 'disabled' }} />
+                            <x-jet-input-error for="start_date" />
+                        </div>
+                        <div>
+                            <x-jet-label value="{{ __('End date') }}" class="text-sm font-medium" />
+                            <x-jet-input type="date" wire:model="end_date" class="mt-1" {{ $canBeModified ? '' : 'disabled' }} />
+                            <x-jet-input-error for="end_date" />
+                        </div>
+                    @else
+                        {{-- Non-all-day event: compact date and time --}}
+                        <div>
+                            <x-jet-label value="{{ __('Start') }}" class="text-sm font-medium mb-2" />
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <input type="date" 
+                                           class="form-control w-full text-sm border-gray-300 rounded-md shadow-sm" 
+                                           wire:model.live="start_date" 
+                                           {{ $canBeModified ? '' : 'disabled' }} />
+                                    <x-jet-input-error for="start_date" />
+                                </div>
+                                <div>
+                                    <input type="time" 
+                                           class="form-control w-full text-sm border-gray-300 rounded-md shadow-sm" 
+                                           wire:model.live="start_time" 
+                                           {{ $canBeModified ? '' : 'disabled' }} 
+                                           step="300" />
+                                    <x-jet-input-error for="start_time" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <x-jet-label value="{{ __('End') }}" class="text-sm font-medium mb-2" />
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <input type="date" 
+                                           class="form-control w-full text-sm border-gray-300 rounded-md shadow-sm" 
+                                           wire:model.live="end_date" 
+                                           {{ $canBeModified ? '' : 'disabled' }} />
+                                    <x-jet-input-error for="end_date" />
+                                </div>
+                                <div>
+                                    <input type="time" 
+                                           class="form-control w-full text-sm border-gray-300 rounded-md shadow-sm" 
+                                           wire:model.live="end_time" 
+                                           {{ $canBeModified ? '' : 'disabled' }} 
+                                           step="300" />
+                                    <x-jet-input-error for="end_time" />
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Right Column: Description & Observations -->
+                <div class="space-y-4">
+                    <div>
+                        <x-jet-label value="{{ __('Description') }}" class="text-sm font-medium" />
+                        <x-jet-input class="block w-full mt-1 text-sm" 
+                                     wire:model.defer="event.description"
+                                     placeholder="{{ __('Add a description') }}"
+                                     maxlength="255"
+                                     {{ $canBeModified ? '' : 'disabled' }} />
+                        <x-jet-input-error for='event.description' />
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ __('If empty, event type name will be used') }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <x-jet-label value="{{ __('Observations') }}" class="text-sm font-medium" />
+                        <textarea class="w-full mt-1 text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                         wire:model.defer="event.observations"
+                         rows="3"
+                         placeholder="{{ __('event.observations.placeholder') }}"
+                         maxlength="255"
+                         {{ $canBeModified ? '' : 'disabled' }}></textarea>
+                        <x-jet-input-error for='event.observations' />
+                    </div>
+                </div>
             </div>
 
         </x-slot>

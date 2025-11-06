@@ -80,6 +80,18 @@
             @endif
 
             <div class="mx-auto mb-4">
+                <x-jet-label value="{{ __('Description') }}" />
+                <x-jet-input class="block w-full" 
+                             wire:model="description"
+                             placeholder="{{ __('Add a description') }}"
+                             maxlength="255" />
+                <x-jet-input-error for='description' />
+                <div class="text-xs text-gray-500 mt-1">
+                    {{ __('If empty, event type name will be used') }}
+                </div>
+            </div>
+
+            <div class="mx-auto mb-4">
                 <x-jet-label value="{{ __('Observations') }}" />
                 <textarea class="w-full form-control"                
                 wire:model="observations"

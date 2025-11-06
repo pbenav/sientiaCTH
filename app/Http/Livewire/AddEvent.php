@@ -87,6 +87,10 @@ class AddEvent extends Component
     public function updatedEventTypeId(int $value): void
     {
         $this->selectedEventType = EventType::find($value);
+        // Update description with event type name if it's currently the default or empty
+        if (empty($this->description) || $this->description === __('Workday')) {
+            $this->description = $this->selectedEventType ? $this->selectedEventType->name : '';
+        }
     }
 
     /**
@@ -213,7 +217,9 @@ class AddEvent extends Component
             return;
         }
 
-        $isExtraHours = !$this->isWithinWorkSchedule($eventStartTime);
+        // NEW LOGIC: All time not within main workday events should be considered overtime
+        // This includes holidays, weekends, and non-workday event types
+        $isExtraHours = !($this->selectedEventType && $this->selectedEventType->is_workday_type);
 
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
@@ -222,7 +228,7 @@ class AddEvent extends Component
             'user_id' => Auth::user()->id,
             'team_id' => $team->id,
             'work_center_id' => $defaultWorkCenterId,
-            'description' => $this->selectedEventType->name,
+            'description' => !empty($this->description) ? $this->description : $this->selectedEventType->name,
             'observations' => $this->observations,
             'event_type_id' => $this->event_type_id,
             'is_open' => true,

@@ -230,6 +230,47 @@ class HolidayManager extends Component
         }
     }
 
+    public function toggleSelectAll(): void
+    {
+        if (count($this->selectedHolidays) === count($this->availableHolidays)) {
+            // If all are selected, deselect all
+            $this->selectedHolidays = [];
+        } else {
+            // If not all are selected, select all
+            $this->selectedHolidays = array_keys($this->availableHolidays);
+        }
+    }
+
+    public function getIsAllSelectedProperty(): bool
+    {
+        return count($this->selectedHolidays) === count($this->availableHolidays) && count($this->availableHolidays) > 0;
+    }
+
+    public function importAllHolidays(): void
+    {
+        if (empty($this->availableHolidays)) {
+            session()->flash('error', __('No holidays available to import.'));
+            return;
+        }
+
+        $imported = 0;
+        foreach ($this->availableHolidays as $holiday) {
+            $this->team->holidays()->create([
+                'name' => $holiday['name'],
+                'date' => $holiday['date'],
+                'type' => $holiday['type'],
+            ]);
+            
+            $imported++;
+        }
+
+        session()->flash('success', __('Successfully imported all :count holidays.', ['count' => $imported]));
+        
+        $this->importingHolidays = false;
+        $this->selectedHolidays = [];
+        $this->loadHolidays();
+    }
+
     public function render()
     {
         return view('livewire.teams.holiday-manager', [

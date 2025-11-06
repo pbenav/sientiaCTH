@@ -145,12 +145,27 @@
                 @if(count($availableHolidays) > 0)
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg">
                         <div class="bg-gray-50 dark:bg-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                            <h4 class="font-medium text-gray-900 dark:text-gray-100">
-                                {{ __('Available Holidays for :year', ['year' => $importYear]) }}
-                            </h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">
-                                {{ __('Select the holidays you want to import') }}
-                            </p>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-medium text-gray-900 dark:text-gray-100">
+                                        {{ __('Available Holidays for :year', ['year' => $importYear]) }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        {{ __('Select the holidays you want to import') }}
+                                    </p>
+                                </div>
+                                <div class="flex items-center">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                            wire:click="toggleSelectAll"
+                                            {{ $this->isAllSelected ? 'checked' : '' }}
+                                            class="rounded border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ __('Select All') }}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="max-h-64 overflow-y-auto">
@@ -199,10 +214,18 @@
             </x-jet-secondary-button>
 
             @if(count($availableHolidays) > 0)
-                <x-jet-button class="ml-2" wire:click="importSelectedHolidays" wire:loading.attr="disabled">
-                    <i class="fas fa-download mr-2"></i>
-                    {{ __('Import Selected') }} ({{ count($selectedHolidays) }})
-                </x-jet-button>
+                <div class="flex gap-2 ml-2">
+                    <x-jet-secondary-button wire:click="importAllHolidays" wire:loading.attr="disabled">
+                        <i class="fas fa-calendar-plus mr-2"></i>
+                        {{ __('Import All') }} ({{ count($availableHolidays) }})
+                    </x-jet-secondary-button>
+                    
+                    <x-jet-button wire:click="importSelectedHolidays" wire:loading.attr="disabled" 
+                                  class="{{ count($selectedHolidays) === 0 ? 'opacity-50 cursor-not-allowed' : '' }}">
+                        <i class="fas fa-download mr-2"></i>
+                        {{ __('Import Selected') }} ({{ count($selectedHolidays) }})
+                    </x-jet-button>
+                </div>
             @endif
         </x-slot>
     </x-jet-dialog-modal>

@@ -259,8 +259,23 @@ trait CalculatesDashboardData
             $percentage_completion = 0;
         }
 
-        // Horas extra: todas las horas de jornada que están fuera del slot en días con registros
-        $extra_hours = round($extraSeconds / 3600, 2);
+        // NEW LOGIC: Calculate extra hours directly from is_extra_hours field
+        // Get all events marked as extra hours for the period
+        $extraHoursEvents = Event::where('user_id', $user->id)
+            ->where('is_extra_hours', true)
+            ->whereBetween('start', [$startDate->copy()->setTimezone('UTC'), $endDate->copy()->addDay()->setTimezone('UTC')])
+            ->whereNotNull('end')
+            ->get();
+
+        $extraHoursTotal = 0;
+        foreach ($extraHoursEvents as $event) {
+            $eventStart = Carbon::parse($event->start, 'UTC');
+            $eventEnd = Carbon::parse($event->end, 'UTC');
+            $extraHoursTotal += $eventStart->diffInSeconds($eventEnd);
+        }
+
+        // Use the new calculation method
+        $extra_hours = round($extraHoursTotal / 3600, 2);
 
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
         $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];

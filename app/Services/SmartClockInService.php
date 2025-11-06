@@ -146,6 +146,9 @@ class SmartClockInService
         $nowUTC = $now->copy()->setTimezone('UTC');
 
         try {
+            // Get event type to use its name as default description
+            $eventType = EventType::find($eventTypeId);
+            
             $event = Event::create([
                 'user_id' => $user->id,
                 'event_type_id' => $eventTypeId,
@@ -153,9 +156,11 @@ class SmartClockInService
                 'work_center_id' => $user->currentTeam->workCenters()->first()?->id,
                 'start' => $nowUTC->format('Y-m-d H:i:s'),
                 'end' => null,
+                'description' => $eventType ? $eventType->name : __('Workday'),
                 'is_open' => true,
                 'is_authorized' => false,
                 'is_exceptional' => $overtime,
+                'is_extra_hours' => $eventType ? !$eventType->is_workday_type : false,
                 'is_closed_automatically' => false,
             ]);
 
