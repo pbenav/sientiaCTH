@@ -43,6 +43,10 @@ class Calendar extends Component
         
         \Log::info('Calendar render: scroll time passed to view', ['scrollTime' => $scrollTime]);
         
+        // Temporary override for testing
+        $scrollTime = '10:00:00';
+        \Log::info('Calendar render: OVERRIDE scroll time for testing', ['scrollTime' => $scrollTime]);
+        
         return view('livewire.calendar', [
             'weekStartsOn' => $weekStartsOn,
             'scrollTime' => $scrollTime
