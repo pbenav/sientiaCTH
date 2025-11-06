@@ -15,6 +15,9 @@
 
 
                 
+                // Debug: Check what scroll time we're actually using
+                console.log('FullCalendar scrollTime configuration:', '{{ $scrollTime }}');
+                
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     plugins: [
                         FullCalendar.dayGridPlugin,
@@ -47,52 +50,40 @@
                     eventDurationEditable: true,
                     selectable: true,
                     
-                    // Auto-scroll to user's work schedule start time
+                    // Comprehensive scroll debugging
                     viewDidMount: function(info) {
-                        console.log('=== CALENDAR SCROLL DEBUG ===');
-                        console.log('Calculated scroll time:', '{{ $scrollTime }}');
+                        console.log('=== VIEW DID MOUNT ===');
+                        console.log('Calendar instance:', calendar);
+                        console.log('Info object:', info);
+                        console.log('Target scroll time:', '{{ $scrollTime }}');
                         
-                        setTimeout(() => {
-                            const scrollTime = '{{ $scrollTime }}';
-                            console.log('Attempting scroll to:', scrollTime);
-                            
-                            // Use FullCalendar's built-in scrollToTime method
+                        // Test multiple approaches with different timing
+                        setTimeout(function() {
+                            console.log('Attempt 1: Direct scrollToTime');
                             try {
-                                calendar.scrollToTime(scrollTime);
-                                console.log('✅ scrollToTime executed successfully');
-                            } catch (e) {
-                                console.log('❌ scrollToTime failed:', e);
-                                
-                                // Fallback: Manual scroll calculation
-                                const [hours, minutes] = scrollTime.split(':').map(Number);
-                                const totalMinutes = hours * 60 + minutes;
-                                
-                                console.log('Manual scroll data:', {
-                                    hours, minutes, totalMinutes
-                                });
-                                
-                                const scrollContainer = calendarEl.querySelector('.fc-scroller');
-                                if (scrollContainer) {
-                                    const pixelsPerHour = 96; // 2 slots of 48px each
-                                    const scrollTop = (totalMinutes / 60) * pixelsPerHour;
-                                    
-                                    console.log('Scroll calculation:', {
-                                        pixelsPerHour,
-                                        scrollTop,
-                                        currentScrollTop: scrollContainer.scrollTop
-                                    });
-                                    
-                                    scrollContainer.scrollTop = scrollTop;
-                                    
-                                    console.log('After manual scroll:', {
-                                        newScrollTop: scrollContainer.scrollTop
-                                    });
-                                } else {
-                                    console.log('❌ Could not find scroll container');
-                                }
+                                calendar.scrollToTime('{{ $scrollTime }}');
+                                console.log('✅ scrollToTime method executed without errors');
+                            } catch(e) {
+                                console.error('❌ scrollToTime failed:', e);
                             }
-                        }, 500); // Increased delay
+                        }, 100);
+                        
+                        setTimeout(function() {
+                            console.log('Attempt 2: Check scroll position');
+                            const scrollContainer = document.querySelector('.fc-scroller');
+                            if (scrollContainer) {
+                                console.log('Scroll container found:', {
+                                    scrollTop: scrollContainer.scrollTop,
+                                    scrollHeight: scrollContainer.scrollHeight,
+                                    clientHeight: scrollContainer.clientHeight
+                                });
+                            } else {
+                                console.log('❌ No .fc-scroller container found');
+                            }
+                        }, 200);
                     },
+                    
+
                     
                     eventAllow: function(dropInfo, draggedEvent) {
                         // Allow drop unless the editable property exists and is false.

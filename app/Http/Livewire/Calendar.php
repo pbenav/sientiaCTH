@@ -48,7 +48,7 @@ class Calendar extends Component
         ]);
         
         // Force a specific time to test if the mechanism works
-        $scrollTime = '09:00:00';
+        $scrollTime = '10:00:00';  // Changed to a more visible time
         \Log::info('CALENDAR DEBUG - FORCED scroll time for testing', [
             'forced_scroll_time' => $scrollTime
         ]);
