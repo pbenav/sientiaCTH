@@ -3,8 +3,8 @@
     @livewire('edit-event')
     @livewire('event-info-modal')
     
-    <div id='calendar-container' wire:ignore>
-        <div id='calendar'></div>
+    <div id='calendar-container' wire:ignore style="height: calc(100vh - 180px); min-height: 800px;">
+        <div id='calendar' style="height: 100%;"></div>
     </div>
 
     @push('scripts')
@@ -14,9 +14,6 @@
                 var calendarEl = document.getElementById('calendar');
 
 
-                
-                // Debug: Check what scroll time we're actually using
-                console.log('FullCalendar scrollTime configuration:', '{{ $scrollTime }}');
                 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
                     plugins: [
@@ -41,7 +38,7 @@
                     locale: 'es',
                     firstDay: {{ $weekStartsOn }}, // 0 = Sunday, 1 = Monday
                     initialView: 'timeGridWeek',
-                    height: 'auto',
+                    height: '100%',
                     slotMinTime: '00:00:00',
                     slotMaxTime: '24:00:00',
                     scrollTime: '{{ $scrollTime }}',
@@ -49,39 +46,7 @@
                     editable: true,
                     eventDurationEditable: true,
                     selectable: true,
-                    
-                    // Comprehensive scroll debugging
-                    viewDidMount: function(info) {
-                        console.log('=== VIEW DID MOUNT ===');
-                        console.log('Calendar instance:', calendar);
-                        console.log('Info object:', info);
-                        console.log('Target scroll time:', '{{ $scrollTime }}');
-                        
-                        // Test multiple approaches with different timing
-                        setTimeout(function() {
-                            console.log('Attempt 1: Direct scrollToTime');
-                            try {
-                                calendar.scrollToTime('{{ $scrollTime }}');
-                                console.log('✅ scrollToTime method executed without errors');
-                            } catch(e) {
-                                console.error('❌ scrollToTime failed:', e);
-                            }
-                        }, 100);
-                        
-                        setTimeout(function() {
-                            console.log('Attempt 2: Check scroll position');
-                            const scrollContainer = document.querySelector('.fc-scroller');
-                            if (scrollContainer) {
-                                console.log('Scroll container found:', {
-                                    scrollTop: scrollContainer.scrollTop,
-                                    scrollHeight: scrollContainer.scrollHeight,
-                                    clientHeight: scrollContainer.clientHeight
-                                });
-                            } else {
-                                console.log('❌ No .fc-scroller container found');
-                            }
-                        }, 200);
-                    },
+
                     
 
                     
