@@ -166,7 +166,7 @@ class MobileClockController extends Controller
                     throw new \Exception('No event type configured for clock in');
                 }
                 
-                $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime);
+                $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime, 'mobile_api');
                 
                 if (!$result['success']) {
                     throw new \Exception($result['message']);
