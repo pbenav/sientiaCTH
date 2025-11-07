@@ -64,7 +64,7 @@
 
                 {{-- Work Centers Tab --}}
                 <div x-show="tab === 'work_centers'" class="py-6">
-                    @livewire('teams.work-center-manager', ['team' => $team])
+                    @livewire('teams.work-center-manager', ['teamId' => $team->id])
                     <x-jet-section-border />
                     <div class="mt-10 sm:mt-0">
                         @livewire('teams.timezone-manager', ['team' => $team])

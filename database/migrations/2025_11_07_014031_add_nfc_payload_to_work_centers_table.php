@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('work_centers', function (Blueprint $table) {
-            $table->string('nfc_tag_id', 64)->nullable()->unique()->after('code');
-            $table->text('nfc_tag_description')->nullable()->after('nfc_tag_id');
-            $table->timestamp('nfc_tag_generated_at')->nullable()->after('nfc_tag_description');
+            // Agregar campo para almacenar el payload completo del NFC
+            // que incluirá la URL del servidor + el ID del centro de trabajo
+            // Usamos VARCHAR en lugar de TEXT para poder indexar
+            $table->string('nfc_payload', 500)->nullable()->after('nfc_tag_description');
             
-            // Índices para optimizar búsquedas
-            $table->index('nfc_tag_id');
+            // Índice para búsquedas rápidas por payload
+            $table->index('nfc_payload');
         });
     }
 
@@ -27,8 +28,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('work_centers', function (Blueprint $table) {
-            $table->dropIndex(['nfc_tag_id']);
-            $table->dropColumn(['nfc_tag_id', 'nfc_tag_description', 'nfc_tag_generated_at']);
+            $table->dropIndex(['nfc_payload']);
+            $table->dropColumn('nfc_payload');
         });
     }
 };

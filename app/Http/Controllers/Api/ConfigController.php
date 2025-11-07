@@ -96,7 +96,7 @@ class ConfigController extends Controller
     public function getWorkCentersWithNFC()
     {
         $workCenters = \App\Models\WorkCenter::whereNotNull('nfc_tag_id')
-            ->select(['id', 'name', 'code', 'nfc_tag_id', 'nfc_tag_description'])
+            ->select(['id', 'name', 'code', 'nfc_tag_id', 'nfc_tag_description', 'nfc_payload'])
             ->get()
             ->map(function ($center) {
                 return [
@@ -104,8 +104,10 @@ class ConfigController extends Controller
                     'name' => $center->name,
                     'code' => $center->code,
                     'nfc_tag_id' => $center->nfc_tag_id,
+                    'nfc_payload' => $center->nfc_payload,
                     'description' => $center->nfc_tag_description,
                     'location_hint' => $center->nfc_tag_description ?: 'NFC tag at ' . $center->name,
+                    'has_full_payload' => !empty($center->nfc_payload),
                 ];
             });
 
@@ -122,7 +124,8 @@ class ConfigController extends Controller
     /**
      * Verify NFC tag against work center
      * 
-     * Validates that a scanned NFC tag ID matches a configured work center
+     * Validates that a scanned NFC tag ID or payload matches a configured work center.
+     * Supports both simple NFC ID verification and full payload verification with auto-configuration.
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -130,10 +133,36 @@ class ConfigController extends Controller
     public function verifyNFCTag(Request $request)
     {
         $request->validate([
-            'nfc_tag_id' => 'required|string',
+            'nfc_data' => 'required|string',
         ]);
 
-        $workCenter = \App\Models\WorkCenter::where('nfc_tag_id', $request->nfc_tag_id)->first();
+        $nfcData = $request->nfc_data;
+        $workCenter = null;
+        $configData = null;
+
+        // Intenta parsear como JSON (payload completo)
+        $payloadData = json_decode($nfcData, true);
+        
+        if ($payloadData && is_array($payloadData)) {
+            // Es un payload JSON, buscar por payload completo
+            $workCenter = \App\Models\WorkCenter::where('nfc_payload', $nfcData)->first();
+            
+            if ($workCenter) {
+                // Determinar URL del servidor desde el payload compacto
+                $serverUrl = $payloadData['url'] ?? $payloadData['server_url'] ?? null;
+                $apiEndpoint = $serverUrl ? $serverUrl . '/api/v1' : ($payloadData['api_endpoint'] ?? null);
+                
+                $configData = [
+                    'server_configured' => true,
+                    'auto_config_data' => $payloadData,
+                    'server_url' => $serverUrl,
+                    'api_endpoint' => $apiEndpoint,
+                ];
+            }
+        } else {
+            // Es un simple NFC ID, buscar por nfc_tag_id
+            $workCenter = \App\Models\WorkCenter::where('nfc_tag_id', $nfcData)->first();
+        }
 
         if (!$workCenter) {
             return response()->json([
@@ -141,7 +170,8 @@ class ConfigController extends Controller
                 'error' => 'NFC tag not recognized or not configured',
                 'code' => 'NFC_TAG_NOT_FOUND',
                 'data' => [
-                    'scanned_tag' => $request->nfc_tag_id,
+                    'scanned_data' => $nfcData,
+                    'is_payload' => $payloadData !== null,
                     'suggestions' => [
                         'Verify the NFC tag is correctly placed',
                         'Check that the work center has NFC configured in the web app',
@@ -151,22 +181,32 @@ class ConfigController extends Controller
             ], 404);
         }
 
+        $responseData = [
+            'work_center' => [
+                'id' => $workCenter->id,
+                'name' => $workCenter->name,
+                'code' => $workCenter->code,
+                'team_id' => $workCenter->team_id,
+                'description' => $workCenter->nfc_tag_description,
+            ],
+            'verification' => [
+                'verified_at' => now()->toISOString(),
+                'nfc_data' => $nfcData,
+                'status' => 'verified'
+            ]
+        ];
+
+        // Agregar datos de configuración si es un payload completo
+        if ($configData) {
+            $responseData['auto_configuration'] = $configData;
+        }
+
         return response()->json([
             'success' => true,
-            'data' => [
-                'work_center' => [
-                    'id' => $workCenter->id,
-                    'name' => $workCenter->name,
-                    'code' => $workCenter->code,
-                    'description' => $workCenter->nfc_tag_description,
-                ],
-                'verification' => [
-                    'verified_at' => now()->toISOString(),
-                    'tag_id' => $request->nfc_tag_id,
-                    'status' => 'verified'
-                ]
-            ],
-            'message' => "NFC verification successful for {$workCenter->name}"
+            'data' => $responseData,
+            'message' => $configData 
+                ? 'NFC verified and server auto-configuration data provided' 
+                : "NFC verification successful for {$workCenter->name}"
         ]);
     }
 
