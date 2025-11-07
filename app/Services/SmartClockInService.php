@@ -149,7 +149,7 @@ class SmartClockInService
         }
 
         // Check if user is outside work schedule
-        $isOutsideSchedule = !$this->isWithinWorkSchedule($now);
+        $isOutsideSchedule = !$this->isUserWithinWorkSchedule($user, $now);
         
         // If outside schedule and force_clock_in_delay is enabled, require exceptional clock-in
         if ($isOutsideSchedule && $user->currentTeam->force_clock_in_delay) {
