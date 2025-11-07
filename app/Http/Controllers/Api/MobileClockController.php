@@ -83,13 +83,18 @@ class MobileClockController extends Controller
             if (!$clockAction['can_clock']) {
                 // For mobile API, automatically allow exceptional clock-ins
                 if ($clockAction['action'] === 'confirm_exceptional_clock_in') {
-                    // Override to allow exceptional clock-in
+                    // Check if user is actually within work schedule
+                    $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+                    $now = Carbon::now($teamTimezone);
+                    $isWithinSchedule = $this->smartClockInService->isWithinWorkSchedule($now);
+
+                    // Override to allow clock-in - only mark as exceptional if truly outside schedule
                     $clockAction = [
                         'can_clock' => true,
                         'action' => 'clock_in',
                         'event_type_id' => $clockAction['event_type_id'],
-                        'overtime' => true, // Mark as overtime/exceptional
-                        'message' => 'Exceptional clock-in allowed'
+                        'overtime' => !$isWithinSchedule, // Only exceptional if outside schedule
+                        'message' => $isWithinSchedule ? 'Clock-in allowed' : 'Exceptional clock-in allowed'
                     ];
                 } else {
                     return response()->json([
