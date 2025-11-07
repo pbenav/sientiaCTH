@@ -109,7 +109,7 @@ class _SetupScreenState extends State<SetupScreen> {
                     TextField(
                       controller: _urlController,
                       decoration: InputDecoration(
-                        hintText: 'https://cth.miempresa.com',
+                        hintText: 'https://cth.sientia.com',
                         prefixIcon: Icon(Icons.language),
                         border: OutlineInputBorder(),
                       ),

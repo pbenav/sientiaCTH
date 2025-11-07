@@ -133,10 +133,10 @@ class ConfigController extends Controller
     public function verifyNFCTag(Request $request)
     {
         $request->validate([
-            'nfc_data' => 'required|string',
+            'nfc_id' => 'required|string',
         ]);
 
-        $nfcData = $request->nfc_data;
+        $nfcData = $request->nfc_id;
         $workCenter = null;
         $configData = null;
 
@@ -203,7 +203,13 @@ class ConfigController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $responseData,
+            'work_center' => [
+                'id' => $workCenter->id,
+                'name' => $workCenter->name,
+                'code' => $workCenter->code,
+                'team_id' => $workCenter->team_id,
+                'description' => $workCenter->nfc_tag_description,
+            ],
             'message' => $configData 
                 ? 'NFC verified and server auto-configuration data provided' 
                 : "NFC verification successful for {$workCenter->name}"

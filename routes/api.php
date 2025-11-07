@@ -17,27 +17,18 @@ use App\Http\Controllers\Api\ConfigController;
 */
 
 Route::prefix('v1')->group(function () {
-    Route::post('login', [\App\Http\Controllers\Api\LoginController::class, 'login']);
-    
     // Public configuration endpoints - no authentication required
     Route::prefix('config')->group(function () {
         Route::get('/server', [ConfigController::class, 'getServerConfig']);
-        Route::get('/ping', [ConfigController::class, 'ping']);
-        Route::get('/work-centers/nfc', [ConfigController::class, 'getWorkCentersWithNFC']);
-        Route::post('/nfc/verify', [ConfigController::class, 'verifyNFCTag']);
     });
+    
+    // NFC verification endpoint
+    Route::post('/nfc/verify', [ConfigController::class, 'verifyNFCTag']);
     
     // Mobile clock-in API - no authentication required, uses work center code + user secret code
     Route::prefix('mobile')->group(function () {
         Route::post('/clock', [MobileClockController::class, 'clock']);
         Route::get('/status', [MobileClockController::class, 'status']);
         Route::post('/sync', [MobileClockController::class, 'sync']);
-    });
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
-        Route::post('work_center/validate', [\App\Http\Controllers\Api\WorkCenterAPIController::class, 'validateCode']);
-        Route::post('punch', [\App\Http\Controllers\Api\PunchController::class, 'store']);
-        Route::get('admin/work_centers', [\App\Http\Controllers\Api\WorkCenterAPIController::class, 'index'])->middleware('isTeamAdmin');
     });
 });
