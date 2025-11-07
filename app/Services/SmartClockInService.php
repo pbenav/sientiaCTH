@@ -205,7 +205,7 @@ class SmartClockInService
             // Prepare observations for exceptional events from mobile API
             $observations = null;
             if ($overtime && $source === 'mobile_api') {
-                $observations = 'Exceptional clock-in made through mobile API (outside work schedule)';
+                $observations = __('Exceptional clock-in made through mobile API (outside work schedule)');
             }
             
             $event = Event::create([

@@ -602,5 +602,6 @@
     "Pause event not found or already closed": "Evento de pausa no encontrado o ya cerrado",
     "Error pausing workday: :error": "Error al pausar jornada: :error",
     "Error resuming workday: :error": "Error al reanudar jornada: :error",
-    "Pause event type not configured": "Tipo de evento de pausa no configurado"
+    "Pause event type not configured": "Tipo de evento de pausa no configurado",
+    "Exceptional clock-in made through mobile API (outside work schedule)": "Fichaje excepcional realizado a través de la API móvil (fuera del horario laboral)"
 }
