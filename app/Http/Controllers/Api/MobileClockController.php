@@ -300,4 +300,182 @@ class MobileClockController extends Controller
             return null;
         }
     }
+    
+    /**
+     * Get current user status without performing any action
+     */
+    public function status(Request $request)
+    {
+        $request->validate([
+            'work_center_code' => 'required|string',
+            'user_code' => 'required|string'
+        ]);
+
+        // Find work center
+        $workCenter = WorkCenter::where('code', $request->work_center_code)->first();
+        if (!$workCenter) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Centro de trabajo no encontrado'
+            ], 404);
+        }
+
+        // Find user
+        $user = User::where('user_code', $request->user_code)->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        try {
+            // Get current status using the service
+            $clockAction = $this->smartClockInService->getClockAction($user);
+            $nextAction = $clockAction['action'];
+            
+            // Get today's events for summary
+            $today = now()->format('Y-m-d');
+            $todayEvents = []; // In real implementation, query today's events
+            
+            // Calculate today's statistics
+            $todayStats = [
+                'entries_count' => 0,
+                'exits_count' => 0,
+                'worked_hours' => '0:00',
+                'current_status' => $nextAction === 'entrada' ? 'fuera' : 'trabajando',
+                'last_action' => null
+            ];
+            
+            // Mock calculation - replace with real logic
+            if (count($todayEvents) > 0) {
+                $lastEvent = $todayEvents[count($todayEvents) - 1];
+                $todayStats['last_action'] = [
+                    'type' => $lastEvent['type'] ?? 'entrada',
+                    'time' => $lastEvent['time'] ?? now()->format('H:i'),
+                    'datetime' => $lastEvent['datetime'] ?? now()->toISOString()
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'code' => $user->user_code
+                    ],
+                    'work_center' => [
+                        'id' => $workCenter->id,
+                        'name' => $workCenter->name,
+                        'code' => $workCenter->code
+                    ],
+                    'next_action' => $nextAction,
+                    'can_clock' => true, // Could add business logic here
+                    'today_stats' => $todayStats,
+                    'current_time' => now()->toISOString(),
+                    'timezone' => config('app.timezone')
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Mobile status error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el estado del usuario'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Sync offline data (for future offline support)
+     */
+    public function sync(Request $request)
+    {
+        $request->validate([
+            'work_center_code' => 'required|string',
+            'user_code' => 'required|string',
+            'offline_events' => 'array'
+        ]);
+
+        // Find work center and user
+        $workCenter = WorkCenter::where('code', $request->work_center_code)->first();
+        if (!$workCenter) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Centro de trabajo no encontrado'
+            ], 404);
+        }
+
+        $user = User::where('user_code', $request->user_code)->first();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        $syncResults = [];
+        $offlineEvents = $request->offline_events ?? [];
+
+        try {
+            foreach ($offlineEvents as $event) {
+                // Validate offline event structure
+                if (!isset($event['action']) || !isset($event['datetime'])) {
+                    $syncResults[] = [
+                        'event' => $event,
+                        'success' => false,
+                        'message' => 'Evento incompleto'
+                    ];
+                    continue;
+                }
+
+                // Try to process the offline event
+                try {
+                    $eventDateTime = Carbon::parse($event['datetime']);
+                    
+                    // Here you would implement the actual sync logic
+                    // For now, we'll just validate and log
+                    
+                    $syncResults[] = [
+                        'event' => $event,
+                        'success' => true,
+                        'message' => 'Evento sincronizado (mock)',
+                        'processed_at' => now()->toISOString()
+                    ];
+                    
+                } catch (\Exception $eventError) {
+                    $syncResults[] = [
+                        'event' => $event,
+                        'success' => false,
+                        'message' => 'Error al procesar evento: ' . $eventError->getMessage()
+                    ];
+                }
+            }
+
+            $successCount = count(array_filter($syncResults, fn($r) => $r['success']));
+            $totalCount = count($syncResults);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Sincronización completada: {$successCount}/{$totalCount} eventos procesados",
+                'data' => [
+                    'total_events' => $totalCount,
+                    'successful_syncs' => $successCount,
+                    'failed_syncs' => $totalCount - $successCount,
+                    'sync_results' => $syncResults,
+                    'sync_timestamp' => now()->toISOString()
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Mobile sync error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error durante la sincronización'
+            ], 500);
+        }
+    }
 }

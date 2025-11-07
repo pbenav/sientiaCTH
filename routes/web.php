@@ -72,3 +72,25 @@ Route::middleware([
         Route::get('/formulario/{token}', \App\Http\Livewire\ExceptionalClockIn::class)->name('.form');
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Mobile Web Routes (for Flutter WebView)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('mobile')->name('mobile.')->group(function () {
+    // Authentication routes (no middleware)
+    Route::get('/auth', [App\Http\Controllers\Mobile\MobileWebController::class, 'showAuth'])->name('auth');
+    Route::post('/auth/login', [App\Http\Controllers\Mobile\MobileWebController::class, 'login'])->name('auth.login');
+    
+    // Protected mobile routes
+    Route::middleware(['mobile.auth'])->group(function () {
+        Route::get('/', [App\Http\Controllers\Mobile\MobileWebController::class, 'home'])->name('home');
+        Route::get('/home', [App\Http\Controllers\Mobile\MobileWebController::class, 'home'])->name('home.alt');
+        Route::get('/history', [App\Http\Controllers\Mobile\MobileWebController::class, 'history'])->name('history');
+        Route::get('/schedule', [App\Http\Controllers\Mobile\MobileWebController::class, 'schedule'])->name('schedule');
+        Route::get('/profile', [App\Http\Controllers\Mobile\MobileWebController::class, 'profile'])->name('profile');
+        Route::get('/reports', [App\Http\Controllers\Mobile\MobileWebController::class, 'reports'])->name('reports');
+        Route::post('/logout', [App\Http\Controllers\Mobile\MobileWebController::class, 'logout'])->name('logout');
+    });
+});

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\MobileClockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,12 @@ Route::prefix('v1')->group(function () {
     Route::post('login', [\App\Http\Controllers\Api\LoginController::class, 'login']);
     
     // Mobile clock-in API - no authentication required, uses work center code + user secret code
-    Route::post('mobile/clock', [\App\Http\Controllers\Api\MobileClockController::class, 'clock']);
+    // Mobile API routes
+Route::prefix('v1/mobile')->group(function () {
+    Route::post('/clock', [MobileClockController::class, 'clock']);
+    Route::get('/status', [MobileClockController::class, 'status']);
+    Route::post('/sync', [MobileClockController::class, 'sync']);
+});
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
