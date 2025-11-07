@@ -1,0 +1,236 @@
+@extends('mobile.layout')
+
+@section('title', 'Inicio')
+
+@section('content')
+<div class="p-4 space-y-6">
+    
+    <!-- Welcome Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center space-x-4">
+            <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">
+                    Hola, {{ $user->name }}
+                </h2>
+                <p class="text-sm text-gray-600">
+                    {{ $workCenter->name }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Status Card -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Estado Actual</h3>
+        
+        <div class="space-y-4">
+            <!-- Current Time -->
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Hora actual:</span>
+                <span class="font-semibold" id="currentTime">{{ now()->format('H:i:s') }}</span>
+            </div>
+            
+            <!-- Last Clock Action -->
+            @if($lastClockAction)
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Último fichaje:</span>
+                    <div class="text-right">
+                        <div class="font-semibold">
+                            {{ $lastClockAction['action'] === 'entrada' ? 'Entrada' : 'Salida' }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            {{ \Carbon\Carbon::parse($lastClockAction['datetime'])->format('d/m/Y H:i') }}
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Estado:</span>
+                    <span class="text-orange-600 font-semibold">Sin fichajes hoy</span>
+                </div>
+            @endif
+
+            <!-- Today's Hours -->
+            <div class="flex justify-between items-center border-t pt-4">
+                <span class="text-gray-600">Horas trabajadas hoy:</span>
+                <span class="font-semibold text-lg">{{ $todayStats['worked_hours'] ?? '0:00' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Clock In/Out Button -->
+            <button onclick="performClockAction()" 
+                    id="clockButton"
+                    class="bg-blue-600 text-white p-4 rounded-lg font-semibold text-center hover:bg-blue-700 transition duration-200 btn-mobile">
+                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                <span id="clockButtonText">
+                    @if($lastClockAction && $lastClockAction['action'] === 'entrada')
+                        Fichar Salida
+                    @else
+                        Fichar Entrada
+                    @endif
+                </span>
+            </button>
+            
+            <!-- View Schedule -->
+            <a href="{{ route('mobile.schedule') }}" 
+               class="bg-gray-100 text-gray-700 p-4 rounded-lg font-semibold text-center hover:bg-gray-200 transition duration-200 btn-mobile block">
+                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                </svg>
+                Ver Horario
+            </a>
+            
+            <!-- View History -->
+            <a href="{{ route('mobile.history') }}" 
+               class="bg-gray-100 text-gray-700 p-4 rounded-lg font-semibold text-center hover:bg-gray-200 transition duration-200 btn-mobile block">
+                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Historial
+            </a>
+            
+            <!-- View Reports -->
+            <a href="{{ route('mobile.reports') }}" 
+               class="bg-gray-100 text-gray-700 p-4 rounded-lg font-semibold text-center hover:bg-gray-200 transition duration-200 btn-mobile block">
+                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                </svg>
+                Informes
+            </a>
+        </div>
+    </div>
+
+    <!-- Today's Summary -->
+    @if($todayStats)
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen de Hoy</h3>
+        
+        <div class="grid grid-cols-2 gap-4 text-center">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">{{ $todayStats['total_entries'] ?? 0 }}</div>
+                <div class="text-sm text-gray-600">Entradas</div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">{{ $todayStats['total_exits'] ?? 0 }}</div>
+                <div class="text-sm text-gray-600">Salidas</div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+</div>
+
+<!-- Loading overlay for clock actions -->
+<div id="clockLoadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
+        <svg class="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-gray-700">Procesando fichaje...</span>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    // Update current time every second
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+        document.getElementById('currentTime').textContent = timeString;
+    }
+    
+    setInterval(updateTime, 1000);
+    updateTime(); // Initial call
+
+    // Clock action function
+    async function performClockAction() {
+        const loadingOverlay = document.getElementById('clockLoadingOverlay');
+        const clockButton = document.getElementById('clockButton');
+        const clockButtonText = document.getElementById('clockButtonText');
+        
+        try {
+            // Show loading
+            loadingOverlay.classList.remove('hidden');
+            clockButton.disabled = true;
+            
+            // Get CSRF token
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            // Make API call
+            const response = await fetch('/api/v1/mobile/clock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    work_center_code: '{{ $workCenter->code }}',
+                    user_code: '{{ $user->user_code }}'
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Update button text
+                clockButtonText.textContent = result.data.action === 'entrada' ? 'Fichar Salida' : 'Fichar Entrada';
+                
+                // Show success message
+                showNotification('Fichaje registrado correctamente: ' + result.data.action, 'success');
+                
+                // Reload page to update stats
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showNotification('Error: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Clock action error:', error);
+            showNotification('Error de conexión. Inténtalo de nuevo.', 'error');
+        } finally {
+            // Hide loading
+            loadingOverlay.classList.add('hidden');
+            clockButton.disabled = false;
+        }
+    }
+    
+    // Notification function
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 left-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-blue-500 text-white'
+        }`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+@endpush
