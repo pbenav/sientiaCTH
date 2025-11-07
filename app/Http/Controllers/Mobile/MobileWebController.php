@@ -8,7 +8,7 @@ use App\Models\WorkCenter;
 use App\Services\SmartClockInService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MobileWebController extends Controller
 {
@@ -22,9 +22,26 @@ class MobileWebController extends Controller
     /**
      * Mobile authentication page
      */
-    public function auth()
+    /**
+     * Test endpoint to debug form submission
+     */
+    public function testLogin(Request $request)
     {
-        return view('mobile.auth');
+        Log::info('Test login endpoint called', [
+            'method' => $request->method(),
+            'all_data' => $request->all(),
+            'headers' => $request->headers->all(),
+            'user_code' => $request->input('user_code'),
+            'work_center_code' => $request->input('work_center_code'),
+            'manual_work_center_code' => $request->input('manual_work_center_code'),
+        ]);
+
+        return response()->json([
+            'received_data' => $request->all(),
+            'user_code_present' => !empty($request->input('user_code')),
+            'work_center_code_present' => !empty($request->input('work_center_code')),
+            'manual_work_center_code_present' => !empty($request->input('manual_work_center_code')),
+        ]);
     }
 
     /**
@@ -32,8 +49,18 @@ class MobileWebController extends Controller
      */
     public function login(Request $request)
     {
+        // Debug logging
+        Log::info('Mobile login attempt', [
+            'all_data' => $request->all(),
+            'user_code' => $request->user_code,
+            'work_center_code' => $request->work_center_code,
+            'manual_work_center_code' => $request->manual_work_center_code,
+        ]);
+
         // Determine work center code from either Flutter (work_center_code) or manual input (manual_work_center_code)
         $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
+
+        Log::info('Work center code determined', ['code' => $workCenterCode]);
 
         $request->validate([
             'user_code' => 'required|string|max:10',
@@ -41,6 +68,7 @@ class MobileWebController extends Controller
 
         // Validate work center code is provided
         if (empty($workCenterCode)) {
+            Log::warning('Work center code is empty');
             return back()->withErrors(['work_center_code' => 'El campo work center code es obligatorio']);
         }
 

@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('mobile.auth.login') }}" method="POST" class="space-y-6">
+            <form action="{{ route('mobile.test.login') }}" method="POST" class="space-y-6">
                 @csrf
                 
                 <!-- Work Center Code (Hidden - comes from Flutter) -->
@@ -141,21 +141,50 @@
         checkForFlutterData();
         
         form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            // Log form data before submission
+            const formData = new FormData(form);
+            console.log('Form submission data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: "${value}"`);
+            }
+            
             // Ensure work_center_code is set from manual input if needed
             const workCenterCode = document.getElementById('work_center_code');
             const manualCode = document.getElementById('manual_work_center_code');
             
+            console.log('workCenterCode value:', workCenterCode.value);
+            console.log('manualCode value:', manualCode ? manualCode.value : 'null');
+            
             if (!workCenterCode.value && manualCode && manualCode.value) {
                 workCenterCode.value = manualCode.value.toUpperCase();
+                console.log('Set workCenterCode from manual input:', workCenterCode.value);
             }
             
-            if (!workCenterCode.value) {
-                e.preventDefault();
-                showNotification('Debe proporcionar un código de centro de trabajo', 'error');
-                return;
-            }
-            
+            // Show loading
             loadingOverlay.classList.remove('hidden');
+            
+            // Submit form via fetch to get JSON response
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                showNotification('Datos recibidos: ' + JSON.stringify(data), 'info');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error: ' + error.message, 'error');
+            })
+            .finally(() => {
+                loadingOverlay.classList.add('hidden');
+            });
         });
         
         // Auto-uppercase work center codes in manual input
@@ -167,11 +196,14 @@
         }
         
         // Auto-focus on user code if work center is already set
+        // Commenting out auto-focus to avoid potential issues
+        /*
         if (document.getElementById('work_center_code').value) {
             document.getElementById('user_code').focus();
         } else {
             document.getElementById('manual_work_center_code').focus();
         }
+        */
     });
     
     // Check for data passed from Flutter app
