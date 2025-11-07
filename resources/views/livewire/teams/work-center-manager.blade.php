@@ -63,6 +63,33 @@
                 <x-jet-input-error for="code" class="mt-2" />
             </div>
 
+            <!-- NFC Configuration Section -->
+            <div class="col-span-6 sm:col-span-4 mt-6">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-blue-900 mb-3">{{ __('NFC Configuration') }}</h4>
+                    <p class="text-xs text-blue-700 mb-4">{{ __('Configure NFC tag for mobile clock-in verification at this work center') }}</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <x-jet-label for="nfc_tag_id" value="{{ __('NFC Tag ID') }}" />
+                            <x-jet-input id="nfc_tag_id" type="text" class="mt-1 block w-full" wire:model.defer="state.nfc_tag_id" 
+                                        placeholder="{{ __('e.g., 04:A3:22:B2:C4:15:80') }}" />
+                            <x-jet-input-error for="nfc_tag_id" class="mt-2" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Unique identifier of the NFC tag (obtained from Flutter app)') }}</p>
+                        </div>
+                        
+                        <div>
+                            <x-jet-label for="nfc_tag_description" value="{{ __('NFC Tag Description') }}" />
+                            <textarea id="nfc_tag_description" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1 block w-full" 
+                                     wire:model.defer="state.nfc_tag_description" rows="2"
+                                     placeholder="{{ __('e.g., Blue NFC sticker on main entrance door') }}"></textarea>
+                            <x-jet-input-error for="nfc_tag_description" class="mt-2" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Physical description to help locate the NFC tag') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-span-6 sm:col-span-4 mt-4">
                 <x-jet-label for="address" value="{{ __('Address') }}" />
                 <x-jet-input id="address" type="text" class="mt-1 block w-full" wire:model.defer="state.address" />
@@ -122,6 +149,33 @@
                 <x-jet-label for="code" value="{{ __('Code') }}" />
                 <x-jet-input id="code" type="text" class="mt-1 block w-full" wire:model.defer="state.code" />
                 <x-jet-input-error for="code" class="mt-2" />
+            </div>
+
+            <!-- NFC Configuration Section -->
+            <div class="col-span-6 sm:col-span-4 mt-6">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-blue-900 mb-3">{{ __('NFC Configuration') }}</h4>
+                    <p class="text-xs text-blue-700 mb-4">{{ __('Configure NFC tag for mobile clock-in verification at this work center') }}</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <x-jet-label for="edit_nfc_tag_id" value="{{ __('NFC Tag ID') }}" />
+                            <x-jet-input id="edit_nfc_tag_id" type="text" class="mt-1 block w-full" wire:model.defer="state.nfc_tag_id" 
+                                        placeholder="{{ __('e.g., 04:A3:22:B2:C4:15:80') }}" />
+                            <x-jet-input-error for="nfc_tag_id" class="mt-2" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Unique identifier of the NFC tag (obtained from Flutter app)') }}</p>
+                        </div>
+                        
+                        <div>
+                            <x-jet-label for="edit_nfc_tag_description" value="{{ __('NFC Tag Description') }}" />
+                            <textarea id="edit_nfc_tag_description" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1 block w-full" 
+                                     wire:model.defer="state.nfc_tag_description" rows="2"
+                                     placeholder="{{ __('e.g., Blue NFC sticker on main entrance door') }}"></textarea>
+                            <x-jet-input-error for="nfc_tag_description" class="mt-2" />
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Physical description to help locate the NFC tag') }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-span-6 sm:col-span-4 mt-4">

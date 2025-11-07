@@ -24,6 +24,8 @@ class WorkCenter extends Model
         'team_id',
         'name',
         'code',
+        'nfc_tag_id',
+        'nfc_tag_description',
         'address',
         'city',
         'postal_code',

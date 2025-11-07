@@ -34,6 +34,8 @@ class WorkCenterManager extends Component
         return [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:work_centers,code,'.($this->state['id'] ?? null),
+            'nfc_tag_id' => 'nullable|string|max:255|unique:work_centers,nfc_tag_id,'.($this->state['id'] ?? null),
+            'nfc_tag_description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:255',

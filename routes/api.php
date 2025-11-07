@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobileClockController;
+use App\Http\Controllers\Api\ConfigController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,14 @@ use App\Http\Controllers\Api\MobileClockController;
 
 Route::prefix('v1')->group(function () {
     Route::post('login', [\App\Http\Controllers\Api\LoginController::class, 'login']);
+    
+    // Public configuration endpoints - no authentication required
+    Route::prefix('config')->group(function () {
+        Route::get('/server', [ConfigController::class, 'getServerConfig']);
+        Route::get('/ping', [ConfigController::class, 'ping']);
+        Route::get('/work-centers/nfc', [ConfigController::class, 'getWorkCentersWithNFC']);
+        Route::post('/nfc/verify', [ConfigController::class, 'verifyNFCTag']);
+    });
     
     // Mobile clock-in API - no authentication required, uses work center code + user secret code
     // Mobile API routes

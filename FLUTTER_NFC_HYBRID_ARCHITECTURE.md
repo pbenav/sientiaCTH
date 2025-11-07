@@ -875,3 +875,71 @@ Esta arquitectura proporciona una solución completa que combina:
 - ✅ **Soporte offline** preparado para el futuro
 
 El resultado es una aplicación móvil profesional que optimiza la experiencia del usuario usando lo mejor de cada tecnología.
+
+---
+
+## 🔧 **Configuración Dinámica de Servidor**
+
+### **Sistema de Auto-configuración**
+
+La aplicación Flutter incluye un sistema de configuración dinámica que permite:
+
+```dart
+// Configuración automática desde cualquier servidor CTH
+await ConfigService.configureServer('https://cth.miempresa.com');
+
+// La app obtiene automáticamente:
+// - Endpoints de API
+// - Configuración de NFC
+// - Límites y restricciones
+// - Configuración visual
+```
+
+### **Flujo de Configuración Inicial:**
+
+1. **Primera Apertura**: Pantalla de configuración de servidor
+2. **URL Ingresada**: `https://cth.miempresa.com`
+3. **Auto-configuración**: GET `/api/v1/config/server`
+4. **Validación NFC**: Obtiene centros con etiquetas NFC configuradas
+5. **Listo**: App configurada para esa instalación específica
+
+### **Endpoints de Configuración:**
+
+```http
+# Configuración completa del servidor
+GET /api/v1/config/server
+
+# Lista de centros de trabajo con NFC
+GET /api/v1/config/work-centers/nfc
+
+# Verificar etiqueta NFC específica
+POST /api/v1/config/nfc/verify
+Content-Type: application/json
+{
+  "nfc_tag_id": "04:A3:22:B2:C4:15:80"
+}
+
+# Test de conectividad
+GET /api/v1/config/ping
+```
+
+### **Configuración NFC en WebApp:**
+
+Los administradores pueden configurar etiquetas NFC desde la webapp:
+
+1. **Gestión de Equipos** → **Centros de Trabajo**
+2. **Crear/Editar Centro** → **Configuración NFC**
+3. **ID de Etiqueta NFC**: `04:A3:22:B2:C4:15:80` (obtenido desde Flutter)
+4. **Descripción**: `"Pegatina NFC azul en puerta principal"`
+
+### **Beneficios de la Configuración Dinámica:**
+
+- ✅ **Una sola APK** para múltiples instalaciones
+- ✅ **Sin recompilación** para nuevos servidores
+- ✅ **Configuración NFC centralizada** en webapp
+- ✅ **Actualizaciones automáticas** de endpoints
+- ✅ **Validación en tiempo real** de etiquetas NFC
+
+---
+
+Esta implementación completa convierte CTH en una solución móvil verdaderamente **empresarial y escalable**, donde cada organización puede tener su propia instalación con configuración NFC personalizada, todo gestionado desde una interfaz web intuitiva.
