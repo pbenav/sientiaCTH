@@ -30,17 +30,24 @@ class MobileWebController extends Controller
     /**
      * Handle mobile authentication
      */
-    public function authenticate(Request $request)
+    public function login(Request $request)
     {
+        // Determine work center code from either Flutter (work_center_code) or manual input (manual_work_center_code)
+        $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
+
         $request->validate([
-            'work_center_code' => 'required|string|max:50',
             'user_code' => 'required|string|max:10',
         ]);
 
+        // Validate work center code is provided
+        if (empty($workCenterCode)) {
+            return back()->withErrors(['work_center_code' => 'El campo work center code es obligatorio']);
+        }
+
         // Find work center
-        $workCenter = WorkCenter::where('code', $request->work_center_code)->first();
+        $workCenter = WorkCenter::where('code', $workCenterCode)->first();
         if (!$workCenter) {
-            return back()->withErrors(['work_center_code' => 'Work center not found']);
+            return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado']);
         }
 
         // Find user
@@ -51,7 +58,7 @@ class MobileWebController extends Controller
                    ->first();
 
         if (!$user) {
-            return back()->withErrors(['user_code' => 'Invalid user code']);
+            return back()->withErrors(['user_code' => 'Código de usuario inválido']);
         }
 
         // Set user session for mobile
@@ -402,38 +409,5 @@ class MobileWebController extends Controller
     public function showAuth()
     {
         return view('mobile.auth');
-    }
-    
-    /**
-     * Process mobile authentication
-     */
-    public function login(Request $request)
-    {
-        $request->validate([
-            'work_center_code' => 'required|string',
-            'user_code' => 'required|string'
-        ]);
-        
-        // Find work center
-        $workCenter = WorkCenter::where('code', $request->work_center_code)->first();
-        if (!$workCenter) {
-            return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado']);
-        }
-        
-        // Find user
-        $user = User::where('user_code', $request->user_code)->first();
-        if (!$user) {
-            return back()->withErrors(['user_code' => 'Usuario no encontrado']);
-        }
-        
-        // Store session data
-        session([
-            'mobile_authenticated' => true,
-            'mobile_user_id' => $user->id,
-            'mobile_work_center_id' => $workCenter->id
-        ]);
-        
-        return redirect()->route('mobile.auth')
-            ->with('message', 'Sesión cerrada correctamente');
     }
 }
