@@ -15,10 +15,14 @@ return new class extends Migration
             // Agregar campo para almacenar el payload completo del NFC
             // que incluirá la URL del servidor + el ID del centro de trabajo
             // Usamos VARCHAR en lugar de TEXT para poder indexar
-            $table->string('nfc_payload', 500)->nullable()->after('nfc_tag_description');
+            if (!Schema::hasColumn('work_centers', 'nfc_payload')) {
+                $table->string('nfc_payload', 500)->nullable()->after('nfc_tag_description');
+            }
             
-            // Índice para búsquedas rápidas por payload
-            $table->index('nfc_payload');
+            // Índice para búsquedas rápidas por payload - verificar si ya existe
+            if (!$this->indexExists('work_centers', 'nfc_payload')) {
+                $table->index('nfc_payload');
+            }
         });
     }
 
@@ -28,8 +32,30 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('work_centers', function (Blueprint $table) {
-            $table->dropIndex(['nfc_payload']);
-            $table->dropColumn('nfc_payload');
+            if ($this->indexExists('work_centers', 'nfc_payload')) {
+                $table->dropIndex(['nfc_payload']);
+            }
+            if (Schema::hasColumn('work_centers', 'nfc_payload')) {
+                $table->dropColumn('nfc_payload');
+            }
         });
+    }
+
+    /**
+     * Check if an index exists on a table
+     */
+    private function indexExists(string $table, string $column): bool
+    {
+        $indexes = Schema::getConnection()
+            ->getDoctrineSchemaManager()
+            ->listTableIndexes($table);
+
+        foreach ($indexes as $index) {
+            if (in_array($column, $index->getColumns())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 };

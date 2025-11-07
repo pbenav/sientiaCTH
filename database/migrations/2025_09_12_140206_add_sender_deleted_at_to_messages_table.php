@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->timestamp('sender_deleted_at')->nullable();
+            if (!Schema::hasColumn('messages', 'sender_deleted_at')) {
+                $table->timestamp('sender_deleted_at')->nullable();
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('sender_deleted_at');
+            if (Schema::hasColumn('messages', 'sender_deleted_at')) {
+                $table->dropColumn('sender_deleted_at');
+            }
         });
     }
 };

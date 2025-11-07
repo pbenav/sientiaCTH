@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->foreignId('authorized_by_id')->nullable()->constrained('users')->onDelete('set null');
+            if (!Schema::hasColumn('events', 'authorized_by_id')) {
+                $table->foreignId('authorized_by_id')->nullable()->constrained('users')->onDelete('set null');
+            }
         });
     }
 
@@ -26,8 +28,10 @@ return new class extends Migration
     public function down()
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropForeign(['authorized_by_id']);
-            $table->dropColumn('authorized_by_id');
+            if (Schema::hasColumn('events', 'authorized_by_id')) {
+                $table->dropForeign(['authorized_by_id']);
+                $table->dropColumn('authorized_by_id');
+            }
         });
     }
 };

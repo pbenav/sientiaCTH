@@ -13,7 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('event_types', function (Blueprint $table) {
-            $table->boolean('is_break_type')->default(false)->after('is_workday_type');
+            if (!Schema::hasColumn('event_types', 'is_break_type')) {
+                $table->boolean('is_break_type')->default(false)->after('is_workday_type');
+            }
         });
         
         // Update existing "Pausa" event types to be break types
@@ -28,7 +30,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('event_types', function (Blueprint $table) {
-            $table->dropColumn('is_break_type');
+            if (Schema::hasColumn('event_types', 'is_break_type')) {
+                $table->dropColumn('is_break_type');
+            }
         });
     }
 };

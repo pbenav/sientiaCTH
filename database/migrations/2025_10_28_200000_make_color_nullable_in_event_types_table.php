@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('event_types', function (Blueprint $table) {
-            $table->string('color')->nullable()->change();
+            if (Schema::hasColumn('event_types', 'color')) {
+                $table->string('color')->nullable()->change();
+            }
         });
     }
 
@@ -26,7 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('event_types', function (Blueprint $table) {
-            $table->string('color')->nullable(false)->change();
+            if (Schema::hasColumn('event_types', 'color')) {
+                $table->string('color')->nullable(false)->change();
+            }
         });
     }
 };
