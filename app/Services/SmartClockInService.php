@@ -558,4 +558,53 @@ class SmartClockInService
         $days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
         return $days[$dayOfWeek - 1];
     }
+
+    /**
+     * Check if a specific user is within their work schedule
+     */
+    public function isUserWithinWorkSchedule(User $user, Carbon $timeToCheck): bool
+    {
+        if (!$user || !$user->currentTeam) {
+            return false;
+        }
+
+        $team = $user->currentTeam;
+        $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+
+        if (!$workScheduleMeta || !$team || empty(json_decode($workScheduleMeta->meta_value, true))) {
+            return true; // If no schedule configured, allow clock-in
+        }
+
+        $workSchedule = json_decode($workScheduleMeta->meta_value, true);
+        $delayMinutes = $team->clock_in_delay_minutes ?? 0;
+
+        $dayOfWeek = $timeToCheck->format('N');
+        $currentDayLetter = $this->getDayInitial($dayOfWeek);
+
+        $isWithinAnySlot = false;
+        foreach ($workSchedule as $slot) {
+            if (isset($slot['days']) && in_array($currentDayLetter, $slot['days']) && isset($slot['start']) && isset($slot['end'])) {
+                $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start']);
+                $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end']);
+
+                if ($endTime->lessThan($startTime)) {
+                    $endTime->addDay();
+                }
+
+                $startTimeWithGrace = $startTime->copy()->subMinutes($delayMinutes);
+                $endTimeWithGrace = $endTime->copy()->addMinutes($delayMinutes);
+
+                if ($timeToCheck->between($startTimeWithGrace, $endTimeWithGrace)) {
+                    $isWithinAnySlot = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$team->force_clock_in_delay) {
+            return $isWithinAnySlot;
+        }
+
+        return $isWithinAnySlot;
+    }
 }

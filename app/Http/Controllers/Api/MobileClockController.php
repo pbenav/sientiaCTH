@@ -86,7 +86,7 @@ class MobileClockController extends Controller
                     // Check if user is actually within work schedule
                     $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
                     $now = Carbon::now($teamTimezone);
-                    $isWithinSchedule = $this->smartClockInService->isWithinWorkSchedule($now);
+                    $isWithinSchedule = $this->smartClockInService->isUserWithinWorkSchedule($user, $now);
 
                     // Override to allow clock-in - only mark as exceptional if truly outside schedule
                     $clockAction = [
