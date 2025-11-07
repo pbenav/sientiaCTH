@@ -28,12 +28,11 @@ Route::prefix('v1')->group(function () {
     });
     
     // Mobile clock-in API - no authentication required, uses work center code + user secret code
-    // Mobile API routes
-Route::prefix('v1/mobile')->group(function () {
-    Route::post('/clock', [MobileClockController::class, 'clock']);
-    Route::get('/status', [MobileClockController::class, 'status']);
-    Route::post('/sync', [MobileClockController::class, 'sync']);
-});
+    Route::prefix('mobile')->group(function () {
+        Route::post('/clock', [MobileClockController::class, 'clock']);
+        Route::get('/status', [MobileClockController::class, 'status']);
+        Route::post('/sync', [MobileClockController::class, 'sync']);
+    });
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [\App\Http\Controllers\Api\ProfileController::class, 'show']);
