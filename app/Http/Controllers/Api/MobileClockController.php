@@ -34,6 +34,7 @@ class MobileClockController extends Controller
             $validator = Validator::make($request->all(), [
                 'work_center_code' => 'required|string|max:50',
                 'user_secret_code' => 'required|string|max:10',
+                'action' => 'sometimes|string|in:pause,clock_out',
                 'location' => 'sometimes|array',
                 'location.latitude' => 'sometimes|numeric|between:-90,90',
                 'location.longitude' => 'sometimes|numeric|between:-180,180',
@@ -208,27 +209,49 @@ class MobileClockController extends Controller
                 ];
 
             case 'working_options':
-                // For working state, we need to determine if user wants to pause or clock out
-                // For API, we'll default to starting a pause
-                $pauseEventType = $user->currentTeam->eventTypes()
-                    ->where('name', 'Pausa')
-                    ->where('is_break_type', true)
-                    ->first();
+                // For working state, check if user wants to pause or clock out
+                $requestedAction = $request->input('action');
+                
+                if ($requestedAction === 'pause') {
+                    // User wants to start a pause
+                    $pauseEventType = $user->currentTeam->eventTypes()
+                        ->where('name', 'Pausa')
+                        ->where('is_break_type', true)
+                        ->first();
+                        
+                    if (!$pauseEventType) {
+                        throw new \Exception('No pause event type configured');
+                    }
                     
-                if (!$pauseEventType) {
-                    throw new \Exception('No pause event type configured');
+                    $result = $this->smartClockInService->pauseWorkday($user, $pauseEventType->id);
+                    
+                    if (!$result['success']) {
+                        throw new \Exception($result['message']);
+                    }
+                    
+                    return [
+                        'action' => 'break_start',
+                        'message' => $result['message']
+                    ];
+                } else {
+                    // Default to clock out
+                    $openEventId = $clockAction['open_event_id'] ?? null;
+                    
+                    if (!$openEventId) {
+                        throw new \Exception('No open event found for clock out');
+                    }
+                    
+                    $result = $this->smartClockInService->clockOut($user, $openEventId);
+                    
+                    if (!$result['success']) {
+                        throw new \Exception($result['message']);
+                    }
+                    
+                    return [
+                        'action' => 'clock_out',
+                        'message' => $result['message']
+                    ];
                 }
-                
-                $result = $this->smartClockInService->pauseWorkday($user, $pauseEventType->id);
-                
-                if (!$result['success']) {
-                    throw new \Exception($result['message']);
-                }
-                
-                return [
-                    'action' => 'break_start',
-                    'message' => $result['message']
-                ];
 
             default:
                 throw new \Exception('Clock action not supported in mobile API: ' . $clockAction['action']);
