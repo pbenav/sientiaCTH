@@ -46,6 +46,8 @@
                             <span class="text-blue-600 font-semibold">Trabajando</span>
                         @elseif(($clockData['action'] ?? '') === 'resume_workday')
                             <span class="text-orange-600 font-semibold">En pausa</span>
+                        @elseif(($clockData['action'] ?? '') === 'confirm_exceptional_clock_in')
+                            <span class="text-yellow-600 font-semibold">Fuera de horario</span>
                         @else
                             <span class="text-red-600 font-semibold">Listo para fichar salida</span>
                         @endif
@@ -103,15 +105,39 @@
                         </svg>
                         <span>Continuar Trabajo</span>
                     </button>
-                @elseif(($clockData['action'] ?? '') === 'clock_in')
-                    <!-- Clock In State -->
-                    <button onclick="performClockAction()" 
-                            class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-green-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-sm">
-                        <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Inicio de Jornada</span>
-                    </button>
+                @elseif(($clockData['action'] ?? '') === 'confirm_exceptional_clock_in')
+                    <!-- Exceptional Clock In State -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-center text-yellow-800 mb-3">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="font-medium">{{ __('Outside schedule') }}</span>
+                        </div>
+                        <p class="text-sm text-yellow-700 text-center mb-4">
+                            {{ $clockData['message'] ?? __('You are outside your work schedule. Do you want to make an exceptional clock-in?') }}
+                        </p>
+                        @if(isset($clockData['next_slot']))
+                        <div class="bg-yellow-100 border border-yellow-300 rounded p-3 mb-4">
+                            <p class="text-xs text-yellow-800">
+                                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                </svg>
+                                Próximo horario: {{ $clockData['next_slot']['start'] }} - {{ $clockData['next_slot']['end'] }}
+                                @if(isset($clockData['next_slot']['minutes_until']))
+                                    ({{ $clockData['next_slot']['minutes_until'] }} minutos)
+                                @endif
+                            </p>
+                        </div>
+                        @endif
+                        <button onclick="performClockAction('confirm_exceptional_clock_in')" 
+                                class="w-full bg-yellow-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-yellow-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-sm">
+                            <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Fichaje Excepcional</span>
+                        </button>
+                    </div>
                 @else
                     <!-- Clock Out State -->
                     <button onclick="performClockAction()" 
@@ -212,6 +238,9 @@
         } else if (action === 'clock_out') {
             title = 'Finalizando jornada...';
             message = 'Cerrando tu jornada laboral del día';
+        } else if (action === 'confirm_exceptional_clock_in') {
+            title = 'Procesando fichaje excepcional...';
+            message = 'Registrando entrada fuera de horario laboral';
         } else {
             // Default clock in or resume
             const currentAction = '{{ $clockData["action"] ?? "" }}';

@@ -35,7 +35,7 @@ class MobileClockController extends Controller
                 'work_center_code' => 'sometimes|string|max:50',
                 'manual_work_center_code' => 'sometimes|string|max:50',
                 'user_code' => 'required|string|max:10',
-                'action' => 'sometimes|string|in:pause,clock_out',
+                'action' => 'sometimes|string|in:pause,clock_out,confirm_exceptional_clock_in',
                 'location' => 'sometimes|array',
                 'location.latitude' => 'sometimes|numeric|between:-90,90',
                 'location.longitude' => 'sometimes|numeric|between:-180,180',
