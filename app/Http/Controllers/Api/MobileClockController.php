@@ -362,55 +362,38 @@ class MobileClockController extends Controller
         try {
             // Get current status using the service
             $clockAction = $this->smartClockInService->getClockAction($user);
-            $nextAction = $clockAction['action'];
-            
-            // Get today's events for summary
-            $today = now()->format('Y-m-d');
-            $todayEvents = []; // In real implementation, query today's events
-            
-            // Calculate today's statistics
-            $todayStats = [
-                'entries_count' => 0,
-                'exits_count' => 0,
-                'worked_hours' => '0:00',
-                'current_status' => $nextAction === 'entrada' ? 'fuera' : 'trabajando',
-                'last_action' => null
-            ];
-            
-            // Mock calculation - replace with real logic
-            if (count($todayEvents) > 0) {
-                $lastEvent = $todayEvents[count($todayEvents) - 1];
-                $todayStats['last_action'] = [
-                    'type' => $lastEvent['type'] ?? 'entrada',
-                    'time' => $lastEvent['time'] ?? now()->format('H:i'),
-                    'datetime' => $lastEvent['datetime'] ?? now()->toISOString()
-                ];
+
+            // Get today's statistics
+            $todayStats = $this->getTodayStats($user);
+
+            // Get next slot information if available
+            $nextSlot = null;
+            if (isset($clockAction['next_slot'])) {
+                $nextSlot = $clockAction['next_slot'];
             }
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'code' => $user->user_code
+                    'action' => $clockAction['action'],
+                    'can_clock' => $clockAction['can_clock'],
+                    'message' => $clockAction['message'] ?? null,
+                    'overtime' => $clockAction['overtime'] ?? false,
+                    'event_type_id' => $clockAction['event_type_id'] ?? null,
+                    'next_slot' => $nextSlot,
+                    'today_stats' => [
+                        'total_entries' => $todayStats['total_entries'] ?? 0,
+                        'total_exits' => $todayStats['total_exits'] ?? 0,
+                        'worked_hours' => $todayStats['worked_hours'] ?? '0:00',
+                        'current_status' => $this->getCurrentStatusText($clockAction['action']),
                     ],
-                    'work_center' => [
-                        'id' => $workCenter->id,
-                        'name' => $workCenter->name,
-                        'code' => $workCenter->code
-                    ],
-                    'next_action' => $nextAction,
-                    'can_clock' => true, // Could add business logic here
-                    'today_stats' => $todayStats,
-                    'current_time' => now()->toISOString(),
-                    'timezone' => config('app.timezone')
+                    'current_time' => now($user->currentTeam->timezone ?? config('app.timezone'))->toISOString(),
                 ]
             ], 200);
 
         } catch (\Exception $e) {
             \Log::error('Mobile status error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener el estado del usuario'
@@ -419,8 +402,19 @@ class MobileClockController extends Controller
     }
     
     /**
-     * Sync offline data (for future offline support)
+     * Get current status text based on action
      */
+    private function getCurrentStatusText(string $action): string
+    {
+        return match ($action) {
+            'clock_in' => 'Fuera de jornada',
+            'working_options' => 'Trabajando',
+            'resume_workday' => 'En pausa',
+            'confirm_exceptional_clock_in' => 'Fuera de horario',
+            'clock_out' => 'Listo para salida',
+            default => 'Desconocido'
+        };
+    }
     public function sync(Request $request)
     {
         $request->validate([
