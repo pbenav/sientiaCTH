@@ -22,23 +22,6 @@ class MobileWebController extends Controller
     /**
      * Mobile authentication page
      */
-    /**
-     * Test endpoint to debug form submission
-     */
-    public function testLogin(Request $request)
-    {
-        Log::info('Test login endpoint called', [
-            'method' => $request->method(),
-            'user_code' => $request->input('user_code'),
-            'work_center_code' => $request->input('work_center_code'),
-            'manual_work_center_code' => $request->input('manual_work_center_code'),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Login test realizado correctamente.'
-        ]);
-    }
 
     /**
      * Handle mobile authentication

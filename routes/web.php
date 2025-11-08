@@ -94,6 +94,4 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
         Route::post('/logout', [App\Http\Controllers\Mobile\MobileWebController::class, 'logout'])->name('logout');
     });
 
-    // Test route for debugging
-    Route::post('/test-login', [App\Http\Controllers\Mobile\MobileWebController::class, 'testLogin'])->name('test.login');
 });
