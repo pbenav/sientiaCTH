@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('mobile.test.login') }}" method="POST" class="space-y-6">
+            <form action="{{ route('mobile.auth.login') }}" method="POST" class="space-y-6">
                 @csrf
                 
                 <!-- Work Center Code (Hidden - comes from Flutter) -->
