@@ -42,7 +42,7 @@ class MobileWebController extends Controller
         Log::info('Work center code determined', ['code' => $workCenterCode]);
 
         $request->validate([
-            'user_code' => 'required|string|max:10',
+            'user_code' => 'required|string|max:20',
         ]);
 
         // Validate work center code is provided
