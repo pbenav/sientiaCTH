@@ -1,3 +1,15 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const workCenterCodeInput = document.getElementById('work_center_code');
+        const manualWorkCenterInput = document.getElementById('manual_work_center_code');
+        if (!workCenterCodeInput.value && manualWorkCenterInput.value) {
+            workCenterCodeInput.value = manualWorkCenterInput.value;
+        }
+    });
+});
+</script>
 @extends('mobile.layout')
 
 @section('title', 'Autenticación')
