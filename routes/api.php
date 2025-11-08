@@ -26,8 +26,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/server', [ConfigController::class, 'getServerConfig']);
         Route::get('/ping', [ConfigController::class, 'ping']);
         Route::get('/work-centers/nfc', [ConfigController::class, 'getWorkCentersWithNFC']);
-        Route::post('/nfc/verify', [ConfigController::class, 'verifyNFCTag']);
     });
+
+    // Ruta unificada para verificación NFC
+    Route::post('nfc/verify', [ConfigController::class, 'verifyNFCTag']);
+
+    // Duplicar endpoint para compatibilidad con apps móviles
+    Route::post('nfc/verify', [ConfigController::class, 'verifyNFCTag']);
 
     // Mobile API routes (for mobile app)
     Route::prefix('mobile')->group(function () {

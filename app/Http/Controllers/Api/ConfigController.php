@@ -46,7 +46,7 @@ class ConfigController extends Controller
                     'today' => url('/api/mobile/today'),
                 ],
                 'nfc' => [
-                    'verify_tag' => url('/api/mobile/nfc/verify'),
+                    'verify_tag' => url('/api/v1/nfc/verify'),
                     'work_centers' => url('/api/mobile/work-centers'),
                 ]
             ],
