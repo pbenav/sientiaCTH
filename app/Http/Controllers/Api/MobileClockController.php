@@ -32,8 +32,9 @@ class MobileClockController extends Controller
         try {
             // Validate request
             $validator = Validator::make($request->all(), [
-                'work_center_code' => 'required|string|max:50',
-                'user_secret_code' => 'required|string|max:10',
+                'work_center_code' => 'sometimes|string|max:50',
+                'manual_work_center_code' => 'sometimes|string|max:50',
+                'user_code' => 'required|string|max:10',
                 'action' => 'sometimes|string|in:pause,clock_out',
                 'location' => 'sometimes|array',
                 'location.latitude' => 'sometimes|numeric|between:-90,90',
@@ -49,8 +50,9 @@ class MobileClockController extends Controller
                 ], 422);
             }
 
-            // Find work center
-            $workCenter = WorkCenter::where('code', $request->work_center_code)->first();
+            // Unificar work_center_code
+            $workCenterCode = $request->work_center_code ?? $request->manual_work_center_code;
+            $workCenter = WorkCenter::where('code', $workCenterCode)->first();
             if (!$workCenter) {
                 return response()->json([
                     'success' => false,
@@ -60,7 +62,7 @@ class MobileClockController extends Controller
             }
 
             // Find user by user code and work center
-            $user = User::where('user_code', $request->user_secret_code)
+            $user = User::where('user_code', $request->user_code)
                        ->whereHas('teams', function($query) use ($workCenter) {
                            $query->where('teams.id', $workCenter->team_id);
                        })
@@ -129,7 +131,7 @@ class MobileClockController extends Controller
                     'work_center' => [
                         'id' => $workCenter->id,
                         'name' => $workCenter->name,
-                        'code' => $workCenter->code
+                        'work_center_code' => $workCenter->code
                     ]
                 ],
                 'work_schedule' => $workSchedule,
