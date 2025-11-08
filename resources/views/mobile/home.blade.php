@@ -74,7 +74,7 @@
         
         <div class="space-y-4">
             <!-- Clock Action Button - Changes based on state -->
-            @if($clockData['can_clock'] ?? false)
+            @if(($clockData['can_clock'] ?? false) || (($clockData['action'] ?? '') === 'confirm_exceptional_clock_in'))
                 @if(($clockData['action'] ?? '') === 'working_options')
                     <!-- Working State - Show pause and clock out buttons -->
                     <div class="grid grid-cols-2 gap-3">
