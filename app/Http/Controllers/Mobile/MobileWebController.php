@@ -106,43 +106,16 @@ class MobileWebController extends Controller
             return redirect()->route('mobile.auth');
         }
         
-        // Get last clock action for today
-        $lastClockAction = null;
-        $todayStats = [
-            'worked_hours' => '0:00',
-            'total_entries' => 0,
-            'total_exits' => 0
-        ];
+        // Get clock data using SmartClockInService
+        $clockData = $this->smartClockInService->getClockAction($user);
         
-        // This would typically query your events/clock records
-        // For now, providing mock data
-        try {
-            // Get today's events - replace with actual query
-            $today = now()->format('Y-m-d');
-            // $events = Event::where('user_id', $user->id)
-            //                ->whereDate('start', $today)
-            //                ->orderBy('start', 'desc')
-            //                ->get();
-            
-            // Mock last action for demonstration
-            $lastClockAction = [
-                'action' => 'entrada', // or 'salida'
-                'datetime' => now()->subHours(2)->format('Y-m-d H:i:s')
-            ];
-            
-            $todayStats = [
-                'worked_hours' => '6:30',
-                'total_entries' => 1,
-                'total_exits' => 0
-            ];
-        } catch (\Exception $e) {
-            // Log error and continue with empty data
-        }
-
+        // Get today's stats
+        $todayStats = $this->getTodayStats($user);
+        
         return view('mobile.home', [
             'user' => $user,
             'workCenter' => $workCenter,
-            'lastClockAction' => $lastClockAction,
+            'clockData' => $clockData,
             'todayStats' => $todayStats
         ]);
     }
@@ -424,6 +397,58 @@ class MobileWebController extends Controller
         }
 
         return round($breakMinutes / 60, 2);
+    }
+
+    /**
+     * Get today's statistics for the user
+     */
+    private function getTodayStats(User $user): array
+    {
+        try {
+            $today = now()->format('Y-m-d');
+            
+            // Get today's events
+            $events = $user->events()
+                ->whereDate('start', $today)
+                ->orderBy('start', 'desc')
+                ->get();
+            
+            $totalEntries = $events->where('event_type.is_workday_type', true)->where('type', 'start')->count();
+            $totalExits = $events->where('event_type.is_workday_type', true)->where('type', 'end')->count();
+            
+            // Calculate worked hours (simplified - sum of time between start and end events)
+            $workedSeconds = 0;
+            $startTime = null;
+            
+            foreach ($events->sortBy('start') as $event) {
+                if ($event->eventType && $event->eventType->is_workday_type) {
+                    if ($event->type === 'start') {
+                        $startTime = Carbon::parse($event->start);
+                    } elseif ($event->type === 'end' && $startTime) {
+                        $endTime = Carbon::parse($event->start);
+                        $workedSeconds += $startTime->diffInSeconds($endTime);
+                        $startTime = null;
+                    }
+                }
+            }
+            
+            $workedHours = floor($workedSeconds / 3600);
+            $workedMinutes = floor(($workedSeconds % 3600) / 60);
+            $workedHoursFormatted = sprintf('%d:%02d', $workedHours, $workedMinutes);
+            
+            return [
+                'worked_hours' => $workedHoursFormatted,
+                'total_entries' => $totalEntries,
+                'total_exits' => $totalExits
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error getting today stats', ['error' => $e->getMessage()]);
+            return [
+                'worked_hours' => '0:00',
+                'total_entries' => 0,
+                'total_exits' => 0
+            ];
+        }
     }
 
     /**

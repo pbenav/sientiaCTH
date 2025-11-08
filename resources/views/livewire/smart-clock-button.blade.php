@@ -97,7 +97,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <!-- Working Actions -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <!-- Pause Button -->
@@ -109,9 +108,8 @@
                                 <span class="text-sm font-medium">{{ __('Pause Workday') }}</span>
                             </button>
                             @endif
-                            
                             <!-- Clock Out Button -->
-                            @if($clockData['show_clock_out_option'] ?? false)
+                            @if($clockData['show_clock_out_option'] ?? false && ($clockData['action'] ?? '') !== 'resume_workday')
                             <button 
                                 wire:click="clockOutFromWork"
                                 class="flex items-center justify-center px-4 py-3 text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 min-h-[48px]">
@@ -121,7 +119,6 @@
                             @endif
                         </div>
                     </div>
-                
                 <!-- Resume from Pause State -->
                 @elseif(($clockData['action'] ?? '') === 'resume_workday')
                     <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4">
@@ -136,7 +133,6 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <button 
                             wire:click="handleClockAction"
                             class="w-full px-6 py-4 text-lg font-semibold text-white transition-all duration-200 rounded-lg hover:shadow-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -145,12 +141,10 @@
                                 <span>{{ __('Resume Work') }}</span>
                             </div>
                         </button>
-                        
                         <p class="mt-3 text-sm text-orange-600 dark:text-orange-400 text-center">
                             {{ __('Ready to resume your workday') }}
                         </p>
                     </div>
-                
                 <!-- Regular Clock In/Out States -->
                 @elseif(!$showConfirmation)
                     <button 

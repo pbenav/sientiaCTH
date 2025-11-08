@@ -3,7 +3,7 @@
 @section('title', 'Inicio')
 
 @section('content')
-<div class="p-4 space-y-6">
+<div class="p-4 space-y-6 max-w-md mx-auto">
     
     <!-- Welcome Section -->
     <div class="bg-white rounded-lg shadow-sm p-6">
@@ -35,23 +35,26 @@
                 <span class="font-semibold" id="currentTime">{{ now()->format('H:i:s') }}</span>
             </div>
             
-            <!-- Last Clock Action -->
-            @if($lastClockAction)
+            <!-- Clock Status -->
+            @if($clockData['can_clock'] ?? false)
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Último fichaje:</span>
+                    <span class="text-gray-600">Estado:</span>
                     <div class="text-right">
-                        <div class="font-semibold">
-                            {{ $lastClockAction['action'] === 'entrada' ? 'Entrada' : 'Salida' }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ \Carbon\Carbon::parse($lastClockAction['datetime'])->format('d/m/Y H:i') }}
-                        </div>
+                        @if(($clockData['action'] ?? '') === 'clock_in')
+                            <span class="text-green-600 font-semibold">Listo para fichar entrada</span>
+                        @elseif(($clockData['action'] ?? '') === 'working_options')
+                            <span class="text-blue-600 font-semibold">Trabajando</span>
+                        @elseif(($clockData['action'] ?? '') === 'resume_workday')
+                            <span class="text-orange-600 font-semibold">En pausa</span>
+                        @else
+                            <span class="text-red-600 font-semibold">Listo para fichar salida</span>
+                        @endif
                     </div>
                 </div>
             @else
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">Estado:</span>
-                    <span class="text-orange-600 font-semibold">Sin fichajes hoy</span>
+                    <span class="text-orange-600 font-semibold">{{ $clockData['message'] ?? 'No se puede fichar' }}</span>
                 </div>
             @endif
 
@@ -67,51 +70,68 @@
     <div class="bg-white rounded-lg shadow-sm p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
         
-        <div class="grid grid-cols-2 gap-4">
-            <!-- Clock In/Out Button -->
-            <button onclick="performClockAction()" 
-                    id="clockButton"
-                    class="bg-blue-600 text-white p-4 rounded-lg font-semibold text-center hover:bg-blue-700 transition duration-200 btn-mobile">
-                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-                </svg>
-                <span id="clockButtonText">
-                    @if($lastClockAction && $lastClockAction['action'] === 'entrada')
-                        Fichar Salida
-                    @else
-                        Fichar Entrada
-                    @endif
-                </span>
-            </button>
-            
-            <!-- View Schedule -->
-            <a href="{{ route('mobile.schedule') }}" 
-               class="bg-gray-100 text-gray-700 p-4 rounded-lg font-semibold text-center hover:bg-gray-200 transition duration-200 btn-mobile block">
-                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-                </svg>
-                Ver Horario
-            </a>
-            
-            <!-- View History -->
-            <a href="{{ route('mobile.history') }}" 
-               class="bg-gray-100 text-gray-700 p-4 rounded-lg font-semibold text-center hover:bg-gray-200 transition duration-200 btn-mobile block">
-                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Historial
-            </a>
-            
-            <!-- View Reports -->
-            <a href="{{ route('mobile.reports') }}" 
-               class="bg-gray-100 text-gray-700 p-4 rounded-lg font-semibold text-center hover:bg-gray-200 transition duration-200 btn-mobile block">
-                <svg class="w-6 h-6 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
-                </svg>
-                Informes
-            </a>
-        </div>
-    </div>
+        <div class="space-y-4">
+            <!-- Clock Action Button - Changes based on state -->
+            @if($clockData['can_clock'] ?? false)
+                @if(($clockData['action'] ?? '') === 'working_options')
+                    <!-- Working State - Show pause and clock out buttons -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Pause Button -->
+                        <button onclick="performClockAction('pause')" 
+                                class="bg-orange-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-orange-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-xs">
+                            <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm4-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm">Pausar</span>
+                        </button>
+                        
+                        <!-- Clock Out Button -->
+                        <button onclick="performClockAction('clock_out')" 
+                                class="bg-red-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-red-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-xs">
+                            <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm">Fin Jornada</span>
+                        </button>
+                    </div>
+                @elseif(($clockData['action'] ?? '') === 'resume_workday')
+                    <!-- Resume from Pause State -->
+                    <button onclick="performClockAction()" 
+                            class="w-full bg-blue-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-blue-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-sm">
+                        <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Continuar Trabajo</span>
+                    </button>
+                @elseif(($clockData['action'] ?? '') === 'clock_in')
+                    <!-- Clock In State -->
+                    <button onclick="performClockAction()" 
+                            class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-green-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-sm">
+                        <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Inicio de Jornada</span>
+                    </button>
+                @else
+                    <!-- Clock Out State -->
+                    <button onclick="performClockAction()" 
+                            class="w-full bg-red-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-red-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-sm">
+                        <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Fin de Jornada</span>
+                    </button>
+                @endif
+            @else
+                <!-- Cannot Clock -->
+                <button disabled 
+                        class="w-full bg-gray-400 text-white p-4 rounded-lg font-semibold text-center cursor-not-allowed flex flex-col items-center min-h-[80px] max-w-sm">
+                    <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>{{ $clockData['message'] ?? 'No se puede fichar' }}</span>
+                </button>
+            @endif
 
     <!-- Today's Summary -->
     @if($todayStats)
@@ -134,13 +154,28 @@
 </div>
 
 <!-- Loading overlay for clock actions -->
-<div id="clockLoadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg p-6 flex items-center space-x-3">
-        <svg class="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span class="text-gray-700">Procesando fichaje...</span>
+<div id="clockLoadingOverlay" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-xl p-8 flex flex-col items-center space-y-4 shadow-2xl max-w-sm mx-auto">
+        <!-- Animated clock icon -->
+        <div class="relative">
+            <svg class="animate-spin h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <!-- Pulsing dot -->
+            <div class="absolute top-0 left-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+        </div>
+        
+        <!-- Loading message -->
+        <div class="text-center">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2" id="loadingTitle">Procesando fichaje...</h3>
+            <p class="text-sm text-gray-600" id="loadingMessage">Por favor espera un momento</p>
+        </div>
+        
+        <!-- Progress indicator -->
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full animate-pulse" style="width: 60%"></div>
+        </div>
     </div>
 </div>
 @endsection
@@ -162,18 +197,61 @@
     updateTime(); // Initial call
 
     // Clock action function
-    async function performClockAction() {
+    async function performClockAction(action = null) {
         const loadingOverlay = document.getElementById('clockLoadingOverlay');
-        const clockButton = document.getElementById('clockButton');
-        const clockButtonText = document.getElementById('clockButtonText');
+        const loadingTitle = document.getElementById('loadingTitle');
+        const loadingMessage = document.getElementById('loadingMessage');
+        
+        let isSuccess = false;
+        
+        // Set loading message based on action
+        let title, message;
+        if (action === 'pause') {
+            title = 'Iniciando pausa...';
+            message = 'Registrando el inicio de tu descanso';
+        } else if (action === 'clock_out') {
+            title = 'Finalizando jornada...';
+            message = 'Cerrando tu jornada laboral del día';
+        } else {
+            // Default clock in or resume
+            const currentAction = '{{ $clockData["action"] ?? "" }}';
+            if (currentAction === 'clock_in') {
+                title = 'Iniciando jornada...';
+                message = 'Registrando el inicio de tu jornada laboral';
+            } else if (currentAction === 'resume_workday') {
+                title = 'Reanudando trabajo...';
+                message = 'Finalizando pausa y continuando jornada';
+            } else {
+                title = 'Procesando fichaje...';
+                message = 'Actualizando tu estado laboral';
+            }
+        }
+        
+        loadingTitle.textContent = title;
+        loadingMessage.textContent = message;
         
         try {
             // Show loading
             loadingOverlay.classList.remove('hidden');
-            clockButton.disabled = true;
+            
+            // Disable all clock buttons
+            document.querySelectorAll('button[onclick*="performClockAction"]').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
             
             // Get CSRF token
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            // Prepare request data
+            const requestData = {
+                work_center_code: '{{ $workCenter->code }}',
+                user_code: '{{ $user->user_code }}'
+            };
+            
+            if (action) {
+                requestData.action = action;
+            }
             
             // Make API call
             const response = await fetch('/api/v1/mobile/clock', {
@@ -183,35 +261,58 @@
                     'X-CSRF-TOKEN': token,
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    work_center_code: '{{ $workCenter->code }}',
-                    user_code: '{{ $user->user_code }}'
-                })
+                body: JSON.stringify(requestData)
             });
             
             const result = await response.json();
             
             if (result.success) {
-                // Update button text
-                clockButtonText.textContent = result.data.action === 'entrada' ? 'Fichar Salida' : 'Fichar Entrada';
+                isSuccess = true;
+                
+                // Update loading message for success
+                loadingTitle.textContent = '¡Fichaje completado!';
+                loadingMessage.textContent = result.message;
                 
                 // Show success message
-                showNotification('Fichaje registrado correctamente: ' + result.data.action, 'success');
+                showNotification('Fichaje registrado correctamente: ' + result.message, 'success');
                 
-                // Reload page to update stats
+                // Reload page to update stats and button state
                 setTimeout(() => {
                     window.location.reload();
-                }, 1500);
+                }, 2000);
             } else {
+                // Update loading message for error
+                loadingTitle.textContent = 'Error en el fichaje';
+                loadingMessage.textContent = result.message;
+                
                 showNotification('Error: ' + result.message, 'error');
+                
+                // Hide loading after showing error
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                }, 2000);
             }
         } catch (error) {
             console.error('Clock action error:', error);
+            
+            // Update loading message for connection error
+            loadingTitle.textContent = 'Error de conexión';
+            loadingMessage.textContent = 'Verifica tu conexión e intenta de nuevo';
+            
             showNotification('Error de conexión. Inténtalo de nuevo.', 'error');
+            
+            // Hide loading after showing error
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+            }, 3000);
         } finally {
-            // Hide loading
-            loadingOverlay.classList.add('hidden');
-            clockButton.disabled = false;
+            // Re-enable all clock buttons (only if not reloading)
+            if (!isSuccess) {
+                document.querySelectorAll('button[onclick*="performClockAction"]').forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
+            }
         }
     }
     
