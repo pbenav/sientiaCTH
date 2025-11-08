@@ -51,8 +51,24 @@ class MobileWebController extends Controller
             return back()->withErrors(['work_center_code' => 'El campo work center code es obligatorio']);
         }
 
+        // Debug: Log the exact code we're searching for
+        Log::info('Searching for work center', [
+            'code_to_search' => $workCenterCode,
+            'code_trimmed' => trim($workCenterCode),
+            'code_length' => strlen($workCenterCode),
+            'code_hex' => bin2hex($workCenterCode)
+        ]);
+
         // Find work center
         $workCenter = WorkCenter::where('code', $workCenterCode)->first();
+        
+        Log::info('Work center search result', [
+            'work_center_found' => $workCenter ? 'YES' : 'NO',
+            'work_center_id' => $workCenter ? $workCenter->id : null,
+            'work_center_code' => $workCenter ? $workCenter->code : null,
+            'work_center_name' => $workCenter ? $workCenter->name : null
+        ]);
+        
         if (!$workCenter) {
             return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado']);
         }
