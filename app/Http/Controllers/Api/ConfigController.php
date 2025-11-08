@@ -26,7 +26,7 @@ class ConfigController extends Controller
         $config = [
             'server_info' => [
                 'name' => config('app.name', 'CTH - Control de Tiempo y Horarios'),
-                'version' => '1.0.0',
+                'version' => '0.0.1',
                 'api_version' => 'v1',
                 'timezone' => config('app.timezone', 'UTC'),
                 'locale' => config('app.locale', 'es'),

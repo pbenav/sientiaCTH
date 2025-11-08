@@ -29,18 +29,14 @@ class MobileWebController extends Controller
     {
         Log::info('Test login endpoint called', [
             'method' => $request->method(),
-            'all_data' => $request->all(),
-            'headers' => $request->headers->all(),
             'user_code' => $request->input('user_code'),
             'work_center_code' => $request->input('work_center_code'),
             'manual_work_center_code' => $request->input('manual_work_center_code'),
         ]);
 
         return response()->json([
-            'received_data' => $request->all(),
-            'user_code_present' => !empty($request->input('user_code')),
-            'work_center_code_present' => !empty($request->input('work_center_code')),
-            'manual_work_center_code_present' => !empty($request->input('manual_work_center_code')),
+            'success' => true,
+            'message' => 'Login test realizado correctamente.'
         ]);
     }
 

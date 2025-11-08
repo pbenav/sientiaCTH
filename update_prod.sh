@@ -9,7 +9,7 @@ echo "🚀 Iniciando la optimización de Laravel (con Laravel Mix)..."
 echo "📦 Instalando dependencias de Composer..."
 npm update
 npm cache clean --force
-composer install --no-dev --optimize-autoloader
+#composer install --no-dev --optimize-autoloader
 
 # 2. Limpiar cachés antiguas
 echo "🧹 Limpiando cachés de la aplicación..."
