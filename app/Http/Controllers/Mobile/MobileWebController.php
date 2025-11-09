@@ -28,68 +28,88 @@ class MobileWebController extends Controller
      */
     public function login(Request $request)
     {
-        // Debug logging
-        Log::info('Mobile login attempt', [
-            'all_data' => $request->all(),
-            'user_code' => $request->user_code,
-            'work_center_code' => $request->work_center_code,
-            'manual_work_center_code' => $request->manual_work_center_code,
-        ]);
+        try {
+            // Debug logging
+            Log::info('Mobile login attempt', [
+                'all_data' => $request->all(),
+                'user_code' => $request->user_code,
+                'work_center_code' => $request->work_center_code,
+                'manual_work_center_code' => $request->manual_work_center_code,
+            ]);
 
-        // Accept authentication using only user_code. If work_center_code is
-        // provided use it; otherwise attempt to infer a suitable work center
-        // from the user's current team.
-        Log::info('Mobile login attempt (revised) - payload', $request->all());
+            // Accept authentication using only user_code. If work_center_code is
+            // provided use it; otherwise attempt to infer a suitable work center
+            // from the user's current team.
+            Log::info('Mobile login attempt (revised) - payload', $request->all());
 
-        $request->validate([
-            'user_code' => 'required|string|max:20',
-        ]);
+            $request->validate([
+                'user_code' => 'required|string|max:20',
+            ]);
 
-        // Try to find the user by secret code
-        $user = User::where('user_code', $request->user_code)->first();
-        if (!$user) {
-            return back()->withErrors(['user_code' => 'Código de usuario inválido']);
-        }
-
-        // If client supplied a work center code, try to find it. Otherwise
-        // pick the user's default work center from their current team.
-        $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
-        $workCenter = null;
-
-        if (!empty($workCenterCode)) {
-            $workCenter = WorkCenter::where('code', $workCenterCode)->first();
-            Log::info('Work center provided by client', ['code' => $workCenterCode, 'found' => (bool) $workCenter]);
-        }
-
-        if (!$workCenter) {
-            // Try to infer from user's current team
-            if ($user->currentTeam) {
-                $workCenter = $user->currentTeam->workCenters()->first();
-                Log::info('Inferred work center from user currentTeam', ['user_id' => $user->id, 'work_center_id' => $workCenter?->id]);
+            // Try to find the user by secret code
+            $user = User::where('user_code', $request->user_code)->first();
+            if (!$user) {
+                return back()->withErrors(['user_code' => 'Código de usuario inválido']);
             }
+
+            // If client supplied a work center code, try to find it. Otherwise
+            // pick the user's default work center from their current team.
+            $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
+            $workCenter = null;
+
+            if (!empty($workCenterCode)) {
+                $workCenter = WorkCenter::where('code', $workCenterCode)->first();
+                Log::info('Work center provided by client', ['code' => $workCenterCode, 'found' => (bool) $workCenter]);
+            }
+
+            if (!$workCenter) {
+                // Try to infer from user's current team
+                if ($user->currentTeam) {
+                    $workCenter = $user->currentTeam->workCenters()->first();
+                    Log::info('Inferred work center from user currentTeam', ['user_id' => $user->id, 'work_center_id' => $workCenter?->id]);
+                }
+            }
+
+            if (!$workCenter) {
+                // As a last resort, return an error so the mobile client can ask
+                // the user for a manual work center code.
+                return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado. Proporcione el código de centro.']);
+            }
+
+            // Ensure the work center belongs to the user's team (security check)
+            if ($workCenter->team_id !== ($user->current_team_id ?? $user->currentTeam?->id)) {
+                Log::warning('Work center does not belong to user team', ['user_id' => $user->id, 'work_center_team' => $workCenter->team_id, 'user_team' => $user->current_team_id]);
+                // Allow it if the work center is global? For now, block to avoid cross-team auth
+                return back()->withErrors(['work_center_code' => 'El centro de trabajo no pertenece al equipo del usuario']);
+            }
+
+            // Set mobile session
+            session([
+                'mobile_user_id' => $user->id,
+                'mobile_work_center_id' => $workCenter->id,
+                'mobile_authenticated' => true
+            ]);
+
+            return redirect()->route('mobile.home');
+        } catch (\Throwable $e) {
+            Log::error('Mobile login error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $request->all(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->header('User-Agent'),
+            ]);
+
+            $details = config('app.debug') ? [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ] : null;
+
+            return response()->view('mobile.error', [
+                'message' => 'Error interno del servidor al procesar login móvil',
+                'details' => $details,
+            ], 500);
         }
-
-        if (!$workCenter) {
-            // As a last resort, return an error so the mobile client can ask
-            // the user for a manual work center code.
-            return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado. Proporcione el código de centro.']);
-        }
-
-        // Ensure the work center belongs to the user's team (security check)
-        if ($workCenter->team_id !== ($user->current_team_id ?? $user->currentTeam?->id)) {
-            Log::warning('Work center does not belong to user team', ['user_id' => $user->id, 'work_center_team' => $workCenter->team_id, 'user_team' => $user->current_team_id]);
-            // Allow it if the work center is global? For now, block to avoid cross-team auth
-            return back()->withErrors(['work_center_code' => 'El centro de trabajo no pertenece al equipo del usuario']);
-        }
-
-        // Set mobile session
-        session([
-            'mobile_user_id' => $user->id,
-            'mobile_work_center_id' => $workCenter->id,
-            'mobile_authenticated' => true
-        ]);
-
-        return redirect()->route('mobile.home');
     }
 
     /**
@@ -97,25 +117,46 @@ class MobileWebController extends Controller
      */
     public function home()
     {
-        $user = User::find(session('mobile_user_id'));
-        $workCenter = WorkCenter::find(session('mobile_work_center_id'));
-        
-        if (!$user || !$workCenter) {
-            return redirect()->route('mobile.auth');
+        try {
+            $user = User::find(session('mobile_user_id'));
+            $workCenter = WorkCenter::find(session('mobile_work_center_id'));
+
+            if (!$user || !$workCenter) {
+                return redirect()->route('mobile.auth');
+            }
+
+            // Get clock data using SmartClockInService
+            $clockData = $this->smartClockInService->getClockAction($user);
+
+            // Get today's stats
+            $todayStats = $this->getTodayStats($user);
+
+            return view('mobile.home', [
+                'user' => $user,
+                'workCenter' => $workCenter,
+                'clockData' => $clockData,
+                'todayStats' => $todayStats
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Mobile home error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'session' => [
+                    'mobile_user_id' => session('mobile_user_id'),
+                    'mobile_work_center_id' => session('mobile_work_center_id')
+                ]
+            ]);
+
+            $details = config('app.debug') ? [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ] : null;
+
+            return response()->view('mobile.error', [
+                'message' => 'Error interno del servidor al cargar la pantalla principal móvil',
+                'details' => $details,
+            ], 500);
         }
-        
-        // Get clock data using SmartClockInService
-        $clockData = $this->smartClockInService->getClockAction($user);
-        
-        // Get today's stats
-        $todayStats = $this->getTodayStats($user);
-        
-        return view('mobile.home', [
-            'user' => $user,
-            'workCenter' => $workCenter,
-            'clockData' => $clockData,
-            'todayStats' => $todayStats
-        ]);
     }
 
     /**
