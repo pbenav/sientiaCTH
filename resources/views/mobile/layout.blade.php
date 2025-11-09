@@ -77,7 +77,7 @@
             <!-- Right controls -->
             <div class="flex items-center space-x-3">
                 <!-- Desktop Version Button -->
-                <a href="{{ url('/') }}" target="_blank" rel="noopener" class="btn-mobile rounded-full p-2 hover:bg-blue-700 transition-colors">
+                <a href="{{ url('/') }}" target="_blank" rel="noopener" class="w-8 h-8 flex items-center justify-center btn-mobile rounded-full hover:bg-blue-700 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
