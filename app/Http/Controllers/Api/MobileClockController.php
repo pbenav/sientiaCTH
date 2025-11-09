@@ -151,10 +151,26 @@ class MobileClockController extends Controller
             // Get work schedule
             $workSchedule = $this->getUserWorkSchedule($user);
 
+            // Build a compatible data payload for mobile clients.
+            $dataPayload = [
+                'action' => $result['action'] ?? null,
+                'timestamp' => Carbon::now($user->currentTeam->timezone ?? config('app.timezone'))->toISOString(),
+                'work_center_code' => $workCenter->code,
+                'user_code' => $user->user_code,
+                'message' => $result['message'] ?? null,
+                // Provide today_stats.current_status to help mobile UI interpret the state
+                'today_stats' => [
+                    'total_entries' => $todayRecords ? count(array_filter($todayRecords, fn($r) => isset($r['start']))) : 0,
+                    'total_exits' => $todayRecords ? count(array_filter($todayRecords, fn($r) => isset($r['end']))) : 0,
+                    'worked_hours' => null,
+                    'current_status' => $this->getCurrentStatusText($clockAction['action'] ?? '')
+                ]
+            ];
+
             return response()->json([
                 'success' => true,
-                'action_taken' => $result['action'] ?? null,
                 'message' => $result['message'] ?? null,
+                'data' => $dataPayload,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
