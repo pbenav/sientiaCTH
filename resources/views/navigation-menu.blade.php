@@ -89,8 +89,8 @@
                     @livewire('notification-icon')
                 </div>
 
-                <!-- Quick switch to mobile UI (desktop only) -->
-                <div class="ml-3 hidden sm:flex sm:items-center">
+                <!-- Quick switch to mobile UI -->
+                <div class="ml-3 flex items-center">
                     <a href="{{ route('mobile.home') }}"
                        title="{{ __('ui.layout.open_mobile') }}"
                        class="relative inline-flex items-center p-2 rounded-md hover:bg-gray-50 hover:text-gray-700 text-gray-600 transition-colors duration-200"
