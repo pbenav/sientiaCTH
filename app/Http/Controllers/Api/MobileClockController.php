@@ -125,8 +125,8 @@ class MobileClockController extends Controller
                 'message' => $result['message'],
                 'user' => [
                     'id' => $user->id,
-                    'name' => $user->name,
-                    'family_name1' => $user->family_name1,
+                    'name' => $user->name ?? '',
+                    'family_name1' => $user->family_name1 ?? '',
                     'current_status' => $currentStatus,
                     'work_center' => [
                         'id' => $workCenter->id,
@@ -506,6 +506,9 @@ class MobileClockController extends Controller
     /**
      * Get worker data by code for mobile setup
      */
+    /**
+     * Get worker data by code for mobile setup
+     */
     public function getWorkerData(string $code): JsonResponse
     {
         try {
@@ -520,17 +523,10 @@ class MobileClockController extends Controller
             }
 
             // Get user's work centers
-            $workCenters = $user->teams->flatMap(function ($team) {
-                return $team->workCenters->map(function ($workCenter) use ($team) {
-                    return [
-                        'id' => $workCenter->id,
-                        'name' => $workCenter->name,
-                        'code' => $workCenter->code,
-                        'team_name' => $team->name,
-                        'timezone' => $team->timezone ?? config('app.timezone')
-                    ];
-                });
-            })->values();
+            try {
+            } catch (Exception $e) {
+                $workCenters = [];
+            }
 
             // Get work schedule
             $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
@@ -551,8 +547,53 @@ class MobileClockController extends Controller
                 'data' => [
                     'user' => [
                         'id' => $user->id,
-                        'name' => $user->name,
-                        'family_name1' => $user->family_name1,
+                        'name' => $user->name ?? '' ,
+                        'family_name1' => $user->family_name1 ?? '' ,
+                        'user_code' => $user->user_code
+                    ],
+                    'work_centers' => $workCenters ?? [],
+                    'work_schedule' => $workSchedule,
+                    'holidays' => $holidays
+                ]
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Mobile getWorkerData error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener datos del trabajador'
+            ], 500);
+        }
+    }
+
+            // Get user's work centers
+            try {
+            } catch (Exception $e) {
+                $workCenters = [];
+            }
+
+            // Get work schedule
+            $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+            $workSchedule = null;
+            if ($scheduleMeta && $scheduleMeta->meta_value) {
+                $workSchedule = json_decode($scheduleMeta->meta_value, true);
+            }
+
+            // Get holidays
+            $holidaysMeta = $user->meta->where('meta_key', 'holidays')->first();
+            $holidays = [];
+            if ($holidaysMeta && $holidaysMeta->meta_value) {
+                $holidays = json_decode($holidaysMeta->meta_value, true) ?? [];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name ?? '',
+                        'family_name1' => $user->family_name1 ?? '',
                         'user_code' => $user->user_code
                     ],
                     'work_centers' => $workCenters,
