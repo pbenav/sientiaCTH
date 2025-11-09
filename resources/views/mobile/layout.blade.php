@@ -74,8 +74,17 @@
                 <h1 class="ml-3 text-lg font-semibold">@yield('title', 'CTH Mobile')</h1>
             </div>
             
-            <!-- User Menu -->
-            <div class="relative">
+            <!-- Right controls -->
+            <div class="flex items-center space-x-3">
+                <!-- Desktop switch button -->
+                <a href="{{ url('/') }}" title="Abrir versión escritorio" class="hidden sm:inline-flex items-center justify-center bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full w-9 h-9">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
+                    </svg>
+                </a>
+
+                <!-- User Menu -->
+                <div class="relative">
                 <button onclick="toggleUserMenu()" class="btn-mobile rounded-full">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
