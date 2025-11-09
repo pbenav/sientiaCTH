@@ -288,38 +288,6 @@
                     <i class="fas fa-sync-alt mr-1"></i>{{ __('Refresh Status') }}
                 </button>
             </div>
-        
-            <!-- Quick switch to Mobile App / Mobile Web -->
-            <div class="text-center mt-3">
-                @php
-                    $userCode = $this->getUserInfo()['user_code'] ?? null;
-                    $workCenterCode = $this->getUserInfo()['work_center_code'] ?? null;
-                    $mobileAuthUrl = route('mobile.auth');
-                    $mobileQuery = http_build_query(array_filter([
-                        'user_code' => $userCode,
-                        'work_center_code' => $workCenterCode,
-                    ]));
-                @endphp
-
-                @if($userCode)
-                <div class="flex justify-center gap-3 mt-2">
-                    <!-- Open Mobile Web (auth form with params) -->
-                    <a href="{{ $mobileAuthUrl }}?{{ $mobileQuery }}" target="_blank" rel="noopener" class="text-sm px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-mobile-alt mr-2"></i>Abrir versión móvil
-                    </a>
-
-                    <!-- Android intent: open native app if installed (fallback opens mobile web) -->
-                    @php
-                        $intentUri = 'intent://open?'.http_build_query(array_filter(['user_code' => $userCode, 'work_center_code' => $workCenterCode]) )."#Intent;scheme=cth;package=com.example.cth_mobile;end";
-                        $deepLink = 'cth://open?'.http_build_query(array_filter(['user_code' => $userCode, 'work_center_code' => $workCenterCode]));
-                    @endphp
-
-                    <a href="{{ $intentUri }}" class="text-sm px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                        <i class="fas fa-arrow-right mr-2"></i>Abrir en App nativa
-                    </a>
-                </div>
-                @endif
-            </div>
         </div>
     </div>
 
