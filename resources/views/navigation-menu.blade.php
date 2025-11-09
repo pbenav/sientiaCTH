@@ -156,11 +156,6 @@
             <div class="-mr-2 flex items-center space-x-2 sm:hidden">
                 <!-- Mobile Icons Container -->
                 <div class="flex flex-col space-y-1">
-                    <!-- Mobile Notification Icon -->
-                    <div class="relative flex items-center justify-center">
-                        @livewire('notification-icon')
-                    </div>
-                    
                     <!-- Quick switch to mobile UI -->
                     <div class="relative flex items-center justify-center">
                         <a href="{{ route('mobile.home') }}"
@@ -172,6 +167,11 @@
                                 <path d="M3 6h14v2H3V6z" fill-opacity="0.6"></path>
                             </svg>
                         </a>
+                    </div>
+                    
+                    <!-- Mobile Notification Icon -->
+                    <div class="relative flex items-center justify-center">
+                        @livewire('notification-icon')
                     </div>
                 </div>
                 
