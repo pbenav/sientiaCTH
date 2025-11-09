@@ -34,7 +34,7 @@ Route::prefix('v1')->group(function () {
     // Mobile API routes (for mobile app)
     Route::prefix('mobile')->group(function () {
         Route::post('/clock', [MobileClockController::class, 'clock']);
-        Route::get('/status', [MobileClockController::class, 'status']);
+        Route::post('/status', [MobileClockController::class, 'status']);
         Route::post('/sync', [MobileClockController::class, 'sync']);
         // Worker data endpoint used by mobile setup (moved here to keep all mobile endpoints under /api/v1/mobile)
         Route::get('/worker/{code}', [MobileClockController::class, 'getWorkerData']);
