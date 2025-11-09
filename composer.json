@@ -5,7 +5,7 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "asantibanez/livewire-charts": "^2.4",
         "barryvdh/laravel-dompdf": "^2.0",
         "doctrine/dbal": "^3.5",
@@ -67,7 +67,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.2"
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
