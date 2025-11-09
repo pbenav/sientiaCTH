@@ -682,7 +682,7 @@ class MobileClockController extends Controller
             $workedHoursFormatted = sprintf('%d:%02d', $workedHours, $workedMinutes);
             
             // Get current status
-            $currentStatus = $this->smartClockInService->getCurrentStatus($user);
+            $currentStatus = $this->getCurrentStatusText($this->smartClockInService->getClockAction($user)['action'] ?? '');
             
             return [
                 'worked_hours' => $workedHoursFormatted,
