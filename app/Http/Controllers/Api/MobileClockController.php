@@ -431,6 +431,7 @@ class MobileClockController extends Controller
             }
 
             $clockAction = $this->smartClockInService->getClockAction($user);
+            $clockAction = $clockAction ?? [];
 
             // Get today's statistics if needed
             $todayStats = $this->getTodayStats($user) ?? [];
