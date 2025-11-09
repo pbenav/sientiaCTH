@@ -1,15 +1,4 @@
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        const workCenterCodeInput = document.getElementById('work_center_code');
-        const manualWorkCenterInput = document.getElementById('manual_work_center_code');
-        if (!workCenterCodeInput.value && manualWorkCenterInput.value) {
-            workCenterCodeInput.value = manualWorkCenterInput.value;
-        }
-    });
-});
-</script>
+
 @extends('mobile.layout')
 
 @section('title', 'Autenticación')
@@ -51,44 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <form action="{{ route('mobile.auth.login') }}" method="POST" class="space-y-6">
                 @csrf
                 
-                <!-- Work Center Code (Hidden - comes from Flutter) -->
-                <input type="hidden" id="work_center_code" name="work_center_code" value="">
-                
-                <!-- Work Center Display -->
-                <div id="workCenterDisplay" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Centro de Trabajo
-                    </label>
-                    <div class="bg-gray-50 border border-gray-300 rounded-lg p-3">
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                            <div>
-                                <div class="font-medium text-gray-900" id="workCenterInfo">
-                                    Centro detectado via NFC
-                                </div>
-                                <div class="text-sm text-gray-600" id="workCenterCode"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Manual Work Center Input (fallback) -->
-                <div id="manualWorkCenterInput">
-                    <label for="manual_work_center_code" class="block text-sm font-medium text-gray-700 mb-2">
-                        Código de Centro de Trabajo
-                    </label>
-                    <input type="text" 
-                           id="manual_work_center_code" 
-                           name="manual_work_center_code" 
-                           value="{{ old('work_center_code') }}"
-                           placeholder="Ej: OC-001"
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg btn-mobile">
-                    <p class="mt-1 text-sm text-gray-500">
-                        Solo necesario si no se detectó automáticamente
-                    </p>
-                </div>
+                <!-- User Code only: removed requirement for work_center_code -->
 
                 <!-- User Code -->
                 <div>
@@ -148,35 +100,24 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        
-        // Check for work center code from Flutter (URL parameters or localStorage)
-        checkForFlutterData();
-        
+
+        // No longer require or submit any work_center_code from the frontend.
+        // We keep a light-weight form submit via fetch for UX but the server
+        // will accept only the user_code and infer any work center server-side.
+
         form.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent default form submission
-            
-            // Log form data before submission
+
+            // Log form data before submission (for debugging)
             const formData = new FormData(form);
             console.log('Form submission data:');
             for (let [key, value] of formData.entries()) {
                 console.log(`${key}: "${value}"`);
             }
-            
-            // Ensure work_center_code is set from manual input if needed
-            const workCenterCode = document.getElementById('work_center_code');
-            const manualCode = document.getElementById('manual_work_center_code');
-            
-            console.log('workCenterCode value:', workCenterCode.value);
-            console.log('manualCode value:', manualCode ? manualCode.value : 'null');
-            
-            if (!workCenterCode.value && manualCode && manualCode.value) {
-                workCenterCode.value = manualCode.value.toUpperCase();
-                console.log('Set workCenterCode from manual input:', workCenterCode.value);
-            }
-            
+
             // Show loading
             loadingOverlay.classList.remove('hidden');
-            
+
             // Submit form via fetch to get JSON response
             fetch(form.action, {
                 method: 'POST',
@@ -198,77 +139,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingOverlay.classList.add('hidden');
             });
         });
-        
-        // Auto-uppercase work center codes in manual input
-        const manualWorkCenterInput = document.getElementById('manual_work_center_code');
-        if (manualWorkCenterInput) {
-            manualWorkCenterInput.addEventListener('input', function() {
-                this.value = this.value.toUpperCase();
-            });
-        }
-        
-        // Auto-focus on user code if work center is already set
-        // Commenting out auto-focus to avoid potential issues
-        /*
-        if (document.getElementById('work_center_code').value) {
-            document.getElementById('user_code').focus();
-        } else {
-            document.getElementById('manual_work_center_code').focus();
-        }
-        */
     });
     
-    // Check for data passed from Flutter app
-    function checkForFlutterData() {
-        let workCenterCode = null;
-        let workCenterName = null;
-        
-        // Method 1: URL parameters
+        // Optional: if Flutter writes friendly info to localStorage we can show
+        // a non-blocking informational banner, but we will NOT submit any
+        // work_center_code to the server from this form.
         const urlParams = new URLSearchParams(window.location.search);
-        workCenterCode = urlParams.get('work_center_code') || urlParams.get('center');
-        workCenterName = urlParams.get('work_center_name') || urlParams.get('name');
-        
-        // Method 2: localStorage (set by Flutter WebView)
-        if (!workCenterCode) {
-            workCenterCode = localStorage.getItem('cth_work_center_code');
-            workCenterName = localStorage.getItem('cth_work_center_name');
+        const flutterCenter = urlParams.get('work_center_name') || localStorage.getItem('cth_work_center_name');
+        if (flutterCenter) {
+            showNotification('Centro detectado: ' + flutterCenter, 'info');
         }
-        
-        // Method 3: sessionStorage
-        if (!workCenterCode) {
-            workCenterCode = sessionStorage.getItem('cth_work_center_code');
-            workCenterName = sessionStorage.getItem('cth_work_center_name');
-        }
-        
-        if (workCenterCode) {
-            setWorkCenterFromFlutter(workCenterCode, workCenterName);
-        }
-    }
     
-    // Set work center data received from Flutter
-    function setWorkCenterFromFlutter(code, name) {
-        // Set the hidden input
-        document.getElementById('work_center_code').value = code;
-        
-        // Update the display
-        document.getElementById('workCenterCode').textContent = code;
-        document.getElementById('workCenterInfo').textContent = name || `Centro ${code}`;
-        
-        // Show the work center display and hide manual input
-        document.getElementById('workCenterDisplay').classList.remove('hidden');
-        document.getElementById('manualWorkCenterInput').classList.add('hidden');
-        
-        // Focus on user code input
-        setTimeout(() => {
-            document.getElementById('user_code').focus();
-        }, 100);
-        
-        console.log('Work center set from Flutter:', code, name);
-    }
-    
-    // Function that Flutter can call to set work center data
+    // Keep a no-op setter so Flutter calls won't fail if present
     window.setWorkCenter = function(code, name) {
-        setWorkCenterFromFlutter(code, name);
+        console.log('Flutter setWorkCenter called (ignored for submission):', code, name);
+        showNotification('Centro detectado: ' + (name || code), 'info');
     };
     
     // Function that Flutter can call to get current auth status
