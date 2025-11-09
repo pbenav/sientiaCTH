@@ -52,41 +52,28 @@ class MobileWebController extends Controller
                 return back()->withErrors(['user_code' => 'Código de usuario inválido']);
             }
 
-            // If client supplied a work center code, try to find it. Otherwise
-            // pick the user's default work center from their current team.
-            $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
+            // Do NOT require the client to send a work center code. Try to infer
+            // one from the user's current team when available; otherwise allow
+            // the mobile session to continue without a preset work center.
             $workCenter = null;
-
-            if (!empty($workCenterCode)) {
-                $workCenter = WorkCenter::where('code', $workCenterCode)->first();
-                Log::info('Work center provided by client', ['code' => $workCenterCode, 'found' => (bool) $workCenter]);
+            if ($user->currentTeam) {
+                $workCenter = $user->currentTeam->workCenters()->first();
+                Log::info('Inferred work center from user currentTeam', ['user_id' => $user->id, 'work_center_id' => $workCenter?->id]);
             }
 
-            if (!$workCenter) {
-                // Try to infer from user's current team
-                if ($user->currentTeam) {
-                    $workCenter = $user->currentTeam->workCenters()->first();
-                    Log::info('Inferred work center from user currentTeam', ['user_id' => $user->id, 'work_center_id' => $workCenter?->id]);
-                }
+            // If a work center was inferred, ensure it belongs to the user's team
+            // as a precaution. If not found, we continue with a null work center.
+            if ($workCenter && $workCenter->team_id !== ($user->current_team_id ?? $user->currentTeam?->id)) {
+                Log::warning('Inferred work center does not belong to user team', ['user_id' => $user->id, 'work_center_team' => $workCenter->team_id, 'user_team' => $user->current_team_id]);
+                // Do not block the login flow; unset the inferred work center.
+                $workCenter = null;
             }
 
-            if (!$workCenter) {
-                // As a last resort, return an error so the mobile client can ask
-                // the user for a manual work center code.
-                return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado. Proporcione el código de centro.']);
-            }
-
-            // Ensure the work center belongs to the user's team (security check)
-            if ($workCenter->team_id !== ($user->current_team_id ?? $user->currentTeam?->id)) {
-                Log::warning('Work center does not belong to user team', ['user_id' => $user->id, 'work_center_team' => $workCenter->team_id, 'user_team' => $user->current_team_id]);
-                // Allow it if the work center is global? For now, block to avoid cross-team auth
-                return back()->withErrors(['work_center_code' => 'El centro de trabajo no pertenece al equipo del usuario']);
-            }
-
-            // Set mobile session
+            // Set mobile session. mobile_work_center_id will be null if none was
+            // inferred; the mobile client should handle a missing work center.
             session([
                 'mobile_user_id' => $user->id,
-                'mobile_work_center_id' => $workCenter->id,
+                'mobile_work_center_id' => $workCenter?->id,
                 'mobile_authenticated' => true
             ]);
 
