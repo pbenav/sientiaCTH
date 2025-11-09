@@ -49,3 +49,6 @@ Route::prefix('v1')->group(function () {
         Route::get('admin/work_centers', [\App\Http\Controllers\Api\WorkCenterAPIController::class, 'index'])->middleware('isTeamAdmin');
     });
 });
+
+    // Worker data endpoint for mobile app setup
+    Route::get('/mobile/worker/{code}', [MobileClockController::class, 'getWorkerData']);
