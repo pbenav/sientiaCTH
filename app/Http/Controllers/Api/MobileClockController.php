@@ -643,5 +643,62 @@ class MobileClockController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get today's statistics for a user
+     */
+    private function getTodayStats(User $user): array
+    {
+        try {
+            $today = now()->format('Y-m-d');
+            
+            // Get today's events
+            $events = $user->events()
+                ->whereDate('start', $today)
+                ->orderBy('start', 'desc')
+                ->get();
+            
+            $totalEntries = $events->where('event_type.is_workday_type', true)->where('type', 'start')->count();
+            $totalExits = $events->where('event_type.is_workday_type', true)->where('type', 'end')->count();
+            
+            // Calculate worked hours (simplified - sum of time between start and end events)
+            $workedSeconds = 0;
+            $startTime = null;
+            
+            foreach ($events->sortBy('start') as $event) {
+                if ($event->eventType && $event->eventType->is_workday_type) {
+                    if ($event->type === 'start') {
+                        $startTime = Carbon::parse($event->start);
+                    } elseif ($event->type === 'end' && $startTime) {
+                        $endTime = Carbon::parse($event->start);
+                        $workedSeconds += $startTime->diffInSeconds($endTime);
+                        $startTime = null;
+                    }
+                }
+            }
+            
+            $workedHours = floor($workedSeconds / 3600);
+            $workedMinutes = floor(($workedSeconds % 3600) / 60);
+            $workedHoursFormatted = sprintf('%d:%02d', $workedHours, $workedMinutes);
+            
+            // Get current status
+            $currentStatus = $this->smartClockInService->getCurrentStatus($user);
+            
+            return [
+                'worked_hours' => $workedHoursFormatted,
+                'total_entries' => $totalEntries,
+                'total_exits' => $totalExits,
+                'current_status' => $currentStatus
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error getting today stats', ['error' => $e->getMessage()]);
+            return [
+                'worked_hours' => '0:00',
+                'total_entries' => 0,
+                'total_exits' => 0,
+                'current_status' => 'unknown'
+            ];
+        }
+    }
 }
 
