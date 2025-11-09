@@ -1,3 +1,4 @@
+/* Legacy button classes - keep for backward compatibility */
 .btn {
     @apply w-full font-bold rounded cursor-pointer;
 }
@@ -32,4 +33,95 @@
 
 .sl-select{
     @apply form-control w-full py-2 pl-2 pr-4 mt-2 text-sm border border-gray-400 rounded-lg sm:text-base focus:outline-none focus:border-blue-400
+}
+
+/* Modern consistent button system */
+
+/* Base button styles */
+.btn-base {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px];
+}
+
+/* Primary action buttons - for main CTAs like Clock In/Out */
+.btn-primary {
+    @apply btn-base bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-lg focus:ring-blue-500;
+}
+
+.btn-primary-success {
+    @apply btn-base bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 hover:shadow-lg focus:ring-green-500;
+}
+
+.btn-primary-danger {
+    @apply btn-base bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 hover:shadow-lg focus:ring-red-500;
+}
+
+.btn-primary-warning {
+    @apply btn-base bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800 hover:shadow-lg focus:ring-orange-500;
+}
+
+/* Secondary buttons - for less important actions */
+.btn-secondary {
+    @apply btn-base bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 hover:border-gray-400 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600;
+}
+
+.btn-secondary-success {
+    @apply btn-base bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 hover:border-green-300 focus:ring-green-500 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800;
+}
+
+.btn-secondary-danger {
+    @apply btn-base bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 focus:ring-red-500 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800;
+}
+
+.btn-secondary-warning {
+    @apply btn-base bg-yellow-50 text-yellow-700 border border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300 focus:ring-yellow-500 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800;
+}
+
+/* Icon buttons - for navigation and toolbar icons */
+.btn-icon {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-icon-primary {
+    @apply btn-icon text-gray-600 hover:bg-blue-100 hover:text-blue-600 focus:ring-blue-500;
+}
+
+.btn-icon-secondary {
+    @apply btn-icon text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:ring-gray-500;
+}
+
+/* Full width buttons for mobile/desktop consistency */
+.btn-full {
+    @apply w-full;
+}
+
+.btn-full-primary {
+    @apply btn-full btn-primary;
+}
+
+.btn-full-secondary {
+    @apply btn-full btn-secondary;
+}
+
+/* Button sizes */
+.btn-sm {
+    @apply px-3 py-1.5 text-xs min-h-[36px];
+}
+
+.btn-lg {
+    @apply px-6 py-3 text-base min-h-[48px];
+}
+
+/* Button with icons */
+.btn-with-icon {
+    @apply space-x-2;
+}
+
+.btn-with-icon-left i,
+.btn-with-icon-left svg {
+    @apply mr-2;
+}
+
+.btn-with-icon-right i,
+.btn-with-icon-right svg {
+    @apply ml-2;
 }
