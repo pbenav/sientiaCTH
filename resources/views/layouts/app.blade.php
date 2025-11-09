@@ -29,14 +29,6 @@
     <div class="h-auto bg-gray-100">
         @livewire('navigation-menu')
 
-        <!-- Quick switch to mobile web (top-right) -->
-        <div class="fixed top-4 right-4 z-50">
-            <a href="{{ route('mobile.home') }}" title="Abrir versión móvil" class="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-500">
-                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a3 3 0 013-3h0a3 3 0 013 3v12a3 3 0 01-3 3h0a3 3 0 01-3-3V4z"></path></svg>
-                Móvil
-            </a>
-        </div>
-
         <!-- Page Heading -->
         @if (isset($header))
         <header class="bg-white shadow">
