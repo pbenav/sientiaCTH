@@ -172,14 +172,14 @@
                         {{ ($clockData['action'] ?? '') === 'clock_in' ? __('Are you sure you want to clock in now?') : __('Are you sure you want to clock out now?') }}
                     </p>
                     <div class="flex space-x-3">
-                        <button 
+                        <button
                             wire:click="handleClockAction"
-                            class="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            class="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                             <i class="fas fa-check mr-2"></i>{{ __('Confirm') }}
                         </button>
-                        <button 
+                        <button
                             wire:click="$set('showConfirmation', false)"
-                            class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+                            class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                             <i class="fas fa-times mr-2"></i>{{ __('Cancel') }}
                         </button>
                     </div>
@@ -230,14 +230,14 @@
                                 </p>
                             </div>
                             <div class="flex space-x-3">
-                                <button 
+                                <button
                                     wire:click="confirmExceptionalClockIn"
-                                    class="flex-1 px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
+                                    class="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
                                     <i class="fas fa-check mr-2"></i>Confirmar
                                 </button>
-                                <button 
+                                <button
                                     wire:click="$set('showConfirmation', false)"
-                                    class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200">
+                                    class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                                     <i class="fas fa-times mr-2"></i>Cancelar
                                 </button>
                             </div>
@@ -249,9 +249,9 @@
                             <i class="fas fa-exclamation-triangle mr-2"></i>
                             <p class="font-medium">{{ $clockData['message'] ?? __('Cannot clock in/out at this time') }}</p>
                         </div>
-                        <button 
+                        <button
                             onclick="window.location.href='{{ route('events') }}'"
-                            class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            class="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                             <i class="fas fa-calendar-alt mr-2"></i>{{ $clockData['button_text'] ?? __('Go to Events') }}
                         </button>
                     </div>
@@ -261,12 +261,12 @@
                             <i class="fas fa-cog mr-2"></i>
                             <p class="font-medium">{{ $clockData['message'] ?? __('No work schedule configured') }}</p>
                         </div>
-                        <button 
+                        <button
                             onclick="
                                 console.log('Redirecting to:', '{{ $clockData['redirect_url'] ?? route('profile.show') . '?tab=preferences#work-schedule-section' }}');
                                 window.location.href='{{ $clockData['redirect_url'] ?? route('profile.show') . '?tab=preferences#work-schedule-section' }}';
                             "
-                            class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            class="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                             <i class="fas fa-user-cog mr-2"></i>{{ $clockData['button_text'] ?? __('Configure Schedule') }}
                         </button>
                     </div>
@@ -283,8 +283,8 @@
         
             <!-- Refresh Button -->
             <div class="text-center mt-4">
-                <button wire:click="refreshClockData" 
-                        class="text-sm text-gray-500 hover:text-gray-700 underline transition-colors duration-200">
+                <button wire:click="refreshClockData"
+                        class="text-sm text-gray-500 hover:text-blue-600 underline transition-colors duration-200 hover:no-underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1">
                     <i class="fas fa-sync-alt mr-1"></i>{{ __('Refresh Status') }}
                 </button>
             </div>
