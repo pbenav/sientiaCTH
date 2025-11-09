@@ -438,7 +438,7 @@ class MobileClockController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'action' => $clockAction['action'] ?? null,
+                    'action' => $clockAction['action'] ?? 'unknown',
                     'can_clock' => $clockAction['can_clock'] ?? false,
                     'message' => $clockAction['message'] ?? null,
                     'overtime' => $clockAction['overtime'] ?? false,
