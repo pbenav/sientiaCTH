@@ -76,13 +76,6 @@
             
             <!-- Right controls -->
             <div class="flex items-center space-x-3">
-                <!-- Desktop switch button -->
-                <a href="{{ url('/') }}" title="Abrir versión escritorio" class="hidden sm:inline-flex items-center justify-center bg-white bg-opacity-10 hover:bg-opacity-20 rounded-full w-9 h-9">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
-                    </svg>
-                </a>
-
                 <!-- User Menu -->
                 <div class="relative">
                 <button onclick="toggleUserMenu()" class="btn-mobile rounded-full">
@@ -98,7 +91,11 @@
                             {{ \App\Models\User::find(session('mobile_user_id'))->name ?? 'Usuario' }}
                         @endif
                     </div>
-                    <a href="{{ route('mobile.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Perfil</a>
+                    <a href="{{ url('/') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg class="inline-block w-4 h-4 mr-2 align-text-bottom" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        {{ __('ui.layout.open_desktop') }}
+                    </a>
+                    <a href="{{ route('mobile.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Profile') }}</a>
                     <form action="{{ route('mobile.logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">

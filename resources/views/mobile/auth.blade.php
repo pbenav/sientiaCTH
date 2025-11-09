@@ -1,7 +1,7 @@
 
 @extends('mobile.layout')
 
-@section('title', 'Autenticación')
+@section('title', __('ui.auth.title'))
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-500 to-blue-700">
@@ -15,7 +15,7 @@
                 </svg>
             </div>
             <h1 class="text-2xl font-bold text-white mb-2">CTH Mobile</h1>
-            <p class="text-blue-100">Accede a tu área personal</p>
+            <p class="text-blue-100">{{ __('ui.auth.subtitle') }}</p>
         </div>
 
         <!-- Authentication Form -->
@@ -31,7 +31,7 @@
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-blue-700">
-                            Los datos de autenticación se obtienen desde la aplicación Flutter
+                            {{ __('ui.auth.flutter_notice') }}
                         </p>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
                 <!-- User Code -->
                 <div>
                     <label for="user_code" class="block text-sm font-medium text-gray-700 mb-2">
-                        Código de Usuario
+                        {{ __('ui.auth.user_code_label') }}
                     </label>
                     <input type="text" 
                            id="user_code" 
@@ -59,17 +59,14 @@
                 <!-- Submit Button -->
                 <button type="submit" 
                         class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold text-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 btn-mobile">
-                    Acceder
+                    {{ __('ui.auth.login_button') }}
                 </button>
             </form>
 
             <!-- Help Text -->
             <div class="mt-6 text-center">
                 <p class="text-sm text-gray-600">
-                    ¿Necesitas ayuda? 
-                    <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">
-                        Contacta con soporte
-                    </a>
+                    {{ __('ui.auth.help_contact') }}
                 </p>
             </div>
         </div>
@@ -77,7 +74,7 @@
         <!-- Version Info -->
         <div class="text-center mt-6">
             <p class="text-blue-100 text-sm">
-                Versión 1.0.0 - {{ date('Y') }}
+                {{ __('ui.footer.version', ['version' => '0.0.1', 'year' => date('Y')]) }}
             </p>
         </div>
     </div>
@@ -129,11 +126,11 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Server response:', data);
-                showNotification('Datos recibidos: ' + JSON.stringify(data), 'info');
+                showNotification('{{ __('ui.auth.received_data') }} ' + JSON.stringify(data), 'info');
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Error: ' + error.message, 'error');
+                showNotification('{{ __('ui.auth.error_prefix') }} ' + error.message, 'error');
             })
             .finally(() => {
                 loadingOverlay.classList.add('hidden');
@@ -147,13 +144,13 @@
         const urlParams = new URLSearchParams(window.location.search);
         const flutterCenter = urlParams.get('work_center_name') || localStorage.getItem('cth_work_center_name');
         if (flutterCenter) {
-            showNotification('Centro detectado: ' + flutterCenter, 'info');
+            showNotification('{{ __('ui.notification.center_detected', ['center' => '']) }}'.replace(':center', flutterCenter), 'info');
         }
     
     // Keep a no-op setter so Flutter calls won't fail if present
     window.setWorkCenter = function(code, name) {
         console.log('Flutter setWorkCenter called (ignored for submission):', code, name);
-        showNotification('Centro detectado: ' + (name || code), 'info');
+        showNotification('{{ __('ui.notification.center_detected', ['center' => '']) }}'.replace(':center', (name || code)), 'info');
     };
     
     // Function that Flutter can call to get current auth status
