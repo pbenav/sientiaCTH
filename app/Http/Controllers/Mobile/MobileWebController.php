@@ -36,55 +36,53 @@ class MobileWebController extends Controller
             'manual_work_center_code' => $request->manual_work_center_code,
         ]);
 
-        // Determine work center code from either Flutter (work_center_code) or manual input (manual_work_center_code)
-        $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
-
-        Log::info('Work center code determined', ['code' => $workCenterCode]);
+        // Accept authentication using only user_code. If work_center_code is
+        // provided use it; otherwise attempt to infer a suitable work center
+        // from the user's current team.
+        Log::info('Mobile login attempt (revised) - payload', $request->all());
 
         $request->validate([
             'user_code' => 'required|string|max:20',
         ]);
 
-        // Validate work center code is provided
-        if (empty($workCenterCode)) {
-            Log::warning('Work center code is empty');
-            return back()->withErrors(['work_center_code' => 'El campo work center code es obligatorio']);
-        }
-
-        // Debug: Log the exact code we're searching for
-        Log::info('Searching for work center', [
-            'code_to_search' => $workCenterCode,
-            'code_trimmed' => trim($workCenterCode),
-            'code_length' => strlen($workCenterCode),
-            'code_hex' => bin2hex($workCenterCode)
-        ]);
-
-        // Find work center
-        $workCenter = WorkCenter::where('code', $workCenterCode)->first();
-        
-        Log::info('Work center search result', [
-            'work_center_found' => $workCenter ? 'YES' : 'NO',
-            'work_center_id' => $workCenter ? $workCenter->id : null,
-            'work_center_code' => $workCenter ? $workCenter->code : null,
-            'work_center_name' => $workCenter ? $workCenter->name : null
-        ]);
-        
-        if (!$workCenter) {
-            return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado']);
-        }
-
-        // Find user
-        $user = User::where('user_code', $request->user_code)
-                   ->whereHas('teams', function($query) use ($workCenter) {
-                       $query->where('teams.id', $workCenter->team_id);
-                   })
-                   ->first();
-
+        // Try to find the user by secret code
+        $user = User::where('user_code', $request->user_code)->first();
         if (!$user) {
             return back()->withErrors(['user_code' => 'Código de usuario inválido']);
         }
 
-        // Set user session for mobile
+        // If client supplied a work center code, try to find it. Otherwise
+        // pick the user's default work center from their current team.
+        $workCenterCode = $request->work_center_code ?: $request->manual_work_center_code;
+        $workCenter = null;
+
+        if (!empty($workCenterCode)) {
+            $workCenter = WorkCenter::where('code', $workCenterCode)->first();
+            Log::info('Work center provided by client', ['code' => $workCenterCode, 'found' => (bool) $workCenter]);
+        }
+
+        if (!$workCenter) {
+            // Try to infer from user's current team
+            if ($user->currentTeam) {
+                $workCenter = $user->currentTeam->workCenters()->first();
+                Log::info('Inferred work center from user currentTeam', ['user_id' => $user->id, 'work_center_id' => $workCenter?->id]);
+            }
+        }
+
+        if (!$workCenter) {
+            // As a last resort, return an error so the mobile client can ask
+            // the user for a manual work center code.
+            return back()->withErrors(['work_center_code' => 'Centro de trabajo no encontrado. Proporcione el código de centro.']);
+        }
+
+        // Ensure the work center belongs to the user's team (security check)
+        if ($workCenter->team_id !== ($user->current_team_id ?? $user->currentTeam?->id)) {
+            Log::warning('Work center does not belong to user team', ['user_id' => $user->id, 'work_center_team' => $workCenter->team_id, 'user_team' => $user->current_team_id]);
+            // Allow it if the work center is global? For now, block to avoid cross-team auth
+            return back()->withErrors(['work_center_code' => 'El centro de trabajo no pertenece al equipo del usuario']);
+        }
+
+        // Set mobile session
         session([
             'mobile_user_id' => $user->id,
             'mobile_work_center_id' => $workCenter->id,

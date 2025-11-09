@@ -113,6 +113,13 @@
                                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                             </svg>
                             <span class="font-medium">{{ __('Outside schedule') }}</span>
+                <!-- Switch to Desktop Web -->
+                <div class="mt-4 text-center">
+                    <a href="{{ route('inicio') }}" target="_blank" rel="noopener" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 3a1 1 0 00-1 1v2H5a1 1 0 000 2h4v2H7a1 1 0 000 2h3v2a1 1 0 001 1h2a1 1 0 001-1v-2h3a1 1 0 000-2h-3v-2h4a1 1 0 000-2h-4V4a1 1 0 00-1-1h-2z"/></svg>
+                        Abrir versión web de escritorio
+                    </a>
+                </div>
                         </div>
                         <p class="text-sm text-yellow-700 text-center mb-4">
                             {{ $clockData['message'] ?? __('You are outside your work schedule. Do you want to make an exceptional clock-in?') }}
