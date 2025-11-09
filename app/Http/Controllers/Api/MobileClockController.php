@@ -443,8 +443,6 @@ class MobileClockController extends Controller
                     'can_clock' => $clockAction['can_clock'] ?? false,
                     'message' => $clockAction['message'] ?? null,
                     'overtime' => $clockAction['overtime'] ?? false,
-                    'event_type_id' => $clockAction['event_type_id'] ?? null,
-                    'next_slot' => (isset($clockAction['next_slot']) && is_array($clockAction['next_slot']) && !empty($clockAction['next_slot'])) ? $clockAction['next_slot'] : null,
                     'today_stats' => [
                         'total_entries' => $todayStats['total_entries'] ?? 0,
                         'total_exits' => $todayStats['total_exits'] ?? 0,
