@@ -145,6 +145,15 @@
                             <span>Fichaje Excepcional</span>
                         </button>
                     </div>
+                @elseif(($clockData['action'] ?? '') === 'clock_in')
+                    <!-- Clock In State -->
+                    <button onclick="performClockAction()" 
+                            class="w-full bg-green-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-green-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-sm">
+                        <svg class="w-6 h-6 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Inicio de Jornada</span>
+                    </button>
                 @else
                     <!-- Clock Out State -->
                     <button onclick="performClockAction()" 
