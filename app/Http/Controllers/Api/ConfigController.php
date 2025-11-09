@@ -33,21 +33,22 @@ class ConfigController extends Controller
             ],
             'endpoints' => [
                 'base_url' => url('/'),
-                'api_base' => url('/api'),
+                // canonical api base for clients
+                'api_base' => url('/api/v1'),
                 'auth' => [
-                    'mobile_login' => url('/api/mobile/auth'),
-                    'mobile_verify' => url('/api/mobile/verify'),
-                    'mobile_logout' => url('/api/mobile/logout'),
+                    'mobile_login' => url('/api/v1/mobile/auth'),
+                    'mobile_verify' => url('/api/v1/mobile/verify'),
+                    'mobile_logout' => url('/api/v1/mobile/logout'),
                 ],
                 'clock' => [
-                    'clock_in' => url('/api/mobile/clock-in'),
-                    'clock_out' => url('/api/mobile/clock-out'),
-                    'history' => url('/api/mobile/history'),
-                    'today' => url('/api/mobile/today'),
+                    'clock_in' => url('/api/v1/mobile/clock-in'),
+                    'clock_out' => url('/api/v1/mobile/clock-out'),
+                    'history' => url('/api/v1/mobile/history'),
+                    'today' => url('/api/v1/mobile/today'),
                 ],
                 'nfc' => [
                     'verify_tag' => url('/api/v1/nfc/verify'),
-                    'work_centers' => url('/api/mobile/work-centers'),
+                    'work_centers' => url('/api/v1/mobile/work-centers'),
                 ]
             ],
             'features' => [
