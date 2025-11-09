@@ -76,6 +76,13 @@
             
             <!-- Right controls -->
             <div class="flex items-center space-x-3">
+                <!-- Desktop Version Button -->
+                <a href="{{ url('/') }}" target="_blank" rel="noopener" class="btn-mobile rounded-full p-2 hover:bg-blue-700 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </a>
+                
                 <!-- User Menu -->
                 <div class="relative">
                 <button onclick="toggleUserMenu()" class="btn-mobile rounded-full">
@@ -91,10 +98,6 @@
                             {{ \App\Models\User::find(session('mobile_user_id'))->name ?? 'Usuario' }}
                         @endif
                     </div>
-                    <a href="{{ url('/') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <svg class="inline-block w-4 h-4 mr-2 align-text-bottom" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        {{ __('ui.layout.open_desktop') }}
-                    </a>
                     <a href="{{ route('mobile.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ __('Profile') }}</a>
                     <form action="{{ route('mobile.logout') }}" method="POST">
                         @csrf
