@@ -357,7 +357,9 @@ adb logcat | grep -i nfc
 ```bash
 # Verificar conectividad con el servidor
 # Desde el dispositivo/emulador, probar:
-curl -X GET "http://YOUR_SERVER_IP:8000/api/v1/mobile/status?work_center_code=OC-001&user_code=1232222"
+curl -X POST "http://YOUR_SERVER_IP:8000/api/v1/mobile/status" \
+  -H "Content-Type: application/json" \
+  -d '{"work_center_code": "X", "user_code": "Y"}'
 ```
 
 ## 📦 **Build para Producción**

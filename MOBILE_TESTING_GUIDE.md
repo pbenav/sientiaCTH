@@ -33,11 +33,11 @@ curl -X POST "http://localhost:8000/api/v1/mobile/clock" \
 }
 ```
 
-### **2. GET /api/v1/mobile/status** - Obtener Estado
+### **2. POST /api/v1/mobile/status** - Obtener Estado
 ```bash
-curl -G "http://localhost:8000/api/v1/mobile/status" \
-  -d "work_center_code=OC-001" \
-  -d "user_code=1232222"
+curl -X POST "http://localhost:8000/api/v1/mobile/status" \
+  -H "Content-Type: application/json" \
+  -d '{"work_center_code": "X", "user_code": "Y"}'
 ```
 
 **Respuesta esperada:**
@@ -63,9 +63,7 @@ curl -G "http://localhost:8000/api/v1/mobile/status" \
       "worked_hours": "0:00",
       "current_status": "fuera",
       "last_action": null
-    },
-    "current_time": "2025-11-06T...",
-    "timezone": "Europe/Madrid"
+    }
   }
 }
 ```

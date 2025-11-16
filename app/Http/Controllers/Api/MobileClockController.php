@@ -384,11 +384,8 @@ class MobileClockController extends Controller
     public function status(Request $request): JsonResponse
     {
         $request->validate([
-            'work_center_code' => 'sometimes|string',
             'user_code' => 'required|string'
         ]);
-
-        $workCenterCode = $request->work_center_code ?? null;
 
         $user = User::where('user_code', $request->user_code)->first();
         if (!$user) {
@@ -398,42 +395,10 @@ class MobileClockController extends Controller
             ], 404);
         }
 
-        if (!$workCenterCode) {
-            $team = $user->currentTeam;
-            if (!$team) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User has no current team'
-                ], 400);
-            }
-
-            $workCenter = $team->workCenters()->first();
-            if (!$workCenter) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Centro de trabajo no encontrado'
-                ], 404);
-            }
-        } else {
-            $workCenter = WorkCenter::where('code', $workCenterCode)->first();
-            if (!$workCenter) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Centro de trabajo no encontrado'
-                ], 404);
-            }
-        }
-
         try {
-            // Ensure user is switched to correct team if possible
-            if ($workCenter->team) {
-                $user->switchTeam($workCenter->team);
-            }
-
             $clockAction = $this->smartClockInService->getClockAction($user);
             $clockAction = $clockAction ?? [];
 
-            // Get today's statistics if needed
             $todayStats = $this->getTodayStats($user) ?? [];
 
             return response()->json([
