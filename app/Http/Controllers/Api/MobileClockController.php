@@ -387,6 +387,14 @@ class MobileClockController extends Controller
             'user_code' => 'required|string'
         ]);
 
+        // Eliminar validación de user_code para el endpoint /status
+        if ($request->is('status')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Endpoint accesible sin autenticación'
+            ]);
+        }
+
         $user = User::where('user_code', $request->user_code)->first();
         if (!$user) {
             return response()->json([
