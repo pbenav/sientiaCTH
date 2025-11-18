@@ -31,6 +31,7 @@ class MobileClockController extends Controller
     public function clock(Request $request): JsonResponse
     {
         try {
+            \Log::debug('[MobileClockController][clock] Request body:', $request->all());
             // Validate request
             $validator = Validator::make($request->all(), [
                 'work_center_code' => 'sometimes|string|max:50',
@@ -43,6 +44,10 @@ class MobileClockController extends Controller
             ]);
 
             if ($validator->fails()) {
+                \Log::warning('[MobileClockController][clock] Validation failed', [
+                    'input' => $request->all(),
+                    'errors' => $validator->errors()
+                ]);
                 return response()->json([
                     'success' => false,
                     'error' => 'validation_error',
@@ -635,21 +640,20 @@ class MobileClockController extends Controller
     {
         try {
             $today = now()->format('Y-m-d');
-            
-            // Get today's events
+            // Obtener todos los eventos de hoy
             $events = $user->events()
                 ->whereDate('start', $today)
-                ->orderBy('start', 'desc')
+                ->orderBy('start', 'asc')
+                ->with('eventType')
                 ->get();
-            
-            $totalEntries = $events->where('event_type.is_workday_type', true)->where('type', 'start')->count();
-            $totalExits = $events->where('event_type.is_workday_type', true)->where('type', 'end')->count();
-            
-            // Calculate worked hours (simplified - sum of time between start and end events)
+
+            $totalEntries = $events->where('eventType.is_workday_type', true)->where('type', 'start')->count();
+            $totalExits = $events->where('eventType.is_workday_type', true)->where('type', 'end')->count();
+
+            // Calcular segundos trabajados (sumar intervalos entre start/end laborales)
             $workedSeconds = 0;
             $startTime = null;
-            
-            foreach ($events->sortBy('start') as $event) {
+            foreach ($events as $event) {
                 if ($event->eventType && $event->eventType->is_workday_type) {
                     if ($event->type === 'start') {
                         $startTime = Carbon::parse($event->start);
@@ -660,14 +664,31 @@ class MobileClockController extends Controller
                     }
                 }
             }
-            
-            $workedHours = floor($workedSeconds / 3600);
-            $workedMinutes = floor(($workedSeconds % 3600) / 60);
+
+            // Calcular segundos de pausa (sumar intervalos entre start/end de pausas)
+            $pauseSeconds = 0;
+            $pauseStart = null;
+            foreach ($events as $event) {
+                if ($event->eventType && $event->eventType->is_break_type) {
+                    if ($event->type === 'start') {
+                        $pauseStart = Carbon::parse($event->start);
+                    } elseif ($event->type === 'end' && $pauseStart) {
+                        $pauseEnd = Carbon::parse($event->start);
+                        $pauseSeconds += $pauseStart->diffInSeconds($pauseEnd);
+                        $pauseStart = null;
+                    }
+                }
+            }
+
+            // Restar pausas al tiempo trabajado
+            $netWorkedSeconds = max(0, $workedSeconds - $pauseSeconds);
+            $workedHours = floor($netWorkedSeconds / 3600);
+            $workedMinutes = floor(($netWorkedSeconds % 3600) / 60);
             $workedHoursFormatted = sprintf('%d:%02d', $workedHours, $workedMinutes);
-            
-            // Get current status
+
+            // Estado actual
             $currentStatus = $this->getCurrentStatusText($this->smartClockInService->getClockAction($user)['action'] ?? '');
-            
+
             return [
                 'worked_hours' => $workedHoursFormatted,
                 'total_entries' => $totalEntries,
