@@ -424,6 +424,13 @@ class MobileClockController extends Controller
 
             $todayStats = $this->getTodayStats($user) ?? [];
 
+            $isWithinSchedule = $this->smartClockInService->isUserWithinWorkSchedule($user, now());
+            $customMessage = null;
+            if (!$isWithinSchedule) {
+                $customMessage = 'Estás fuera de tu horario laboral. Fichaje excepcional.';
+            } else if (($clockAction['action'] ?? '') === 'clock_in') {
+                $customMessage = 'INICIAR JORNADA';
+            }
             $currentStatus = $this->getCurrentStatusText($clockAction['action'] ?? 'unknown');
             return response()->json([
                 'success' => true,
@@ -435,7 +442,7 @@ class MobileClockController extends Controller
                     ],
                     'action' => $clockAction['action'] ?? 'unknown',
                     'can_clock' => $clockAction['can_clock'] ?? false,
-                    'message' => $clockAction['message'] ?? null,
+                    'message' => $customMessage ?? $clockAction['message'] ?? null,
                     'overtime' => $clockAction['overtime'] ?? false,
                     'event_type_id' => $clockAction['event_type_id'] ?? null,
                     'next_slot' => (isset($clockAction['next_slot']) && is_array($clockAction['next_slot']) && !empty($clockAction['next_slot'])) ? $clockAction['next_slot'] : null,
@@ -460,13 +467,17 @@ class MobileClockController extends Controller
      */
     private function getCurrentStatusText(string $action): string
     {
+        // Si la acción es clock_in o confirm_exceptional_clock_in, diferenciamos por horario
+        if ($action === 'clock_in') {
+            return 'INICIAR JORNADA';
+        }
+        if ($action === 'confirm_exceptional_clock_in') {
+            return 'INICIAR REGISTRO EXCEPCIONAL';
+        }
         return match ($action) {
-            'clock_in' => 'Fuera de jornada',
-            'working_options' => 'Trabajando',
-            'resume_workday' => 'En pausa',
-            'confirm_exceptional_clock_in' => 'Fuera de horario',
-            'clock_out' => 'Listo para salida',
-            default => 'Desconocido'
+            'working_options' => 'TRABAJANDO',
+            'resume_workday' => 'EN PAUSA',
+            default => 'INICIAR JORNADA'
         };
     }
 
