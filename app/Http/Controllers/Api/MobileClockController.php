@@ -151,6 +151,23 @@ class MobileClockController extends Controller
             // Get work schedule
             $workSchedule = $this->getUserWorkSchedule($user);
 
+            // Calcular horas trabajadas sumando las diferencias entre start y end de los eventos del día
+            $workedSeconds = 0;
+            if ($todayRecords) {
+                foreach ($todayRecords as $record) {
+                    if (isset($record['start'], $record['end']) && $record['end']) {
+                        $start = Carbon::parse($record['start']);
+                        $end = Carbon::parse($record['end']);
+                        $workedSeconds += $end->diffInSeconds($start);
+                    }
+                }
+            }
+            $workedHours = $workedSeconds > 0 ? sprintf('%d:%02d', intdiv($workedSeconds, 3600), (intdiv($workedSeconds, 60) % 60)) : '0:00';
+
+            \Log::debug('MOBILE_CLOCK: todayRecords', ['todayRecords' => $todayRecords]);
+            \Log::debug('MOBILE_CLOCK: workedSeconds', ['workedSeconds' => $workedSeconds]);
+            \Log::debug('MOBILE_CLOCK: workedHours', ['workedHours' => $workedHours]);
+
             // Build a compatible data payload for mobile clients.
             $dataPayload = [
                 'action' => $result['action'] ?? null,
@@ -162,7 +179,7 @@ class MobileClockController extends Controller
                 'today_stats' => [
                     'total_entries' => $todayRecords ? count(array_filter($todayRecords, fn($r) => isset($r['start']))) : 0,
                     'total_exits' => $todayRecords ? count(array_filter($todayRecords, fn($r) => isset($r['end']))) : 0,
-                    'worked_hours' => null,
+                    'worked_hours' => $workedHours,
                     'current_status' => $this->getCurrentStatusText($clockAction['action'] ?? '')
                 ]
             ];
@@ -383,14 +400,7 @@ class MobileClockController extends Controller
      */
     public function status(Request $request): JsonResponse
     {
-        // Excepción para el endpoint /status sin autenticación
-        if ($request->is('status')) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Endpoint accesible sin autenticación'
-            ]);
-        }
-
+        // Obtener el estado del trabajador
         $request->validate([
             'user_code' => 'required|string'
         ]);
@@ -412,6 +422,11 @@ class MobileClockController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
+                    'user' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'team' => $user->currentTeam->name ?? 'Sin equipo',
+                    ],
                     'action' => $clockAction['action'] ?? 'unknown',
                     'can_clock' => $clockAction['can_clock'] ?? false,
                     'message' => $clockAction['message'] ?? null,
@@ -422,18 +437,13 @@ class MobileClockController extends Controller
                         'total_entries' => $todayStats['total_entries'] ?? 0,
                         'total_exits' => $todayStats['total_exits'] ?? 0,
                         'worked_hours' => $todayStats['worked_hours'] ?? '0:00',
-                        'current_status' => $this->getCurrentStatusText($clockAction['action'] ?? '')
-                    ],
-                    'current_time' => now($user->currentTeam->timezone ?? config('app.timezone'))->toISOString(),
+                    ]
                 ]
-            ], 200);
-
+            ]);
         } catch (\Exception $e) {
-            \Log::error('Mobile status error: ' . $e->getMessage());
-
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener el estado del usuario'
+                'message' => 'Error al procesar la solicitud'
             ], 500);
         }
     }
