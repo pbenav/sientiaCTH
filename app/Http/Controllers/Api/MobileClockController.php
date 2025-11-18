@@ -1,6 +1,6 @@
 <?php
-
 namespace App\Http\Controllers\Api;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -31,7 +31,7 @@ class MobileClockController extends Controller
     public function clock(Request $request): JsonResponse
     {
         try {
-            \Log::debug('[MobileClockController][clock] Request body:', $request->all());
+            Log::debug('[MobileClockController][clock] Request body:', $request->all());
             // Validate request
             $validator = Validator::make($request->all(), [
                 'work_center_code' => 'sometimes|string|max:50',
@@ -44,7 +44,7 @@ class MobileClockController extends Controller
             ]);
 
             if ($validator->fails()) {
-                \Log::warning('[MobileClockController][clock] Validation failed', [
+                Log::warning('[MobileClockController][clock] Validation failed', [
                     'input' => $request->all(),
                     'errors' => $validator->errors()
                 ]);
@@ -169,9 +169,9 @@ class MobileClockController extends Controller
             }
             $workedHours = $workedSeconds > 0 ? sprintf('%d:%02d', intdiv($workedSeconds, 3600), (intdiv($workedSeconds, 60) % 60)) : '0:00';
 
-            \Log::debug('MOBILE_CLOCK: todayRecords', ['todayRecords' => $todayRecords]);
-            \Log::debug('MOBILE_CLOCK: workedSeconds', ['workedSeconds' => $workedSeconds]);
-            \Log::debug('MOBILE_CLOCK: workedHours', ['workedHours' => $workedHours]);
+            Log::debug('MOBILE_CLOCK: todayRecords', ['todayRecords' => $todayRecords]);
+            Log::debug('MOBILE_CLOCK: workedSeconds', ['workedSeconds' => $workedSeconds]);
+            Log::debug('MOBILE_CLOCK: workedHours', ['workedHours' => $workedHours]);
 
             // Build a compatible data payload for mobile clients.
             $dataPayload = [
@@ -210,7 +210,7 @@ class MobileClockController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Mobile clock API error', [
+            Log::error('Mobile clock API error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all(),
@@ -424,6 +424,7 @@ class MobileClockController extends Controller
 
             $todayStats = $this->getTodayStats($user) ?? [];
 
+            $currentStatus = $this->getCurrentStatusText($clockAction['action'] ?? 'unknown');
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -442,6 +443,7 @@ class MobileClockController extends Controller
                         'total_entries' => $todayStats['total_entries'] ?? 0,
                         'total_exits' => $todayStats['total_exits'] ?? 0,
                         'worked_hours' => $todayStats['worked_hours'] ?? '0:00',
+                        'current_status' => $currentStatus,
                     ]
                 ]
             ]);
@@ -560,7 +562,7 @@ class MobileClockController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            \Log::error('Mobile sync error: ' . $e->getMessage());
+            Log::error('Mobile sync error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -624,7 +626,7 @@ class MobileClockController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Mobile getWorkerData error: ' . $e->getMessage());
+            Log::error('Mobile getWorkerData error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -696,7 +698,7 @@ class MobileClockController extends Controller
                 'current_status' => $currentStatus
             ];
         } catch (\Exception $e) {
-            \Log::error('Error getting today stats', ['error' => $e->getMessage()]);
+            Log::error('Error getting today stats', ['error' => $e->getMessage()]);
             return [
                 'worked_hours' => '0:00',
                 'total_entries' => 0,
