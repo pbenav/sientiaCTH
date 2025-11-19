@@ -37,7 +37,7 @@ class MobileClockController extends Controller
                 'work_center_code' => 'sometimes|string|max:50',
                 'manual_work_center_code' => 'sometimes|string|max:50',
                 'user_code' => 'required|string|max:50',
-                'action' => 'sometimes|string|in:pause,clock_out,confirm_exceptional_clock_in',
+                'action' => 'sometimes|string|in:pause,clock_out,confirm_exceptional_clock_in,exceptional_clock_in',
                 'location' => 'sometimes|array',
                 'location.latitude' => 'sometimes|numeric|between:-90,90',
                 'location.longitude' => 'sometimes|numeric|between:-180,180',
@@ -427,9 +427,9 @@ class MobileClockController extends Controller
             $isWithinSchedule = $this->smartClockInService->isUserWithinWorkSchedule($user, now());
             $customMessage = null;
             if (!$isWithinSchedule) {
-                $customMessage = 'Estás fuera de tu horario laboral. Fichaje excepcional.';
+                $customMessage = 'Fuera de horario laboral. Fichaje excepcional.';
             } else if (($clockAction['action'] ?? '') === 'clock_in') {
-                $customMessage = 'INICIAR JORNADA';
+                $customMessage = 'LISTO';
             }
             $currentStatus = $this->getCurrentStatusText($clockAction['action'] ?? 'unknown');
             return response()->json([
