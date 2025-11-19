@@ -389,13 +389,23 @@ class MobileClockController extends Controller
             ->get();
 
         return $events->map(function ($event) {
+            $start = $event->start ? Carbon::parse($event->start) : null;
+            $end = $event->end ? Carbon::parse($event->end) : null;
+            $duration = ($start && $end) ? $end->diffInSeconds($start) : null;
             return [
                 'id' => $event->id,
                 'type' => $event->eventType->name ?? 'Unknown',
-                'start' => Carbon::parse($event->start)->toISOString(),
-                'end' => $event->end ? Carbon::parse($event->end)->toISOString() : null,
+                'event_type_id' => $event->event_type_id ?? null,
+                'pause_event_id' => $event->pause_event_id ?? null,
+                'start' => $start ? $start->toISOString() : null,
+                'end' => $end ? $end->toISOString() : null,
+                'duration_seconds' => $duration,
+                'location_start' => $event->location_start ?? null,
+                'location_end' => $event->location_end ?? null,
                 'observations' => $event->observations,
-                    'is_open' => $event->is_open
+                'is_open' => $event->is_open,
+                'created_at' => $event->created_at ? Carbon::parse($event->created_at)->toISOString() : null,
+                'updated_at' => $event->updated_at ? Carbon::parse($event->updated_at)->toISOString() : null
             ];
         })->toArray();
     }
