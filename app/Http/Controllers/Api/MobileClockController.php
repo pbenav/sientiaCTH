@@ -197,6 +197,7 @@ class MobileClockController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'family_name1' => $user->family_name1,
+                    'family_name2' => $user->family_name2,
                     'current_status' => $currentStatus,
                     'work_center' => [
                         'id' => $workCenter->id,
@@ -432,6 +433,17 @@ class MobileClockController extends Controller
                 $customMessage = 'LISTO';
             }
             $currentStatus = $this->getCurrentStatusText($clockAction['action'] ?? 'unknown');
+                // --- Calcular next_slot siempre ---
+                $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+                $now = \Carbon\Carbon::now($teamTimezone);
+                $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+                $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+                $nextSlot = null;
+                if (isset($clockAction['next_slot']) && is_array($clockAction['next_slot']) && !empty($clockAction['next_slot'])) {
+                    $nextSlot = $clockAction['next_slot'];
+                } else {
+                    $nextSlot = !empty($schedule) ? $this->smartClockInService->getNextScheduledSlot($now, $schedule) : null;
+                }
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -445,7 +457,7 @@ class MobileClockController extends Controller
                     'message' => $customMessage ?? $clockAction['message'] ?? null,
                     'overtime' => $clockAction['overtime'] ?? false,
                     'event_type_id' => $clockAction['event_type_id'] ?? null,
-                    'next_slot' => (isset($clockAction['next_slot']) && is_array($clockAction['next_slot']) && !empty($clockAction['next_slot'])) ? $clockAction['next_slot'] : null,
+                        'next_slot' => $nextSlot,
                     'today_stats' => [
                         'total_entries' => $todayStats['total_entries'] ?? 0,
                         'total_exits' => $todayStats['total_exits'] ?? 0,

@@ -85,7 +85,7 @@ class SmartClockInService
         
         try {
             $pauseEventType = $user->currentTeam->eventTypes()
-                ->where('name', 'Pausa')
+                ->whereIn('name', ['Pausa', 'Pause'])
                 ->where('is_break_type', true)
                 ->first();
                 
@@ -515,7 +515,7 @@ class SmartClockInService
     /**
      * Get next scheduled slot
      */
-    private function getNextScheduledSlot(Carbon $now, array $schedule): ?array
+    public function getNextScheduledSlot(Carbon $now, array $schedule): ?array
     {
         $dayInitial = $this->getDayInitial($now->format('N'));
         $nextSlot = null;
