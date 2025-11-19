@@ -472,6 +472,22 @@ class MobileClockController extends Controller
                 } else {
                     $nextSlot = !empty($schedule) ? $this->smartClockInService->getNextScheduledSlot($now, $schedule) : null;
                 }
+            $todayRecords = $this->getTodayRecords($user);
+            // Calcular el tramo horario actual
+            $currentSlot = null;
+            if (!empty($schedule)) {
+                foreach ($schedule as $slot) {
+                    $days = $slot['days'] ?? [];
+                    $start = $slot['start'] ?? null;
+                    $end = $slot['end'] ?? null;
+                    $nowTime = $now->format('H:i');
+                    $nowDay = strtoupper($now->format('D')[0]);
+                    if (in_array($nowDay, $days) && $start && $end && $nowTime >= $start && $nowTime <= $end) {
+                        $currentSlot = $slot;
+                        break;
+                    }
+                }
+            }
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -485,13 +501,15 @@ class MobileClockController extends Controller
                     'message' => $customMessage ?? $clockAction['message'] ?? null,
                     'overtime' => $clockAction['overtime'] ?? false,
                     'event_type_id' => $clockAction['event_type_id'] ?? null,
-                        'next_slot' => $nextSlot,
+                    'next_slot' => $nextSlot,
+                    'current_slot' => $currentSlot,
                     'today_stats' => [
                         'total_entries' => $todayStats['total_entries'] ?? 0,
                         'total_exits' => $todayStats['total_exits'] ?? 0,
                         'worked_hours' => $todayStats['worked_hours'] ?? '0:00',
                         'current_status' => $currentStatus,
-                    ]
+                    ],
+                    'today_records' => $todayRecords,
                 ]
             ]);
         } catch (\Exception $e) {
