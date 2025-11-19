@@ -37,7 +37,8 @@ class MobileClockController extends Controller
                 'work_center_code' => 'sometimes|string|max:50',
                 'manual_work_center_code' => 'sometimes|string|max:50',
                 'user_code' => 'required|string|max:50',
-                'action' => 'sometimes|string|in:pause,clock_out,confirm_exceptional_clock_in,exceptional_clock_in',
+                'action' => 'sometimes|string|in:pause,resume_workday,clock_out,confirm_exceptional_clock_in,exceptional_clock_in',
+                'pause_event_id' => 'sometimes|integer',
                 'location' => 'sometimes|array',
                 'location.latitude' => 'sometimes|numeric|between:-90,90',
                 'location.longitude' => 'sometimes|numeric|between:-180,180',
@@ -173,6 +174,22 @@ class MobileClockController extends Controller
             Log::debug('MOBILE_CLOCK: workedSeconds', ['workedSeconds' => $workedSeconds]);
             Log::debug('MOBILE_CLOCK: workedHours', ['workedHours' => $workedHours]);
 
+            // Comentarios de ayuda para frontend sobre parámetros requeridos:
+            // -------------------------------------------------------------
+            // Para fichaje normal (entrada/salida):
+            //   - user_code
+            //   - work_center_code (opcional)
+            // Para iniciar pausa:
+            //   - user_code
+            //   - work_center_code (opcional)
+            //   - action: "pause"
+            // Para continuar jornada tras pausa:
+            //   - user_code
+            //   - work_center_code (opcional)
+            //   - action: "resume_workday"
+            //   - pause_event_id
+            // -------------------------------------------------------------
+
             // Build a compatible data payload for mobile clients.
             $dataPayload = [
                 'action' => $result['action'] ?? null,
@@ -269,7 +286,8 @@ class MobileClockController extends Controller
                 ];
 
             case 'resume_workday':
-                $pauseEventId = $clockAction['pause_event_id'] ?? null;
+                // Usar el pause_event_id recibido en el request si está presente
+                $pauseEventId = $request->input('pause_event_id') ?? $clockAction['pause_event_id'] ?? null;
 
                 if (!$pauseEventId) {
                     throw new \Exception('No pause event found for resume');
@@ -377,7 +395,7 @@ class MobileClockController extends Controller
                 'start' => Carbon::parse($event->start)->toISOString(),
                 'end' => $event->end ? Carbon::parse($event->end)->toISOString() : null,
                 'observations' => $event->observations,
-                'is_closed' => $event->is_closed
+                    'is_open' => $event->is_open
             ];
         })->toArray();
     }
