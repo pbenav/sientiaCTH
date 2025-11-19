@@ -251,12 +251,13 @@ class MobileClockController extends Controller
             case 'clock_in':
                 $overtime = $clockAction['overtime'] ?? false;
                 $eventTypeId = $clockAction['event_type_id'] ?? null;
+                $observations = $request->input('observations');
 
                 if (!$eventTypeId) {
                     throw new \Exception('No event type configured for clock in');
                 }
 
-                $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime, 'mobile_api');
+                $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime, 'mobile_api', $observations);
 
                 if (empty($result['success'])) {
                     throw new \Exception($result['message'] ?? 'Clock in failed');

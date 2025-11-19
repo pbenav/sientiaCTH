@@ -190,7 +190,7 @@ class SmartClockInService
     /**
      * Execute the clock in action
      */
-    public function clockIn(User $user, int $eventTypeId, bool $overtime = false, string $source = null): array
+    public function clockIn(User $user, int $eventTypeId, bool $overtime = false, string $source = null, $observations = null): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
         $now = Carbon::now($teamTimezone);
@@ -202,9 +202,8 @@ class SmartClockInService
             // Get event type to use its name as default description
             $eventType = EventType::find($eventTypeId);
             
-            // Prepare observations for exceptional events from mobile API
-            $observations = null;
-            if ($overtime && $source === 'mobile_api') {
+            // Si se pasa observations desde el API, usarlo. Si no, usar el valor por defecto para excepcionales.
+            if (!$observations && $overtime && $source === 'mobile_api') {
                 $observations = __('Exceptional clock-in made through mobile API (outside work schedule)');
             }
             
