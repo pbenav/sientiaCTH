@@ -42,6 +42,7 @@ class MobileClockController extends Controller
                 'location' => 'sometimes|array',
                 'location.latitude' => 'sometimes|numeric|between:-90,90',
                 'location.longitude' => 'sometimes|numeric|between:-180,180',
+                'observations' => 'sometimes|string|max:255',
             ]);
 
             if ($validator->fails()) {
