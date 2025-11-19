@@ -48,8 +48,11 @@ class MobileClockController extends Controller
             if ($validator->fails()) {
                 Log::warning('[MobileClockController][clock] Validation failed', [
                     'input' => $request->all(),
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors()->toArray()
                 ]);
+                foreach ($validator->errors()->toArray() as $field => $messages) {
+                    Log::error("[MobileClockController][clock] Field validation error: $field", ['messages' => $messages]);
+                }
                 return response()->json([
                     'success' => false,
                     'error' => 'validation_error',
@@ -207,7 +210,7 @@ class MobileClockController extends Controller
                 ]
             ];
 
-            return response()->json([
+            $response = [
                 'success' => true,
                 'message' => $result['message'] ?? null,
                 'data' => $dataPayload,
@@ -226,7 +229,9 @@ class MobileClockController extends Controller
                 'work_schedule' => $workSchedule,
                 'today_records' => $todayRecords,
                 'server_time' => Carbon::now($user->currentTeam->timezone ?? config('app.timezone'))->toISOString()
-            ]);
+            ];
+            Log::info('[MobileClockController][clock] Response:', $response);
+            return response()->json($response);
 
         } catch (\Exception $e) {
             Log::error('Mobile clock API error', [
