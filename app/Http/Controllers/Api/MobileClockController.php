@@ -136,11 +136,17 @@ class MobileClockController extends Controller
                 'message' => $result['message'] ?? null,
                 'overtime' => $clockAction['overtime'] ?? false,
                 'event_type_id' => $clockAction['event_type_id'] ?? null,
+                'pause_event_id' => $clockAction['pause_event_id'] ?? null,
                 'today_stats' => $todayStats,
                 'today_records' => $todayRecords,
                 'current_slot' => null, // Calculate if needed
                 'next_slot' => null, // Calculate if needed
             ];
+            
+            Log::debug('[MobileClockController][clock] Resource data after clock:', [
+                'pause_event_id' => $resourceData['pause_event_id'],
+                'action' => $resourceData['action']
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -369,6 +375,11 @@ class MobileClockController extends Controller
         try {
             $clockAction = $this->smartClockInService->getClockAction($user);
             $clockAction = $clockAction ?? [];
+            
+            Log::debug('[MobileClockController][status] Clock action:', [
+                'user_code' => $user->user_code,
+                'clock_action' => $clockAction
+            ]);
 
             $todayStats = $this->getTodayStats($user) ?? [];
 
@@ -417,11 +428,17 @@ class MobileClockController extends Controller
                 'message' => $customMessage ?? $clockAction['message'] ?? null,
                 'overtime' => $clockAction['overtime'] ?? false,
                 'event_type_id' => $clockAction['event_type_id'] ?? null,
+                'pause_event_id' => $clockAction['pause_event_id'] ?? null,
                 'next_slot' => $nextSlot,
                 'current_slot' => $currentSlot,
                 'today_stats' => $todayStats,
                 'today_records' => $todayRecords,
             ];
+            
+            Log::debug('[MobileClockController][status] Resource data:', [
+                'pause_event_id' => $resourceData['pause_event_id'],
+                'action' => $resourceData['action']
+            ]);
 
             return response()->json([
                 'success' => true,
