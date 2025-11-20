@@ -614,11 +614,21 @@ class SmartClockInService
             $matchesDay = in_array($currentDayLetter, $days) || in_array($dayOfWeek, $days) || in_array((string)$dayOfWeek, $days);
             
             if ($matchesDay && isset($slot['start']) && isset($slot['end'])) {
-                $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start']);
-                $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end']);
+                // Parse slot times using the same timezone as the check time
+                $tz = $timeToCheck->getTimezone();
+                $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start'], $tz);
+                $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end'], $tz);
 
                 if ($endTime->lessThan($startTime)) {
                     $endTime->addDay();
+                }
+                
+                // Handle case where current time is past midnight but slot started previous day
+                // e.g. Slot 22:00-06:00, Current time 01:00. 
+                // We need to check if we are in the "continuation" of yesterday's slot
+                if ($timeToCheck->hour < 12 && $startTime->hour > 12) {
+                     $startTime->subDay();
+                     $endTime->subDay();
                 }
 
                 $startTimeWithGrace = $startTime->copy()->subMinutes($delayMinutes);
