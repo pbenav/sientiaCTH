@@ -13,6 +13,7 @@ use App\Http\Requests\Api\ClockInRequest;
 use App\Http\Requests\Api\SyncRequest;
 use App\Http\Resources\ClockStatusResource;
 use App\Http\Resources\WorkCenterResource;
+use App\Models\Holiday;
 
 
 class MobileClockController extends Controller
@@ -576,11 +577,24 @@ class MobileClockController extends Controller
                 $workSchedule = json_decode($scheduleMeta->meta_value, true);
             }
 
-            $holidaysMeta = $user->meta->where('meta_key', 'holidays')->first();
-            $holidays = [];
-            if ($holidaysMeta && $holidaysMeta->meta_value) {
-                $holidays = json_decode($holidaysMeta->meta_value, true) ?? [];
-            }
+            // Fetch holidays for the user's current team and current year
+            $currentYear = now()->year;
+            $teamId = $user->current_team_id;
+            
+            $holidays = Holiday::where('team_id', $teamId)
+                ->whereYear('date', $currentYear)
+                ->orderBy('date')
+                ->get()
+                ->map(function ($holiday) {
+                    return [
+                        'id' => $holiday->id,
+                        'name' => $holiday->name,
+                        'date' => $holiday->date->format('Y-m-d'),
+                        'type' => $holiday->type ?? 'national'
+                    ];
+                })
+                ->values()
+                ->all();
 
             return response()->json([
                 'success' => true,
