@@ -38,6 +38,37 @@ class UserWorkScheduleForm extends Component
 
         if ($workSchedule) {
             $this->schedule = json_decode($workSchedule->meta_value, true);
+            
+            // Normalizar datos antiguos (letras) a nuevo formato (números ISO)
+            // Esto asegura que se visualicen correctamente aunque no se haya ejecutado la migración de BD
+            $this->normalizeScheduleDays();
+        }
+    }
+
+    /**
+     * Normaliza los días del horario al formato ISO (1-7)
+     */
+    private function normalizeScheduleDays(): void
+    {
+        $dayMap = [
+            'L' => 1, 'M' => 2, 'X' => 3, 'J' => 4, 'V' => 5, 'S' => 6, 'D' => 7
+        ];
+
+        foreach ($this->schedule as &$slot) {
+            if (isset($slot['days']) && is_array($slot['days'])) {
+                $newDays = [];
+                foreach ($slot['days'] as $day) {
+                    // Si es letra conocida, convertir a número
+                    if (is_string($day) && isset($dayMap[strtoupper($day)])) {
+                        $newDays[] = $dayMap[strtoupper($day)];
+                    } 
+                    // Si ya es número o no reconocido, mantener
+                    else {
+                        $newDays[] = $day;
+                    }
+                }
+                $slot['days'] = $newDays;
+            }
         }
     }
 
