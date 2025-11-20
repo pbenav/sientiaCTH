@@ -8,7 +8,9 @@ return new class extends Migration
     /**
      * Run the migrations.
      * 
-     * This migration normalizes work schedule days in user_meta table:
+     * This migration normalizes work schedule data in user_meta table:
+     * - Unifies 'schedule' and 'work_schedule' meta_keys to 'work_schedule'
+     * - Prevents duplicate schedule entries per user
      * - Converts Spanish day abbreviations (L, M, X, J, V, S, D) to ISO numbers (1-7)
      * - Removes duplicates
      * - Sorts days in ascending order (1-7)
@@ -27,6 +29,9 @@ return new class extends Migration
             'S' => 6, // Sábado
             'D' => 7, // Domingo
         ];
+
+        // First, handle key unification and duplicates
+        $this->unifyScheduleKeys();
 
         // Get all work_schedule entries from user_meta
         $schedules = DB::table('user_meta')
@@ -127,6 +132,67 @@ return new class extends Migration
 
         // Log summary
         \Log::info("Work schedule normalization completed: {$processedCount} updated, {$skippedCount} skipped, {$errorCount} errors");
+    }
+
+    /**
+     * Unify 'schedule' and 'work_schedule' meta_keys and remove duplicates.
+     */
+    private function unifyScheduleKeys(): void
+    {
+        // Get all users that have schedule-related meta
+        $usersWithSchedules = DB::table('user_meta')
+            ->whereIn('meta_key', ['schedule', 'work_schedule'])
+            ->select('user_id')
+            ->distinct()
+            ->pluck('user_id');
+
+        $unifiedCount = 0;
+        $duplicatesRemoved = 0;
+
+        foreach ($usersWithSchedules as $userId) {
+            // Get all schedule entries for this user
+            $schedules = DB::table('user_meta')
+                ->where('user_id', $userId)
+                ->whereIn('meta_key', ['schedule', 'work_schedule'])
+                ->orderBy('id')
+                ->get();
+
+            if ($schedules->count() <= 1) {
+                // Only one entry, just ensure it's 'work_schedule'
+                if ($schedules->count() === 1 && $schedules->first()->meta_key === 'schedule') {
+                    DB::table('user_meta')
+                        ->where('id', $schedules->first()->id)
+                        ->update(['meta_key' => 'work_schedule']);
+                    $unifiedCount++;
+                }
+                continue;
+            }
+
+            // Multiple entries - need to consolidate
+            $workSchedule = $schedules->firstWhere('meta_key', 'work_schedule');
+            $schedule = $schedules->firstWhere('meta_key', 'schedule');
+
+            if ($workSchedule && $schedule) {
+                // Both exist - keep work_schedule, delete schedule
+                DB::table('user_meta')->where('id', $schedule->id)->delete();
+                $duplicatesRemoved++;
+            } elseif ($schedule && !$workSchedule) {
+                // Only 'schedule' exists - rename to 'work_schedule'
+                DB::table('user_meta')
+                    ->where('id', $schedule->id)
+                    ->update(['meta_key' => 'work_schedule']);
+                $unifiedCount++;
+            }
+
+            // Remove any additional duplicates (keep the first work_schedule)
+            $duplicates = $schedules->where('meta_key', 'work_schedule')->skip(1);
+            foreach ($duplicates as $duplicate) {
+                DB::table('user_meta')->where('id', $duplicate->id)->delete();
+                $duplicatesRemoved++;
+            }
+        }
+
+        \Log::info("Schedule keys unified: {$unifiedCount} renamed, {$duplicatesRemoved} duplicates removed");
     }
 
     /**
