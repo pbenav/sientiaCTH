@@ -589,6 +589,7 @@ class MobileClockController extends Controller
                         'id' => $user->id,
                         'name' => $user->name ?? '',
                         'family_name1' => $user->family_name1 ?? '',
+                        'family_name2' => $user->family_name2 ?? '',
                         'user_code' => $user->user_code
                     ],
                     'work_centers' => $workCenters,
