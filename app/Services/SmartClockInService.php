@@ -11,6 +11,7 @@ use App\Notifications\NewMessage;
 use App\Traits\HandlesEventAuthorization;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SmartClockInService
