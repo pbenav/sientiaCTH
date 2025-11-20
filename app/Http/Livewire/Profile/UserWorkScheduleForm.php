@@ -53,7 +53,6 @@ class UserWorkScheduleForm extends Component
         $dayMap = [
             'L' => 1, 'M' => 2, 'X' => 3, 'J' => 4, 'V' => 5, 'S' => 6, 'D' => 7
         ];
-
         foreach ($this->schedule as &$slot) {
             if (isset($slot['days']) && is_array($slot['days'])) {
                 $newDays = [];
@@ -61,12 +60,15 @@ class UserWorkScheduleForm extends Component
                     // Si es letra conocida, convertir a número
                     if (is_string($day) && isset($dayMap[strtoupper($day)])) {
                         $newDays[] = $dayMap[strtoupper($day)];
-                    } 
+                    }
                     // Si ya es número o no reconocido, mantener
                     else {
                         $newDays[] = $day;
                     }
                 }
+                // Eliminar duplicados y ordenar ascendente (1-7)
+                $newDays = array_unique($newDays);
+                sort($newDays);
                 $slot['days'] = $newDays;
             }
         }
