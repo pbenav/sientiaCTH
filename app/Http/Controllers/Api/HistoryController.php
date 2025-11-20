@@ -25,7 +25,7 @@ class HistoryController extends Controller
         ]);
 
         // Find user by code
-        $user = User::where('code', $request->user_code)->first();
+        $user = User::where('user_code', $request->user_code)->first();
 
         if (!$user) {
             return response()->json([
