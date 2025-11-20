@@ -305,18 +305,21 @@ class MobileClockController extends Controller
     private function getTodayRecords(User $user): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-        $today = Carbon::now($teamTimezone)->startOfDay();
-        $tomorrow = $today->copy()->addDay();
+        
+        // Use UTC as base for queries to avoid server timezone interference
+        $todayUTC = Carbon::now('UTC')->startOfDay();
+        $tomorrowUTC = $todayUTC->copy()->addDay();
 
         $events = $user->events()
-            ->whereBetween('start', [$today, $tomorrow])
+            ->whereBetween('start', [$todayUTC, $tomorrowUTC])
             ->with('eventType')
             ->orderBy('start')
             ->get();
 
         return $events->map(function ($event) {
-            $start = $event->start ? Carbon::parse($event->start) : null;
-            $end = $event->end ? Carbon::parse($event->end) : null;
+            // Parse timestamps as UTC since they're stored in UTC in the database
+            $start = $event->start ? Carbon::parse($event->start, 'UTC') : null;
+            $end = $event->end ? Carbon::parse($event->end, 'UTC') : null;
             $duration = ($start && $end) ? $end->diffInSeconds($start) : null;
             return [
                 'id' => $event->id,
@@ -330,8 +333,8 @@ class MobileClockController extends Controller
                 'location_end' => $event->location_end ?? null,
                 'observations' => $event->observations,
                 'is_open' => $event->is_open,
-                'created_at' => $event->created_at ? Carbon::parse($event->created_at)->toISOString() : null,
-                'updated_at' => $event->updated_at ? Carbon::parse($event->updated_at)->toISOString() : null
+                'created_at' => $event->created_at ? Carbon::parse($event->created_at, 'UTC')->toISOString() : null,
+                'updated_at' => $event->updated_at ? Carbon::parse($event->updated_at, 'UTC')->toISOString() : null
             ];
         })->toArray();
     }
