@@ -51,10 +51,12 @@ class HistoryController extends Controller
 
         Log::debug('[HistoryController][index] Query params:', [
             'user_code' => $request->user_code,
+            'user_id' => $user->id,
             'start_date_team_tz' => $startDate->toDateTimeString(),
             'end_date_team_tz' => $endDate->toDateTimeString(),
             'start_date_utc' => $startDateUTC->toDateTimeString(),
             'end_date_utc' => $endDateUTC->toDateTimeString(),
+            'team_timezone' => $teamTimezone,
         ]);
 
         // Get events with pagination
@@ -65,6 +67,11 @@ class HistoryController extends Controller
             ->with('eventType')
             ->orderBy('start', 'desc')
             ->paginate($perPage);
+
+        Log::debug('[HistoryController][index] Query results:', [
+            'total_events' => $events->total(),
+            'current_page_count' => $events->count(),
+        ]);
 
         // Transform events
         $transformedEvents = $events->map(function ($event) use ($teamTimezone) {
