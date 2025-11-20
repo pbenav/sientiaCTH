@@ -81,9 +81,30 @@
         </div>
 
         <!-- UserCode -->
-        <div class="col-span-6 sm:col-span-4">
+        <div class="col-span-6 sm:col-span-4" x-data="{ showUserCode: false }">
             <x-jet-label for="user_code" value="{{ __('User Code') }}" class="required" />
-            <x-jet-input id="user_code" type="text" class="mt-1 block w-full" wire:model.defer="state.user_code"/>
+            <div class="relative">
+                <x-jet-input 
+                    id="user_code" 
+                    x-bind:type="showUserCode ? 'text' : 'password'" 
+                    class="mt-1 block w-full pr-10" 
+                    wire:model.defer="state.user_code"
+                    autocomplete="off"
+                />
+                <button 
+                    type="button"
+                    @click="showUserCode = !showUserCode"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                    <svg x-show="!showUserCode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <svg x-show="showUserCode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.96 9.96 0 012.292-3.938m0 0A9.96 9.96 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21m-5.6-5.6l-2.8-2.8m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>
+                </button>
+            </div>
             <x-jet-input-error for="user_code" class="mt-2" />
         </div>
     </x-slot>
