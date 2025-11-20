@@ -195,8 +195,20 @@ class SmartClockInService
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
         $now = Carbon::now($teamTimezone);
 
+        Log::debug('[SmartClockInService][clockIn] Timezone conversion:', [
+            'team_timezone' => $teamTimezone,
+            'now_in_team_tz' => $now->toDateTimeString() . ' ' . $now->timezoneName,
+            'now_timestamp' => $now->timestamp,
+        ]);
+
         // Convert to UTC for storage
         $nowUTC = $now->copy()->setTimezone('UTC');
+        
+        Log::debug('[SmartClockInService][clockIn] UTC conversion:', [
+            'now_utc' => $nowUTC->toDateTimeString() . ' ' . $nowUTC->timezoneName,
+            'now_utc_timestamp' => $nowUTC->timestamp,
+            'formatted_for_db' => $nowUTC->format('Y-m-d H:i:s'),
+        ]);
 
         try {
             // Get event type to use its name as default description
@@ -221,6 +233,11 @@ class SmartClockInService
                 'is_exceptional' => $overtime,
                 'is_extra_hours' => $eventType ? !$eventType->is_workday_type : false,
                 'is_closed_automatically' => false,
+            ]);
+            
+            Log::debug('[SmartClockInService][clockIn] Event created:', [
+                'event_id' => $event->id,
+                'start_in_db' => $event->start,
             ]);
 
             $message = $overtime 
