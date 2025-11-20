@@ -194,21 +194,16 @@ class SmartClockInService
     public function clockIn(User $user, int $eventTypeId, bool $overtime = false, string $source = null, $observations = null): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-        $now = Carbon::now($teamTimezone);
+        
+        // Always start from UTC to avoid server timezone interference
+        $nowUTC = Carbon::now('UTC');
+        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
 
         Log::debug('[SmartClockInService][clockIn] Timezone conversion:', [
             'team_timezone' => $teamTimezone,
-            'now_in_team_tz' => $now->toDateTimeString() . ' ' . $now->timezoneName,
-            'now_timestamp' => $now->timestamp,
-        ]);
-
-        // Convert to UTC for storage
-        $nowUTC = $now->copy()->setTimezone('UTC');
-        
-        Log::debug('[SmartClockInService][clockIn] UTC conversion:', [
-            'now_utc' => $nowUTC->toDateTimeString() . ' ' . $nowUTC->timezoneName,
-            'now_utc_timestamp' => $nowUTC->timestamp,
-            'formatted_for_db' => $nowUTC->format('Y-m-d H:i:s'),
+            'now_utc' => $nowUTC->toDateTimeString() . ' UTC',
+            'now_in_team_tz' => $nowTeamTz->toDateTimeString() . ' ' . $teamTimezone,
+            'timestamp' => $nowUTC->timestamp,
         ]);
 
         try {
@@ -242,8 +237,8 @@ class SmartClockInService
             ]);
 
             $message = $overtime 
-                ? __('Clocked in successfully at :time (outside schedule)', ['time' => $now->format('H:i')])
-                : __('Clocked in successfully at :time', ['time' => $now->format('H:i')]);
+                ? __('Clocked in successfully at :time (outside schedule)', ['time' => $nowTeamTz->format('H:i')])
+                : __('Clocked in successfully at :time', ['time' => $nowTeamTz->format('H:i')]);
 
             return [
                 'success' => true,
@@ -266,10 +261,10 @@ class SmartClockInService
     public function clockOut(User $user, int $eventId): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-        $now = Carbon::now($teamTimezone);
-
-        // Convert to UTC for storage
-        $nowUTC = $now->copy()->setTimezone('UTC');
+        
+        // Always start from UTC to avoid server timezone interference
+        $nowUTC = Carbon::now('UTC');
+        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
 
         try {
             $event = Event::where('id', $eventId)
@@ -297,7 +292,7 @@ class SmartClockInService
                 'success' => true,
                 'message' => __('Clocked out successfully. Worked from :start to :end', [
                     'start' => $startTime,
-                    'end' => $now->format('H:i')
+                    'end' => $nowTeamTz->format('H:i')
                 ]),
                 'event_id' => $event->id
             ];
@@ -316,8 +311,10 @@ class SmartClockInService
     public function pauseWorkday(User $user, int $pauseEventTypeId): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-        $now = Carbon::now($teamTimezone);
-        $nowUTC = $now->copy()->setTimezone('UTC');
+        
+        // Always start from UTC to avoid server timezone interference
+        $nowUTC = Carbon::now('UTC');
+        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
 
         try {
             // Verify there's an active workday event
@@ -367,7 +364,7 @@ class SmartClockInService
 
             return [
                 'success' => true,
-                'message' => __('Workday paused at :time', ['time' => $now->format('H:i')]),
+                'message' => __('Workday paused at :time', ['time' => $nowTeamTz->format('H:i')]),
                 'pause_event_id' => $pauseEvent->id
             ];
 
@@ -385,8 +382,10 @@ class SmartClockInService
     public function resumeWorkday(User $user, int $pauseEventId): array
     {
         $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-        $now = Carbon::now($teamTimezone);
-        $nowUTC = $now->copy()->setTimezone('UTC');
+        
+        // Always start from UTC to avoid server timezone interference
+        $nowUTC = Carbon::now('UTC');
+        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
 
         try {
             // Find and close the pause event
@@ -415,7 +414,7 @@ class SmartClockInService
             return [
                 'success' => true,
                 'message' => __('Workday resumed at :time (paused from :start)', [
-                    'time' => $now->format('H:i'),
+                    'time' => $nowTeamTz->format('H:i'),
                     'start' => $pauseStartTime
                 ]),
                 'pause_event_id' => $pauseEvent->id
