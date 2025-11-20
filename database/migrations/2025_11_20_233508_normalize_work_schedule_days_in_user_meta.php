@@ -63,7 +63,9 @@ return new class extends Migration
 
                     // Process 'days' field if it exists
                     if (isset($slot['days']) && is_array($slot['days'])) {
+                        $originalDays = $slot['days'];
                         $newDays = [];
+                        $hasLetters = false;
                         
                         foreach ($slot['days'] as $day) {
                             // If it's a number (already ISO format)
@@ -78,7 +80,7 @@ return new class extends Migration
                                 $dayUpper = strtoupper(trim($day));
                                 if (isset($dayMap[$dayUpper])) {
                                     $newDays[] = $dayMap[$dayUpper];
-                                    $modified = true;
+                                    $hasLetters = true;
                                 }
                             }
                         }
@@ -86,13 +88,14 @@ return new class extends Migration
                         // Remove duplicates and sort
                         $newDays = array_unique($newDays);
                         sort($newDays);
+                        $newDays = array_values($newDays); // Re-index array
                         
-                        // Check if the sorted array is different from original
-                        if ($slot['days'] !== $newDays) {
+                        // Check if anything changed (letters converted OR order changed)
+                        if ($hasLetters || $originalDays !== $newDays) {
                             $modified = true;
                         }
                         
-                        $slot['days'] = array_values($newDays); // Re-index array
+                        $slot['days'] = $newDays;
                     }
                 }
 
