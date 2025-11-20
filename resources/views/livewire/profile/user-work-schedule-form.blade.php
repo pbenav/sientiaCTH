@@ -35,11 +35,22 @@
                     <div>
                         <x-jet-label value="{{ __('Días') }}" />
                         <div class="mt-2 flex flex-wrap space-x-4">
-                            @foreach (['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
+                            @php
+                                $daysISO = [
+                                    1 => 'L', // Lunes
+                                    2 => 'M', // Martes
+                                    3 => 'X', // Miércoles
+                                    4 => 'J', // Jueves
+                                    5 => 'V', // Viernes
+                                    6 => 'S', // Sábado
+                                    7 => 'D'  // Domingo
+                                ];
+                            @endphp
+                            @foreach ($daysISO as $isoNumber => $dayLabel)
                                 <label class="inline-flex items-center">
-                                    <span class="mr-2 ml-2 text-gray-700">{{ $day }}</span>
+                                    <span class="mr-2 ml-2 text-gray-700">{{ $dayLabel }}</span>
                                     <input type="checkbox" wire:model="schedule.{{ $index }}.days"
-                                        value="{{ $day }}" class="form-checkbox h-5 w-5 text-indigo-600">
+                                        value="{{ $isoNumber }}" class="form-checkbox h-5 w-5 text-indigo-600">
                                 </label>
                             @endforeach
                         </div>
