@@ -31,11 +31,12 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
     // Ruta unificada para verificación NFC
     Route::post('nfc/verify', [ConfigController::class, 'verifyNFCTag']);
 
-    // Mobile API routes (for mobile app)
+    // Mobile API endpoints
     Route::prefix('mobile')->group(function () {
         Route::post('/clock', [MobileClockController::class, 'clock']);
         Route::post('/status', [MobileClockController::class, 'status']);
         Route::post('/sync', [MobileClockController::class, 'sync']);
+        Route::post('/history', [App\Http\Controllers\Api\HistoryController::class, 'index']);
         // Worker data endpoint used by mobile setup (moved here to keep all mobile endpoints under /api/v1/mobile)
         Route::get('/worker/{code}', [MobileClockController::class, 'getWorkerData']);
     });
