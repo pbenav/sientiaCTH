@@ -572,9 +572,39 @@ class MobileClockController extends Controller
             })->values();
 
             $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
-            $workSchedule = null;
+            $workSchedule = [];
             if ($scheduleMeta && $scheduleMeta->meta_value) {
                 $workSchedule = json_decode($scheduleMeta->meta_value, true);
+                // Convert numeric day representations to letter abbreviations (L, M, X, J, V, S, D)
+                $dayMap = [
+                    1 => 'L', // Lunes
+                    2 => 'M', // Martes
+                    3 => 'X', // Miércoles
+                    4 => 'J', // Jueves
+                    5 => 'V', // Viernes
+                    6 => 'S', // Sábado
+                    7 => 'D', // Domingo
+                ];
+                if (is_array($workSchedule)) {
+                    foreach ($workSchedule as &$slot) {
+                        // Single day fields
+                        if (isset($slot['day_of_week'])) {
+                            $d = $slot['day_of_week'];
+                            $slot['day_of_week'] = is_numeric($d) && isset($dayMap[(int)$d]) ? $dayMap[(int)$d] : $d;
+                        }
+                        if (isset($slot['day'])) {
+                            $d = $slot['day'];
+                            $slot['day'] = is_numeric($d) && isset($dayMap[(int)$d]) ? $dayMap[(int)$d] : $d;
+                        }
+                        // Multiple days array
+                        if (isset($slot['days']) && is_array($slot['days'])) {
+                            $slot['days'] = array_map(function ($d) use ($dayMap) {
+                                return is_numeric($d) && isset($dayMap[(int)$d]) ? $dayMap[(int)$d] : $d;
+                            }, $slot['days']);
+                        }
+                    }
+                    unset($slot);
+                }
             }
 
             // Fetch holidays for the user's current team and current year
