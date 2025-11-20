@@ -408,20 +408,10 @@ class MobileClockController extends Controller
             
             $todayRecords = $this->getTodayRecords($user);
             
-            // Calcular el tramo horario actual
+            // Calcular el tramo horario actual usando el servicio compartido
             $currentSlot = null;
             if (!empty($schedule)) {
-                foreach ($schedule as $slot) {
-                    $days = $slot['days'] ?? [];
-                    $start = $slot['start'] ?? null;
-                    $end = $slot['end'] ?? null;
-                    $nowTime = $now->format('H:i');
-                    $nowDay = strtoupper($now->format('D')[0]);
-                    if (in_array($nowDay, $days) && $start && $end && $nowTime >= $start && $nowTime <= $end) {
-                        $currentSlot = $slot;
-                        break;
-                    }
-                }
+                $currentSlot = $this->smartClockInService->getCurrentScheduledSlot($now, $schedule);
             }
 
             $resourceData = [

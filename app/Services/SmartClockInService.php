@@ -480,12 +480,14 @@ class SmartClockInService
     /**
      * Check if current time is within a scheduled slot
      */
-    private function getCurrentScheduledSlot(Carbon $now, array $schedule): ?array
+    public function getCurrentScheduledSlot(Carbon $now, array $schedule): ?array
     {
         $dayInitial = $this->getDayInitial($now->format('N'));
+        $dayIso = $now->format('N');
 
         foreach ($schedule as $slot) {
-            if (!in_array($dayInitial, $slot['days'])) {
+            // Check for both Spanish initial and ISO number
+            if (!in_array($dayInitial, $slot['days']) && !in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
                 continue;
             }
 
@@ -509,10 +511,11 @@ class SmartClockInService
     private function isNearScheduledTime(Carbon $now, array $schedule): bool
     {
         $dayInitial = $this->getDayInitial($now->format('N'));
+        $dayIso = $now->format('N');
         $tolerance = 15; // minutes
 
         foreach ($schedule as $slot) {
-            if (!in_array($dayInitial, $slot['days'])) {
+            if (!in_array($dayInitial, $slot['days']) && !in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
                 continue;
             }
 
@@ -534,11 +537,12 @@ class SmartClockInService
     public function getNextScheduledSlot(Carbon $now, array $schedule): ?array
     {
         $dayInitial = $this->getDayInitial($now->format('N'));
+        $dayIso = $now->format('N');
         $nextSlot = null;
         $minDiff = null;
 
         foreach ($schedule as $slot) {
-            if (!in_array($dayInitial, $slot['days'])) {
+            if (!in_array($dayInitial, $slot['days']) && !in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
                 continue;
             }
 
@@ -606,7 +610,10 @@ class SmartClockInService
 
         $isWithinAnySlot = false;
         foreach ($workSchedule as $slot) {
-            if (isset($slot['days']) && in_array($currentDayLetter, $slot['days']) && isset($slot['start']) && isset($slot['end'])) {
+            $days = $slot['days'] ?? [];
+            $matchesDay = in_array($currentDayLetter, $days) || in_array($dayOfWeek, $days) || in_array((string)$dayOfWeek, $days);
+            
+            if ($matchesDay && isset($slot['start']) && isset($slot['end'])) {
                 $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start']);
                 $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end']);
 
