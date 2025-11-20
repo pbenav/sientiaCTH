@@ -9,7 +9,11 @@ use App\Services\SmartClockInService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Api\ClockInRequest;
+use App\Http\Requests\Api\SyncRequest;
+use App\Http\Resources\ClockStatusResource;
+use App\Http\Resources\WorkCenterResource;
+
 
 class MobileClockController extends Controller
 {
@@ -28,38 +32,16 @@ class MobileClockController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function clock(Request $request): JsonResponse
+    /**
+     * Handle mobile clock in/out request
+     *
+     * @param ClockInRequest $request
+     * @return JsonResponse
+     */
+    public function clock(ClockInRequest $request): JsonResponse
     {
         try {
             Log::debug('[MobileClockController][clock] Request body:', $request->all());
-            // Validate request
-            $validator = Validator::make($request->all(), [
-                'work_center_code' => 'sometimes|string|max:50',
-                'manual_work_center_code' => 'sometimes|string|max:50',
-                'user_code' => 'required|string|max:50',
-                'action' => 'sometimes|string|in:pause,resume_workday,clock_out,confirm_exceptional_clock_in,exceptional_clock_in',
-                'pause_event_id' => 'sometimes|integer',
-                'location' => 'sometimes|array',
-                'location.latitude' => 'sometimes|numeric|between:-90,90',
-                'location.longitude' => 'sometimes|numeric|between:-180,180',
-                'observations' => 'sometimes|string|max:255',
-            ]);
-
-            if ($validator->fails()) {
-                Log::warning('[MobileClockController][clock] Validation failed', [
-                    'input' => $request->all(),
-                    'errors' => $validator->errors()->toArray()
-                ]);
-                foreach ($validator->errors()->toArray() as $field => $messages) {
-                    Log::error("[MobileClockController][clock] Field validation error: $field", ['messages' => $messages]);
-                }
-                return response()->json([
-                    'success' => false,
-                    'error' => 'validation_error',
-                    'message' => 'Invalid request data',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
 
             // Normalize work center code
             $workCenterCode = $request->work_center_code ?? $request->manual_work_center_code ?? null;
@@ -68,8 +50,6 @@ class MobileClockController extends Controller
             $user = User::where('user_code', $request->user_code)->first();
             if (!$user) {
                 return response()->json([
-                    'success' => false,
-                    'error' => 'invalid_credentials',
                     'message' => 'Usuario no encontrado'
                 ], 404);
             }
@@ -78,8 +58,6 @@ class MobileClockController extends Controller
                 $team = $user->currentTeam;
                 if (!$team) {
                     return response()->json([
-                        'success' => false,
-                        'error' => 'no_team',
                         'message' => 'User has no current team to infer work center'
                     ], 400);
                 }
@@ -87,8 +65,6 @@ class MobileClockController extends Controller
                 $workCenter = $team->workCenters()->first();
                 if (!$workCenter) {
                     return response()->json([
-                        'success' => false,
-                        'error' => 'no_work_center',
                         'message' => 'No work centers configured for user team'
                     ], 404);
                 }
@@ -96,8 +72,6 @@ class MobileClockController extends Controller
                 $workCenter = WorkCenter::where('code', $workCenterCode)->first();
                 if (!$workCenter) {
                     return response()->json([
-                        'success' => false,
-                        'error' => 'invalid_work_center',
                         'message' => 'Work center not found'
                     ], 404);
                 }
@@ -110,8 +84,6 @@ class MobileClockController extends Controller
 
                 if (!$user) {
                     return response()->json([
-                        'success' => false,
-                        'error' => 'invalid_credentials',
                         'message' => 'Invalid user credentials or unauthorized for this work center'
                     ], 401);
                 }
@@ -142,8 +114,6 @@ class MobileClockController extends Controller
                     ];
                 } else {
                     return response()->json([
-                        'success' => false,
-                        'error' => 'cannot_clock',
                         'message' => $clockAction['message'] ?? 'Cannot clock at this time'
                     ], 400);
                 }
@@ -152,86 +122,31 @@ class MobileClockController extends Controller
             // Execute the clock action
             $result = $this->executeClockAction($user, $clockAction, $workCenter, $request);
 
-            // Get updated user status
+            // Prepare data for resource
             $currentStatus = $this->getCurrentUserStatus($user);
-
-            // Get today's records
             $todayRecords = $this->getTodayRecords($user);
-
-            // Get work schedule
             $workSchedule = $this->getUserWorkSchedule($user);
+            $todayStats = $this->getTodayStats($user);
 
-            // Calcular horas trabajadas sumando las diferencias entre start y end de los eventos del día
-            $workedSeconds = 0;
-            if ($todayRecords) {
-                foreach ($todayRecords as $record) {
-                    if (isset($record['start'], $record['end']) && $record['end']) {
-                        $start = Carbon::parse($record['start']);
-                        $end = Carbon::parse($record['end']);
-                        $workedSeconds += $end->diffInSeconds($start);
-                    }
-                }
-            }
-            $workedHours = $workedSeconds > 0 ? sprintf('%d:%02d', intdiv($workedSeconds, 3600), (intdiv($workedSeconds, 60) % 60)) : '0:00';
-
-            Log::debug('MOBILE_CLOCK: todayRecords', ['todayRecords' => $todayRecords]);
-            Log::debug('MOBILE_CLOCK: workedSeconds', ['workedSeconds' => $workedSeconds]);
-            Log::debug('MOBILE_CLOCK: workedHours', ['workedHours' => $workedHours]);
-
-            // Comentarios de ayuda para frontend sobre parámetros requeridos:
-            // -------------------------------------------------------------
-            // Para fichaje normal (entrada/salida):
-            //   - user_code
-            //   - work_center_code (opcional)
-            // Para iniciar pausa:
-            //   - user_code
-            //   - work_center_code (opcional)
-            //   - action: "pause"
-            // Para continuar jornada tras pausa:
-            //   - user_code
-            //   - work_center_code (opcional)
-            //   - action: "resume_workday"
-            //   - pause_event_id
-            // -------------------------------------------------------------
-
-            // Build a compatible data payload for mobile clients.
-            $dataPayload = [
+            // Construct the resource data
+            $resourceData = [
+                'user' => $user,
                 'action' => $result['action'] ?? null,
-                'timestamp' => Carbon::now($user->currentTeam->timezone ?? config('app.timezone'))->toISOString(),
-                'work_center_code' => $workCenter->code,
-                'user_code' => $user->user_code,
+                'can_clock' => false, // Just clocked, so usually false immediately or depends on next state
                 'message' => $result['message'] ?? null,
-                // Provide today_stats.current_status to help mobile UI interpret the state
-                'today_stats' => [
-                    'total_entries' => $todayRecords ? count(array_filter($todayRecords, fn($r) => isset($r['start']))) : 0,
-                    'total_exits' => $todayRecords ? count(array_filter($todayRecords, fn($r) => isset($r['end']))) : 0,
-                    'worked_hours' => $workedHours,
-                    'current_status' => $this->getCurrentStatusText($clockAction['action'] ?? '')
-                ]
+                'overtime' => $clockAction['overtime'] ?? false,
+                'event_type_id' => $clockAction['event_type_id'] ?? null,
+                'today_stats' => $todayStats,
+                'today_records' => $todayRecords,
+                'current_slot' => null, // Calculate if needed
+                'next_slot' => null, // Calculate if needed
             ];
 
-            $response = [
+            return response()->json([
                 'success' => true,
                 'message' => $result['message'] ?? null,
-                'data' => $dataPayload,
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'family_name1' => $user->family_name1,
-                    'family_name2' => $user->family_name2,
-                    'current_status' => $currentStatus,
-                    'work_center' => [
-                        'id' => $workCenter->id,
-                        'name' => $workCenter->name,
-                        'work_center_code' => $workCenter->code
-                    ]
-                ],
-                'work_schedule' => $workSchedule,
-                'today_records' => $todayRecords,
-                'server_time' => Carbon::now($user->currentTeam->timezone ?? config('app.timezone'))->toISOString()
-            ];
-            Log::info('[MobileClockController][clock] Response:', $response);
-            return response()->json($response);
+                'data' => new ClockStatusResource($resourceData),
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Mobile clock API error', [
@@ -241,8 +156,6 @@ class MobileClockController extends Controller
             ]);
 
             return response()->json([
-                'success' => false,
-                'error' => 'server_error',
                 'message' => 'An unexpected error occurred'
             ], 500);
         }
@@ -449,7 +362,6 @@ class MobileClockController extends Controller
         $user = User::where('user_code', $request->user_code)->first();
         if (!$user) {
             return response()->json([
-                'success' => false,
                 'message' => 'Usuario no encontrado'
             ], 404);
         }
@@ -467,19 +379,21 @@ class MobileClockController extends Controller
             } else if (($clockAction['action'] ?? '') === 'clock_in') {
                 $customMessage = 'LISTO';
             }
-            $currentStatus = $this->getCurrentStatusText($clockAction['action'] ?? 'unknown');
-                // --- Calcular next_slot siempre ---
-                $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-                $now = \Carbon\Carbon::now($teamTimezone);
-                $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
-                $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
-                $nextSlot = null;
-                if (isset($clockAction['next_slot']) && is_array($clockAction['next_slot']) && !empty($clockAction['next_slot'])) {
-                    $nextSlot = $clockAction['next_slot'];
-                } else {
-                    $nextSlot = !empty($schedule) ? $this->smartClockInService->getNextScheduledSlot($now, $schedule) : null;
-                }
+            
+            // --- Calcular next_slot siempre ---
+            $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+            $now = \Carbon\Carbon::now($teamTimezone);
+            $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+            $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+            $nextSlot = null;
+            if (isset($clockAction['next_slot']) && is_array($clockAction['next_slot']) && !empty($clockAction['next_slot'])) {
+                $nextSlot = $clockAction['next_slot'];
+            } else {
+                $nextSlot = !empty($schedule) ? $this->smartClockInService->getNextScheduledSlot($now, $schedule) : null;
+            }
+            
             $todayRecords = $this->getTodayRecords($user);
+            
             // Calcular el tramo horario actual
             $currentSlot = null;
             if (!empty($schedule)) {
@@ -495,33 +409,26 @@ class MobileClockController extends Controller
                     }
                 }
             }
+
+            $resourceData = [
+                'user' => $user,
+                'action' => $clockAction['action'] ?? 'unknown',
+                'can_clock' => $clockAction['can_clock'] ?? false,
+                'message' => $customMessage ?? $clockAction['message'] ?? null,
+                'overtime' => $clockAction['overtime'] ?? false,
+                'event_type_id' => $clockAction['event_type_id'] ?? null,
+                'next_slot' => $nextSlot,
+                'current_slot' => $currentSlot,
+                'today_stats' => $todayStats,
+                'today_records' => $todayRecords,
+            ];
+
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'user' => [
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'team' => $user->currentTeam->name ?? 'Sin equipo',
-                    ],
-                    'action' => $clockAction['action'] ?? 'unknown',
-                    'can_clock' => $clockAction['can_clock'] ?? false,
-                    'message' => $customMessage ?? $clockAction['message'] ?? null,
-                    'overtime' => $clockAction['overtime'] ?? false,
-                    'event_type_id' => $clockAction['event_type_id'] ?? null,
-                    'next_slot' => $nextSlot,
-                    'current_slot' => $currentSlot,
-                    'today_stats' => [
-                        'total_entries' => $todayStats['total_entries'] ?? 0,
-                        'total_exits' => $todayStats['total_exits'] ?? 0,
-                        'worked_hours' => $todayStats['worked_hours'] ?? '0:00',
-                        'current_status' => $currentStatus,
-                    ],
-                    'today_records' => $todayRecords,
-                ]
+                'data' => new ClockStatusResource($resourceData)
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
                 'message' => 'Error al procesar la solicitud'
             ], 500);
         }
@@ -546,19 +453,12 @@ class MobileClockController extends Controller
         };
     }
 
-    public function sync(Request $request): JsonResponse
+    public function sync(SyncRequest $request): JsonResponse
     {
-        $request->validate([
-            'work_center_code' => 'sometimes|string',
-            'user_code' => 'required|string',
-            'offline_events' => 'array'
-        ]);
-
         $workCenterCode = $request->work_center_code ?? null;
         $user = User::where('user_code', $request->user_code)->first();
         if (!$user) {
             return response()->json([
-                'success' => false,
                 'message' => 'Usuario no encontrado'
             ], 404);
         }
@@ -567,7 +467,6 @@ class MobileClockController extends Controller
             $team = $user->currentTeam;
             if (!$team) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'User has no current team'
                 ], 400);
             }
@@ -575,7 +474,6 @@ class MobileClockController extends Controller
             $workCenter = $team->workCenters()->first();
             if (!$workCenter) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Centro de trabajo no encontrado'
                 ], 404);
             }
@@ -583,7 +481,6 @@ class MobileClockController extends Controller
             $workCenter = WorkCenter::where('code', $workCenterCode)->first();
             if (!$workCenter) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Centro de trabajo no encontrado'
                 ], 404);
             }
@@ -594,16 +491,6 @@ class MobileClockController extends Controller
 
         try {
             foreach ($offlineEvents as $event) {
-                // Basic validation for offline event structure
-                if (!isset($event['action']) || !isset($event['datetime'])) {
-                    $syncResults[] = [
-                        'event' => $event,
-                        'success' => false,
-                        'message' => 'Evento incompleto'
-                    ];
-                    continue;
-                }
-
                 try {
                     $eventDateTime = Carbon::parse($event['datetime']);
                     // TODO: implement actual synchronization logic
@@ -641,7 +528,6 @@ class MobileClockController extends Controller
             Log::error('Mobile sync error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
                 'message' => 'Error durante la sincronización'
             ], 500);
         }

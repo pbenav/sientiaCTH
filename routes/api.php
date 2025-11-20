@@ -17,7 +17,7 @@ use App\Http\Controllers\Api\ConfigController;
 */
 
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
     // Login for mobile app
     Route::post('login', [\App\Http\Controllers\Api\LoginController::class, 'login']);
 
