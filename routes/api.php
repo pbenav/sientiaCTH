@@ -44,6 +44,10 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
         // Schedule
         Route::post('/schedule', [ScheduleController::class, 'index']);
         Route::post('/schedule/update', [ScheduleController::class, 'update']);
+        
+        // Profile
+        Route::post('/profile/update', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+        
         // Worker data endpoint used by mobile setup (moved here to keep all mobile endpoints under /api/v1/mobile)
         Route::get('/worker/{code}', [MobileClockController::class, 'getWorkerData']);
     });
