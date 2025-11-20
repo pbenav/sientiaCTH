@@ -19,6 +19,7 @@ class ClockStatusResource extends JsonResource
             'message' => $this->resource['message'] ?? null,
             'overtime' => $this->resource['overtime'] ?? false,
             'event_type_id' => $this->resource['event_type_id'] ?? null,
+            'pause_event_id' => $this->resource['pause_event_id'] ?? null,
             'next_slot' => $this->resource['next_slot'] ?? null,
             'current_slot' => $this->resource['current_slot'] ?? null,
             'today_stats' => $this->resource['today_stats'] ?? [],
