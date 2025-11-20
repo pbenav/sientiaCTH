@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MobileClockController;
+use App\Http\Controllers\Api\HistoryController;
+use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\ConfigController;
 
 /*
@@ -36,7 +38,12 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
         Route::post('/clock', [MobileClockController::class, 'clock']);
         Route::post('/status', [MobileClockController::class, 'status']);
         Route::post('/sync', [MobileClockController::class, 'sync']);
-        Route::post('/history', [App\Http\Controllers\Api\HistoryController::class, 'index']);
+        // History
+        Route::post('/history', [HistoryController::class, 'index']);
+        
+        // Schedule
+        Route::post('/schedule', [ScheduleController::class, 'index']);
+        Route::post('/schedule/update', [ScheduleController::class, 'update']);
         // Worker data endpoint used by mobile setup (moved here to keep all mobile endpoints under /api/v1/mobile)
         Route::get('/worker/{code}', [MobileClockController::class, 'getWorkerData']);
     });

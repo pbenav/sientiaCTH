@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+
+class ScheduleController extends Controller
+{
+    /**
+     * Get user's work schedule
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_code' => 'required|string'
+        ]);
+
+        // Find user by user_code
+        $user = User::where('user_code', $request->user_code)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        try {
+            $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+            $schedule = $scheduleMeta && $scheduleMeta->meta_value 
+                ? json_decode($scheduleMeta->meta_value, true) 
+                : null;
+
+            // If no schedule exists, return empty structure or default
+            if (!$schedule) {
+                $schedule = [
+                    'monday' => [],
+                    'tuesday' => [],
+                    'wednesday' => [],
+                    'thursday' => [],
+                    'friday' => [],
+                    'saturday' => [],
+                    'sunday' => []
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'schedule' => $schedule,
+                    'timezone' => $user->currentTeam->timezone ?? config('app.timezone')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching schedule: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el horario'
+            ], 500);
+        }
+    }
+
+    /**
+     * Update user's work schedule
+     */
+    public function update(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_code' => 'required|string',
+            'schedule' => 'required|array'
+        ]);
+
+        // Find user by user_code
+        $user = User::where('user_code', $request->user_code)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        try {
+            // Validate schedule structure (basic validation)
+            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            $validSchedule = [];
+
+            foreach ($days as $day) {
+                $validSchedule[$day] = $request->input("schedule.$day", []);
+                // Ensure it's an array of strings like "HH:MM-HH:MM"
+                if (!is_array($validSchedule[$day])) {
+                    $validSchedule[$day] = [];
+                }
+            }
+
+            // Update or create user meta
+            $user->meta()->updateOrCreate(
+                ['meta_key' => 'work_schedule'],
+                ['meta_value' => json_encode($validSchedule)]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Horario actualizado correctamente',
+                'data' => [
+                    'schedule' => $validSchedule
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error updating schedule: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el horario'
+            ], 500);
+        }
+    }
+}
