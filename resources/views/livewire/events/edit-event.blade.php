@@ -75,12 +75,22 @@
                             <div class="space-y-4">
                                 <div>
                                     <x-jet-label for="start_date" value="{{ __('Start date') }}" class="font-medium text-gray-700" />
-                                    <x-jet-input id="start_date" type="date" wire:model="start_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
+                                    <input id="start_date" 
+                                           type="date" 
+                                           class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full" 
+                                           value="{{ $start_date }}"
+                                           wire:change="$set('start_date', $event.target.value)"
+                                           {{ $canBeModified ? '' : 'disabled' }} />
                                     <x-jet-input-error for="start_date" class="mt-1" />
                                 </div>
                                 <div>
                                     <x-jet-label for="end_date" value="{{ __('End date') }}" class="font-medium text-gray-700" />
-                                    <x-jet-input id="end_date" type="date" wire:model="end_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
+                                    <input id="end_date" 
+                                           type="date" 
+                                           class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm mt-1 block w-full" 
+                                           value="{{ $end_date }}"
+                                           wire:change="$set('end_date', $event.target.value)"
+                                           {{ $canBeModified ? '' : 'disabled' }} />
                                     <x-jet-input-error for="end_date" class="mt-1" />
                                 </div>
                             </div>
@@ -91,16 +101,18 @@
                                     <x-jet-label value="{{ __('Start') }}" class="font-medium text-gray-700 mb-1" />
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <x-jet-input type="date" 
-                                                   class="block w-full text-sm" 
-                                                   wire:model="start_date" 
+                                            <input type="date" 
+                                                   class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full text-sm" 
+                                                   value="{{ $start_date }}"
+                                                   wire:change="$set('start_date', $event.target.value)"
                                                    {{ $canBeModified ? '' : 'disabled' }} />
                                             <x-jet-input-error for="start_date" class="mt-1" />
                                         </div>
                                         <div>
-                                            <x-jet-input type="time" 
-                                                   class="block w-full text-sm" 
-                                                   wire:model="start_time" 
+                                            <input type="time" 
+                                                   class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full text-sm" 
+                                                   value="{{ $start_time }}"
+                                                   wire:change="$set('start_time', $event.target.value)"
                                                    {{ $canBeModified ? '' : 'disabled' }} 
                                                    step="300" />
                                             <x-jet-input-error for="start_time" class="mt-1" />
@@ -112,16 +124,18 @@
                                     <x-jet-label value="{{ __('End') }}" class="font-medium text-gray-700 mb-1" />
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <x-jet-input type="date" 
-                                                   class="block w-full text-sm" 
-                                                   wire:model="end_date" 
+                                            <input type="date" 
+                                                   class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full text-sm" 
+                                                   value="{{ $end_date }}"
+                                                   wire:change="$set('end_date', $event.target.value)"
                                                    {{ $canBeModified ? '' : 'disabled' }} />
                                             <x-jet-input-error for="end_date" class="mt-1" />
                                         </div>
                                         <div>
-                                            <x-jet-input type="time" 
-                                                   class="block w-full text-sm" 
-                                                   wire:model="end_time" 
+                                            <input type="time" 
+                                                   class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block w-full text-sm" 
+                                                   value="{{ $end_time }}"
+                                                   wire:change="$set('end_time', $event.target.value)"
                                                    {{ $canBeModified ? '' : 'disabled' }} 
                                                    step="300" />
                                             <x-jet-input-error for="end_time" class="mt-1" />
