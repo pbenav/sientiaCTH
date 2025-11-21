@@ -39,7 +39,7 @@ class AddEvent extends Component
     public string $end_time;
     public ?int $user_id = null;
     public string $description = '';
-    public ?int $event_type_id = null;
+    public $event_type_id = null;
     public $eventTypes;
     public ?EventType $selectedEventType = null;
     public string $observations = '';
@@ -96,6 +96,28 @@ class AddEvent extends Component
 
     /**
      * Initialize the component.
+     *
+     * @return void
+     */
+    /**
+     * Update the selected event type when the event_type_id changes.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    public function updatedEventTypeId($value): void
+    {
+        if (empty($value)) {
+            $this->event_type_id = null;
+            $this->selectedEventType = null;
+        } else {
+            $this->event_type_id = (int) $value;
+            $this->selectedEventType = $this->eventTypes->firstWhere('id', $this->event_type_id);
+        }
+    }
+
+    /**
+     * Mount the component.
      *
      * @return void
      */
