@@ -95,27 +95,15 @@
                         </div>
                     </div>
                 @else
-                    <!-- Regular event: Date and Time -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <x-jet-label value="{{ __('Start') }}" class="font-medium text-gray-700" />
-                            <div class="mt-1 grid grid-cols-2 gap-2">
-                                <x-jet-input type="date" wire:model.defer="start_date" class="block w-full text-sm" required />
-                                <x-jet-input type="time" wire:model.defer="start_time" class="block w-full text-sm" required step="300" />
-                            </div>
-                            <x-jet-input-error for="start_date" class="mt-1" />
-                            <x-jet-input-error for="start_time" class="mt-1" />
+                    <!-- Regular event: Date and Time (only start) -->
+                    <div>
+                        <x-jet-label value="{{ __('Start') }}" class="font-medium text-gray-700" />
+                        <div class="mt-1 grid grid-cols-2 gap-2">
+                            <x-jet-input type="date" wire:model.defer="start_date" class="block w-full text-sm" required />
+                            <x-jet-input type="time" wire:model.defer="start_time" class="block w-full text-sm" required step="300" />
                         </div>
-
-                        <div>
-                            <x-jet-label value="{{ __('End') }}" class="font-medium text-gray-700" />
-                            <div class="mt-1 grid grid-cols-2 gap-2">
-                                <x-jet-input type="date" wire:model.defer="end_date" class="block w-full text-sm" required />
-                                <x-jet-input type="time" wire:model.defer="end_time" class="block w-full text-sm" required step="300" />
-                            </div>
-                            <x-jet-input-error for="end_date" class="mt-1" />
-                            <x-jet-input-error for="end_time" class="mt-1" />
-                        </div>
+                        <x-jet-input-error for="start_date" class="mt-1" />
+                        <x-jet-input-error for="start_time" class="mt-1" />
                     </div>
                 @endif
 
