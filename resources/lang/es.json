@@ -620,5 +620,6 @@
     "Pause event type not configured": "Tipo de evento de pausa no configurado",
     "Exceptional clock-in made through mobile API (outside work schedule)": "Fichaje excepcional realizado a través de la API móvil (fuera del horario laboral)"
     ,
-    "ui.brand.name": "CTH Móvil"
+    "ui.brand.name": "CTH Móvil",
+    "Guardar evento": "Guardar evento"
 }

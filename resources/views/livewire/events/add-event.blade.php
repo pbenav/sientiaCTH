@@ -141,7 +141,7 @@
                 </x-jet-secondary-button>
 
                 <x-jet-button wire:click="save" wire:loading.attr="disabled" class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 justify-center">
-                    {{ __('Save event') }}
+                    {{ __('Guardar evento') }}
                 </x-jet-button>
             </div>
         </x-slot>
