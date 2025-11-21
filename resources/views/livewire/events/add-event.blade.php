@@ -147,12 +147,12 @@
         </x-slot>
 
         <x-slot name="footer">
-            <div class="flex justify-end space-x-3">
-                <x-jet-secondary-button wire:click="$set('showAddEventModal', false)" wire:loading.attr="disabled">
+            <div class="flex flex-col xs:flex-row xs:justify-end gap-3">
+                <x-jet-secondary-button wire:click="$set('showAddEventModal', false)" wire:loading.attr="disabled" class="justify-center">
                     {{ __('Cancel') }}
                 </x-jet-secondary-button>
 
-                <x-jet-button wire:click="save" wire:loading.attr="disabled" class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500">
+                <x-jet-button wire:click="save" wire:loading.attr="disabled" class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 justify-center">
                     {{ __('Save event') }}
                 </x-jet-button>
             </div>
