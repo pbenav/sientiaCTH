@@ -63,12 +63,12 @@
             @endif
 
             <!-- Main Form Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6">
 
                 <!-- Left Column: Date & Time -->
                 <div class="space-y-6">
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ __('Date and Time') }}</h4>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Fecha y hora</h4>
                         
                         @if (isset($event->eventType) && $event->eventType->is_all_day)
                             {{-- All-day event: show only date inputs --}}
@@ -178,24 +178,24 @@
         </x-slot>
 
         <x-slot name='footer'>
-            <div class="flex justify-between w-full">
-                <div>
-                    @if($canBeModified)
-                        <x-jet-danger-button onclick="confirmDelete({{ $event->id }})" wire:loading.attr="disabled" class="flex items-center">
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-3">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    @if($canBeModified && $event->id)
+                        <x-jet-danger-button wire:click="$emit('confirmDelete', {{ $event->id }})" class="justify-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             {{ __('Delete Event') }}
                         </x-jet-danger-button>
                     @endif
                 </div>
                 
-                <div class="flex space-x-3">
-                    <x-jet-secondary-button wire:click="$set('showModalEditEvent', false)" wire:target="GetTimeRegisters">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <x-jet-secondary-button wire:click="$set('showModalEditEvent', false)" wire:target="GetTimeRegisters" class="justify-center">
                         {{ __('Cancel') }}
                     </x-jet-secondary-button>
     
                     @if($canBeModified)
                         <x-jet-button wire:click="update" wire:loading.attr="disabled"
-                            class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500">
+                            class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 justify-center">
                             {{ __('Update event') }}
                         </x-jet-button>
                     @endif
