@@ -5,44 +5,39 @@
 
         <!-- Team Announcements Section -->
         @if ($announcements->count() > 0)
-            <div class="p-4 mx-auto mt-4 w-full bg-blue-100 border-2 border-blue-400 rounded-lg shadow-md" x-data="{ open: false }">
+            <div class="p-4 mx-auto mt-4 w-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm" x-data="{ open: false }">
                 <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
-                    <p class="text-xl font-bold text-blue-700">
-                        <i class="fas fa-bullhorn mr-2"></i>
-                        Anuncios del Equipo
-                    </p>
-                    <i :class="open ? 'fa-chevron-up' : 'fa-chevron-down'" class="fas text-gray-700 transition-transform duration-300"></i>
+                    <div class="flex items-center space-x-2">
+                        <div class="bg-blue-500 p-2 rounded-full">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                        </div>
+                        <p class="text-lg font-bold text-blue-800">{{ __('Team Announcements') }}</p>
+                    </div>
+                    <svg :class="open ? 'rotate-180' : ''" class="w-5 h-5 text-blue-600 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
 
-                <div x-show="open" x-transition class="mt-4 space-y-4">
+                <div x-show="open" x-transition class="mt-4 space-y-3">
                     @foreach ($announcements as $announcement)
-                        <div class="p-4 bg-white rounded-lg shadow border-l-4 border-blue-500">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-gray-900">{{ $announcement->title }}</h3>
-                                    <div class="mt-2 prose prose-sm max-w-none text-gray-700">
-                                        {!! $announcement->content !!}
-                                    </div>
-                                    
-                                    <div class="mt-3 text-sm text-gray-500 space-y-1">
-                                        @if ($announcement->start_date || $announcement->end_date)
-                                            <div>
-                                                <i class="far fa-calendar mr-1"></i>
-                                                @if ($announcement->start_date && $announcement->end_date)
-                                                    Del {{ $announcement->start_date->format('d/m/Y') }} al {{ $announcement->end_date->format('d/m/Y') }}
-                                                @elseif ($announcement->start_date)
-                                                    Desde {{ $announcement->start_date->format('d/m/Y') }}
-                                                @else
-                                                    Hasta {{ $announcement->end_date->format('d/m/Y') }}
-                                                @endif
-                                            </div>
+                        <div class="p-4 bg-white rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <h3 class="text-base font-bold text-gray-900">{{ $announcement->title }}</h3>
+                            <div class="mt-2 prose prose-sm max-w-none text-gray-700">{!! $announcement->content !!}</div>
+                            <div class="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
+                                @if ($announcement->start_date || $announcement->end_date)
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        @if ($announcement->start_date && $announcement->end_date)
+                                            {{ $announcement->start_date->format('d/m/Y') }} - {{ $announcement->end_date->format('d/m/Y') }}
+                                        @elseif ($announcement->start_date)
+                                            {{ __('From') }} {{ $announcement->start_date->format('d/m/Y') }}
+                                        @else
+                                            {{ __('Until') }} {{ $announcement->end_date->format('d/m/Y') }}
                                         @endif
-                                        <div>
-                                            <i class="far fa-user mr-1"></i>
-                                            Publicado por {{ $announcement->creator->name }} el {{ $announcement->created_at->format('d/m/Y') }}
-                                        </div>
-                                    </div>
-                                </div>
+                                    </span>
+                                @endif
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    {{ $announcement->creator->name }} · {{ $announcement->created_at->format('d/m/Y') }}
+                                </span>
                             </div>
                         </div>
                     @endforeach
@@ -53,11 +48,8 @@
 
     <!-- Information Alert -->
     @if (session('info'))
-        <div class="flex items-center px-4 py-3 text-sm font-bold text-white bg-blue-500" role="alert">
-            <svg class="mr-2 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path
-                    d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z" />
-            </svg>
+        <div class="flex items-center px-4 py-3 text-sm font-medium text-blue-800 bg-blue-100 border border-blue-200 rounded-lg" role="alert">
+            <svg class="mr-2 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9a1 1 0 012 0v4a1 1 0 11-2 0V9zm1-5a1 1 0 100 2 1 1 0 000-2z"/></svg>
             <p>{{ __(session('info')) }}</p>
         </div>
     @endif
@@ -82,220 +74,228 @@
         <!-- Filters Modal -->
         <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector" :eventTypes="$eventTypes" :teamUserList="$teamUserList"></x-setfilters>
 
-        <div class="flex flex-row flex-wrap">
-            <!-- Add Event Modal and Button -->
+        <!-- Add Event Button -->
+        <div class="flex flex-row flex-wrap gap-3 mb-4">
             @livewire('add-event')
             @if (!$isInspector || $isTeamAdmin)
-                <div class="pl-0 mx-auto w-48 sm:mx-0">
-                    <x-jet-button
-                        class="justify-center w-full h-16 bg-green-500 hover:bg-green-600 disabled:bg-gray-500"
-                        wire:click="$emitTo('add-event', 'add', '1')">
-                        <i class="mr-2 fas fa-plus"></i> {{ __('Add event') }}
-                    </x-jet-button>
-                </div>
+                <x-jet-button
+                    class="justify-center h-12 bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                    wire:click="$emitTo('add-event', 'add', '1')">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    {{ __('Add event') }}
+                </x-jet-button>
             @endif
         </div>
 
         <!-- Filter and Search Controls -->
-        <div class="flex flex-wrap gap-2 mt-2">
-            <div class="mx-auto w-48 sm:mx-0">
-                <x-jet-button class="w-48 h-8 justify-center" wire:click="setFilter">
-                    <i class="mr-2 fas fa-filter"></i>{{ __('Set filter') }}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+            <div class="flex flex-wrap gap-3">
+                <!-- Filter Buttons -->
+                <x-jet-button class="h-10" wire:click="setFilter">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    {{ __('Set filter') }}
                 </x-jet-button>
-            </div>
-            <div class="mx-auto w-48 sm:mx-0">
+
                 <x-jet-button
-                    class="w-48 h-8 justify-center whitespace-nowrap {{ $filtered ? 'bg-green-500' : 'disabled' }}"
+                    class="h-10 {{ $filtered ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-400' }}"
                     wire:click="unsetFilter">
-                    <i class="fa-solid fa-filter-slash"></i>
-                    <i class="mr-2 fas fa-x"></i>{{ __('Unset filter') }}
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    {{ __('Unset filter') }}
                 </x-jet-button>
-            </div>
 
-            <div class="mx-auto w-48 sm:mx-0">
-                <x-jet-button class="w-48 h-8 justify-center" wire:click="$refresh">
-                    <i class="fa-solid fa-arrows-rotate mr-2"></i>{{ __('Refresh') }}
+                <x-jet-button class="h-10 bg-gray-600 hover:bg-gray-700" wire:click="$refresh">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    {{ __('Refresh') }}
                 </x-jet-button>
-            </div>
-            @if ($isTeamAdmin)
-                <div class="mx-auto w-48 sm:mx-0">
-                    <x-jet-button class="w-48 h-8 justify-center {{ $showOnlyMine ? 'bg-green-500' : '' }}"
-                        wire:click="filterOnlyMine">
-                        <i class="fa-solid fa-person-military-pointing mr-2"></i>
-                        @if ($showOnlyMine)
-                            {{ __('All Records') }}
-                        @else
-                            {{ __('My Records') }}
-                        @endif
+
+                @if ($isTeamAdmin)
+                    <x-jet-button class="h-10 {{ $showOnlyMine ? 'bg-indigo-600' : 'bg-gray-600' }}" wire:click="filterOnlyMine">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        {{ $showOnlyMine ? __('All Records') : __('My Records') }}
                     </x-jet-button>
-                </div>
-            @endif
+                @endif
 
-
-            <!-- Search Input and Checkbox -->
-            <div class="flex flex-nowrap">
-                <div class="w-auto">
-                    <x-jet-input class="w-full h-8" placeholder="{{ __('Search') }}" type="text"
-                        wire:model="search" />
+                <!-- Search Input -->
+                <div class="flex-1 min-w-[200px]">
+                    <x-jet-input class="w-full h-10" placeholder="{{ __('Search') }}" type="text" wire:model="search" />
                 </div>
-                <div class="flex flex-row-reverse pt-1 ml-4 w-auto">
-                    <div>
-                        <x-jet-label class="pt-1" value="{{ __('Not confirmed') }}" />
-                    </div>
-                    <div>
-                        <x-jet-checkbox class="mr-2 w-6 h-6 text-gray-600 checked:text-green-600" wire:model="confirmed"
-                            wire:click="$set('filtered', false)" />
-                    </div>
-                </div>
-            </div>
 
-            <!-- Records Per Page Selector -->
-            <div class="flex flex-nowrap mr-2 mb-2 h-8">
-                <div class="p-1">{{ __('Show') }}</div>
-                <select wire:model='qtytoshow' class="pt-1 mx-2 h-8 form-control">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-                <div class="p-1">{{ __('records') }}</div>
+                <!-- Not Confirmed Checkbox -->
+                <label class="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100">
+                    <x-jet-checkbox class="w-5 h-5" wire:model="confirmed" wire:click="$set('filtered', false)" />
+                    <span class="text-sm font-medium text-gray-700">{{ __('Not confirmed') }}</span>
+                </label>
+
+                <!-- Records Per Page -->
+                <div class="flex items-center space-x-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                    <span class="text-sm text-gray-600">{{ __('Show') }}</span>
+                    <select wire:model='qtytoshow' class="h-8 border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span class="text-sm text-gray-600">{{ __('records') }}</span>
+                </div>
             </div>
         </div>
 
         <!-- Events Table -->
-        <div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             @if (count($events))
-                <table class="block min-w-full border-collapse md:table">
-                    <thead class="block md:table-header-group">
-                        <tr class="md:table-row">
-                            <th class="p-1 text-center text-white bg-gray-600 table-cell w-1/12">{{ __('Id') }}
-                            </th>
-
-                            @if ($isTeamAdmin || $isInspector)
-                                <th class="min-w-50 p-1 text-center text-white bg-gray-600 table-cell w-3/12"
-                                    wire:click="order('name')">
-                                    {{ __('Worker') }}
-                                    <i class="float-right mt-1 fas fa-sort"></i>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    {{ __('Id') }}
                                 </th>
-                            @endif
-
-                            <th class="min-w-50 p-1 text-left text-white bg-gray-600 table-cell w-2/12"
-                                wire:click="order('start')">
-                                {{ __('Start') }}
-                                <i class="float-right mt-1 fas fa-sort"></i>
-                            </th>
-
-                            <th class="min-w-50 p-1 text-left text-white bg-gray-600 table-cell w-2/12"
-                                wire:click="order('end')">
-                                {{ __('End') }}
-                                <i class="float-right mt-1 fas fa-sort"></i>
-                            </th>
-
-                            <th class="min-w-50 p-1 text-left text-white bg-gray-600 table-cell w-3/12"
-                                wire:click="order('description')">
-                                {{ __('Description') }}
-                                <i class="float-right mt-1 fas fa-sort"></i>
-                            </th>
-
-                            <th class="min-w-50 p-1 text-center text-white bg-gray-600 table-cell w-1/12">{{ __('Duration') }}
-                            </th>
-
-                            <th class="p-1 text-center text-white bg-gray-600 md:table-cell md:w-1/12">
-                                {{ __('Authorized') }}
-                            </th>
-
-                            @if (!$isInspector || $isTeamAdmin)
-                                <th class="hidden p-1 text-center text-white bg-gray-600 md:table-cell w-1/12">
-                                    {{ __('Actions') }}
-                                </th>
-                            @endif
-                        </tr>
-                    </thead>
-
-                    <tbody class="block md:table-row-group">
-                        @foreach ($events as $ev)
-                            <tr class="block border md:table-row">
-                                @php
-                                    $eventColor = $this->getEventColor($ev);
-                                @endphp
-                                <td class="p-1 text-center md:table-cell w-1/12 cursor-pointer hover:bg-gray-200"
-                                    wire:click="showEventModal({{ $ev->id }})"
-                                    style="background-color: {{ $eventColor }}; color: {{ $this->isDark($eventColor) ? 'white' : 'black' }}">
-                                    {{ $ev->id }}
-                                </td>
 
                                 @if ($isTeamAdmin || $isInspector)
-                                    <td class="p-1 text-left md:table-cell w-3/12">
-                                        {{ $ev->user->name }} {{ $ev->user->family_name1 }}
-                                    </td>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="order('name')">
+                                        <div class="flex items-center justify-between">
+                                            {{ __('Worker') }}
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                                        </div>
+                                    </th>
                                 @endif
 
-                                <td class="p-1 text-left md:table-cell w-2/12">
-                                    {{ Carbon\Carbon::parse($ev->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}
-                                </td>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="order('start')">
+                                    <div class="flex items-center justify-between">
+                                        {{ __('Start') }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                                    </div>
+                                </th>
 
-                                <td class="p-1 text-left md:table-cell w-2/12">
-                                    {{ $ev->end ? Carbon\Carbon::parse($ev->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}
-                                </td>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="order('end')">
+                                    <div class="flex items-center justify-between">
+                                        {{ __('End') }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                                    </div>
+                                </th>
 
-                                <td class="p-1 text-left md:table-cell w-3/12">
-                                    @if ($ev->eventType)
-                                        <span class="inline-block w-3 h-3 mr-2 rounded-full"
-                                            style="background-color: {{ $eventColor }}"></span>
-                                        <span>{{ $ev->eventType->name }}</span>
-                                        @if($ev->is_exceptional)
-                                            <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
-                                        @endif
-                                    @else
-                                        <span class="inline-block w-3 h-3 mr-2 rounded-full"
-                                            style="background-color: {{ $eventColor }}"></span>
-                                        {{ __($ev->description) }}
-                                        @if($ev->is_exceptional)
-                                            <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
-                                        @endif
-                                    @endif
-                                </td>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100" wire:click="order('description')">
+                                    <div class="flex items-center justify-between">
+                                        {{ __('Description') }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>
+                                    </div>
+                                </th>
 
-                                <td class="p-1 text-center md:table-cell w-1/12">{{ $ev->getPeriod() }}</td>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    {{ __('Duration') }}
+                                </th>
 
-                                <td class="p-1 text-center md:table-cell md:w-1/12">
-                                    @if ($ev->eventType && $ev->eventType->is_authorizable)
-                                        <input type="checkbox" wire:click="toggleAuthorization({{ $ev->id }})"
-                                            @checked($ev->is_authorized) @disabled(!$isTeamAdmin) />
-                                    @endif
-                                </td>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    {{ __('Authorized') }}
+                                </th>
 
                                 @if (!$isInspector || $isTeamAdmin)
-                                    <td class="flex justify-center items-center p-1 md:table-cell">
-                                        <div class="flex float-right">
-                                            <button class="btn {{ $ev->is_open ? 'btn-blue' : 'btn-gray' }}"
-                                                    wire:click="edit({{ $ev }})"
-                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn {{ $ev->is_open ? 'btn-green' : 'btn-gray' }}"
-                                                    wire:click="alertConfirm({{ $ev }})"
-                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                            <button class="btn {{ $ev->is_open ? 'btn-red' : 'btn-gray' }}"
-                                                    wire:click="alertDelete({{ $ev }})"
-                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        {{ __('Actions') }}
+                                    </th>
                                 @endif
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($events as $ev)
+                                @php
+                                    $eventColor = $this->getEventColor($ev);
+                                    $isDark = $this->isDark($eventColor);
+                                @endphp
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 whitespace-nowrap cursor-pointer" wire:click="showEventModal({{ $ev->id }})">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm" 
+                                              style="background-color: {{ $eventColor }}; color: {{ $isDark ? 'white' : 'black' }}">
+                                            #{{ $ev->id }}
+                                        </span>
+                                    </td>
+
+                                    @if ($isTeamAdmin || $isInspector)
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $ev->user->name }} {{ $ev->user->family_name1 }}
+                                        </td>
+                                    @endif
+
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                        {{ Carbon\Carbon::parse($ev->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i') }}
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                        {{ $ev->end ? Carbon\Carbon::parse($ev->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i') : '-' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-sm text-gray-900">
+                                        <div class="flex items-center">
+                                            <span class="inline-block w-3 h-3 rounded-full mr-2 flex-shrink-0" style="background-color: {{ $eventColor }}"></span>
+                                            <span class="truncate">
+                                                @if ($ev->eventType)
+                                                    {{ $ev->eventType->name }}
+                                                    @if($ev->is_exceptional)
+                                                        <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
+                                                    @endif
+                                                @else
+                                                    {{ __($ev->description) }}
+                                                    @if($ev->is_exceptional)
+                                                        <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
+                                                    @endif
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap text-center text-sm font-medium text-gray-900">
+                                        {{ $ev->getPeriod() }}
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap text-center">
+                                        @if ($ev->eventType && $ev->eventType->is_authorizable)
+                                            <input type="checkbox" 
+                                                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                                   wire:click="toggleAuthorization({{ $ev->id }})"
+                                                   @checked($ev->is_authorized) 
+                                                   @disabled(!$isTeamAdmin) />
+                                        @endif
+                                    </td>
+
+                                    @if (!$isInspector || $isTeamAdmin)
+                                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                                            <div class="flex justify-center space-x-1">
+                                                <button class="p-2 rounded {{ $ev->is_open ? 'text-blue-600 hover:bg-blue-50' : 'text-gray-400' }}"
+                                                        wire:click="edit({{ $ev }})"
+                                                        @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
+                                                        title="{{ __('Edit') }}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                </button>
+                                                <button class="p-2 rounded {{ $ev->is_open ? 'text-green-600 hover:bg-green-50' : 'text-gray-400' }}"
+                                                        wire:click="alertConfirm({{ $ev }})"
+                                                        @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
+                                                        title="{{ __('Confirm') }}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                </button>
+                                                <button class="p-2 rounded {{ $ev->is_open ? 'text-red-600 hover:bg-red-50' : 'text-gray-400' }}"
+                                                        wire:click="alertDelete({{ $ev }})"
+                                                        @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
+                                                        title="{{ __('Delete') }}">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    @endif
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
                 @if ($events->hasPages())
-                    <div class="px-6 py-3">{{ $events->links() }}</div>
+                    <div class="px-6 py-4 border-t border-gray-200">{{ $events->links() }}</div>
                 @endif
             @else
-                <div class="px-4 shadow">{{ __('No records found') }}</div>
+                <div class="px-6 py-12 text-center text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <p class="mt-2 text-sm font-medium">{{ __('No records found') }}</p>
+                </div>
             @endif
         </div>
 
@@ -304,45 +304,111 @@
 
         <!-- Event Details Modal -->
         @if ($selectedEvent)
-            <x-jet-dialog-modal wire:model="showEventModal">
+            <x-jet-dialog-modal wire:model="showEventModal" maxWidth="3xl">
                 <x-slot name="title">
-                    {{ __('Event Details') }}
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-indigo-100 p-2 rounded-full">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">{{ __('Event Details') }}</h3>
+                                <p class="text-sm text-gray-500">#{{ $selectedEvent->id }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            @if($selectedEvent->is_open)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                    {{ __('Open') }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                    {{ __('Closed') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
                 </x-slot>
 
                 <x-slot name="content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div class="md:col-span-2"><span class="font-bold">{{ __('Id') }}:</span> {{ $selectedEvent->id }}</div>
-                        <div class="md:col-span-2"><span class="font-bold">{{ __('Worker') }}:</span> {{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}</div>
-
-                        <div><span class="font-bold">{{ __('Start') }}:</span> {{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}</div>
-                        <div><span class="font-bold">{{ __('End') }}:</span> {{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '' }}</div>
-
-                        <div><span class="font-bold">{{ __('Duration') }}:</span> {{ $selectedEvent->getPeriod() }}</div>
-                        <div><span class="font-bold">{{ __('Event Type') }}:</span> {{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Work Shift') }}</div>
-
-                        <div class="md:col-span-2"><span class="font-bold">{{ __('Observations') }}:</span> {{ __($selectedEvent->observations) }}</div>
-
-                        <div><span class="font-bold">{{ __('Status') }}:</span> {{ $selectedEvent->is_open ? __('Open') : __('Closed') }}</div>
-
-                        @if ($selectedEvent->eventType && $selectedEvent->eventType->is_authorizable)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Column -->
+                        <div class="space-y-4">
                             <div>
-                                <span class="font-bold">{{ __('Authorized') }}:</span>
-                                @if ($selectedEvent->is_authorized)
-                                    {{ __('Yes') }}
-                                    @if ($selectedEvent->authorizedBy)
-                                        ({{ __('by') }} {{ $selectedEvent->authorizedBy->name }} {{ $selectedEvent->authorizedBy->family_name1 }})
-                                    @endif
-                                @else
-                                    {{ __('No') }}
-                                @endif
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Worker') }}</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ $selectedEvent->user->name }} {{ $selectedEvent->user->family_name1 }}</p>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Start') }}</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ Carbon\Carbon::parse($selectedEvent->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') }}</p>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('End') }}</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ $selectedEvent->end ? Carbon\Carbon::parse($selectedEvent->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i:s') : '-' }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Event Type') }}</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ $selectedEvent->eventType ? $selectedEvent->eventType->name : __('Work Shift') }}</p>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Duration') }}</label>
+                                <p class="mt-1 text-lg font-bold text-indigo-600">{{ $selectedEvent->getPeriod() }}</p>
+                            </div>
+
+                            @if ($selectedEvent->eventType && $selectedEvent->eventType->is_authorizable)
+                                <div>
+                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Authorized') }}</label>
+                                    <div class="mt-1">
+                                        @if ($selectedEvent->is_authorized)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                {{ __('Yes') }}
+                                                @if ($selectedEvent->authorizedBy)
+                                                    ({{ $selectedEvent->authorizedBy->name }})
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                {{ __('No') }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Full Width -->
+                        @if($selectedEvent->observations)
+                            <div class="md:col-span-2">
+                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('Observations') }}</label>
+                                <div class="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <p class="text-sm text-gray-700">{{ __($selectedEvent->observations) }}</p>
+                                </div>
                             </div>
                         @endif
 
                         @if ($isTeamAdmin)
-                            <hr class="md:col-span-2">
-                            <div class="md:col-span-2 text-xs text-gray-600">
-                                <div><span class="font-bold">{{ __('Created at') }}:</span> {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}</div>
-                                <div><span class="font-bold">{{ __('Updated at') }}:</span> {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}</div>
+                            <div class="md:col-span-2 pt-4 border-t border-gray-200">
+                                <div class="grid grid-cols-2 gap-4 text-xs text-gray-500">
+                                    <div>
+                                        <span class="font-semibold">{{ __('Created at') }}:</span>
+                                        {{ $selectedEvent->created_at->format('d/m/y H:i:s') }}
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">{{ __('Updated at') }}:</span>
+                                        {{ $selectedEvent->updated_at->format('d/m/y H:i:s') }}
+                                    </div>
+                                </div>
                             </div>
                         @endif
                     </div>
@@ -355,7 +421,6 @@
                 </x-slot>
             </x-jet-dialog-modal>
         @endif
-
 
         <!-- SweetAlert Scripts -->
         @push('scripts')
@@ -416,27 +481,6 @@
                             Livewire.emit('delete', event);
                         }
                     });
-                });
-            </script>
-        @endpush
-        @push('scripts')
-            <script>
-                const toggleButton = document.getElementById('toggleButton');
-                const toggleIcon = document.getElementById('toggleIcon');
-                const collapsibleContent = document.getElementById('collapsibleContent');
-
-                toggleButton.addEventListener('click', () => {
-                    const isContentVisible = !collapsibleContent.classList.contains('hidden');
-
-                    if (isContentVisible) {
-                        // Ocultar el contenido
-                        collapsibleContent.classList.add('hidden');
-                        toggleIcon.classList.remove('rotate-180');
-                    } else {
-                        // Mostrar el contenido
-                        collapsibleContent.classList.remove('hidden');
-                        toggleIcon.classList.add('rotate-180');
-                    }
                 });
             </script>
         @endpush

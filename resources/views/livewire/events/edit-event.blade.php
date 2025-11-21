@@ -93,14 +93,14 @@
                                         <div>
                                             <x-jet-input type="date" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.live="start_date" 
+                                                   wire:model.defer="start_date" 
                                                    {{ $canBeModified ? '' : 'disabled' }} />
                                             <x-jet-input-error for="start_date" class="mt-1" />
                                         </div>
                                         <div>
                                             <x-jet-input type="time" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.live="start_time" 
+                                                   wire:model.defer="start_time" 
                                                    {{ $canBeModified ? '' : 'disabled' }} 
                                                    step="300" />
                                             <x-jet-input-error for="start_time" class="mt-1" />
@@ -114,14 +114,14 @@
                                         <div>
                                             <x-jet-input type="date" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.live="end_date" 
+                                                   wire:model.defer="end_date" 
                                                    {{ $canBeModified ? '' : 'disabled' }} />
                                             <x-jet-input-error for="end_date" class="mt-1" />
                                         </div>
                                         <div>
                                             <x-jet-input type="time" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.live="end_time" 
+                                                   wire:model.defer="end_time" 
                                                    {{ $canBeModified ? '' : 'disabled' }} 
                                                    step="300" />
                                             <x-jet-input-error for="end_time" class="mt-1" />
