@@ -75,12 +75,12 @@
                             <div class="space-y-4">
                                 <div>
                                     <x-jet-label for="start_date" value="{{ __('Start date') }}" class="font-medium text-gray-700" />
-                                    <x-jet-input id="start_date" type="date" wire:model.defer="start_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
+                                    <x-jet-input id="start_date" type="date" wire:model="start_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
                                     <x-jet-input-error for="start_date" class="mt-1" />
                                 </div>
                                 <div>
                                     <x-jet-label for="end_date" value="{{ __('End date') }}" class="font-medium text-gray-700" />
-                                    <x-jet-input id="end_date" type="date" wire:model.defer="end_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
+                                    <x-jet-input id="end_date" type="date" wire:model="end_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
                                     <x-jet-input-error for="end_date" class="mt-1" />
                                 </div>
                             </div>
@@ -93,14 +93,14 @@
                                         <div>
                                             <x-jet-input type="date" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.defer="start_date" 
+                                                   wire:model="start_date" 
                                                    {{ $canBeModified ? '' : 'disabled' }} />
                                             <x-jet-input-error for="start_date" class="mt-1" />
                                         </div>
                                         <div>
                                             <x-jet-input type="time" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.defer="start_time" 
+                                                   wire:model="start_time" 
                                                    {{ $canBeModified ? '' : 'disabled' }} 
                                                    step="300" />
                                             <x-jet-input-error for="start_time" class="mt-1" />
@@ -114,14 +114,14 @@
                                         <div>
                                             <x-jet-input type="date" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.defer="end_date" 
+                                                   wire:model="end_date" 
                                                    {{ $canBeModified ? '' : 'disabled' }} />
                                             <x-jet-input-error for="end_date" class="mt-1" />
                                         </div>
                                         <div>
                                             <x-jet-input type="time" 
                                                    class="block w-full text-sm" 
-                                                   wire:model.defer="end_time" 
+                                                   wire:model="end_time" 
                                                    {{ $canBeModified ? '' : 'disabled' }} 
                                                    step="300" />
                                             <x-jet-input-error for="end_time" class="mt-1" />
