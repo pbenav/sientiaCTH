@@ -68,19 +68,19 @@
                 <!-- Left Column: Date & Time -->
                 <div class="space-y-6">
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ __('Date & Time') }}</h4>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{{ __('Date and Time') }}</h4>
                         
                         @if (isset($event->eventType) && $event->eventType->is_all_day)
                             {{-- All-day event: show only date inputs --}}
                             <div class="space-y-4">
                                 <div>
                                     <x-jet-label for="start_date" value="{{ __('Start date') }}" class="font-medium text-gray-700" />
-                                    <x-jet-input id="start_date" type="date" wire:model="start_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
+                                    <x-jet-input id="start_date" type="date" wire:model.defer="start_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
                                     <x-jet-input-error for="start_date" class="mt-1" />
                                 </div>
                                 <div>
                                     <x-jet-label for="end_date" value="{{ __('End date') }}" class="font-medium text-gray-700" />
-                                    <x-jet-input id="end_date" type="date" wire:model="end_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
+                                    <x-jet-input id="end_date" type="date" wire:model.defer="end_date" class="mt-1 block w-full" {{ $canBeModified ? '' : 'disabled' }} />
                                     <x-jet-input-error for="end_date" class="mt-1" />
                                 </div>
                             </div>
