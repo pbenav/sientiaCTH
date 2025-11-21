@@ -69,7 +69,7 @@
     @endif
 
     <!-- Event List Section -->
-    <div class="mx-auto w-full max-w-6xl" wire:init="loadEvents">
+    <div class="mx-auto w-full xl:max-w-6xl" wire:init="loadEvents">
 
         <!-- Filters Modal -->
         <x-setfilters :isteamadmin="$isTeamAdmin" :isinspector="$isInspector" :eventTypes="$eventTypes" :teamUserList="$teamUserList"></x-setfilters>
