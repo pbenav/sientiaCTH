@@ -18,6 +18,22 @@ class SmartClockInService
 {
     use HandlesEventAuthorization;
 
+    // Status Codes Constants
+    public const STATUS_USER_OR_TEAM_NOT_FOUND = 'USER_OR_TEAM_NOT_FOUND';
+    public const STATUS_NO_SCHEDULE = 'NO_SCHEDULE';
+    public const STATUS_NO_WORKDAY_TYPE = 'NO_WORKDAY_TYPE';
+    public const STATUS_RESUME_WORKDAY = 'RESUME_WORKDAY';
+    public const STATUS_WORKING = 'WORKING';
+    public const STATUS_CLOCK_OUT = 'CLOCK_OUT'; // Fallback for working without pause
+    public const STATUS_OUTSIDE_SCHEDULE_CONFIRM = 'OUTSIDE_SCHEDULE_CONFIRM';
+    public const STATUS_CAN_CLOCK_IN = 'CAN_CLOCK_IN';
+    public const STATUS_CLOCK_IN_SUCCESS = 'CLOCK_IN_SUCCESS';
+    public const STATUS_CLOCK_OUT_SUCCESS = 'CLOCK_OUT_SUCCESS';
+    public const STATUS_PAUSE_SUCCESS = 'PAUSE_SUCCESS';
+    public const STATUS_RESUME_SUCCESS = 'RESUME_SUCCESS';
+    public const STATUS_EXCEPTIONAL_REQUEST_CREATED = 'EXCEPTIONAL_REQUEST_CREATED';
+    public const STATUS_ERROR = 'ERROR';
+
     /**
      * Determine the action needed for smart clock-in/out
      * 
@@ -34,6 +50,7 @@ class SmartClockInService
             return [
                 'can_clock' => false,
                 'action' => null,
+                'status_code' => self::STATUS_USER_OR_TEAM_NOT_FOUND,
                 'message' => __('User or team not found'),
                 'button_text' => __('Clock In/Out'),
                 'button_class' => 'bg-gray-400 cursor-not-allowed'
@@ -52,6 +69,7 @@ class SmartClockInService
             return [
                 'can_clock' => false,
                 'action' => 'redirect_to_profile',
+                'status_code' => self::STATUS_NO_SCHEDULE,
                 'message' => __('No work schedule configured. Configure your schedule to use smart clock-in.'),
                 'button_text' => __('Configure Schedule'),
                 'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
@@ -71,6 +89,7 @@ class SmartClockInService
             return [
                 'can_clock' => false,
                 'action' => null,
+                'status_code' => self::STATUS_NO_WORKDAY_TYPE,
                 'message' => __('No workday event type configured'),
                 'button_text' => __('Clock In/Out'),
                 'button_class' => 'bg-gray-400 cursor-not-allowed'
@@ -104,6 +123,7 @@ class SmartClockInService
             return [
                 'can_clock' => true,
                 'action' => 'resume_workday',
+                'status_code' => self::STATUS_RESUME_WORKDAY,
                 'message' => __('Resume workday from pause'),
                 'button_text' => __('Resume Work'),
                 'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
@@ -120,6 +140,7 @@ class SmartClockInService
                 return [
                     'can_clock' => true,
                     'action' => 'working_options',
+                    'status_code' => self::STATUS_WORKING,
                     'message' => __('Currently working'),
                     'button_text' => __('Working'),
                     'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
@@ -137,6 +158,7 @@ class SmartClockInService
                 return [
                     'can_clock' => true,
                     'action' => 'clock_out',
+                    'status_code' => self::STATUS_CLOCK_OUT,
                     'message' => __('Clock out from work'),
                     'button_text' => __('Clock Out'),
                     'button_class' => 'bg-red-600 hover:bg-red-700 text-white',
@@ -157,6 +179,7 @@ class SmartClockInService
             return [
                 'can_clock' => false,
                 'action' => 'confirm_exceptional_clock_in',
+                'status_code' => self::STATUS_OUTSIDE_SCHEDULE_CONFIRM,
                 'message' => __('You are outside your work schedule. Do you want to make an exceptional clock-in?'),
                 'button_text' => __('Exceptional Clock In'),
                 'button_class' => 'bg-yellow-600 hover:bg-yellow-700 text-white',
@@ -179,6 +202,7 @@ class SmartClockInService
         return [
             'can_clock' => true,
             'action' => 'clock_in',
+            'status_code' => self::STATUS_CAN_CLOCK_IN,
             'message' => $message,
             'button_text' => __('Clock In'),
             'button_class' => $buttonClass,
@@ -242,6 +266,7 @@ class SmartClockInService
 
             return [
                 'success' => true,
+                'status_code' => self::STATUS_CLOCK_IN_SUCCESS,
                 'message' => $message,
                 'event_id' => $event->id,
                 'overtime' => $overtime
@@ -250,6 +275,7 @@ class SmartClockInService
         } catch (\Exception $e) {
             return [
                 'success' => false,
+                'status_code' => self::STATUS_ERROR,
                 'message' => __('Error clocking in: :error', ['error' => $e->getMessage()])
             ];
         }
@@ -275,6 +301,7 @@ class SmartClockInService
             if (!$event) {
                 return [
                     'success' => false,
+                    'status_code' => self::STATUS_ERROR,
                     'message' => __('Event not found or already closed')
                 ];
             }
@@ -290,6 +317,7 @@ class SmartClockInService
 
             return [
                 'success' => true,
+                'status_code' => self::STATUS_CLOCK_OUT_SUCCESS,
                 'message' => __('Clocked out successfully. Worked from :start to :end', [
                     'start' => $startTime,
                     'end' => $nowTeamTz->format('H:i')
@@ -300,6 +328,7 @@ class SmartClockInService
         } catch (\Exception $e) {
             return [
                 'success' => false,
+                'status_code' => self::STATUS_ERROR,
                 'message' => __('Error clocking out: :error', ['error' => $e->getMessage()])
             ];
         }
@@ -325,6 +354,7 @@ class SmartClockInService
             if (!$workdayEventType) {
                 return [
                     'success' => false,
+                    'status_code' => self::STATUS_NO_WORKDAY_TYPE,
                     'message' => __('No workday event type configured')
                 ];
             }
@@ -333,6 +363,7 @@ class SmartClockInService
             if (!$openWorkdayEvent) {
                 return [
                     'success' => false,
+                    'status_code' => self::STATUS_ERROR,
                     'message' => __('No active workday to pause')
                 ];
             }
@@ -342,6 +373,7 @@ class SmartClockInService
             if (!$pauseEventType || !$pauseEventType->is_break_type) {
                 return [
                     'success' => false,
+                    'status_code' => self::STATUS_ERROR,
                     'message' => __('Invalid pause event type')
                 ];
             }
@@ -364,6 +396,7 @@ class SmartClockInService
 
             return [
                 'success' => true,
+                'status_code' => self::STATUS_PAUSE_SUCCESS,
                 'message' => __('Workday paused at :time', ['time' => $nowTeamTz->format('H:i')]),
                 'pause_event_id' => $pauseEvent->id
             ];
@@ -371,6 +404,7 @@ class SmartClockInService
         } catch (\Exception $e) {
             return [
                 'success' => false,
+                'status_code' => self::STATUS_ERROR,
                 'message' => __('Error pausing workday: :error', ['error' => $e->getMessage()])
             ];
         }
@@ -397,6 +431,7 @@ class SmartClockInService
             if (!$pauseEvent) {
                 return [
                     'success' => false,
+                    'status_code' => self::STATUS_ERROR,
                     'message' => __('Pause event not found or already closed')
                 ];
             }
@@ -413,6 +448,7 @@ class SmartClockInService
 
             return [
                 'success' => true,
+                'status_code' => self::STATUS_RESUME_SUCCESS,
                 'message' => __('Workday resumed at :time (paused from :start)', [
                     'time' => $nowTeamTz->format('H:i'),
                     'start' => $pauseStartTime
@@ -423,6 +459,7 @@ class SmartClockInService
         } catch (\Exception $e) {
             return [
                 'success' => false,
+                'status_code' => self::STATUS_ERROR,
                 'message' => __('Error resuming workday: :error', ['error' => $e->getMessage()])
             ];
         }
@@ -439,6 +476,7 @@ class SmartClockInService
         return [
             'success' => true,
             'action' => 'redirect_to_exceptional_clock_in',
+            'status_code' => self::STATUS_EXCEPTIONAL_REQUEST_CREATED,
             'message' => __('Exceptional clock-in request created. Please complete the process.'),
             'redirect_url' => route('events')
         ];

@@ -115,7 +115,8 @@ class MobileClockController extends Controller
                     ];
                 } else {
                     return response()->json([
-                        'message' => $clockAction['message'] ?? 'Cannot clock at this time'
+                        'message' => $clockAction['message'] ?? 'Cannot clock at this time',
+                        'status_code' => $clockAction['status_code'] ?? 'ERROR'
                     ], 400);
                 }
             }
@@ -142,6 +143,7 @@ class MobileClockController extends Controller
                 'today_records' => $todayRecords,
                 'current_slot' => null, // Calculate if needed
                 'next_slot' => null, // Calculate if needed
+                'status_code' => $result['status_code'] ?? null,
             ];
             
             Log::debug('[MobileClockController][clock] Resource data after clock:', [
@@ -152,6 +154,7 @@ class MobileClockController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $result['message'] ?? null,
+                'status_code' => $result['status_code'] ?? null,
                 'data' => new ClockStatusResource($resourceData),
             ]);
 
@@ -162,8 +165,18 @@ class MobileClockController extends Controller
                 'request' => $request->all(),
             ]);
 
+            // Try to decode if it's a JSON exception message (from our own throws)
+            $decoded = json_decode($e->getMessage(), true);
+            if (json_last_error() === JSON_ERROR_NONE && isset($decoded['message'])) {
+                return response()->json([
+                    'message' => $decoded['message'],
+                    'status_code' => $decoded['status_code'] ?? 'ERROR'
+                ], 400);
+            }
+
             return response()->json([
-                'message' => 'An unexpected error occurred'
+                'message' => 'An unexpected error occurred',
+                'status_code' => 'ERROR'
             ], 500);
         }
     }
@@ -186,12 +199,16 @@ class MobileClockController extends Controller
                 $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime, 'mobile_api', $observations);
 
                 if (empty($result['success'])) {
-                    throw new \Exception($result['message'] ?? 'Clock in failed');
+                    throw new \Exception(json_encode([
+                        'message' => $result['message'] ?? 'Clock in failed',
+                        'status_code' => $result['status_code'] ?? 'ERROR'
+                    ]));
                 }
 
                 return [
                     'action' => 'clock_in',
-                    'message' => $result['message'] ?? 'Clock in successful'
+                    'message' => $result['message'] ?? 'Clock in successful',
+                    'status_code' => $result['status_code'] ?? 'CLOCK_IN_SUCCESS'
                 ];
 
             case 'clock_out':
@@ -204,12 +221,16 @@ class MobileClockController extends Controller
                 $result = $this->smartClockInService->clockOut($user, $openEventId);
 
                 if (empty($result['success'])) {
-                    throw new \Exception($result['message'] ?? 'Clock out failed');
+                    throw new \Exception(json_encode([
+                        'message' => $result['message'] ?? 'Clock out failed',
+                        'status_code' => $result['status_code'] ?? 'ERROR'
+                    ]));
                 }
 
                 return [
                     'action' => 'clock_out',
-                    'message' => $result['message'] ?? 'Clock out successful'
+                    'message' => $result['message'] ?? 'Clock out successful',
+                    'status_code' => $result['status_code'] ?? 'CLOCK_OUT_SUCCESS'
                 ];
 
             case 'resume_workday':
@@ -223,12 +244,16 @@ class MobileClockController extends Controller
                 $result = $this->smartClockInService->resumeWorkday($user, $pauseEventId);
 
                 if (empty($result['success'])) {
-                    throw new \Exception($result['message'] ?? 'Resume failed');
+                    throw new \Exception(json_encode([
+                        'message' => $result['message'] ?? 'Resume failed',
+                        'status_code' => $result['status_code'] ?? 'ERROR'
+                    ]));
                 }
 
                 return [
                     'action' => 'break_end',
-                    'message' => $result['message'] ?? 'Resume successful'
+                    'message' => $result['message'] ?? 'Resume successful',
+                    'status_code' => $result['status_code'] ?? 'RESUME_SUCCESS'
                 ];
 
             case 'working_options':
@@ -247,12 +272,16 @@ class MobileClockController extends Controller
                     $result = $this->smartClockInService->pauseWorkday($user, $pauseEventType->id);
 
                     if (empty($result['success'])) {
-                        throw new \Exception($result['message'] ?? 'Pause failed');
+                        throw new \Exception(json_encode([
+                            'message' => $result['message'] ?? 'Pause failed',
+                            'status_code' => $result['status_code'] ?? 'ERROR'
+                        ]));
                     }
 
                     return [
                         'action' => 'break_start',
-                        'message' => $result['message'] ?? 'Pause started'
+                        'message' => $result['message'] ?? 'Pause started',
+                        'status_code' => $result['status_code'] ?? 'PAUSE_SUCCESS'
                     ];
                 }
 
@@ -266,12 +295,16 @@ class MobileClockController extends Controller
                 $result = $this->smartClockInService->clockOut($user, $openEventId);
 
                 if (empty($result['success'])) {
-                    throw new \Exception($result['message'] ?? 'Clock out failed');
+                    throw new \Exception(json_encode([
+                        'message' => $result['message'] ?? 'Clock out failed',
+                        'status_code' => $result['status_code'] ?? 'ERROR'
+                    ]));
                 }
 
                 return [
                     'action' => 'clock_out',
-                    'message' => $result['message'] ?? 'Clock out successful'
+                    'message' => $result['message'] ?? 'Clock out successful',
+                    'status_code' => $result['status_code'] ?? 'CLOCK_OUT_SUCCESS'
                 ];
 
             default:
@@ -427,6 +460,7 @@ class MobileClockController extends Controller
                 'current_slot' => $currentSlot,
                 'today_stats' => $todayStats,
                 'today_records' => $todayRecords,
+                'status_code' => $clockAction['status_code'] ?? null,
             ];
             
             Log::debug('[MobileClockController][status] Resource data:', [
