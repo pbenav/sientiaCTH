@@ -36,6 +36,7 @@ class AddEvent extends Component
     public string $start_date;
     public string $end_date;
     public string $start_time;
+    public string $end_time;
     public ?int $user_id = null;
     public string $description = '';
     public ?int $event_type_id = null;
@@ -103,6 +104,7 @@ class AddEvent extends Component
         $this->start_date = date('Y-m-d');
         $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
+        $this->end_time = date('H:i:s');
         $this->description = __('Workday');
         $this->observations = '';
         $this->eventTypes = collect();
@@ -128,10 +130,12 @@ class AddEvent extends Component
             $this->start_date = $date->format('Y-m-d');
             $this->end_date = $date->format('Y-m-d');
             $this->start_time = $date->format('H:i:s');
+            $this->end_time = $date->format('H:i:s');
         } else {
             $this->start_date = date('Y-m-d');
             $this->end_date = date('Y-m-d');
             $this->start_time = date('H:i:s');
+            $this->end_time = date('H:i:s');
         }
         $this->description = __('Workday');
 

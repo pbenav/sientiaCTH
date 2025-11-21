@@ -80,7 +80,7 @@
                     <x-jet-input-error for='event_type_id' class="mt-1" />
                 </div>
 
-                @if($isAllDay)
+                @if($selectedEventType && $selectedEventType->is_all_day)
                     <!-- All-day event: Date Range -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
