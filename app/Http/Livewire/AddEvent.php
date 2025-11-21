@@ -279,6 +279,16 @@ class AddEvent extends Component
     }
 
     /**
+     * Get whether the selected event type is all-day.
+     *
+     * @return bool
+     */
+    public function getIsAllDayProperty(): bool
+    {
+        return $this->selectedEventType && $this->selectedEventType->is_all_day;
+    }
+
+    /**
      * Render the component.
      *
      * @return \Illuminate\View\View
