@@ -140,10 +140,11 @@
             </div>
         </div>
 
-        <!-- Events Table -->
+        <!-- Events Table/Cards -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             @if (count($events))
-                <div class="overflow-x-auto">
+                <!-- Desktop Table View (hidden on mobile) -->
+                <div class="hidden md:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -286,6 +287,101 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card View (visible only on mobile) -->
+                <div class="md:hidden divide-y divide-gray-200">
+                    @foreach ($events as $ev)
+                        @php
+                            $eventColor = $this->getEventColor($ev);
+                            $isDark = $this->isDark($eventColor);
+                        @endphp
+                        <div class="p-4 hover:bg-gray-50">
+                            <!-- Header with ID and Actions -->
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm cursor-pointer" 
+                                      style="background-color: {{ $eventColor }}; color: {{ $isDark ? 'white' : 'black' }}"
+                                      wire:click="showEventModal({{ $ev->id }})">
+                                    #{{ $ev->id }}
+                                </span>
+                                
+                                @if (!$isInspector || $isTeamAdmin)
+                                    <div class="flex space-x-1">
+                                        <button class="p-2 rounded {{ $ev->is_open ? 'text-blue-600 hover:bg-blue-50' : 'text-gray-400' }}"
+                                                wire:click="edit({{ $ev }})"
+                                                @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        </button>
+                                        <button class="p-2 rounded {{ $ev->is_open ? 'text-green-600 hover:bg-green-50' : 'text-gray-400' }}"
+                                                wire:click="alertConfirm({{ $ev }})"
+                                                @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        </button>
+                                        <button class="p-2 rounded {{ $ev->is_open ? 'text-red-600 hover:bg-red-50' : 'text-gray-400' }}"
+                                                wire:click="alertDelete({{ $ev }})"
+                                                @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Event Details -->
+                            <div class="space-y-2 text-sm">
+                                @if ($isTeamAdmin || $isInspector)
+                                    <div class="flex items-center text-gray-700">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        <span class="font-medium">{{ $ev->user->name }} {{ $ev->user->family_name1 }}</span>
+                                    </div>
+                                @endif
+
+                                <div class="flex items-center">
+                                    <span class="inline-block w-3 h-3 rounded-full mr-2" style="background-color: {{ $eventColor }}"></span>
+                                    <span class="text-gray-900">
+                                        @if ($ev->eventType)
+                                            {{ $ev->eventType->name }}
+                                            @if($ev->is_exceptional)
+                                                <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
+                                            @endif
+                                        @else
+                                            {{ __($ev->description) }}
+                                            @if($ev->is_exceptional)
+                                                <span class="text-xs text-red-600 ml-1">({{ __('Exceptional') }})</span>
+                                            @endif
+                                        @endif
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                    <div>
+                                        <span class="font-semibold">{{ __('Start') }}:</span>
+                                        {{ Carbon\Carbon::parse($ev->start, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i') }}
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">{{ __('End') }}:</span>
+                                        {{ $ev->end ? Carbon\Carbon::parse($ev->end, 'UTC')->setTimezone(config('app.timezone'))->format('d/m/y H:i') : '-' }}
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between text-xs">
+                                    <div>
+                                        <span class="font-semibold text-gray-600">{{ __('Duration') }}:</span>
+                                        <span class="text-gray-900 font-medium">{{ $ev->getPeriod() }}</span>
+                                    </div>
+                                    @if ($ev->eventType && $ev->eventType->is_authorizable)
+                                        <div class="flex items-center">
+                                            <span class="font-semibold text-gray-600 mr-2">{{ __('Authorized') }}:</span>
+                                            <input type="checkbox" 
+                                                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                                   wire:click="toggleAuthorization({{ $ev->id }})"
+                                                   @checked($ev->is_authorized) 
+                                                   @disabled(!$isTeamAdmin) />
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
                 @if ($events->hasPages())
