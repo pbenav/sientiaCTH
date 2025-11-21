@@ -143,8 +143,8 @@
         <!-- Events Table/Cards -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             @if (count($events))
-                <!-- Desktop Table View (hidden on mobile) -->
-                <div class="hidden md:block overflow-x-auto">
+                <!-- Desktop/Tablet Table View (hidden only on very small mobile) -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -289,8 +289,8 @@
                     </table>
                 </div>
 
-                <!-- Mobile Card View (visible only on mobile) -->
-                <div class="md:hidden divide-y divide-gray-200">
+                <!-- Mobile Card View (visible only on very small screens < 640px) -->
+                <div class="sm:hidden divide-y divide-gray-200">
                     @foreach ($events as $ev)
                         @php
                             $eventColor = $this->getEventColor($ev);
