@@ -82,26 +82,6 @@ class AddEvent extends Component
     /**
      * Handle the update of the event_type_id property.
      *
-     * @param int $value
-     * @return void
-     */
-    public function updatedEventTypeId(int $value): void
-    {
-        $this->selectedEventType = EventType::find($value);
-        // Update description with event type name if it's currently the default or empty
-        if (empty($this->description) || $this->description === __('Workday')) {
-            $this->description = $this->selectedEventType ? $this->selectedEventType->name : '';
-        }
-    }
-
-    /**
-     * Initialize the component.
-     *
-     * @return void
-     */
-    /**
-     * Update the selected event type when the event_type_id changes.
-     *
      * @param mixed $value
      * @return void
      */
@@ -113,6 +93,11 @@ class AddEvent extends Component
         } else {
             $this->event_type_id = (int) $value;
             $this->selectedEventType = $this->eventTypes->firstWhere('id', $this->event_type_id);
+        }
+
+        // Update description with event type name if it's currently the default or empty
+        if (empty($this->description) || $this->description === __('Workday')) {
+            $this->description = $this->selectedEventType ? $this->selectedEventType->name : '';
         }
     }
 
