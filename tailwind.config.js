@@ -19,7 +19,7 @@ module.exports = {
             base: ['16px', '24px'],
             lg: ['20px', '28px'],
             xl: ['24px', '32px'],
-        },                
+        },
         fontSize: {
             'xs': '.75rem',
             'sm': '.875rem',
@@ -35,6 +35,9 @@ module.exports = {
             '7xl': '5rem',
         },
         extend: {
+            screens: {
+                'xs': '480px',
+            },
             fontFamily: {
                 sans: ['Nunito', ...defaultTheme.fontFamily.sans],
             },
