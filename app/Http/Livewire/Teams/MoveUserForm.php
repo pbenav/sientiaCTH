@@ -15,51 +15,68 @@ class MoveUserForm extends Component
     public $showModal = false;
     public $destinationTeamId;
     public $eligibleTeams;
+    public $transferEvents = false;
 
     public function mount(Team $team, User $user)
     {
         $this->team = $team;
         $this->user = $user;
-        $this->eligibleTeams = Auth::user()->ownedTeams->where('id', '!=', $this->team->id);
+        
+        // Get teams where the authenticated user is owner or admin
+        $this->eligibleTeams = Auth::user()->allTeams()->filter(function ($t) {
+            return Auth::user()->ownsTeam($t) || Auth::user()->hasTeamRole($t, 'admin');
+        })->where('id', '!=', $this->team->id);
     }
 
     public function moveUser()
     {
         $destinationTeam = Team::find($this->destinationTeamId);
 
-        // Get all unique event types for the user in the source team
-        $eventTypes = $this->user->events()
-            ->where('team_id', $this->team->id)
-            ->with('eventType')
-            ->get()
-            ->pluck('eventType')
-            ->unique();
+        if ($this->transferEvents) {
+            // Get all unique event types for the user across ALL teams (not just current one)
+            // as requested: "sean del equipo anterior que sean"
+            $userEvents = $this->user->events()->with('eventType')->get();
+            
+            // Group events by event type to handle mapping efficiently
+            $eventsByType = $userEvents->groupBy('event_type_id');
 
-        foreach ($eventTypes as $eventType) {
-            if (!$eventType) continue;
+            foreach ($eventsByType as $typeId => $events) {
+                $sourceEventType = $events->first()->eventType;
+                
+                if (!$sourceEventType) continue;
 
-            // Check if an event type with the same name already exists in the destination team
-            $newEventType = $destinationTeam->eventTypes()->firstOrCreate(
-                ['name' => $eventType->name],
-                $eventType->toArray()
-            );
+                // Check if an event type with the same name exists in the destination team
+                // or create it
+                $newEventType = $destinationTeam->eventTypes()->firstOrCreate(
+                    ['name' => $sourceEventType->name],
+                    [
+                        'color' => $sourceEventType->color,
+                        'icon' => $sourceEventType->icon,
+                        'is_vacation' => $sourceEventType->is_vacation,
+                        // Copy other relevant fields from source event type if needed
+                    ]
+                );
 
-            // Update the user's events with the new team_id and event_type_id
-            $this->user->events()
-                ->where('team_id', $this->team->id)
-                ->where('event_type_id', $eventType->id)
-                ->update([
-                    'team_id' => $destinationTeam->id,
-                    'event_type_id' => $newEventType->id,
-                ]);
+                // Update all these events to the new team and new event type
+                foreach ($events as $event) {
+                    $event->update([
+                        'team_id' => $destinationTeam->id,
+                        'event_type_id' => $newEventType->id,
+                    ]);
+                }
+            }
         }
 
         // Get the user's role in the source team, or default to 'editor'
         $role = optional($this->user->teamRole($this->team))->key ?? 'editor';
 
-        // Detach from the source team and attach to the destination team with the same role
+        // Detach from the source team
         $this->user->teams()->detach($this->team->id);
-        $this->user->teams()->attach($this->destinationTeamId, ['role' => $role]);
+        
+        // Check if user is already in destination team to avoid duplicates
+        if (!$this->user->belongsToTeam($destinationTeam)) {
+            $this->user->teams()->attach($this->destinationTeamId, ['role' => $role]);
+        }
 
         $this->emit('userMoved');
         $this->showModal = false;

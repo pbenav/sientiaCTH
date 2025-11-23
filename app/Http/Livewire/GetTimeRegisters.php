@@ -44,7 +44,6 @@ class GetTimeRegisters extends Component
     public bool $showOnlyMine = false;
     public bool $showEventModal = false;
     public ?Event $selectedEvent;
-    public $announcements;
     
     // Propiedades individuales para el filtro (para queryString)
     public string $filterStart = '';
@@ -125,16 +124,6 @@ class GetTimeRegisters extends Component
             $this->showOnlyMine = $this->isTeamAdmin;
         }
         
-        // Cargar anuncios activos del equipo
-        if ($this->team) {
-            $this->announcements = $this->team->announcements()
-                ->active()
-                ->with('creator')
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } else {
-            $this->announcements = collect();
-        }
 
         if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
             $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();

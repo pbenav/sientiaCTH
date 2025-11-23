@@ -25,7 +25,7 @@
             @if ($isTeamAdmin or $isInspector)
                 <div>
                     <x-jet-label value="{{ __('Worker') }}" />
-                    <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model.lazy='worker'>
+                    <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='worker'>
                         <option value="%">{{ __('All') }}</option>
                         @foreach ($workers as $w)
                             <option value="{{ $w->id }}" {{ $w->id == $worker ? 'selected' : '' }}>
@@ -74,10 +74,26 @@
                 <x-jet-input-error for='rtype' />
             </div>
 
-            <div class="h-8 pt-1">
+            <div class="h-8 pt-1 flex gap-2">
+                <x-jet-button class="h-8 mt-4 bg-indigo-500 hover:bg-indigo-600 justify-center"
+                    wire:click='generatePreview' wire:loading.attr="disabled">
+                    {{ __('Generate Report') }}
+                </x-jet-button>
+
                 <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
                     wire:click='export'>{{ __('Download') }}</x-jet-button>
             </div>
         </div>
     </div>
+
+    {{-- PDF Preview --}}
+    @if($pdfUrl)
+        <div class="w-full min-h-screen mt-6 bg-gray-100 rounded-lg shadow-lg overflow-hidden">
+            <iframe 
+                src="{{ $pdfUrl }}" 
+                class="w-full min-h-screen"
+                frameborder="0"
+            ></iframe>
+        </div>
+    @endif
 </div>

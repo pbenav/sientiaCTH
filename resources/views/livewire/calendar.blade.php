@@ -3,8 +3,8 @@
     @livewire('edit-event')
     @livewire('event-info-modal')
     
-    <div id='calendar-container' wire:ignore style="height: calc(100vh - 180px); min-height: 800px;">
-        <div id='calendar' style="height: 100%;"></div>
+    <div id='calendar-container' wire:ignore style="min-height: 800px;">
+        <div id='calendar' style="height: 800px;"></div>
     </div>
 
     @push('scripts')
@@ -153,12 +153,11 @@
                 style.textContent = `
                     /* Altura del contenedor */
                     #calendar-container {
-                        height: calc(100vh - 120px);
-                        overflow: auto;
+                        min-height: 800px;
                     }
                     
                     #calendar {
-                        height: 100%;
+                        height: 800px;
                         min-height: 600px;
                     }
                     
@@ -174,12 +173,12 @@
                     /* Responsive adjustments for mobile */
                     @media (max-width: 768px) {
                         #calendar-container {
-                            height: calc(100vh - 80px);
-                            overflow: auto;
+                            min-height: 600px;
                         }
                         
                         #calendar {
-                            min-height: 800px;
+                            height: 600px;
+                            min-height: 500px;
                         }
                         
                         .fc .fc-toolbar-title {

@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Event;
 use Livewire\Component;
 use App\Exports\EventsExport;
 use Illuminate\Support\Facades\Auth;
@@ -22,13 +23,20 @@ class ReportsComponent extends Component
     public bool $isTeamAdmin;
     public bool $isInspector;
     public $workers;
-    public int $worker;
+    public $worker;
     public string $fromdate;
     public string $todate;
     public $event_type_id;
     public string $rtype;
-    public array $rtypes = ["PDF" => "Dompdf", "XLS" => "Xls", "CSV" => "Csv", "ODS" => "Ods", "HTML" => "Html"];
+    public array $rtypes = [
+        "PDF" => \Maatwebsite\Excel\Excel::DOMPDF,
+        "XLS" => \Maatwebsite\Excel\Excel::XLSX,
+        "CSV" => \Maatwebsite\Excel\Excel::CSV,
+        "ODS" => \Maatwebsite\Excel\Excel::ODS,
+        "HTML" => \Maatwebsite\Excel\Excel::HTML,
+    ];
     public $eventTypes;
+    public $pdfUrl = null;
 
     /**
      * The validation rules for the component.
@@ -86,19 +94,58 @@ class ReportsComponent extends Component
      */
     public function export()
     {
-        $params = [
-            "worker" => $this->worker,
-            "fromdate" => $this->fromdate,
-            "todate" => $this->todate,
-            "event_type_id" => $this->event_type_id,
-        ];
-
         $this->validate();
 
-        $ext = strtoLower($this->rtype);
-        $fn = 'events_' . date('ymdhms'). '.' . $ext;
+        $start = \Carbon\Carbon::parse($this->fromdate);
+        $end = \Carbon\Carbon::parse($this->todate);
 
-        return Excel::download(new EventsExport($params), $fn, $this->rtypes[$this->rtype]);
+        if ($start->diffInDays($end) > 92) { // Approx 3 months
+             $this->addError('todate', __('The date range cannot exceed 3 months.'));
+             return;
+        }
+
+        $query = Event::query()
+            ->with(['user', 'eventType'])
+            ->whereDate('start', '>=', $this->fromdate)
+            ->whereDate('end', '<=', $this->todate);
+
+        if ($this->worker && $this->worker !== '%') {
+            $query->where('user_id', $this->worker);
+        } else {
+             $teamUserIds = $this->team->allUsers()->pluck('id');
+             $query->whereIn('user_id', $teamUserIds);
+        }
+
+        if ($this->event_type_id && $this->event_type_id !== 'All') {
+            $query->where('event_type_id', $this->event_type_id);
+        }
+
+        $events = $query->orderBy('start')->get();
+
+        $ext = strtoLower($this->rtype);
+        $fn = 'cth_informe_' . date('YmdHis'). '.' . $ext;
+
+        return Excel::download(new EventsExport($events), $fn, $this->rtypes[$this->rtype]);
+    }
+
+    public function generatePreview()
+    {
+        $this->validate();
+
+        $start = \Carbon\Carbon::parse($this->fromdate);
+        $end = \Carbon\Carbon::parse($this->todate);
+
+        if ($start->diffInDays($end) > 92) {
+             $this->addError('todate', __('The date range cannot exceed 3 months.'));
+             return;
+        }
+        
+        $this->pdfUrl = route('reports.preview', [
+            'worker' => $this->worker, 
+            'fromdate' => $this->fromdate, 
+            'todate' => $this->todate, 
+            'event_type_id' => $this->event_type_id
+        ]);
     }
 
     /**

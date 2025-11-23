@@ -42,7 +42,7 @@
                                                 @if (auth()->user()->ownsTeam($team) || auth()->user()->hasTeamRole($team, 'admin'))
                                                     <button 
                                                         wire:click="regenerateNFCTag({{ $workCenter->id }})"
-                                                        class="px-2 py-1 text-xs text-amber-600 bg-amber-50 hover:bg-amber-100 rounded border border-amber-200 focus:outline-none"
+                                                        class="px-2 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-300 focus:outline-none"
                                                         title="{{ __('Regenerate NFC') }}">
                                                         {{ __('Regenerate') }}
                                                     </button>
@@ -70,7 +70,7 @@
                                                         <span class="text-xs font-medium text-blue-800">{{ __('Complete NFC Payload (for programming tag):') }}</span>
                                                         <button 
                                                             onclick="copyToClipboard('{{ $workCenter->nfc_payload }}')"
-                                                            class="px-2 py-1 text-xs text-blue-600 bg-blue-100 hover:bg-blue-200 rounded border border-blue-300 focus:outline-none"
+                                                            class="px-2 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-300 focus:outline-none"
                                                             title="{{ __('Copy Full Payload') }}">
                                                             {{ __('Copy') }}
                                                         </button>
@@ -200,7 +200,7 @@
                         <button 
                             type="button"
                             wire:click="generateNFCContentForNew"
-                            class="px-2 py-1 text-xs text-green-600 bg-green-100 hover:bg-green-200 rounded border border-green-300 focus:outline-none">
+                            class="px-2 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-300 focus:outline-none">
                             {{ __('Preview NFC Tag') }}
                         </button>
                     </div>
@@ -232,7 +232,7 @@
                                     <button 
                                         type="button"
                                         onclick="copyToClipboard('{{ $currentNFCContent['payload'] ?? '' }}')"
-                                        class="px-2 py-1 text-xs text-green-600 bg-white hover:bg-green-50 rounded border border-green-300 focus:outline-none">
+                                        class="px-2 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-300 focus:outline-none">
                                         {{ __('Copy Payload') }}
                                     </button>
                                 </div>
@@ -348,7 +348,7 @@
                         <button 
                             type="button"
                             wire:click="regenerateNFCContentInModal"
-                            class="px-2 py-1 text-xs text-green-600 bg-green-100 hover:bg-green-200 rounded border border-green-300 focus:outline-none">
+                            class="px-2 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-300 focus:outline-none">
                             {{ __('Regenerate') }}
                         </button>
                     </div>
@@ -379,7 +379,7 @@
                                     <button 
                                         type="button"
                                         onclick="copyToClipboard('{{ $currentNFCContent['payload'] ?? '' }}')"
-                                        class="px-2 py-1 text-xs text-green-600 bg-white hover:bg-green-50 rounded border border-green-300 focus:outline-none">
+                                        class="px-2 py-1 text-xs text-gray-700 bg-white hover:bg-gray-50 rounded border border-gray-300 focus:outline-none">
                                         {{ __('Copy Payload') }}
                                     </button>
                                 </div>

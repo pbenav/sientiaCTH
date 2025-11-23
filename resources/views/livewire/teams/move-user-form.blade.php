@@ -20,6 +20,16 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="mt-4">
+                <label for="transfer_events" class="flex items-center">
+                    <x-jet-checkbox id="transfer_events" wire:model="transferEvents" />
+                    <span class="ml-2 text-sm text-gray-600">{{ __('Transfer all user event records to the new team') }}</span>
+                </label>
+                <p class="mt-1 text-xs text-gray-500 ml-6">
+                    {{ __('If checked, all historical records from any previous team will be moved to the destination team.') }}
+                </p>
+            </div>
         </x-slot>
 
         <x-slot name="footer">

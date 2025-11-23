@@ -6,80 +6,74 @@
     </x-slot>
 
     <div>
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            <div x-data="{ tab: new URLSearchParams(window.location.search).get('tab') || 'settings' }" class="w-full">
-                <div class="flex border-b border-gray-200">
-                    <button @click="tab = 'settings'" :class="{ 'border-b-2 border-indigo-500': tab === 'settings' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                        {{ __('Team Preferences') }}
-                    </button>
-                    <button @click="tab = 'event_management'" :class="{ 'border-b-2 border-indigo-500': tab === 'event_management' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                        {{ __('Event Management') }}
-                    </button>
-                    <button @click="tab = 'work_centers'" :class="{ 'border-b-2 border-indigo-500': tab === 'work_centers' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                        {{ __('Work Centers') }}
-                    </button>
-                    <button @click="tab = 'user_management'" :class="{ 'border-b-2 border-indigo-500': tab === 'user_management' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                        {{ __('User Management') }}
-                    </button>
-                    <button @click="tab = 'announcements'" :class="{ 'border-b-2 border-indigo-500': tab === 'announcements' }" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
-                        {{ __('Announcements') }}
-                    </button>
-                </div>
+        <div class="max-w-[90rem] mx-auto py-10 sm:px-6 lg:px-8">
+            {{-- Tabs Navigation --}}
+            <div class="mb-4 border-b border-gray-200">
+                <ul class="flex flex-wrap -mb-px" role="tablist">
+                    <li class="mr-2" role="presentation">
+                        <a href="?tab=settings" 
+                           class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab', 'settings') === 'settings' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                           role="tab">
+                            {{ __('Team Preferences') }}
+                        </a>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <a href="?tab=event_management" 
+                           class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'event_management' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                           role="tab">
+                            {{ __('Event Management') }}
+                        </a>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <a href="?tab=work_centers" 
+                           class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'work_centers' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                           role="tab">
+                            {{ __('Work Centers') }}
+                        </a>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <a href="?tab=user_management" 
+                           class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'user_management' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                           role="tab">
+                            {{ __('User Management') }}
+                        </a>
+                    </li>
+                    <li class="mr-2" role="presentation">
+                        <a href="?tab=announcements" 
+                           class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'announcements' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                           role="tab">
+                            {{ __('Announcements') }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-                {{-- Team Preferences Tab --}}
-                <div x-show="tab === 'settings'" class="py-6">
-                    @livewire('teams.update-team-name-form', ['team' => $team])
+            {{-- Tab Content --}}
+            <div class="py-6">
+                @switch(request('tab', 'settings'))
+                    @case('settings')
+                        @include('teams.tabs.settings', ['team' => $team])
+                        @break
 
-                    <x-jet-section-border />
+                    @case('event_management')
+                        @include('teams.tabs.event-management', ['team' => $team])
+                        @break
 
-                    <div class="mt-10 sm:mt-0">
-                        @include('teams.team-information', ['team' => $team])
-                    </div>
+                    @case('work_centers')
+                        @include('teams.tabs.work-centers', ['team' => $team])
+                        @break
 
-                    @if (Gate::check('delete', $team) && ! $team->personal_team)
-                        <x-jet-section-border />
+                    @case('user_management')
+                        @include('teams.tabs.user-management', ['team' => $team])
+                        @break
 
-                        <div class="mt-10 sm:mt-0">
-                            @livewire('teams.delete-team-form', ['team' => $team])
-                        </div>
-                    @endif
-                </div>
+                    @case('announcements')
+                        @include('teams.tabs.announcements', ['team' => $team])
+                        @break
 
-                {{-- Event Management Tab --}}
-                <div x-show="tab === 'event_management'" class="py-6">
-                    @livewire('teams.event-type-manager', ['team' => $team])
-                    <x-jet-section-border />
-                    <div class="mt-10 sm:mt-0">
-                        @livewire('teams.clock-in-delay-manager', ['team' => $team])
-                    </div>
-                    <x-jet-section-border />
-                    <div class="mt-10 sm:mt-0">
-                        @livewire('teams.holiday-manager', ['team' => $team])
-                    </div>
-                    <x-jet-section-border />
-                    <div class="mt-10 sm:mt-0">
-                        @livewire('teams.update-special-event-color-form', ['team' => $team])
-                    </div>
-                </div>
-
-                {{-- Work Centers Tab --}}
-                <div x-show="tab === 'work_centers'" class="py-6">
-                    @livewire('teams.work-center-manager', ['teamId' => $team->id])
-                    <x-jet-section-border />
-                    <div class="mt-10 sm:mt-0">
-                        @livewire('teams.timezone-manager', ['team' => $team])
-                    </div>
-                </div>
-
-                {{-- User Management Tab --}}
-                <div x-show="tab === 'user_management'" class="py-6" style="display: none;">
-                    @livewire('teams.team-member-manager', ['team' => $team])
-                </div>
-
-                {{-- Announcements Tab --}}
-                <div x-show="tab === 'announcements'" class="py-6" style="display: none;">
-                    @livewire('teams.announcement-manager', ['team' => $team])
-                </div>
+                    @default
+                        @include('teams.tabs.settings', ['team' => $team])
+                @endswitch
             </div>
         </div>
     </div>

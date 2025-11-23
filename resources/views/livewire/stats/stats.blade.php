@@ -17,7 +17,7 @@
     @endif
 
     {{-- Stats main div --}}
-    <div class="mx-auto w-full max-w-7xl">
+    <div class="mx-auto w-full max-w-[90rem]">
         <div class="flex flex-row flex-wrap gap-2 mb-4 w-auto">
 
             @if ($isTeamAdmin or $isInspector)

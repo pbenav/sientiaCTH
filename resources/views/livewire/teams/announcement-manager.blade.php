@@ -78,7 +78,7 @@
                                                 <i class="fas fa-power-off"></i>
                                             </button>
                                             <button wire:click="edit({{ $announcement->id }})" 
-                                                    class="text-blue-400 hover:text-blue-600"
+                                                    class="text-gray-600 hover:text-gray-800"
                                                     title="{{ __('Edit') }}">
                                                 <i class="fas fa-edit"></i>
                                             </button>

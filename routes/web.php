@@ -47,13 +47,16 @@ Route::middleware([
     Route::get('/events', GetTimeRegisters::class)->name('events');
     
     // Calendar - Calendar view
-    Route::get('/calendario', \App\Http\Livewire\Calendar::class)->name('calendar');
+    Route::get('/calendario', function () {
+        return view('calendar');
+    })->name('calendar');
     
     // Statistics - User stats dashboard
     Route::get('/estadisticas', StatsComponent::class)->name('stats');
     
     // Reports - Reporting functionality
     Route::get('/informes', ReportsComponent::class)->name('reports');
+    Route::get('/informes/preview', [App\Http\Controllers\ReportsController::class, 'preview'])->name('reports.preview');
     
     // Messages - Team messages
     Route::get('/mensajes', \App\Http\Livewire\MessagesComponent::class)->name('messages');
