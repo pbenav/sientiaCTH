@@ -27,9 +27,14 @@ class MessagesComponent extends Component
     public string $bulkAlertAction = '';
     public bool $selectAll = false;
 
+    protected $queryString = ['view', 'message'];
+
     public function mount()
     {
-        $this->showInbox();
+        // Set view based on query parameter or default to inbox
+        if (!in_array($this->view, ['inbox', 'sent', 'trash', 'alerts'])) {
+            $this->view = 'inbox';
+        }
 
         $team = Auth::user()->currentTeam;
         if ($team) {
@@ -90,6 +95,17 @@ class MessagesComponent extends Component
         if ($this->users) {
             $this->recipients = $this->users->pluck('id')->toArray();
         }
+    }
+
+    /**
+     * Compose a message to all team members.
+     *
+     * @return void
+     */
+    public function composeToAll(): void
+    {
+        $this->showComposeForm = true;
+        $this->selectAllTeam();
     }
 
     /**

@@ -1,4 +1,4 @@
-<div class="p-6 mx-auto w-full max-w-6xl">
+<div class="p-6 mx-auto w-full max-w-[90rem]">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-2xl font-semibold text-gray-700">Mensajes</h1>
         <button wire:click="toggleComposeForm" class="mt-2 sm:mt-0 px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
@@ -137,67 +137,67 @@
                 </div>
             @else
                 @foreach ($messageList as $message)
-    <a href="{{ route('messages.show', $message->id) }}" class="block">
-        <div class="p-4 bg-white rounded-lg shadow-md" wire:key="{{ 'message-' . $view . '-' . $message->id }}">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-center">
-                    @if ($message->sender_id === Auth::id())
-                        {{-- Sent Message --}}
-                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
-                        <div class="ml-4">
-                            <p class="font-semibold text-gray-700">
-                                Para:
-                                @foreach ($message->recipients as $recipient)
-                                    {{ $recipient->name }} {{ $recipient->family_name1 }}@if (!$loop->last), @endif
-                                @endforeach
-                            </p>
-                            <p class="text-sm text-gray-500">{{ $message->subject }}</p>
-                        </div>
-                    @else
-                        {{-- Received Message --}}
-                        @if ($view === 'inbox' && isset($message->pivot) && $message->pivot->read_at === null)
-                            <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4">
-                        @endif
-                        <img class="w-10 h-10 rounded-full object-cover" src="{{ $message->sender->profile_photo_url }}" alt="{{ $message->sender->name }}">
-                        <div class="ml-4">
-                            <p class="font-semibold text-gray-700">{{ $message->sender->name }} {{ $message->sender->family_name1 }}</p>
-                            <p class="text-sm text-gray-500">{{ $message->subject }}</p>
-                        </div>
-                    @endif
-                </div>
-                <div class="flex items-center text-sm text-gray-500">
-                    {{ $message->created_at->format('d/m/Y H:i') }}
-                </div>
-            </div>
-            <div class="mt-4 text-gray-600">
-                {!! nl2br($message->body) !!}
-            </div>
-            <div class="mt-4 flex flex-wrap items-center justify-end space-x-4">
-                @if ($view !== 'trash')
-                    @if ($message->sender_id !== Auth::id())
-                        @if (isset($message->pivot) && $message->pivot->read_at === null)
-                            <button wire:click="markAsRead({{ $message->id }})" class="text-sm text-green-600 hover:text-green-800">
-                                Marcar como leído
-                            </button>
-                        @endif
-                        <button wire:click="replyTo({{ $message->id }})" class="text-sm text-blue-600 hover:text-blue-800">
-                            Responder
-                        </button>
-                    @endif
-                    <button wire:click="deleteMessage({{ $message->id }})" class="text-sm text-red-600 hover:text-red-800">
-                        Eliminar
-                    </button>
+    <div class="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
+         wire:key="{{ 'message-' . $view . '-' . $message->id }}"
+         onclick="window.location.href='{{ route('messages') }}?view={{ $view }}&message={{ $message->id }}'">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center">
+                @if ($message->sender_id === Auth::id())
+                    {{-- Sent Message --}}
+                    <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4" onclick="event.stopPropagation()">
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-700">
+                            Para:
+                            @foreach ($message->recipients as $recipient)
+                                {{ $recipient->name }} {{ $recipient->family_name1 }}@if (!$loop->last), @endif
+                            @endforeach
+                        </p>
+                        <p class="text-sm text-gray-500">{{ $message->subject }}</p>
+                    </div>
                 @else
-                    <button wire:click="restoreMessage({{ $message->id }})" class="text-sm text-blue-600 hover:text-blue-800">
-                        Restaurar
-                    </button>
-                    <button wire:click="forceDeleteMessage({{ $message->id }})" class="text-sm text-red-600 hover:text-red-800">
-                        Eliminar permanentemente
-                    </button>
+                    {{-- Received Message --}}
+                    @if ($view === 'inbox' && isset($message->pivot) && $message->pivot->read_at === null)
+                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4" onclick="event.stopPropagation()">
+                    @endif
+                    <img class="w-10 h-10 rounded-full object-cover" src="{{ $message->sender->profile_photo_url }}" alt="{{ $message->sender->name }}">
+                    <div class="ml-4">
+                        <p class="font-semibold text-gray-700">{{ $message->sender->name }} {{ $message->sender->family_name1 }}</p>
+                        <p class="text-sm text-gray-500">{{ $message->subject }}</p>
+                    </div>
                 @endif
             </div>
+            <div class="flex items-center text-sm text-gray-500">
+                {{ $message->created_at->format('d/m/Y H:i') }}
+            </div>
         </div>
-    </a>
+        <div class="mt-4 text-gray-600">
+            {!! nl2br($message->body) !!}
+        </div>
+        <div class="mt-4 flex flex-wrap items-center justify-end space-x-4">
+            @if ($view !== 'trash')
+                @if ($message->sender_id !== Auth::id())
+                    @if (isset($message->pivot) && $message->pivot->read_at === null)
+                        <button wire:click="markAsRead({{ $message->id }})" class="text-sm text-green-600 hover:text-green-800" onclick="event.stopPropagation()">
+                            Marcar como leído
+                        </button>
+                    @endif
+                    <button wire:click="replyTo({{ $message->id }})" class="text-sm text-blue-600 hover:text-blue-800" onclick="event.stopPropagation()">
+                        Responder
+                    </button>
+                @endif
+                <button wire:click="deleteMessage({{ $message->id }})" class="text-sm text-red-600 hover:text-red-800" onclick="event.stopPropagation()">
+                    Eliminar
+                </button>
+            @else
+                <button wire:click="restoreMessage({{ $message->id }})" class="text-sm text-blue-600 hover:text-blue-800" onclick="event.stopPropagation()">
+                    Restaurar
+                </button>
+                <button wire:click="forceDeleteMessage({{ $message->id }})" class="text-sm text-red-600 hover:text-red-800" onclick="event.stopPropagation()">
+                    Eliminar permanentemente
+                </button>
+            @endif
+        </div>
+    </div>
 @endforeach
                 </div>
             @endif
