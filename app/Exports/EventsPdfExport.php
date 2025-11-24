@@ -45,7 +45,9 @@ class EventsPdfExport
         }
 
         if (!$chromePath) {
-            throw new \Exception('No se encontró un ejecutable de Chromium válido.');
+            // Registrar las rutas verificadas para depuración
+            $checkedPaths = implode("\n", $defaultPaths);
+            throw new \Exception("No se encontró un ejecutable de Chromium válido. Rutas verificadas:\n" . $checkedPaths);
         }
 
         return Browsershot::html($html)
