@@ -34,11 +34,14 @@ class HtmlSanitizerService
             $config->set('CSS.AllowTricky', true);
             
             // Definir las propiedades CSS personalizadas para position y otras que HTMLPurifier no soporta por defecto
+            // Usar un cache buster único
             $config->set('CSS.DefinitionRev', 1);
             
-            // Get the CSS definition
-            if ($def = $config->maybeGetRawCSSDefinition()) {
-                // Add custom position property
+            // Get the CSS definition (finalize it)
+            $def = $config->getCSSDefinition(true);
+            
+            if ($def) {
+                // Add custom properties
                 $def->info['position'] = new \HTMLPurifier_AttrDef_Enum(['static', 'relative', 'absolute', 'fixed', 'sticky']);
                 $def->info['display'] = new \HTMLPurifier_AttrDef_Enum(['none', 'inline', 'block', 'inline-block', 'flex', 'inline-flex', 'grid', 'inline-grid']);
                 $def->info['visibility'] = new \HTMLPurifier_AttrDef_Enum(['visible', 'hidden', 'collapse']);
