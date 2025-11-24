@@ -625,5 +625,6 @@
     "If checked, all historical records from any previous team will be moved to the destination team.": "Si se marca, todos los registros históricos de cualquier equipo anterior se moverán al equipo de destino.",
     "Generate Report": "Generar Informe",
     "Generating...": "Generando...",
+    "Please wait while the report is being generated...": "Por favor espera mientras se genera el informe...",
     "The date range cannot exceed 3 months.": "El rango de fechas no puede exceder los 3 meses."
 }
