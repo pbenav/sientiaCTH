@@ -24,7 +24,11 @@ class EventsPdfExport
 
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
         
+        // Configurar la ruta del ejecutable de Chromium
+        $chromePath = env('PUPPETEER_EXECUTABLE_PATH', '/usr/bin/google-chrome');
+
         return Browsershot::html($html)
+            ->setOption('executablePath', $chromePath) // Añadir la ruta del ejecutable
             ->format('A4')
             ->landscape()
             ->margins(10, 10, 20, 10) // Increased bottom margin for footer
