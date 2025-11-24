@@ -76,12 +76,12 @@
 
             <div class="h-8 pt-1 flex gap-2 ml-auto">
                 <x-jet-button class="h-8 mt-4 bg-indigo-500 hover:bg-indigo-600 justify-center"
-                    onclick="showGeneratingAlert(); @this.call('generatePreview').then(() => Swal.close())">
+                    wire:click='generatePreview'>
                     {{ __('Generate Report') }}
                 </x-jet-button>
 
                 <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
-                    onclick="showGeneratingAlert(); @this.call('export').then(() => Swal.close())">
+                    wire:click='export'>
                     {{ __('Download') }}
                 </x-jet-button>
             </div>
@@ -102,21 +102,42 @@
 
 @push('scripts')
 <script>
-    function showGeneratingAlert() {
-        Swal.fire({
-            title: '{{ __("Generating...") }}',
-            html: '{{ __("Please wait while the report is being generated...") }}',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
+    let loadingAlert = null;
+
+    // Show loading alert when Livewire starts processing
+    document.addEventListener('livewire:load', function () {
+        Livewire.hook('message.sent', (message, component) => {
+            // Check if the action is generatePreview or export
+            const payload = message.message.payload;
+            if (payload && payload.method && (payload.method === 'generatePreview' || payload.method === 'export')) {
+                loadingAlert = Swal.fire({
+                    title: '{{ __("Generating...") }}',
+                    html: '{{ __("Please wait while the report is being generated...") }}',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
             }
         });
-    }
 
-    // Listen for Livewire errors to close the loading alert
-    window.addEventListener('livewire:error', () => {
-        Swal.close();
+        Livewire.hook('message.processed', (message, component) => {
+            // Close the loading alert when processing is done
+            if (loadingAlert) {
+                Swal.close();
+                loadingAlert = null;
+            }
+        });
+
+        Livewire.hook('message.failed', (message, component) => {
+            // Close the loading alert on error
+            if (loadingAlert) {
+                Swal.close();
+                loadingAlert = null;
+            }
+        });
     });
 </script>
 @endpush
+
