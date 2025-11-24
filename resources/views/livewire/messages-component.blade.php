@@ -10,12 +10,24 @@
         <div class="mt-6 p-4 bg-white rounded-lg shadow-md">
             <form wire:submit.prevent="sendMessage">
                 <div class="mb-4">
-                    <label for="recipients" class="block text-sm font-medium text-gray-700">Destinatarios</label>
-                    <select id="recipients" wire:model="recipients" multiple class="block w-full mt-1">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="recipients" class="block text-sm font-medium text-gray-700">Destinatarios</label>
+                        <button type="button" 
+                                wire:click="selectAllTeam" 
+                                class="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition">
+                            <i class="fas fa-users mr-1"></i>
+                            Seleccionar todo el equipo
+                        </button>
+                    </div>
+                    <select id="recipients" wire:model="recipients" multiple class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" size="6">
                         @foreach ($users as $user)
                             <option value="{{ $user->id }}">{{ $user->name }} {{ $user->family_name1 }}</option>
                         @endforeach
                     </select>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        {{ count($recipients) }} {{ count($recipients) === 1 ? 'destinatario seleccionado' : 'destinatarios seleccionados' }}
+                    </p>
                 </div>
                 <div class="mb-4">
                     <label for="subject" class="block text-sm font-medium text-gray-700">Asunto</label>

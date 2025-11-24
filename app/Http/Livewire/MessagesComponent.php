@@ -81,6 +81,18 @@ class MessagesComponent extends Component
     }
 
     /**
+     * Select all team members as recipients.
+     *
+     * @return void
+     */
+    public function selectAllTeam(): void
+    {
+        if ($this->users) {
+            $this->recipients = $this->users->pluck('id')->toArray();
+        }
+    }
+
+    /**
      * Send a new message.
      *
      * @return void
