@@ -262,6 +262,22 @@ El sistema intentará usar estas rutas. Si no están definidas, buscará en ruta
 - **Causa**: Paquete no instalado.
 - **Solución**: Ejecutar `composer require spatie/browsershot`.
 
+### Configuración de Generación de PDF (mPDF)
+
+Como alternativa a Browsershot, el sistema soporta `mpdf/mpdf`, que es más fácil de configurar en entornos compartidos ya que no requiere Node.js ni Chrome.
+
+#### Instalación
+
+```bash
+composer require mpdf/mpdf
+```
+
+#### Troubleshooting Común
+
+**Error**: `Class "Mpdf\Mpdf" not found`
+- **Causa**: La librería mPDF no está instalada en el proyecto.
+- **Solución**: Ejecutar el comando de instalación `composer require mpdf/mpdf`.
+
 ---
 
 ## 🚀 Funcionalidades Principales

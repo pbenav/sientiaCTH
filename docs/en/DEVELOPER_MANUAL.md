@@ -260,7 +260,22 @@ The system will try to use these paths. If not defined, it will search in standa
 **Error**: `Class Spatie\Browsershot\Browsershot not found`
 - **Cause**: Package not installed.
 - **Solution**: Run `composer require spatie/browsershot`.
+
+### PDF Generation Configuration (mPDF)
+
+As an alternative to Browsershot, the system supports `mpdf/mpdf`, which is easier to configure in shared environments as it doesn't require Node.js or Chrome.
+
+#### Installation
+
+```bash
+composer require mpdf/mpdf
 ```
+
+#### Common Troubleshooting
+
+**Error**: `Class "Mpdf\Mpdf" not found`
+- **Cause**: The mPDF library is not installed in the project.
+- **Solution**: Run the installation command `composer require mpdf/mpdf`.
 
 ---
 
