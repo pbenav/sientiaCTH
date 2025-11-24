@@ -60,7 +60,9 @@ Route::middleware([
     Route::get('/informes/preview', [App\Http\Controllers\ReportsController::class, 'preview'])->name('reports.preview');
     
     // Messages - Team messages
-    Route::get('/mensajes', \App\Http\Livewire\MessagesComponent::class)->name('messages');
+    Route::get('/mensajes', function () {
+        return view('messages');
+    })->name('messages');
     Route::get('/mensajes/{id}', [MessageController::class, 'show'])->name('messages.show');
 
     Route::prefix('users/{user}')->group(function () {
