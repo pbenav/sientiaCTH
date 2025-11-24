@@ -28,7 +28,7 @@
                         {{ __('Reports') }}
                     </x-jet-nav-link>
                     <x-jet-nav-link href="{{ route('team.preferences') }}" :active="request()->routeIs('team.preferences')">
-                        {{ __('Team Preferences') }}
+                        {{ __('Servicio técnico') }}
                     </x-jet-nav-link>
                 </div>
             </div>
