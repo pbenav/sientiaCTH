@@ -1,6 +1,6 @@
 <div>
     @if ($announcements->count() > 0)
-        <div class="p-4 mx-auto mt-4 w-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm" x-data="{ open: false }">
+        <div class="p-4 w-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm h-full" x-data="{ open: true }">
             <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
                 <div class="flex items-center space-x-2">
                     <div class="bg-blue-500 p-2 rounded-full">
