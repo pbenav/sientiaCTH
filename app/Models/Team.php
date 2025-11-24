@@ -74,6 +74,8 @@ class Team extends JetstreamTeam
         'clock_in_delay_minutes',
         'clock_in_grace_period_minutes',
         'special_event_color',
+        'pdf_engine',
+        'chrome_path',
     ];
 
     /**

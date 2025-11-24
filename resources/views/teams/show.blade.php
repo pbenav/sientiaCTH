@@ -49,7 +49,7 @@
                         <a href="?tab=technical_service" 
                            class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'technical_service' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
                            role="tab">
-                            {{ __('Servicio técnico') }}
+                            {{ __('Report Options') }}
                         </a>
                     </li>
                 </ul>

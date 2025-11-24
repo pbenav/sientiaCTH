@@ -78,6 +78,8 @@ Route::middleware([
     // Team Preferences
     Route::get('/team/preferences', [App\Http\Controllers\TeamPreferencesController::class, 'index'])->name('team.preferences');
     Route::post('/team/preferences/install', [App\Http\Controllers\TeamPreferencesController::class, 'installDependencies'])->name('team.preferences.install');
+    Route::put('/team/preferences/pdf-engine', [App\Http\Controllers\TeamPreferencesController::class, 'updatePdfEngine'])->name('team.preferences.pdf-engine');
+    Route::post('/team/preferences/detect-chrome', [App\Http\Controllers\TeamPreferencesController::class, 'detectChrome'])->name('team.preferences.detect-chrome');
 });
 
 /*

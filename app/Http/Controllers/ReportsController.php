@@ -52,7 +52,19 @@ class ReportsController extends Controller
 
         $events = $query->orderBy('start')->get();
 
-        $exporter = new \App\Exports\EventsPdfExport($events);
+        // Determine Work Center
+        $workCenter = null;
+        if ($workerId && $workerId !== '%') {
+            $workerUser = User::find($workerId);
+            if ($workerUser) {
+                $defaultWorkCenterId = $workerUser->meta->where('meta_key', 'default_work_center_id')->first();
+                if ($defaultWorkCenterId) {
+                    $workCenter = \App\Models\WorkCenter::find($defaultWorkCenterId->meta_value);
+                }
+            }
+        }
+
+        $exporter = new \App\Exports\EventsPdfExport($events, $team, $workCenter, $fromDate, $toDate);
         $pdf = $exporter->generate();
 
         $fn = 'cth_informe_' . date('YmdHis') . '.pdf';

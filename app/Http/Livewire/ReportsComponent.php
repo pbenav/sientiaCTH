@@ -127,7 +127,25 @@ class ReportsComponent extends Component
         $fn = 'cth_informe_' . date('YmdHis'). '.' . $ext;
 
         if ($this->rtype === 'PDF') {
-            $exporter = new EventsPdfExport($events);
+            // Determine Work Center
+            $workCenter = null;
+            if ($this->worker && $this->worker !== '%') {
+                $user = User::find($this->worker);
+                if ($user) {
+                    $defaultWorkCenterId = $user->meta->where('meta_key', 'default_work_center_id')->first();
+                    if ($defaultWorkCenterId) {
+                        $workCenter = \App\Models\WorkCenter::find($defaultWorkCenterId->meta_value);
+                    }
+                }
+            }
+
+            $exporter = new EventsPdfExport(
+                $events, 
+                $this->team, 
+                $workCenter, 
+                $this->fromdate, 
+                $this->todate
+            );
             $pdf = $exporter->generate();
             
             return response()->streamDownload(function() use ($pdf) {
