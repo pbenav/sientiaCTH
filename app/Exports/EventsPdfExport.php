@@ -167,7 +167,15 @@ class EventsPdfExport
         // Log para verificar los argumentos de Puppeteer
         \Log::info('Argumentos de Puppeteer:', ['args' => $puppeteerArgs]);
 
+        // Configuración de Node.js y NPM
+        $nodePath = '/home/pablo/.nvm/versions/node/v20.19.5/bin/node';
+        $npmPath = '/home/pablo/.nvm/versions/node/v20.19.5/bin/npm';
+        $nodeBinDir = dirname($nodePath);
+
         return Browsershot::html($html)
+            ->setNodeBinary($nodePath)
+            ->setNpmBinary($npmPath)
+            ->setIncludePath('$PATH:' . $nodeBinDir) // Añadir directorio de Node al PATH
             ->setOption('executablePath', $chromePath) // Usar la ruta detectada
             ->setOption('args', $puppeteerArgs) // Añadir argumentos adicionales
             ->format('A4')
