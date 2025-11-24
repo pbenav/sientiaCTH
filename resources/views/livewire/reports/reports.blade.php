@@ -76,15 +76,20 @@
 
             <div class="h-8 pt-1 flex gap-2 ml-auto">
                 <x-jet-button class="h-8 mt-4 bg-indigo-500 hover:bg-indigo-600 justify-center"
-                    wire:click='generatePreview'>
+                    wire:click='generatePreview'
+                    wire:loading.attr="disabled">
                     {{ __('Generate Report') }}
                 </x-jet-button>
 
                 <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
-                    wire:click='export'>
+                    wire:click='export'
+                    wire:loading.attr="disabled">
                     {{ __('Download') }}
                 </x-jet-button>
             </div>
+            
+            {{-- Hidden div to detect loading state --}}
+            <div wire:loading wire:target="generatePreview,export" id="reportLoading" class="hidden"></div>
         </div>
     </div>
 
@@ -102,42 +107,42 @@
 
 @push('scripts')
 <script>
-    let loadingAlert = null;
+    document.addEventListener('DOMContentLoaded', function() {
+        const loadingDiv = document.getElementById('reportLoading');
+        let loadingAlert = null;
 
-    // Show loading alert when Livewire starts processing
-    document.addEventListener('livewire:load', function () {
-        Livewire.hook('message.sent', (message, component) => {
-            // Check if the action is generatePreview or export
-            const payload = message.message.payload;
-            if (payload && payload.method && (payload.method === 'generatePreview' || payload.method === 'export')) {
-                loadingAlert = Swal.fire({
-                    title: '{{ __("Generating...") }}',
-                    html: '{{ __("Please wait while the report is being generated...") }}',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+        if (loadingDiv) {
+            // Watch for changes in the loading div
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        const isLoading = !loadingDiv.classList.contains('hidden');
+                        
+                        if (isLoading && !loadingAlert) {
+                            // Show loading alert
+                            loadingAlert = Swal.fire({
+                                title: '{{ __("Generating...") }}',
+                                html: '{{ __("Please wait while the report is being generated...") }}',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                        } else if (!isLoading && loadingAlert) {
+                            // Close loading alert
+                            Swal.close();
+                            loadingAlert = null;
+                        }
                     }
                 });
-            }
-        });
+            });
 
-        Livewire.hook('message.processed', (message, component) => {
-            // Close the loading alert when processing is done
-            if (loadingAlert) {
-                Swal.close();
-                loadingAlert = null;
-            }
-        });
-
-        Livewire.hook('message.failed', (message, component) => {
-            // Close the loading alert on error
-            if (loadingAlert) {
-                Swal.close();
-                loadingAlert = null;
-            }
-        });
+            observer.observe(loadingDiv, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
     });
 </script>
 @endpush
-
