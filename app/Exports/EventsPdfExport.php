@@ -58,6 +58,7 @@ class EventsPdfExport
             '--disable-dev-shm-usage',
             '--disable-extensions',
             '--disable-gpu',
+            '--no-crashpad', // Deshabilitar crashpad para evitar errores
         ];
 
         return Browsershot::html($html)
