@@ -26,6 +26,7 @@ class MessagesComponent extends Component
     public array $selectedNotifications = [];
     public string $bulkAlertAction = '';
     public bool $selectAll = false;
+    public ?int $message = null;
 
     protected $queryString = ['view', 'message'];
 
