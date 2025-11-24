@@ -11,4 +11,6 @@ return [
     'Duration' => 'Duración',
     'Description' => 'Descripción',
     'Observations' => 'Observaciones',
+    'CTH - Time and Schedule Control' => 'CTH - Control de Tiempo y Horarios',
+    'of' => 'de',
 ];

@@ -22,12 +22,14 @@ class EventsPdfExport
             'events' => $this->events
         ])->render();
 
+        $footerText = __('CTH - Time and Schedule Control') . ' | ' . __('Page');
+
         return Browsershot::html($html)
             ->format('A4')
             ->landscape()
             ->margins(10, 10, 15, 10)
             ->showBackground()
-            ->footerHtml('<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF;">CTH - Control de Tiempo y Horarios | Página <span class="pageNumber"></span> de <span class="totalPages"></span></div>')
+            ->footerHtml('<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF;">' . $footerText . ' <span class="pageNumber"></span> ' . __('of') . ' <span class="totalPages"></span></div>')
             ->pdf();
     }
 }
