@@ -131,24 +131,24 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ __('Report of Events') }}</h1>
-        <p>{{ __('Generated on') }}: {{ now()->format('d/m/Y H:i') }}</p>
+        <h1>{{ trans('reports.Report of Events') }}</h1>
+        <p>{{ trans('reports.Generated on') }}: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
 
     <div class="meta-info">
-        <strong>{{ __('Total Records') }}:</strong> 
+        <strong>{{ trans('reports.Total Records') }}:</strong> 
         <span class="badge">{{ $events->count() }}</span>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th style="width: 15%;">{{ __('Name') }}</th>
-                <th class="text-center" style="width: 12%;">{{ __('Start') }}</th>
-                <th class="text-center" style="width: 12%;">{{ __('End') }}</th>
-                <th class="text-right" style="width: 14%;">{{ __('Duration') }}</th>
-                <th style="width: 18%;">{{ __('Description') }}</th>
-                <th style="width: 29%;">{{ __('Observations') }}</th>
+                <th style="width: 15%;">{{ trans('reports.Name') }}</th>
+                <th class="text-center" style="width: 12%;">{{ trans('reports.Start') }}</th>
+                <th class="text-center" style="width: 12%;">{{ trans('reports.End') }}</th>
+                <th class="text-right" style="width: 14%;">{{ trans('reports.Duration') }}</th>
+                <th style="width: 18%;">{{ trans('reports.Description') }}</th>
+                <th style="width: 29%;">{{ trans('reports.Observations') }}</th>
             </tr>
         </thead>
         <tbody>
