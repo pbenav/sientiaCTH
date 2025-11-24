@@ -2,10 +2,9 @@
 
 namespace App\Exports;
 
-use Illuminate\Contracts\View\View;
-use Maatwebsite\Excel\Concerns\FromView;
+use Spatie\Browsershot\Browsershot;
 
-class EventsPdfExport implements FromView
+class EventsPdfExport
 {
     protected $events;
 
@@ -14,10 +13,16 @@ class EventsPdfExport implements FromView
         $this->events = $events;
     }
 
-    public function view(): View
+    public function generate(): string
     {
-        return view('exports.events', [
+        $html = view('exports.events_pdf', [
             'events' => $this->events
-        ]);
+        ])->render();
+
+        return Browsershot::html($html)
+            ->format('A4')
+            ->landscape()
+            ->margins(10, 10, 10, 10)
+            ->pdf();
     }
 }

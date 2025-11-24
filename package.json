@@ -36,6 +36,7 @@
         "@fullcalendar/list": "^6.1.19",
         "@fullcalendar/timegrid": "^6.1.19",
         "flatpickr": "^4.6.13",
+        "puppeteer": "^24.31.0",
         "quill": "^2.0.3",
         "sweetalert2": "^11.23.0"
     }

@@ -127,7 +127,14 @@ class ReportsComponent extends Component
         $fn = 'cth_informe_' . date('YmdHis'). '.' . $ext;
 
         if ($this->rtype === 'PDF') {
-            return Excel::download(new EventsPdfExport($events), $fn, $this->rtypes[$this->rtype]);
+            $exporter = new EventsPdfExport($events);
+            $pdf = $exporter->generate();
+            
+            return response()->streamDownload(function() use ($pdf) {
+                echo $pdf;
+            }, $fn, [
+                'Content-Type' => 'application/pdf',
+            ]);
         }
 
         return Excel::download(new EventsExport($events), $fn, $this->rtypes[$this->rtype]);
@@ -149,7 +156,8 @@ class ReportsComponent extends Component
             'worker' => $this->worker, 
             'fromdate' => $this->fromdate, 
             'todate' => $this->todate, 
-            'event_type_id' => $this->event_type_id
+            'event_type_id' => $this->event_type_id,
+            't' => time() // Force cache busting
         ]);
     }
 

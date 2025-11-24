@@ -11,6 +11,7 @@
             font-family: 'Helvetica', 'Arial', sans-serif;
             font-size: 9pt;
             color: #1F2937; /* Gray-800 */
+            background-color: #FFFF00; /* YELLOW DEBUG */
             margin: 0;
             padding: 0;
             line-height: 1.4;
@@ -18,7 +19,7 @@
         .header {
             text-align: center;
             margin-bottom: 25px;
-            border-bottom: 2px solid #4F46E5; /* Indigo-600 */
+            border-bottom: 2px solid #FF0000; /* RED FOR DEBUG */
             padding-bottom: 15px;
         }
         .header h1 {
@@ -37,7 +38,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            /* table-layout: fixed; Removed to allow auto width */
+            table-layout: fixed;
         }
         th {
             background-color: #F3F4F6; /* Gray-100 */
@@ -106,15 +107,16 @@
         <strong>{{ __('Total Records') }}:</strong> <span class="badge">{{ $events->count() }}</span>
     </div>
 
-    <table>
+    <div style="width: 100%;">
+    <table style="width: 100%; table-layout: fixed;">
         <thead>
             <tr>
-                <th style="width: 20%;">{{ __('Name') }}</th>
-                <th style="width: 12%;" class="text-center">{{ __('Start') }}</th>
-                <th style="width: 12%;" class="text-center">{{ __('End') }}</th>
+                <th style="width: 15%;">{{ __('Name') }}</th>
+                <th style="width: 10%;" class="text-center">{{ __('Start') }}</th>
+                <th style="width: 10%;" class="text-center">{{ __('End') }}</th>
                 <th style="width: 10%;" class="text-right">{{ __('Duration') }}</th>
-                <th style="width: 23%;">{{ __('Description') }}</th>
-                <th style="width: 23%;">{{ __('Observations') }}</th>
+                <th style="width: 27.5%;">{{ __('Description') }}</th>
+                <th style="width: 27.5%;">{{ __('Observations') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -130,6 +132,7 @@
             @endforeach
         </tbody>
     </table>
+    </div>
 
     <div class="footer">
         CTH - Control de Tiempo y Horarios | {{ __('Page') }} <span class="page-number"></span>
