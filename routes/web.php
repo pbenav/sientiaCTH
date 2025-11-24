@@ -74,6 +74,10 @@ Route::middleware([
         Route::get('/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn']);
         Route::get('/formulario/{token}', \App\Http\Livewire\ExceptionalClockIn::class)->name('.form');
     });
+
+    // Team Preferences
+    Route::get('/team/preferences', [App\Http\Controllers\TeamPreferencesController::class, 'index'])->name('team.preferences');
+    Route::post('/team/preferences/install', [App\Http\Controllers\TeamPreferencesController::class, 'installDependencies'])->name('team.preferences.install');
 });
 
 /*
