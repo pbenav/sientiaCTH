@@ -63,6 +63,15 @@ class EventsPdfExport
             '--no-zygote',
         ]; // Argumentos adicionales para deshabilitar telemetría y crashpad
 
+        // Log para verificar el contenido HTML
+        \Log::info('Contenido HTML para PDF:', ['html' => $html]);
+
+        // Log para verificar la ruta del ejecutable
+        \Log::info('Ruta del ejecutable de Chromium:', ['path' => $chromePath]);
+
+        // Log para verificar los argumentos de Puppeteer
+        \Log::info('Argumentos de Puppeteer:', ['args' => $puppeteerArgs]);
+
         return Browsershot::html($html)
             ->setOption('executablePath', $chromePath) // Usar la ruta detectada
             ->setOption('args', $puppeteerArgs) // Añadir argumentos adicionales
