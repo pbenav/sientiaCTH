@@ -25,7 +25,7 @@ class EventsPdfExport
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
         
         // Detectar la ruta del ejecutable de Chromium de forma dinámica
-        $chromePath = '/tmp/chromium/chrome-linux64/chrome'; // Usar el binario de Chromium descargado
+        $chromePath = '/home/sientia/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome'; // Ruta estable del binario de Chromium
 
         if (!$chromePath) {
             $defaultPaths = [
