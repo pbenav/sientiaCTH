@@ -24,11 +24,32 @@ class EventsPdfExport
 
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
         
-        // Configurar la ruta del ejecutable de Chromium
-        $chromePath = env('PUPPETEER_EXECUTABLE_PATH', '/usr/bin/google-chrome');
+        // Detectar la ruta del ejecutable de Chromium de forma dinámica
+        $chromePath = env('PUPPETEER_EXECUTABLE_PATH');
+
+        if (!$chromePath) {
+            $defaultPaths = [
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/usr/local/bin/google-chrome',
+                '/usr/local/bin/chromium',
+                getenv('HOME') . '/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
+            ];
+
+            foreach ($defaultPaths as $path) {
+                if (file_exists($path) && is_executable($path)) {
+                    $chromePath = $path;
+                    break;
+                }
+            }
+        }
+
+        if (!$chromePath) {
+            throw new \Exception('No se encontró un ejecutable de Chromium válido.');
+        }
 
         return Browsershot::html($html)
-            ->setOption('executablePath', $chromePath) // Añadir la ruta del ejecutable
+            ->setOption('executablePath', $chromePath) // Usar la ruta detectada
             ->format('A4')
             ->landscape()
             ->margins(10, 10, 20, 10) // Increased bottom margin for footer
