@@ -114,12 +114,21 @@
                 </div>
 
                 <div>
-                    <div class="flex justify-between items-center">
-                        <x-jet-label for="content" value="{{ __('Content') }}" />
-                        <button type="button" onclick="toggleHtmlEditor()" 
-                                class="text-xs px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded">
-                            <i class="fas fa-code mr-1"></i>
-                            <span id="editor-mode-text">Modo HTML</span>
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-2">
+                            <x-jet-label for="content" value="{{ __('Content') }}" />
+                            <span class="text-xs text-gray-500 bg-blue-50 px-2 py-1 rounded" title="{{ __('Este editor soporta Markdown. Ejemplo: **negrita**, # Título, - lista') }}">
+                                <i class="fab fa-markdown mr-1"></i>
+                                {{ __('Markdown habilitado') }}
+                            </span>
+                        </div>
+                        <button type="button" 
+                                onclick="toggleHtmlEditor()" 
+                                id="mode-toggle-btn"
+                                class="flex items-center gap-2 text-xs px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded transition"
+                                title="{{ __('Alternar entre modo visual (con Markdown) y modo HTML directo') }}">
+                            <i id="mode-icon" class="fas fa-eye"></i>
+                            <span id="editor-mode-text" class="font-medium">{{ __('Ver HTML') }}</span>
                         </button>
                     </div>
                     <div wire:ignore>
@@ -186,6 +195,7 @@
         const quillEditor = document.getElementById('quill-editor');
         const htmlEditor = document.getElementById('html-editor');
         const modeText = document.getElementById('editor-mode-text');
+        const modeIcon = document.getElementById('mode-icon');
         
         if (!isHtmlMode) {
             // Cambiar a modo HTML
@@ -193,7 +203,8 @@
             htmlEditor.value = html;
             quillEditor.style.display = 'none';
             htmlEditor.style.display = 'block';
-            modeText.textContent = 'Modo Visual';
+            modeText.textContent = 'Ver Visual';
+            modeIcon.className = 'fas fa-pen-fancy';
             isHtmlMode = true;
             
             // Sincronizar cambios del textarea HTML con Livewire
@@ -212,10 +223,12 @@
             
             htmlEditor.style.display = 'none';
             quillEditor.style.display = 'block';
-            modeText.textContent = 'Modo HTML';
+            modeText.textContent = 'Ver HTML';
+            modeIcon.className = 'fas fa-eye';
             isHtmlMode = false;
         }
     }
+    
     
     document.addEventListener('livewire:load', function () {
         initQuill();

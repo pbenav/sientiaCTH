@@ -23,27 +23,51 @@ class DashboardStatsComponent extends Component
         $currentSlot = null;
         $nextSlot = null;
         
-        if ($schedule) {
-            $scheduleData = json_decode($schedule->meta_value, true);
-            $dayOfWeek = $now->dayOfWeek === 0 ? 7 : $now->dayOfWeek; // Convert Sunday from 0 to 7
-            
-            if (isset($scheduleData[$dayOfWeek])) {
-                $slots = $scheduleData[$dayOfWeek];
+        if ($schedule && $schedule->meta_value) {
+            try {
+                // Decode JSON, checking if it's valid
+                $scheduleData = json_decode($schedule->meta_value, true);
                 
-                foreach ($slots as $index => $slot) {
-                    $slotStart = Carbon::parse($slot['start']);
-                    $slotEnd = Carbon::parse($slot['end']);
+                // Validate that decoding was successful and result is an array
+                if (json_last_error() === JSON_ERROR_NONE && is_array($scheduleData)) {
+                    $dayOfWeek = $now->dayOfWeek === 0 ? 7 : $now->dayOfWeek; // Convert Sunday from 0 to 7
                     
-                    // Check if current time is within this slot
-                    if ($now->between($slotStart, $slotEnd)) {
-                        $currentSlot = $slot;
-                    }
-                    
-                    // Find next slot
-                    if (!$nextSlot && $slotStart->greaterThan($now)) {
-                        $nextSlot = $slot;
+                    // Check if schedule exists for this day and it's an array
+                    if (isset($scheduleData[$dayOfWeek]) && is_array($scheduleData[$dayOfWeek])) {
+                        $slots = $scheduleData[$dayOfWeek];
+                        
+                        foreach ($slots as $index => $slot) {
+                            // Validate that slot is an array with required keys
+                            if (!is_array($slot) || !isset($slot['start']) || !isset($slot['end'])) {
+                                continue; // Skip invalid slot
+                            }
+                            
+                            try {
+                                $slotStart = Carbon::parse($slot['start']);
+                                $slotEnd = Carbon::parse($slot['end']);
+                                
+                                // Check if current time is within this slot
+                                if ($now->between($slotStart, $slotEnd)) {
+                                    $currentSlot = $slot;
+                                }
+                                
+                                // Find next slot
+                                if (!$nextSlot && $slotStart->greaterThan($now)) {
+                                    $nextSlot = $slot;
+                                }
+                            } catch (\Exception $e) {
+                                // Skip invalid time format
+                                continue;
+                            }
+                        }
                     }
                 }
+            } catch (\Exception $e) {
+                // Log error but continue gracefully
+                \Log::warning('Failed to parse work schedule', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
             }
         }
         
