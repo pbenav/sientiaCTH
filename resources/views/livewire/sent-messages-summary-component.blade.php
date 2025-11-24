@@ -19,7 +19,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex justify-between items-baseline">
                                 <p class="text-sm font-semibold text-gray-900 truncate">
-                                    {{ __('To') }}: 
+                                    {{ __('To (recipient)') }}: 
                                     @if($message->recipients->count() === 1)
                                         {{ $message->recipients->first()->name }}
                                     @else
