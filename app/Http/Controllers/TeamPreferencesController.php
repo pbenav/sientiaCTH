@@ -15,7 +15,7 @@ class TeamPreferencesController extends Controller
     }
 
     /**
-     * Execute the Puppeteer installation script.
+     * Execute the Puppeteer installation script and return log.
      */
     public function installDependencies()
     {
@@ -25,10 +25,9 @@ class TeamPreferencesController extends Controller
         // Execute the Puppeteer installation script
         exec('php initialize_puppeteer.php', $output, $returnVar);
 
-        if ($returnVar !== 0) {
-            return redirect()->back()->with('error', 'Error al instalar Puppeteer: ' . implode("\n", $output));
-        }
-
-        return redirect()->back()->with('success', 'Puppeteer instalado correctamente.');
+        return response()->json([
+            'log' => implode("\n", $output),
+            'success' => $returnVar === 0,
+        ]);
     }
 }
