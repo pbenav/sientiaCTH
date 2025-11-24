@@ -29,6 +29,20 @@ class HtmlSanitizerService
         // Allow tricky CSS properties like display, position, etc.
         $config->set('CSS.AllowTricky', true);
         
+        // Definir las propiedades CSS personalizadas para position y otras que HTMLPurifier no soporta por defecto
+        $config->set('CSS.DefinitionRev', 1);
+        
+        // Get the CSS definition
+        if ($def = $config->maybeGetRawCSSDefinition()) {
+            // Add custom position property
+            $def->info['position'] = new \HTMLPurifier_AttrDef_Enum(['static', 'relative', 'absolute', 'fixed', 'sticky']);
+            $def->info['display'] = new \HTMLPurifier_AttrDef_Enum(['none', 'inline', 'block', 'inline-block', 'flex', 'inline-flex', 'grid', 'inline-grid']);
+            $def->info['visibility'] = new \HTMLPurifier_AttrDef_Enum(['visible', 'hidden', 'collapse']);
+            $def->info['overflow'] = new \HTMLPurifier_AttrDef_Enum(['visible', 'hidden', 'scroll', 'auto']);
+            $def->info['overflow-x'] = new \HTMLPurifier_AttrDef_Enum(['visible', 'hidden', 'scroll', 'auto']);
+            $def->info['overflow-y'] = new \HTMLPurifier_AttrDef_Enum(['visible', 'hidden', 'scroll', 'auto']);
+        }
+        
         // Link configuration
         $config->set('HTML.TargetBlank', true); // Add target="_blank" to external links
         $config->set('HTML.Nofollow', true); // Add rel="nofollow" to external links
