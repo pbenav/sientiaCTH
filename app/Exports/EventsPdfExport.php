@@ -59,6 +59,7 @@ class EventsPdfExport
             '--disable-extensions',
             '--disable-gpu',
             '--no-crashpad', // Deshabilitar crashpad para evitar errores
+            '--disable-crash-reporter', // Deshabilitar completamente el crashpad
         ];
 
         return Browsershot::html($html)
