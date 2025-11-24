@@ -45,6 +45,13 @@
                             {{ __('Announcements') }}
                         </a>
                     </li>
+                    <li class="mr-2" role="presentation">
+                        <a href="?tab=technical_service" 
+                           class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'technical_service' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                           role="tab">
+                            {{ __('Servicio técnico') }}
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -69,6 +76,10 @@
 
                     @case('announcements')
                         @include('teams.tabs.announcements', ['team' => $team])
+                        @break
+
+                    @case('technical_service')
+                        @include('teams.tabs.technical-service', ['team' => $team])
                         @break
 
                     @default
