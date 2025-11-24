@@ -175,6 +175,8 @@
 <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet">
 <!-- Quill.js JavaScript -->
 <script src="{{ asset('js/quill.js') }}"></script>
+<!-- Quill Markdown -->
+<script src="{{ asset('node_modules/quilljs-markdown/dist/quilljs-markdown-common.js') }}"></script>
 
 <script>
     let quill = null;
@@ -288,7 +290,7 @@
             }
         }
         
-        // Crear nueva instancia de Quill
+        // Crear nueva instancia de Quill con soporte Markdown
         quill = new Quill('#quill-editor', {
             theme: 'snow',
             modules: {
@@ -300,10 +302,17 @@
                     [{ 'align': [] }],
                     ['link', 'image'],
                     ['clean']
-                ]
+                ],
+                // Añadir módulo Markdown
+                markdownOptions: {}
             },
-            placeholder: 'Escribe el contenido del anuncio...'
+            placeholder: 'Escribe el contenido del anuncio (soporta Markdown y HTML)...'
         });
+        
+        // Inicializar soporte Markdown
+        if (typeof QuillMarkdown !== 'undefined') {
+            new QuillMarkdown(quill, {});
+        }
         
         // Cargar contenido inicial del textarea usando clipboard API
         const textarea = document.getElementById('announcement-content');

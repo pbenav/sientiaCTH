@@ -21,7 +21,13 @@ class HtmlSanitizerService
         $config->set('Attr.AllowedClasses', null); // null = allow all CSS classes
         
         // Allow safe inline styles (expanded for better formatting)
-        $config->set('CSS.AllowedProperties', 'color,background-color,text-align,font-size,font-weight,font-style,text-decoration,margin,margin-top,margin-bottom,margin-left,margin-right,padding,padding-top,padding-bottom,padding-left,padding-right,border,border-width,border-style,border-color,border-radius,width,height,max-width,max-height,display,float,clear');
+        $config->set('CSS.AllowedProperties', 'color,background-color,text-align,font-size,font-weight,font-style,text-decoration,margin,margin-top,margin-bottom,margin-left,margin-right,padding,padding-top,padding-bottom,padding-left,padding-right,border,border-width,border-style,border-color,border-radius,width,height,max-width,max-height,min-width,min-height,display,float,clear,position,top,right,bottom,left,overflow,visibility');
+        
+        // Enable CSS3 proprietary properties like border-radius
+        $config->set('CSS.Proprietary', true);
+        
+        // Allow tricky CSS properties like display, position, etc.
+        $config->set('CSS.AllowTricky', true);
         
         // Link configuration
         $config->set('HTML.TargetBlank', true); // Add target="_blank" to external links

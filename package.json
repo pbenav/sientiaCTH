@@ -38,6 +38,7 @@
         "flatpickr": "^4.6.13",
         "puppeteer": "^24.31.0",
         "quill": "^2.0.3",
+        "quilljs-markdown": "^1.2.0",
         "sweetalert2": "^11.23.0"
     }
 }
