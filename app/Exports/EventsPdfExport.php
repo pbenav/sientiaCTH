@@ -61,6 +61,7 @@ class EventsPdfExport
             '--no-crashpad', // Deshabilitar crashpad para evitar errores
             '--disable-crash-reporter', // Deshabilitar completamente el crashpad
             '--crash-dumps-dir=/tmp', // Configurar un directorio temporal para crash dumps
+            '--disable-breakpad', // Deshabilitar completamente el sistema de informes de fallos
         ];
 
         return Browsershot::html($html)
