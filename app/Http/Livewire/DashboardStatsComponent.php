@@ -30,35 +30,36 @@ class DashboardStatsComponent extends Component
                 
                 // Validate that decoding was successful and result is an array
                 if (json_last_error() === JSON_ERROR_NONE && is_array($scheduleData)) {
-                    $dayOfWeek = $now->dayOfWeek === 0 ? 7 : $now->dayOfWeek; // Convert Sunday from 0 to 7
+                    $dayIso = (int) $now->format('N'); // ISO: 1=Monday, 7=Sunday
                     
-                    // Check if schedule exists for this day and it's an array
-                    if (isset($scheduleData[$dayOfWeek]) && is_array($scheduleData[$dayOfWeek])) {
-                        $slots = $scheduleData[$dayOfWeek];
+                    // Schedule format: [{days: [1,2,3], start: "09:00", end: "14:00"}, ...]
+                    foreach ($scheduleData as $slot) {
+                        // Validate that slot is an array with required keys
+                        if (!is_array($slot) || !isset($slot['days']) || !isset($slot['start']) || !isset($slot['end'])) {
+                            continue; // Skip invalid slot
+                        }
                         
-                        foreach ($slots as $index => $slot) {
-                            // Validate that slot is an array with required keys
-                            if (!is_array($slot) || !isset($slot['start']) || !isset($slot['end'])) {
-                                continue; // Skip invalid slot
+                        // Check if current day is in this slot's days
+                        if (!in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
+                            continue; // This slot is not for today
+                        }
+                        
+                        try {
+                            $slotStart = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['start']);
+                            $slotEnd = Carbon::parse($now->format('Y-m-d') . ' ' . $slot['end']);
+                            
+                            // Check if current time is within this slot
+                            if ($now->between($slotStart, $slotEnd)) {
+                                $currentSlot = $slot;
                             }
                             
-                            try {
-                                $slotStart = Carbon::parse($slot['start']);
-                                $slotEnd = Carbon::parse($slot['end']);
-                                
-                                // Check if current time is within this slot
-                                if ($now->between($slotStart, $slotEnd)) {
-                                    $currentSlot = $slot;
-                                }
-                                
-                                // Find next slot
-                                if (!$nextSlot && $slotStart->greaterThan($now)) {
-                                    $nextSlot = $slot;
-                                }
-                            } catch (\Exception $e) {
-                                // Skip invalid time format
-                                continue;
+                            // Find next slot for today
+                            if (!$nextSlot && $slotStart->greaterThan($now)) {
+                                $nextSlot = $slot;
                             }
+                        } catch (\Exception $e) {
+                            // Skip invalid time format
+                            continue;
                         }
                     }
                 }
