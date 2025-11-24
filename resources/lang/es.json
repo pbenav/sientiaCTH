@@ -624,5 +624,6 @@
     "Transfer all user event records to the new team": "Transferir todos los registros de eventos del usuario al nuevo equipo",
     "If checked, all historical records from any previous team will be moved to the destination team.": "Si se marca, todos los registros históricos de cualquier equipo anterior se moverán al equipo de destino.",
     "Generate Report": "Generar Informe",
+    "Generating...": "Generando...",
     "The date range cannot exceed 3 months.": "El rango de fechas no puede exceder los 3 meses."
 }

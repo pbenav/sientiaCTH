@@ -77,11 +77,27 @@
             <div class="h-8 pt-1 flex gap-2 ml-auto">
                 <x-jet-button class="h-8 mt-4 bg-indigo-500 hover:bg-indigo-600 justify-center"
                     wire:click='generatePreview' wire:loading.attr="disabled">
-                    {{ __('Generate Report') }}
+                    <span wire:loading.remove wire:target="generatePreview">{{ __('Generate Report') }}</span>
+                    <span wire:loading wire:target="generatePreview" class="flex items-center">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {{ __('Generating...') }}
+                    </span>
                 </x-jet-button>
 
                 <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
-                    wire:click='export'>{{ __('Download') }}</x-jet-button>
+                    wire:click='export' wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="export">{{ __('Download') }}</span>
+                    <span wire:loading wire:target="export" class="flex items-center">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {{ __('Generating...') }}
+                    </span>
+                </x-jet-button>
             </div>
         </div>
     </div>
