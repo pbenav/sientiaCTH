@@ -9,7 +9,7 @@
     @if($messages->count() > 0)
         <div class="space-y-2">
             @foreach($messages as $message)
-                <a href="{{ route('messages') }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                <a href="{{ route('messages') }}?view=inbox&message={{ $message->id }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-start space-x-3">
                         <img class="w-8 h-8 rounded-full object-cover flex-shrink-0" 
                              src="{{ $message->sender->profile_photo_url }}" 

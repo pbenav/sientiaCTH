@@ -9,7 +9,7 @@
     @if($messages->count() > 0)
         <div class="space-y-2">
             @foreach($messages as $message)
-                <a href="{{ route('messages') }}?view=sent" class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                <a href="{{ route('messages') }}?view=sent&message={{ $message->id }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-start space-x-3">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
