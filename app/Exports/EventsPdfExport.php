@@ -51,8 +51,18 @@ class EventsPdfExport
             throw new \Exception("No se encontró un ejecutable de Chromium válido. Rutas verificadas:\n" . $checkedPaths);
         }
 
+        // Argumentos adicionales para Puppeteer
+        $puppeteerArgs = [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-extensions',
+            '--disable-gpu',
+        ];
+
         return Browsershot::html($html)
             ->setOption('executablePath', $chromePath) // Usar la ruta detectada
+            ->setOption('args', $puppeteerArgs) // Añadir argumentos adicionales
             ->format('A4')
             ->landscape()
             ->margins(10, 10, 20, 10) // Increased bottom margin for footer
