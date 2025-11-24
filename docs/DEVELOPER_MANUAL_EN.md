@@ -232,7 +232,7 @@ The application uses `spatie/browsershot` (Puppeteer) to generate PDF reports. T
 2. **Initialize Puppeteer in the project**:
    We have created a utility script to facilitate this:
    ```bash
-   php initialize_puppeteer.php
+   php scripts/initialize_puppeteer.php
    ```
 
 #### Node.js Path Configuration
@@ -259,9 +259,9 @@ return Browsershot::html($html)
 - **Cause**: Web server is using an old system Node version (`/usr/bin/node`).
 - **Solution**: Define `setNodeBinary()` pointing to the updated version.
 
-**Error**: `Could not open input file: initialize_puppeteer.php`
-- **Cause**: Script is not in root or incorrect permissions.
-- **Solution**: Verify file existence and run `php initialize_puppeteer.php`.
+**Error**: `Could not open input file: scripts/initialize_puppeteer.php`
+- **Cause**: Script is not in expected path or incorrect permissions.
+- **Solution**: Verify file existence and run `php scripts/initialize_puppeteer.php`.
 
 **Error**: `Class Spatie\Browsershot\Browsershot not found`
 - **Cause**: Package not installed.

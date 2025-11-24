@@ -23,7 +23,7 @@ class TeamPreferencesController extends Controller
         $returnVar = 0;
 
         // Get the absolute path to the script
-        $scriptPath = base_path('initialize_puppeteer.php');
+        $scriptPath = base_path('scripts/initialize_puppeteer.php');
         
         // Check if script exists
         if (!file_exists($scriptPath)) {

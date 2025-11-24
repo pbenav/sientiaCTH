@@ -233,7 +233,7 @@ La aplicación utiliza `spatie/browsershot` (Puppeteer) para generar reportes en
 2. **Inicializar Puppeteer en el proyecto**:
    Hemos creado un script de utilidad para facilitar esto:
    ```bash
-   php initialize_puppeteer.php
+   php scripts/initialize_puppeteer.php
    ```
 
 #### Configuración de Rutas de Node.js
@@ -260,9 +260,9 @@ return Browsershot::html($html)
 - **Causa**: El servidor web está usando una versión antigua de Node del sistema (`/usr/bin/node`).
 - **Solución**: Definir `setNodeBinary()` apuntando a la versión actualizada.
 
-**Error**: `Could not open input file: initialize_puppeteer.php`
-- **Causa**: El script no está en la raíz o permisos incorrectos.
-- **Solución**: Verificar existencia del archivo y ejecutar `php initialize_puppeteer.php`.
+**Error**: `Could not open input file: scripts/initialize_puppeteer.php`
+- **Causa**: El script no está en la ruta esperada o permisos incorrectos.
+- **Solución**: Verificar existencia del archivo y ejecutar `php scripts/initialize_puppeteer.php`.
 
 **Error**: `Class Spatie\Browsershot\Browsershot not found`
 - **Causa**: Paquete no instalado.
