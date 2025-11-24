@@ -30,7 +30,10 @@ trait CalculatesScheduledData
             return [0, 0];
         }
 
-        $minutesPerDay = array_fill_keys(['L', 'M', 'X', 'J', 'V', 'S', 'D'], 0);
+        // Usar números ISO (1-7) en lugar de letras (L,M,X,J,V,S,D)
+        // 1 = Lunes, 2 = Martes, 3 = Miércoles, 4 = Jueves, 5 = Viernes, 6 = Sábado, 7 = Domingo
+        $minutesPerDay = array_fill_keys([1, 2, 3, 4, 5, 6, 7], 0);
+        
         foreach ($schedule as $slot) {
             if (empty($slot['days']) || empty($slot['start']) || empty($slot['end'])) {
                 continue;
@@ -38,9 +41,12 @@ trait CalculatesScheduledData
             $start = Carbon::parse($slot['start']);
             $end = Carbon::parse($slot['end']);
             $duration = $end->diffInMinutes($start);
-            foreach ($slot['days'] as $dayInitial) {
-                if (array_key_exists($dayInitial, $minutesPerDay)) {
-                    $minutesPerDay[$dayInitial] += $duration;
+            
+            foreach ($slot['days'] as $dayNumber) {
+                // Asegurar que es un número válido (1-7)
+                $dayNum = (int)$dayNumber;
+                if ($dayNum >= 1 && $dayNum <= 7 && array_key_exists($dayNum, $minutesPerDay)) {
+                    $minutesPerDay[$dayNum] += $duration;
                 }
             }
         }
@@ -70,8 +76,9 @@ trait CalculatesScheduledData
                 continue;
             }
 
-            $dayInitial = $this->getDayInitial($date->format('N'));
-            $minutesForDay = $minutesPerDay[$dayInitial];
+            // Obtener número ISO del día (1 = Lunes, 7 = Domingo)
+            $dayNumber = (int) $date->format('N');
+            $minutesForDay = $minutesPerDay[$dayNumber] ?? 0;
 
             if ($minutesForDay > 0) {
                 $totalMinutes += $minutesForDay;
@@ -83,14 +90,16 @@ trait CalculatesScheduledData
     }
 
     /**
-     * Get the initial for a day of the week.
+     * Get the ISO day number for a day of the week.
+     * This method is kept for backward compatibility but now directly returns the input
+     * since we already use ISO numbers (1-7).
      *
-     * @param int $dayOfWeek
-     * @return string
+     * @param int $dayOfWeek ISO day number (1=Monday, 7=Sunday)
+     * @return int
      */
-    private function getDayInitial(int $dayOfWeek): string
+    private function getDayInitial(int $dayOfWeek): int
     {
-        $days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-        return $days[$dayOfWeek - 1];
+        // Ya no necesitamos conversión - devolvemos el número ISO directamente
+        return $dayOfWeek;
     }
 }

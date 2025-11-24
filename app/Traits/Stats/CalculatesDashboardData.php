@@ -121,9 +121,10 @@ trait CalculatesDashboardData
             $dayKey = $date->format('Y-m-d');
 
             // comprobar si es día programado: puede haber varias franjas (slots) en el mismo día
-            $dayInitial = $this->getDayInitial($date->format('N'));
-            $daySchedules = collect($schedule)->filter(function ($slot) use ($dayInitial) {
-                return in_array($dayInitial, $slot['days']);
+            // Usar número ISO directamente (1-7)
+            $dayNumber = (int) $date->format('N');
+            $daySchedules = collect($schedule)->filter(function ($slot) use ($dayNumber) {
+                return in_array($dayNumber, $slot['days']);
             })->values()->all();
 
             if (empty($daySchedules)) {
@@ -303,9 +304,10 @@ trait CalculatesDashboardData
                 continue;
             }
 
-            $dayInitial = $this->getDayInitial($date->format('N'));
-            $daySchedule = collect($schedule)->first(function ($slot) use ($dayInitial) {
-                return in_array($dayInitial, $slot['days']);
+            // Usar número ISO directamente (1-7)
+            $dayNumber = (int) $date->format('N');
+            $daySchedule = collect($schedule)->first(function ($slot) use ($dayNumber) {
+                return in_array($dayNumber, $slot['days']);
             });
 
             if ($daySchedule) {

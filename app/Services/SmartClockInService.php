@@ -520,12 +520,11 @@ class SmartClockInService
      */
     public function getCurrentScheduledSlot(Carbon $now, array $schedule): ?array
     {
-        $dayInitial = $this->getDayInitial($now->format('N'));
-        $dayIso = $now->format('N');
+        $dayIso = (int) $now->format('N'); // Número ISO: 1=Lunes, 7=Domingo
 
         foreach ($schedule as $slot) {
-            // Check for both Spanish initial and ISO number
-            if (!in_array($dayInitial, $slot['days']) && !in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
+            // Comprobar usando solo números ISO (post-migración)
+            if (!in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
                 continue;
             }
 
@@ -548,12 +547,11 @@ class SmartClockInService
      */
     private function isNearScheduledTime(Carbon $now, array $schedule): bool
     {
-        $dayInitial = $this->getDayInitial($now->format('N'));
-        $dayIso = $now->format('N');
+        $dayIso = (int) $now->format('N'); // Número ISO: 1=Lunes, 7=Domingo
         $tolerance = 15; // minutes
 
         foreach ($schedule as $slot) {
-            if (!in_array($dayInitial, $slot['days']) && !in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
+            if (!in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
                 continue;
             }
 
@@ -574,13 +572,12 @@ class SmartClockInService
      */
     public function getNextScheduledSlot(Carbon $now, array $schedule): ?array
     {
-        $dayInitial = $this->getDayInitial($now->format('N'));
-        $dayIso = $now->format('N');
+        $dayIso = (int) $now->format('N'); // Número ISO: 1=Lunes, 7=Domingo
         $nextSlot = null;
         $minDiff = null;
 
         foreach ($schedule as $slot) {
-            if (!in_array($dayInitial, $slot['days']) && !in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
+            if (!in_array($dayIso, $slot['days']) && !in_array((string)$dayIso, $slot['days'])) {
                 continue;
             }
 
@@ -616,12 +613,17 @@ class SmartClockInService
     }
 
     /**
-     * Get day initial from day number
+     * Get day ISO number (kept for backward compatibility but deprecated)
+     * Use ISO numbers directly instead.
+     * 
+     * @deprecated This method is no longer needed after migration to ISO numbers
+     * @param int $dayOfWeek ISO day number (1=Monday, 7=Sunday)
+     * @return int
      */
-    private function getDayInitial(int $dayOfWeek): string
+    private function getDayInitial(int $dayOfWeek): int
     {
-        $days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-        return $days[$dayOfWeek - 1];
+        // Devolver directamente el número ISO
+        return $dayOfWeek;
     }
 
     /**
@@ -643,13 +645,13 @@ class SmartClockInService
         $workSchedule = json_decode($workScheduleMeta->meta_value, true);
         $delayMinutes = $team->clock_in_delay_minutes ?? 0;
 
-        $dayOfWeek = $timeToCheck->format('N');
-        $currentDayLetter = $this->getDayInitial($dayOfWeek);
+        $dayOfWeek = (int) $timeToCheck->format('N'); // Número ISO: 1=Lunes, 7=Domingo
 
         $isWithinAnySlot = false;
         foreach ($workSchedule as $slot) {
             $days = $slot['days'] ?? [];
-            $matchesDay = in_array($currentDayLetter, $days) || in_array($dayOfWeek, $days) || in_array((string)$dayOfWeek, $days);
+            // Comprobar solo con números ISO (post-migración)
+            $matchesDay = in_array($dayOfWeek, $days) || in_array((string)$dayOfWeek, $days);
             
             if ($matchesDay && isset($slot['start']) && isset($slot['end'])) {
                 // Parse slot times using the same timezone as the check time
