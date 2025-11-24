@@ -56,9 +56,12 @@ class EventsPdfExport
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-extensions',
             '--disable-gpu',
-        ]; // Lista simplificada de argumentos para evitar conflictos
+            '--disable-background-networking',
+            '--enable-features=NetworkService,NetworkServiceInProcess',
+            '--disable-features=site-per-process,IsolateOrigins,SpeculativeServiceWorkerStart',
+            '--no-zygote',
+        ]; // Argumentos adicionales para deshabilitar telemetría y crashpad
 
         return Browsershot::html($html)
             ->setOption('executablePath', $chromePath) // Usar la ruta detectada
