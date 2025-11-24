@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Event;
 use Livewire\Component;
 use App\Exports\EventsExport;
+use App\Exports\EventsPdfExport;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -124,6 +125,10 @@ class ReportsComponent extends Component
 
         $ext = strtoLower($this->rtype);
         $fn = 'cth_informe_' . date('YmdHis'). '.' . $ext;
+
+        if ($this->rtype === 'PDF') {
+            return Excel::download(new EventsPdfExport($events), $fn, $this->rtypes[$this->rtype]);
+        }
 
         return Excel::download(new EventsExport($events), $fn, $this->rtypes[$this->rtype]);
     }

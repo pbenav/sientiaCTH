@@ -52,7 +52,7 @@ class ReportsController extends Controller
 
         $events = $query->orderBy('start')->get();
 
-        $pdf = Excel::raw(new EventsExport($events), \Maatwebsite\Excel\Excel::DOMPDF);
+        $pdf = Excel::raw(new \App\Exports\EventsPdfExport($events), \Maatwebsite\Excel\Excel::DOMPDF);
 
         $fn = 'cth_informe_' . date('YmdHis') . '.pdf';
 
