@@ -146,8 +146,8 @@
                 <th style="width: 15%;">{{ trans('reports.Name') }}</th>
                 <th class="text-center" style="width: 12%;">{{ trans('reports.Start') }}</th>
                 <th class="text-center" style="width: 12%;">{{ trans('reports.End') }}</th>
-                <th class="text-right" style="width: 14%;">{{ trans('reports.Duration') }}</th>
-                <th style="width: 18%;">{{ trans('reports.Description') }}</th>
+                <th class="text-right" style="width: 15%;">{{ trans('reports.Duration') }}</th>
+                <th style="width: 17%;">{{ trans('reports.Description') }}</th>
                 <th style="width: 29%;">{{ trans('reports.Observations') }}</th>
             </tr>
         </thead>
