@@ -74,7 +74,7 @@
                 <x-jet-input-error for='rtype' />
             </div>
 
-            <div class="h-8 pt-1 flex gap-2">
+            <div class="h-8 pt-1 flex gap-2 ml-auto">
                 <x-jet-button class="h-8 mt-4 bg-indigo-500 hover:bg-indigo-600 justify-center"
                     wire:click='generatePreview' wire:loading.attr="disabled">
                     {{ __('Generate Report') }}
