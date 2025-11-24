@@ -15,6 +15,9 @@ class EventsPdfExport
 
     public function generate(): string
     {
+        // Force Spanish locale for translations
+        app()->setLocale('es');
+        
         $html = view('exports.events_pdf', [
             'events' => $this->events
         ])->render();
