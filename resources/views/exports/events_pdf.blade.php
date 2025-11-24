@@ -146,8 +146,8 @@
                 <th style="width: 15%;">{{ __('Name') }}</th>
                 <th class="text-center" style="width: 12%;">{{ __('Start') }}</th>
                 <th class="text-center" style="width: 12%;">{{ __('End') }}</th>
-                <th class="text-right" style="width: 12%;">{{ __('Duration') }}</th>
-                <th style="width: 20%;">{{ __('Description') }}</th>
+                <th class="text-right" style="width: 14%;">{{ __('Duration') }}</th>
+                <th style="width: 18%;">{{ __('Description') }}</th>
                 <th style="width: 29%;">{{ __('Observations') }}</th>
             </tr>
         </thead>
