@@ -77,19 +77,18 @@
             <div class="h-8 pt-1 flex gap-2 ml-auto">
                 <x-jet-button class="h-8 mt-4 bg-indigo-500 hover:bg-indigo-600 justify-center"
                     wire:click='generatePreview'
-                    wire:loading.attr="disabled">
+                    wire:loading.attr="disabled"
+                    onclick="showReportLoading()">
                     {{ __('Generate Report') }}
                 </x-jet-button>
 
                 <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
                     wire:click='export'
-                    wire:loading.attr="disabled">
+                    wire:loading.attr="disabled"
+                    onclick="showReportLoading()">
                     {{ __('Download') }}
                 </x-jet-button>
             </div>
-            
-            {{-- Hidden div to detect loading state --}}
-            <div wire:loading wire:target="generatePreview,export" id="reportLoading" class="hidden"></div>
         </div>
     </div>
 
@@ -100,49 +99,51 @@
                 src="{{ $pdfUrl }}" 
                 class="w-full min-h-screen"
                 frameborder="0"
+                onload="hideReportLoading()"
             ></iframe>
         </div>
     @endif
+    
+    {{-- Hidden trigger for closing alert --}}
+    <div wire:loading.class.remove="hidden" wire:target="generatePreview,export" class="hidden" id="loadingTrigger"></div>
 </div>
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loadingDiv = document.getElementById('reportLoading');
-        let loadingAlert = null;
+    let reportLoadingAlert = null;
 
-        if (loadingDiv) {
-            // Watch for changes in the loading div
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                        const isLoading = !loadingDiv.classList.contains('hidden');
-                        
-                        if (isLoading && !loadingAlert) {
-                            // Show loading alert
-                            loadingAlert = Swal.fire({
-                                title: '{{ __("Generating...") }}',
-                                html: '{{ __("Please wait while the report is being generated...") }}',
-                                allowOutsideClick: false,
-                                allowEscapeKey: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                        } else if (!isLoading && loadingAlert) {
-                            // Close loading alert
-                            Swal.close();
-                            loadingAlert = null;
-                        }
-                    }
-                });
-            });
-
-            observer.observe(loadingDiv, {
-                attributes: true,
-                attributeFilter: ['class']
+    function showReportLoading() {
+        if (!reportLoadingAlert) {
+            reportLoadingAlert = Swal.fire({
+                title: '{{ __("Generating...") }}',
+                html: '{{ __("Please wait while the report is being generated...") }}',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
         }
+        
+        // Set a timeout to close if it takes too long or something goes wrong
+        setTimeout(() => {
+            hideReportLoading();
+        }, 60000); // 60 seconds max
+    }
+
+    function hideReportLoading() {
+        if (reportLoadingAlert) {
+            Swal.close();
+            reportLoadingAlert = null;
+        }
+    }
+
+    // Listen for when Livewire finishes updating
+    document.addEventListener('livewire:load', function () {
+        Livewire.hook('message.processed', (message, component) => {
+            // Small delay to ensure UI has updated
+            setTimeout(hideReportLoading, 500);
+        });
     });
 </script>
 @endpush

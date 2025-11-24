@@ -23,13 +23,17 @@ class EventsPdfExport
         ])->render();
 
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
-
+        
         return Browsershot::html($html)
             ->format('A4')
             ->landscape()
-            ->margins(10, 10, 15, 10)
+            ->margins(10, 10, 20, 10) // Increased bottom margin for footer
             ->showBackground()
-            ->footerHtml('<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF;">' . $footerText . ' <span class="pageNumber"></span> ' . trans('reports.of') . ' <span class="totalPages"></span></div>')
+            ->setOption('displayHeaderFooter', true)
+            ->setOption('headerTemplate', '<div></div>') // Empty header
+            ->setOption('footerTemplate', '<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF; padding-top: 5px;">' . 
+                $footerText . ' <span class="pageNumber"></span> ' . trans('reports.of') . ' <span class="totalPages"></span>' .
+                '</div>')
             ->pdf();
     }
 }
