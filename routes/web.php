@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserMetaController;
+use App\Http\Controllers\MessageController;
 use App\Http\Livewire\GetTimeRegisters;
 use App\Http\Livewire\ReportsComponent;
 use App\Http\Livewire\StatsComponent;
@@ -60,6 +61,7 @@ Route::middleware([
     
     // Messages - Team messages
     Route::get('/mensajes', \App\Http\Livewire\MessagesComponent::class)->name('messages');
+    Route::get('/mensajes/{id}', [MessageController::class, 'show'])->name('messages.show');
 
     Route::prefix('users/{user}')->group(function () {
         // Ruta para mostrar todos los metadatos del usuario
