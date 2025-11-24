@@ -46,8 +46,13 @@
                         @livewire('inbox-summary-component')
                     </div>
 
-                    {{-- Stats Cards - 1 column (will create internal 2x2 grid) --}}
+                    {{-- Sent Messages Summary - 1 column --}}
                     <div>
+                        @livewire('sent-messages-summary-component')
+                    </div>
+
+                    {{-- Stats Cards - spans 2 columns --}}
+                    <div class="md:col-span-2">
                         @livewire('dashboard-stats-component')
                     </div>
 
