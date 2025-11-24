@@ -34,6 +34,7 @@ class EventsPdfExport
                 '/usr/local/bin/google-chrome',
                 '/usr/local/bin/chromium',
                 getenv('HOME') . '/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
+                '/home/sientia/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome', // Ruta específica detectada
             ];
 
             foreach ($defaultPaths as $path) {
