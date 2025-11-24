@@ -212,6 +212,60 @@ MOBILE_API_RATE_LIMIT=60
 
 # Team configuration
 DEFAULT_EVENT_EXPIRATION_DAYS=7
+
+### PDF Generation Configuration (Browsershot)
+
+The application uses `spatie/browsershot` (Puppeteer) to generate PDF reports. This requires specific server configuration.
+
+#### Prerequisites
+- **Node.js**: Version 18+ (Recommended v20 LTS)
+- **NPM**: Compatible with Node version
+- **System Libraries**: Chrome/Chromium dependencies
+
+#### Dependency Installation
+
+1. **Install system libraries (Debian/Ubuntu)**:
+   ```bash
+   sudo apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget libgbm-dev
+   ```
+
+2. **Initialize Puppeteer in the project**:
+   We have created a utility script to facilitate this:
+   ```bash
+   php initialize_puppeteer.php
+   ```
+
+#### Node.js Path Configuration
+
+In production environments (especially with NVM or Cpanel), the web user might not have access to the same PATH as the console user.
+
+**Solution**: Configure explicit paths in `app/Exports/EventsPdfExport.php`:
+
+```php
+// Configuration example
+$nodePath = '/home/user/.nvm/versions/node/v20.x.x/bin/node';
+$npmPath = '/home/user/.nvm/versions/node/v20.x.x/bin/npm';
+
+return Browsershot::html($html)
+    ->setNodeBinary($nodePath)
+    ->setNpmBinary($npmPath)
+    ->setIncludePath('$PATH:' . dirname($nodePath))
+    // ...
+```
+
+#### Common Troubleshooting
+
+**Error**: `npm does not support Node.js v10.x.x`
+- **Cause**: Web server is using an old system Node version (`/usr/bin/node`).
+- **Solution**: Define `setNodeBinary()` pointing to the updated version.
+
+**Error**: `Could not open input file: initialize_puppeteer.php`
+- **Cause**: Script is not in root or incorrect permissions.
+- **Solution**: Verify file existence and run `php initialize_puppeteer.php`.
+
+**Error**: `Class Spatie\Browsershot\Browsershot not found`
+- **Cause**: Package not installed.
+- **Solution**: Run `composer require spatie/browsershot`.
 ```
 
 ---

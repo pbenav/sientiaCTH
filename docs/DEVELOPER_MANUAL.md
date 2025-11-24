@@ -207,12 +207,66 @@ DB_DATABASE=cth
 
 # API Móvil (futuro)
 MOBILE_API_ENCRYPTION_KEY=base64:generated_key
+```
 MOBILE_JWT_SECRET=generated_secret
 MOBILE_API_RATE_LIMIT=60
 
 # Configuración de equipos
 DEFAULT_EVENT_EXPIRATION_DAYS=7
+
+### Configuración de Generación de PDF (Browsershot)
+
+La aplicación utiliza `spatie/browsershot` (Puppeteer) para generar reportes en PDF. Esto requiere una configuración específica en el servidor.
+
+#### Requisitos Previos
+- **Node.js**: Versión 18+ (Recomendado v20 LTS)
+- **NPM**: Compatible con la versión de Node
+- **Librerías del sistema**: Dependencias de Chrome/Chromium
+
+#### Instalación de Dependencias
+
+1. **Instalar librerías del sistema (Debian/Ubuntu)**:
+   ```bash
+   sudo apt-get install -y gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget libgbm-dev
+   ```
+
+2. **Inicializar Puppeteer en el proyecto**:
+   Hemos creado un script de utilidad para facilitar esto:
+   ```bash
+   php initialize_puppeteer.php
+   ```
+
+#### Configuración de Rutas de Node.js
+
+En entornos de producción (especialmente con NVM o Cpanel), el usuario web puede no tener acceso al mismo PATH que el usuario de consola.
+
+**Solución**: Configurar rutas explícitas en `app/Exports/EventsPdfExport.php`:
+
+```php
+// Ejemplo de configuración
+$nodePath = '/home/usuario/.nvm/versions/node/v20.x.x/bin/node';
+$npmPath = '/home/usuario/.nvm/versions/node/v20.x.x/bin/npm';
+
+return Browsershot::html($html)
+    ->setNodeBinary($nodePath)
+    ->setNpmBinary($npmPath)
+    ->setIncludePath('$PATH:' . dirname($nodePath))
+    // ...
 ```
+
+#### Troubleshooting Común
+
+**Error**: `npm does not support Node.js v10.x.x`
+- **Causa**: El servidor web está usando una versión antigua de Node del sistema (`/usr/bin/node`).
+- **Solución**: Definir `setNodeBinary()` apuntando a la versión actualizada.
+
+**Error**: `Could not open input file: initialize_puppeteer.php`
+- **Causa**: El script no está en la raíz o permisos incorrectos.
+- **Solución**: Verificar existencia del archivo y ejecutar `php initialize_puppeteer.php`.
+
+**Error**: `Class Spatie\Browsershot\Browsershot not found`
+- **Causa**: Paquete no instalado.
+- **Solución**: Ejecutar `composer require spatie/browsershot`.
 
 ---
 
