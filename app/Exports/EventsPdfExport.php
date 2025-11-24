@@ -167,9 +167,42 @@ class EventsPdfExport
         // Log para verificar los argumentos de Puppeteer
         \Log::info('Argumentos de Puppeteer:', ['args' => $puppeteerArgs]);
 
-        // Configuración de Node.js y NPM
-        $nodePath = '/home/pablo/.nvm/versions/node/v20.19.5/bin/node';
-        $npmPath = '/home/pablo/.nvm/versions/node/v20.19.5/bin/npm';
+        // Configuración de Node.js y NPM desde variables de entorno
+        $nodePath = env('NODE_BINARY_PATH', '/usr/bin/node');
+        $npmPath = env('NPM_BINARY_PATH', '/usr/bin/npm');
+        
+        // Verificar si las rutas existen, si no, intentar autodetectar o usar fallbacks
+        if (!file_exists($nodePath)) {
+            // Fallback a rutas comunes si la configurada no existe
+            $commonNodePaths = [
+                '/usr/local/bin/node',
+                '/usr/bin/node',
+                '/bin/node',
+                getenv('HOME') . '/.nvm/versions/node/v20.19.5/bin/node' // Fallback para dev local
+            ];
+            foreach ($commonNodePaths as $path) {
+                if (file_exists($path)) {
+                    $nodePath = $path;
+                    break;
+                }
+            }
+        }
+
+        if (!file_exists($npmPath)) {
+             $commonNpmPaths = [
+                '/usr/local/bin/npm',
+                '/usr/bin/npm',
+                '/bin/npm',
+                getenv('HOME') . '/.nvm/versions/node/v20.19.5/bin/npm' // Fallback para dev local
+            ];
+            foreach ($commonNpmPaths as $path) {
+                if (file_exists($path)) {
+                    $npmPath = $path;
+                    break;
+                }
+            }
+        }
+
         $nodeBinDir = dirname($nodePath);
 
         return Browsershot::html($html)

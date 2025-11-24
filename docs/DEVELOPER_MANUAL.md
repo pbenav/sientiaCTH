@@ -237,22 +237,16 @@ La aplicación utiliza `spatie/browsershot` (Puppeteer) para generar reportes en
    ```
 
 #### Configuración de Rutas de Node.js
-
 En entornos de producción (especialmente con NVM o Cpanel), el usuario web puede no tener acceso al mismo PATH que el usuario de consola.
 
-**Solución**: Configurar rutas explícitas en `app/Exports/EventsPdfExport.php`:
+**Solución**: Configurar las rutas en el archivo `.env`:
 
-```php
-// Ejemplo de configuración
-$nodePath = '/home/usuario/.nvm/versions/node/v20.x.x/bin/node';
-$npmPath = '/home/usuario/.nvm/versions/node/v20.x.x/bin/npm';
-
-return Browsershot::html($html)
-    ->setNodeBinary($nodePath)
-    ->setNpmBinary($npmPath)
-    ->setIncludePath('$PATH:' . dirname($nodePath))
-    // ...
+```env
+NODE_BINARY_PATH=/home/usuario/.nvm/versions/node/v20.x.x/bin/node
+NPM_BINARY_PATH=/home/usuario/.nvm/versions/node/v20.x.x/bin/npm
 ```
+
+El sistema intentará usar estas rutas. Si no están definidas, buscará en rutas estándar del sistema (`/usr/bin/node`, `/usr/local/bin/node`).
 
 #### Troubleshooting Común
 

@@ -236,22 +236,16 @@ The application uses `spatie/browsershot` (Puppeteer) to generate PDF reports. T
    ```
 
 #### Node.js Path Configuration
-
 In production environments (especially with NVM or Cpanel), the web user might not have access to the same PATH as the console user.
 
-**Solution**: Configure explicit paths in `app/Exports/EventsPdfExport.php`:
+**Solution**: Configure paths in the `.env` file:
 
-```php
-// Configuration example
-$nodePath = '/home/user/.nvm/versions/node/v20.x.x/bin/node';
-$npmPath = '/home/user/.nvm/versions/node/v20.x.x/bin/npm';
-
-return Browsershot::html($html)
-    ->setNodeBinary($nodePath)
-    ->setNpmBinary($npmPath)
-    ->setIncludePath('$PATH:' . dirname($nodePath))
-    // ...
+```env
+NODE_BINARY_PATH=/home/user/.nvm/versions/node/v20.x.x/bin/node
+NPM_BINARY_PATH=/home/user/.nvm/versions/node/v20.x.x/bin/npm
 ```
+
+The system will try to use these paths. If not defined, it will search in standard system paths (`/usr/bin/node`, `/usr/local/bin/node`).
 
 #### Common Troubleshooting
 
