@@ -176,9 +176,5 @@
             @endforeach
         </tbody>
     </table>
-
-    <div class="footer">
-        CTH - Control de Tiempo y Horarios
-    </div>
 </body>
 </html>
