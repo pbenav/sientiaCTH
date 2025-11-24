@@ -633,5 +633,18 @@
     "Report Options": "Opciones de informes",
     "Generating...": "Generando...",
     "Please wait while the report is being generated...": "Por favor espera mientras se genera el informe...",
-    "The date range cannot exceed 3 months.": "El rango de fechas no puede exceder los 3 meses."
+    "The date range cannot exceed 3 months.": "El rango de fechas no puede exceder los 3 meses.",
+    "Ver más": "Ver más",
+    "Ver menos": "Ver menos",
+    "Ver todos": "Ver todos",
+    "No hay mensajes nuevos": "No hay mensajes nuevos",
+    "Horario": "Horario",
+    "Tramo actual": "Tramo actual",
+    "Próximo tramo": "Próximo tramo",
+    "Sin horario hoy": "Sin horario hoy",
+    "Hoy": "Hoy",
+    "Trabajadas": "Trabajadas",
+    "Esta semana": "Esta semana",
+    "Este año": "Este año",
+    "Días trabajados": "Días trabajados"
 }

@@ -7,11 +7,10 @@
 
     <div class="py-12">
         <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
-            <!-- Flex layout: 1/4 for clock-in, 3/4 for announcements -->
-            <div class="flex flex-col md:flex-row gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 
-                <!-- Smart Clock Interface - 1/4 width (left) -->
-                <div class="w-full md:flex-none md:w-1/4">
+                {{-- Clock-in Widget - Left Column (spans 1 column on large screens) --}}
+                <div class="lg:col-span-1">
                     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg h-full">
                         <div class="p-6">
                             <div class="mb-6">
@@ -24,15 +23,34 @@
                                     {{ now()->locale('es')->translatedFormat('l, j \d\e F \d\e Y') }}
                                 </div>
                             </div>
-                            
                             @livewire('smart-clock-button')
                         </div>
                     </div>
                 </div>
                 
-                <!-- Team Announcements - 3/4 width (right) -->
-                <div class="w-full md:flex-1">
-                    @livewire('team-announcements')
+                {{-- Dashboard Content - Right Column (spans 3 columns on large screens) --}}
+                <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 auto-rows-min">
+                    
+                    {{-- Announcements Section - spans 2 columns on medium+ screens --}}
+                    <div class="md:col-span-2 bg-white rounded-lg shadow-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">{{ __('Team Announcements') }}</h3>
+                        </div>
+                        <div class="max-h-[30vh] overflow-y-auto" style="scrollbar-width: thin;">
+                            @livewire('team-announcements')
+                        </div>
+                    </div>
+
+                    {{-- Inbox Summary - 1 column --}}
+                    <div>
+                        @livewire('inbox-summary-component')
+                    </div>
+
+                    {{-- Stats Cards - 1 column (will create internal 2x2 grid) --}}
+                    <div>
+                        @livewire('dashboard-stats-component')
+                    </div>
+
                 </div>
 
             </div>
