@@ -1,6 +1,6 @@
 <div class="bg-white rounded-lg shadow-sm p-4">
     <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-medium text-gray-900">{{ __('Inbox') }}</h3>
+        <h3 class="text-lg font-medium text-gray-900">Mensajes recibidos</h3>
         <a href="{{ route('messages') }}" class="text-sm text-blue-600 hover:text-blue-800">
             {{ __('Ver todos') }} →
         </a>

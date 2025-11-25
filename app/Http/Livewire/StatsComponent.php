@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Event;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Asantibanez\LivewireCharts\Facades\LivewireCharts;
 use App\Traits\Stats\CalculatesDashboardData;
 use App\Traits\Stats\CalculatesScheduledData;
@@ -183,6 +184,8 @@ class StatsComponent extends Component
         }
 
         $this->totalHours = round($totalHours, 2);
+        // Log KPI values for verification
+        Log::info('KPI calculated', ['totalHours' => $this->totalHours, 'totalDays' => $this->totalDays]);
 
         if ($this->eventTypeId) {
             $this->totalDays = count($dailyTypeHours);
