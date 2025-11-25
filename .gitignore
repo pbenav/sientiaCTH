@@ -13,6 +13,7 @@ Homestead.yaml
 .phpunit.result.cache
 _ide_helper.php
 *.lock
+!composer.lock
 npm-debug.log
 yarn-error.log
 
