@@ -189,44 +189,45 @@ class AddEvent extends Component
 
         $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone);
 
-        // Use the trait to check if the user is within their work schedule
-        if ($team && $team->force_clock_in_delay && $this->selectedEventType && $this->selectedEventType->is_workday_type && !$this->isWithinWorkSchedule($eventStartTime)) {
-            // If outside the schedule, trigger the exceptional clock-in flow
-            $token = Str::random(60);
-            ExceptionalClockInToken::create([
-                'user_id' => $user->id,
-                'team_id' => $team->id,
-                'token' => $token,
-                'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 10),
-            ]);
+    // IMPORTANT: Always check if workday-type events are within work schedule
+    // If outside the schedule, trigger the exceptional clock-in flow
+    if ($this->selectedEventType && $this->selectedEventType->is_workday_type && !$this->isWithinWorkSchedule($eventStartTime)) {
+        // If outside the schedule, trigger the exceptional clock-in flow
+        $token = Str::random(60);
+        ExceptionalClockInToken::create([
+            'user_id' => $user->id,
+            'team_id' => $team->id,
+            'token' => $token,
+            'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 10),
+        ]);
 
-            $adminSender = $team->owner;
-            $url = route('exceptional.clock-in.form', ['token' => $token]);
-            $messageContent = __('exceptional_clock_in.message_content', [
-                'minutes' => $team->clock_in_grace_period_minutes ?? 10,
-                'url' => $url
-            ]);
+        $adminSender = $team->owner;
+        $url = route('exceptional.clock-in.form', ['token' => $token]);
+        $messageContent = __('exceptional_clock_in.message_content', [
+            'minutes' => $team->clock_in_grace_period_minutes ?? 10,
+            'url' => $url
+        ]);
 
-            $message = Message::create([
-                'sender_id' => $adminSender->id,
-                'subject' => __('exceptional_clock_in.message_subject'),
-                'body' => $messageContent,
-                'is_log' => true,
-            ]);
+        $message = Message::create([
+            'sender_id' => $adminSender->id,
+            'subject' => __('exceptional_clock_in.message_subject'),
+            'body' => $messageContent,
+            'is_log' => true,
+        ]);
 
-            $message->recipients()->attach($user->id);
-            $user->notify(new NewMessage($message));
+        $message->recipients()->attach($user->id);
+        $user->notify(new NewMessage($message));
 
-            if ($this->origin === 'numpad') {
-                $this->showAddEventModal = false;
-                return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
-            } else {
-                $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
-                $this->showAddEventModal = false;
-                $this->emit('refreshCalendar');
-            }
-            return;
+        if ($this->origin === 'numpad') {
+            $this->showAddEventModal = false;
+            return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
+        } else {
+            $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
+            $this->showAddEventModal = false;
+            $this->emit('refreshCalendar');
         }
+        return;
+    }
 
         // NEW LOGIC: All time not within main workday events should be considered overtime
         // This includes holidays, weekends, and non-workday event types
