@@ -6,6 +6,7 @@ use App\Http\Livewire\GetTimeRegisters;
 use App\Http\Livewire\ReportsComponent;
 use App\Http\Livewire\StatsComponent;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Gate;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,11 +72,11 @@ Route::middleware([
     Route::get('/docs/{file}', [App\Http\Controllers\DocsController::class, 'show']);
 
     // Announcements - Admin only
-    Route::middleware(['can:update,App\Models\Team'])->group(function () {
-        Route::get('/anuncios', function () {
-            return view('announcements');
-        })->name('announcements');
-    });
+    Route::get('/anuncios', function () {
+        Gate::authorize('update', auth()->user()->currentTeam);
+        
+        return view('announcements');
+    })->name('announcements');
 
     Route::prefix('users/{user}')->group(function () {
         // Ruta para mostrar todos los metadatos del usuario
