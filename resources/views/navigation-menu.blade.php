@@ -27,6 +27,11 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
+                    @can('update', Auth::user()->currentTeam)
+                        <x-jet-nav-link href="{{ route('announcements') }}" :active="request()->routeIs('announcements')">
+                            {{ __('Announcements') }}
+                        </x-jet-nav-link>
+                    @endcan
                     {{-- Enlace eliminado: Servicio técnico --}}
                 </div>
             </div>
@@ -213,6 +218,11 @@
             <x-jet-responsive-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
                 {{ __('Calendar') }}
             </x-jet-responsive-nav-link>
+            @can('update', Auth::user()->currentTeam)
+                <x-jet-responsive-nav-link href="{{ route('announcements') }}" :active="request()->routeIs('announcements')">
+                    {{ __('Announcements') }}
+                </x-jet-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->

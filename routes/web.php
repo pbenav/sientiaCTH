@@ -70,6 +70,13 @@ Route::middleware([
     Route::get('/docs/{locale}/{file}', [App\Http\Controllers\DocsController::class, 'show'])->name('docs.show');
     Route::get('/docs/{file}', [App\Http\Controllers\DocsController::class, 'show']);
 
+    // Announcements - Admin only
+    Route::middleware(['can:update,App\Models\Team'])->group(function () {
+        Route::get('/anuncios', function () {
+            return view('announcements');
+        })->name('announcements');
+    });
+
     Route::prefix('users/{user}')->group(function () {
         // Ruta para mostrar todos los metadatos del usuario
         Route::get('/meta', [UserMetaController::class, 'index'])->name('users.meta.index');
