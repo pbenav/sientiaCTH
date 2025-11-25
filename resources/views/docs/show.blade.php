@@ -76,7 +76,25 @@
                             </nav>
 
                             <!-- Documentation Content -->
-                            <div class="prose prose-blue max-w-none">
+                            <div class="prose prose-blue max-w-none columns-1 md:columns-2 2xl:columns-3 gap-12 space-y-0">
+                                <style>
+                                    /* Prevent elements from breaking awkwardly across columns */
+                                    .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+                                        break-after: avoid;
+                                        break-inside: avoid;
+                                        column-span: all; /* Optional: make main headers span all columns */
+                                    }
+                                    .prose h1 {
+                                        margin-top: 0;
+                                    }
+                                    .prose p, .prose ul, .prose ol, .prose pre, .prose blockquote, .prose figure {
+                                        break-inside: avoid;
+                                    }
+                                    .prose img {
+                                        max-width: 100%;
+                                        height: auto;
+                                    }
+                                </style>
                                 {!! $content !!}
                             </div>
                         </div>

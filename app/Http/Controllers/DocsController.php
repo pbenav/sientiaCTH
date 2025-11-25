@@ -104,12 +104,29 @@ class DocsController extends Controller
                 $parts = explode('/', $relativePath);
                 $name = str_replace('.md', '', end($parts));
                 
-                // Humanize name
+                // Humanize name fallback
                 $label = Str::title(str_replace(['-', '_'], ' ', $name));
+
+                // Try to read the actual title from the file content
+                try {
+                    $fileContent = File::get($file->getPathname());
+                    if (preg_match('/^#\s+(.+)$/m', $fileContent, $matches)) {
+                        $label = trim($matches[1]);
+                    }
+                } catch (\Exception $e) {
+                    // Keep fallback label if reading fails
+                }
 
                 if (count($parts) > 1) {
                     $folder = $parts[0];
-                    $files[$folder][] = [
+                    // Translate folder names if possible or capitalize
+                    $folderLabel = match($folder) {
+                        'es' => 'Español',
+                        'en' => 'English',
+                        default => ucfirst($folder)
+                    };
+                    
+                    $files[$folderLabel][] = [
                         'path' => $relativePath,
                         'label' => $label,
                         'url' => $this->buildUrl($relativePath)
