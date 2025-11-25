@@ -65,6 +65,11 @@ Route::middleware([
     })->name('messages');
     Route::get('/mensajes/{id}', [MessageController::class, 'show'])->name('messages.show');
 
+    // Documentation
+    Route::get('/docs', [App\Http\Controllers\DocsController::class, 'index'])->name('docs.index');
+    Route::get('/docs/{locale}/{file}', [App\Http\Controllers\DocsController::class, 'show'])->name('docs.show');
+    Route::get('/docs/{file}', [App\Http\Controllers\DocsController::class, 'show']);
+
     Route::prefix('users/{user}')->group(function () {
         // Ruta para mostrar todos los metadatos del usuario
         Route::get('/meta', [UserMetaController::class, 'index'])->name('users.meta.index');
