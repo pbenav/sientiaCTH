@@ -27,6 +27,9 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
+                    <x-jet-nav-link href="{{ route('docs.index') }}" :active="request()->routeIs('docs.*')">
+                        {{ __('Documentation') }}
+                    </x-jet-nav-link>
                     @can('update', Auth::user()->currentTeam)
                         <x-jet-nav-link href="{{ route('announcements') }}" :active="request()->routeIs('announcements')">
                             {{ __('Announcements') }}
@@ -217,6 +220,15 @@
             </x-jet-responsive-nav-link>
             <x-jet-responsive-nav-link href="{{ route('calendar') }}" :active="request()->routeIs('calendar')">
                 {{ __('Calendar') }}
+            </x-jet-responsive-nav-link>
+            <x-jet-responsive-nav-link href="{{ route('stats') }}" :active="request()->routeIs('stats')">
+                {{ __('Stats') }}
+            </x-jet-responsive-nav-link>
+            <x-jet-responsive-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
+                {{ __('Reports') }}
+            </x-jet-responsive-nav-link>
+            <x-jet-responsive-nav-link href="{{ route('docs.index') }}" :active="request()->routeIs('docs.*')">
+                {{ __('Documentation') }}
             </x-jet-responsive-nav-link>
             @can('update', Auth::user()->currentTeam)
                 <x-jet-responsive-nav-link href="{{ route('announcements') }}" :active="request()->routeIs('announcements')">

@@ -5,9 +5,6 @@
                 📚 {{ $title }}
                 <img src="{{ asset('images/cth-logo.png') }}" alt="CTH Logo" class="mx-auto my-4 max-w-[200px]" />
             </h2>
-            <a href="{{ route('docs.index') }}" class="text-sm text-blue-600 hover:text-blue-800">
-                ← {{ __('Back to Documentation Index') }}
-            </a>
         </div>
     </x-slot>
 
@@ -60,24 +57,12 @@
                 <div class="flex-1 min-w-0">
                     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                         <div class="p-6">
-                            <!-- Breadcrumb -->
-                            <nav class="mb-6 text-sm text-gray-500 flex items-center">
-                                <a href="{{ route('docs.index') }}" class="hover:text-gray-700">Documentation</a>
-                                @if(isset($locale))
-                                    <svg class="h-5 w-5 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span class="text-gray-700">{{ strtoupper($locale) }}</span>
-                                @endif
-                                <svg class="h-5 w-5 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            <div class="text-center py-12">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
-                                <span class="text-gray-700 font-medium">{{ basename($currentPath, '.md') }}</span>
-                            </nav>
-
-                            <!-- Documentation Content -->
-                            <div class="prose prose-blue max-w-none">
-                                {!! $content !!}
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No content available</h3>
+                                <p class="mt-1 text-sm text-gray-500">Select a document from the sidebar to start reading.</p>
                             </div>
                         </div>
                     </div>

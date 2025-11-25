@@ -8,11 +8,13 @@ Welcome to the CTH (Control de Tiempo y Horarios / Time and Schedule Control) do
 
 - **[Manual de Desarrollador](es/DEVELOPER_MANUAL.md)** - Documentación técnica completa para desarrolladores
 - **[Manual de Usuario](es/USER_MANUAL.md)** - Guía completa para usuarios finales del sistema
+- **[Guía de Migración de Horarios](es/MIGRACION_HORARIOS.md)** - Guía para la migración del sistema de horarios
 
 ### 🇬🇧 English
 
 - **[Developer Manual](en/DEVELOPER_MANUAL.md)** - Complete technical documentation for developers
 - **[User Manual](en/USER_MANUAL.md)** - Complete guide for end users
+- **[Schedule Migration Guide](en/SCHEDULE_MIGRATION_EN.md)** - Guide for the schedule system migration
 
 ## 📋 Quick Links / Enlaces Rápidos
 

@@ -11,12 +11,20 @@ class DocsController extends Controller
     /**
      * Show the documentation index.
      */
+    /**
+     * Show the documentation index.
+     */
     public function index()
     {
         $readmePath = public_path('docs/README.md');
+        $files = $this->getDocFiles();
         
         if (!File::exists($readmePath)) {
-            abort(404, 'Documentation not found');
+            // If README doesn't exist, just show the list
+            return view('docs.index', [
+                'title' => 'Documentation',
+                'files' => $files
+            ]);
         }
 
         $content = File::get($readmePath);
@@ -25,7 +33,8 @@ class DocsController extends Controller
         return view('docs.show', [
             'title' => 'Documentation',
             'content' => $html,
-            'currentPath' => 'README.md'
+            'currentPath' => 'README.md',
+            'files' => $files
         ]);
     }
 
@@ -62,8 +71,71 @@ class DocsController extends Controller
             'title' => $title,
             'content' => $html,
             'currentPath' => $path,
-            'locale' => $locale
+            'locale' => $locale,
+            'files' => $this->getDocFiles()
         ]);
+    }
+
+    /**
+     * Get all documentation files.
+     */
+    private function getDocFiles()
+    {
+        $docsPath = public_path('docs');
+        $files = [];
+
+        if (!File::exists($docsPath)) {
+            return [];
+        }
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($docsPath, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getExtension() === 'md') {
+                $relativePath = str_replace($docsPath . '/', '', $file->getPathname());
+                
+                // Skip README.md as it's the index
+                if ($relativePath === 'README.md') {
+                    continue;
+                }
+
+                $parts = explode('/', $relativePath);
+                $name = str_replace('.md', '', end($parts));
+                
+                // Humanize name
+                $label = Str::title(str_replace(['-', '_'], ' ', $name));
+
+                if (count($parts) > 1) {
+                    $folder = $parts[0];
+                    $files[$folder][] = [
+                        'path' => $relativePath,
+                        'label' => $label,
+                        'url' => $this->buildUrl($relativePath)
+                    ];
+                } else {
+                    $files['root'][] = [
+                        'path' => $relativePath,
+                        'label' => $label,
+                        'url' => $this->buildUrl($relativePath)
+                    ];
+                }
+            }
+        }
+
+        ksort($files);
+        return $files;
+    }
+
+    private function buildUrl($relativePath)
+    {
+        $path = str_replace('.md', '', $relativePath);
+        if (Str::contains($path, '/')) {
+            $parts = explode('/', $path);
+            return route('docs.show.locale', ['locale' => $parts[0], 'file' => $parts[1]]);
+        }
+        return route('docs.show.root', ['file' => $path]);
     }
 
     /**
@@ -80,21 +152,17 @@ class DocsController extends Controller
 
             // If it's a .md file, convert to route
             if (Str::endsWith($url, '.md')) {
-                $url = str_replace('.md', '', $url);
+                // Remove .md extension
+                $cleanUrl = str_replace('.md', '', $url);
                 
-                // Handle different path formats
-                if (Str::startsWith($url, 'es/') || Str::startsWith($url, 'en/')) {
-                    $parts = explode('/', $url);
-                    $url = route('docs.show', $parts);
-                } elseif (Str::contains($url, '/')) {
-                    $parts = explode('/', $url);
-                    $url = route('docs.show', $parts);
-                } else {
-                    $url = route('docs.show', [$url]);
+                if (Str::startsWith($url, 'http')) {
+                    return $matches[0];
                 }
+
+                return '<a href="' . $this->buildUrl($url) . '"';
             }
 
-            return '<a href="' . $url . '"';
+            return $matches[0];
         }, $html);
 
         return $html;

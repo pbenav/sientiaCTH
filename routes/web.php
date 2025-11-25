@@ -66,9 +66,10 @@ Route::middleware([
     Route::get('/mensajes/{id}', [MessageController::class, 'show'])->name('messages.show');
 
     // Documentation
-    Route::get('/docs', [App\Http\Controllers\DocsController::class, 'index'])->name('docs.index');
-    Route::get('/docs/{locale}/{file}', [App\Http\Controllers\DocsController::class, 'show'])->name('docs.show');
-    Route::get('/docs/{file}', [App\Http\Controllers\DocsController::class, 'show']);
+    // Documentation
+    Route::get('/documentacion', [App\Http\Controllers\DocsController::class, 'index'])->name('docs.index');
+    Route::get('/documentacion/{locale}/{file}', [App\Http\Controllers\DocsController::class, 'show'])->name('docs.show.locale');
+    Route::get('/documentacion/{file}', [App\Http\Controllers\DocsController::class, 'show'])->name('docs.show.root');
 
     // Announcements - Admin only
     Route::get('/anuncios', function () {
