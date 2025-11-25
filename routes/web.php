@@ -75,8 +75,8 @@ Route::middleware([
         $user = auth()->user();
         $team = $user->currentTeam;
         
-        // Verificar que el usuario es owner o tiene permiso 'update'
-        if (!$team || (!$user->ownsTeam($team) && !$user->hasTeamPermission($team, 'update'))) {
+        // Verificar que tiene permiso 'update' (incluye owners y administradores)
+        if (!$team || !$user->hasTeamPermission($team, 'update')) {
             abort(403, __('You do not have permission to view team announcements.'));
         }
         
