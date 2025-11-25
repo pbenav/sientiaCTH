@@ -76,7 +76,9 @@ Route::middleware([
 
     Route::prefix('fichaje-excepcional')->name('exceptional.clock-in')->group(function () {
         Route::get('/{token}', [App\Http\Controllers\ExceptionalClockInController::class, 'clockIn']);
-        Route::get('/formulario/{token}', \App\Http\Livewire\ExceptionalClockIn::class)->name('.form');
+        Route::get('/formulario/{token}', function ($token) {
+            return view('exceptional-clock-in', ['token' => $token]);
+        })->name('.form');
     });
 
     // Team Preferences
