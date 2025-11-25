@@ -6,7 +6,6 @@ use App\Http\Livewire\GetTimeRegisters;
 use App\Http\Livewire\ReportsComponent;
 use App\Http\Livewire\StatsComponent;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Gate;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,7 +72,13 @@ Route::middleware([
 
     // Announcements - Admin only
     Route::get('/anuncios', function () {
-        Gate::authorize('update', auth()->user()->currentTeam);
+        $user = auth()->user();
+        $team = $user->currentTeam;
+        
+        // Verificar que el usuario es owner o tiene permiso 'update'
+        if (!$team || (!$user->ownsTeam($team) && !$user->hasTeamPermission($team, 'update'))) {
+            abort(403, __('You do not have permission to view team announcements.'));
+        }
         
         return view('announcements');
     })->name('announcements');
