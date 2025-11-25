@@ -63,72 +63,86 @@
                 @endif
             @endauth
 
-            <div class="space-y-6">
-                <!-- Event Type -->
-                <div>
-                    <x-jet-label for="event_type_id" value="{{ __('Event Type') }}" class="required font-medium text-gray-700" />
-                    <select id="event_type_id" 
-                            class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm" 
-                            required 
-                            wire:model.live="event_type_id" 
-                            name="event_type_id">
-                        <option value="">{{ __('Select an option') }}</option>
-                        @foreach($eventTypes as $eventType)
-                            <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
-                        @endforeach
-                    </select>
-                    <x-jet-input-error for='event_type_id' class="mt-1" />
+            <!-- Event Type Selection (Full Width) -->
+            <div class="mb-6">
+                <x-jet-label for="event_type_id" value="{{ __('Event Type') }}" class="required font-medium text-gray-700" />
+                <select id="event_type_id" 
+                        class="mt-1 block w-full border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm" 
+                        required 
+                        wire:model.live="event_type_id" 
+                        name="event_type_id">
+                    <option value="">{{ __('Select an option') }}</option>
+                    @foreach($eventTypes as $eventType)
+                        <option value="{{ $eventType->id }}">{{ $eventType->name }}</option>
+                    @endforeach
+                </select>
+                <x-jet-input-error for='event_type_id' class="mt-1" />
+            </div>
+
+            <!-- Main Form Grid (2 columns) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Left Column: Date & Time -->
+                <div class="space-y-6">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Fecha y hora</h4>
+                        
+                        @if($selectedEventType && $selectedEventType->is_all_day)
+                            <!-- All-day event: Date Range -->
+                            <div class="space-y-4">
+                                <div>
+                                    <x-jet-label for="start_date" value="{{ __('Start date') }}" class="font-medium text-gray-700" />
+                                    <x-jet-input id="start_date" type="date" wire:model.defer="start_date" class="mt-1 block w-full" required />
+                                    <x-jet-input-error for="start_date" class="mt-1" />
+                                </div>
+                                <div>
+                                    <x-jet-label for="end_date" value="{{ __('End date') }}" class="font-medium text-gray-700" />
+                                    <x-jet-input id="end_date" type="date" wire:model.defer="end_date" class="mt-1 block w-full" required />
+                                    <x-jet-input-error for="end_date" class="mt-1" />
+                                </div>
+                            </div>
+                        @else
+                            <!-- Regular event: Date and Time (only start) -->
+                            <div>
+                                <x-jet-label value="{{ __('Start') }}" class="font-medium text-gray-700 mb-1" />
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <x-jet-input type="date" wire:model.defer="start_date" class="block w-full text-sm" required />
+                                        <x-jet-input-error for="start_date" class="mt-1" />
+                                    </div>
+                                    <div>
+                                        <x-jet-input type="time" wire:model.defer="start_time" class="block w-full text-sm" required step="300" />
+                                        <x-jet-input-error for="start_time" class="mt-1" />
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
-                @if($selectedEventType && $selectedEventType->is_all_day)
-                    <!-- All-day event: Date Range -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <x-jet-label for="start_date" value="{{ __('Start date') }}" class="font-medium text-gray-700" />
-                            <x-jet-input id="start_date" type="date" wire:model.defer="start_date" class="mt-1 block w-full" required />
-                            <x-jet-input-error for="start_date" class="mt-1" />
-                        </div>
-                        <div>
-                            <x-jet-label for="end_date" value="{{ __('End date') }}" class="font-medium text-gray-700" />
-                            <x-jet-input id="end_date" type="date" wire:model.defer="end_date" class="mt-1 block w-full" required />
-                            <x-jet-input-error for="end_date" class="mt-1" />
-                        </div>
-                    </div>
-                @else
-                    <!-- Regular event: Date and Time (only start) -->
+                <!-- Right Column: Description & Observations -->
+                <div class="space-y-6">
                     <div>
-                        <x-jet-label value="{{ __('Start') }}" class="font-medium text-gray-700" />
-                        <div class="mt-1 grid grid-cols-2 gap-2">
-                            <x-jet-input type="date" wire:model.defer="start_date" class="block w-full text-sm" required />
-                            <x-jet-input type="time" wire:model.defer="start_time" class="block w-full text-sm" required step="300" />
-                        </div>
-                        <x-jet-input-error for="start_date" class="mt-1" />
-                        <x-jet-input-error for="start_time" class="mt-1" />
+                        <x-jet-label for="description" value="{{ __('Description') }}" class="font-medium text-gray-700" />
+                        <x-jet-input id="description" 
+                                     class="mt-1 block w-full" 
+                                     wire:model.defer="description"
+                                     placeholder="{{ __('Add a description') }}"
+                                     maxlength="255" />
+                        <x-jet-input-error for='description' class="mt-1" />
+                        <p class="mt-1 text-xs text-gray-500">{{ __('If empty, event type name will be used') }}</p>
                     </div>
-                @endif
 
-                <!-- Description -->
-                <div>
-                    <x-jet-label for="description" value="{{ __('Description') }}" class="font-medium text-gray-700" />
-                    <x-jet-input id="description" 
-                                 class="mt-1 block w-full" 
-                                 wire:model.defer="description"
-                                 placeholder="{{ __('Add a description') }}"
-                                 maxlength="255" />
-                    <x-jet-input-error for='description' class="mt-1" />
-                    <p class="mt-1 text-xs text-gray-500">{{ __('If empty, event type name will be used') }}</p>
-                </div>
-
-                <!-- Observations -->
-                <div>
-                    <x-jet-label for="observations" value="{{ __('Observations') }}" class="font-medium text-gray-700" />
-                    <textarea id="observations"
-                              class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm sm:text-sm"
-                              wire:model.defer="observations"
-                              rows="3"
-                              placeholder="{{ __('event.observations.placeholder') }}"
-                              maxlength="255"></textarea>
-                    <x-jet-input-error for='observations' class="mt-1" />
+                    <div>
+                        <x-jet-label for="observations" value="{{ __('Observations') }}" class="font-medium text-gray-700" />
+                        <textarea id="observations"
+                                  class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm sm:text-sm"
+                                  wire:model.defer="observations"
+                                  rows="4"
+                                  placeholder="{{ __('event.observations.placeholder') }}"
+                                  maxlength="255"></textarea>
+                        <x-jet-input-error for='observations' class="mt-1" />
+                    </div>
                 </div>
             </div>
 
