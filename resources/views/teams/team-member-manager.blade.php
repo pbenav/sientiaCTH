@@ -14,18 +14,90 @@
                 </x-slot>
 
                 <x-slot name="form">
-                    <div class="col-span-6">
-                        <div class="max-w-xl text-sm text-gray-600">
-                            {{ __('Please provide the email address of the person you would like to add to this team.') }}
-                        </div>
-                    </div>
+                    @php
+                        $welcomeTeam = \App\Models\Team::where('name', 'Bienvenida')->first();
+                        $availableUsers = $welcomeTeam ? $welcomeTeam->users()->whereNotIn('users.id', $team->users->pluck('id'))->get() : collect();
+                    @endphp
 
-                    <!-- Member Email -->
-                    <div class="col-span-6 sm:col-span-4">
-                        <x-jet-label for="email" value="{{ __('Email') }}" />
-                        <x-jet-input id="email" type="email" class="mt-1 block w-full" wire:model.defer="addTeamMemberForm.email" />
-                        <x-jet-input-error for="email" class="mt-2" />
-                    </div>
+                    @if($availableUsers->isNotEmpty())
+                        <div class="col-span-6">
+                            <div class="max-w-xl text-sm text-gray-600">
+                                {{ __('Select a user from the Welcome team to add to this team. Users will be automatically removed from the Welcome team and their email will be verified if needed.') }}
+                            </div>
+                        </div>
+
+                        <!-- Member Selection -->
+                        <div class="col-span-6 sm:col-span-4">
+                            <x-jet-label for="email" value="{{ __('User') }}" />
+                            <select id="user-select" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" wire:model.defer="addTeamMemberForm.email">
+                                <option value="">{{ __('Select a user...') }}</option>
+                                @foreach($availableUsers as $availableUser)
+                                    <option value="{{ $availableUser->email }}">
+                                        {{ $availableUser->name }} {{ $availableUser->family_name1 }} ({{ $availableUser->email }})
+                                        @if(!$availableUser->hasVerifiedEmail())
+                                            - {{ __('Email not verified') }}
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-jet-input-error for="email" class="mt-2" />
+                        </div>
+
+                        <div class="col-span-6">
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            {{ __('When you add a user to this team:') }}
+                                        </p>
+                                        <ul class="mt-2 text-sm text-blue-700 list-disc list-inside">
+                                            <li>{{ __('They will be removed from the Welcome team') }}</li>
+                                            <li>{{ __('Their email will be automatically verified') }}</li>
+                                            <li>{{ __('This team will become their active team') }}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="col-span-6">
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-700">
+                                            {{ __('No users available in the Welcome team to add.') }}
+                                        </p>
+                                        <p class="mt-2 text-sm text-yellow-700">
+                                            {{ __('You can invite new users by email using the form below.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Email Input (fallback) -->
+                        <div class="col-span-6">
+                            <div class="max-w-xl text-sm text-gray-600">
+                                {{ __('Please provide the email address of the person you would like to add to this team.') }}
+                            </div>
+                        </div>
+
+                        <div class="col-span-6 sm:col-span-4">
+                            <x-jet-label for="email" value="{{ __('Email') }}" />
+                            <x-jet-input id="email" type="email" class="mt-1 block w-full" wire:model.defer="addTeamMemberForm.email" />
+                            <x-jet-input-error for="email" class="mt-2" />
+                        </div>
+                    @endif
 
                     <!-- Role -->
                     @if (count($this->roles) > 0)
@@ -66,7 +138,7 @@
                         {{ __('Added.') }}
                     </x-jet-action-message>
 
-                    <x-jet-button>
+                    <x-jet-button class="bg-indigo-600 hover:bg-indigo-700">
                         {{ __('Add') }}
                     </x-jet-button>
                 </x-slot>
@@ -94,10 +166,18 @@
                             <div class="flex items-center justify-between">
                                 <div class="text-gray-600">{{ $invitation->email }}</div>
 
-                                <div class="flex items-center">
-                                    @if (Gate::check('removeTeamMember', $team))
+                                <div class="flex items-center space-x-4">
+                                    @if (Gate::check('addTeamMember', $team))
+                                        <!-- Accept Team Invitation -->
+                                        <form method="POST" action="{{ route('teams.invitations.accept', [$team, $invitation]) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-sm text-green-600 hover:text-green-900 focus:outline-none">
+                                                {{ __('Accept Invitation') }}
+                                            </button>
+                                        </form>
+
                                         <!-- Cancel Team Invitation -->
-                                        <button class="cursor-pointer ml-6 text-sm text-red-500 focus:outline-none"
+                                        <button class="cursor-pointer text-sm text-red-500 focus:outline-none"
                                                             wire:click="cancelTeamInvitation({{ $invitation->id }})">
                                             {{ __('Cancel') }}
                                         </button>
@@ -217,7 +297,7 @@
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-button class="ml-3" wire:click="updateRole" wire:loading.attr="disabled">
+            <x-jet-button class="ml-3 bg-indigo-600 hover:bg-indigo-700" wire:click="updateRole" wire:loading.attr="disabled">
                 {{ __('Save') }}
             </x-jet-button>
         </x-slot>

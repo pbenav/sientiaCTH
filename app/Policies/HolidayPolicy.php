@@ -10,6 +10,18 @@ use Illuminate\Auth\Access\Response;
 class HolidayPolicy
 {
     /**
+     * Bypass para administradores globales.
+     */
+    public function before(User $user, $ability)
+    {
+        if ($user->is_admin) {
+            return true;
+        }
+        
+        return null;
+    }
+
+    /**
      * Determine whether the user can create models.
      */
     public function create(User $user, Team $team): bool

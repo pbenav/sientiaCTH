@@ -64,6 +64,8 @@ class User extends Authenticatable
         'email',
         'password',
         'week_starts_on',
+        'is_admin',
+        'max_owned_teams',
     ];
 
     /**
@@ -85,6 +87,8 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
+        'max_owned_teams' => 'integer',
     ];
 
     /**
@@ -147,14 +151,68 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all of the teams the user owns or belongs to.
+     * Global administrators can see all teams.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function allTeams()
+    {
+        // If the user is a global administrator, return all teams
+        if ($this->is_admin) {
+            return Team::all();
+        }
+
+        // Otherwise, use the default behavior from HasTeams trait
+        return $this->ownedTeams->merge($this->teams)->sortBy('name');
+    }
+
+    /**
+     * Switch the user's context to the given team.
+     * Global administrators can switch to any team.
+     *
+     * @param  mixed  $team
+     * @return bool
+     */
+    public function switchTeam($team)
+    {
+        // Allow global administrators to switch to any team
+        if ($this->is_admin) {
+            $this->forceFill([
+                'current_team_id' => $team->id,
+            ])->save();
+
+            $this->setRelation('currentTeam', $team);
+
+            return true;
+        }
+
+        // Otherwise, use the default behavior from HasTeams trait
+        if (! $this->belongsToTeam($team)) {
+            return false;
+        }
+
+        $this->forceFill([
+            'current_team_id' => $team->id,
+        ])->save();
+
+        $this->setRelation('currentTeam', $team);
+
+        return true;
+    }
+
+    /**
      * Check if the user is an administrator of a given team.
      *
      * @param \App\Models\Team|null $team
      * @return boolean
      */
-    public function isTeamAdmin(\App\Models\Team $team = null): bool
+    public function isTeamAdmin(?\App\Models\Team $team = null): bool
     {
         $team = $team ?: $this->currentTeam;
+        if (!$team) {
+            return false;
+        }
         return $this->hasTeamRole($team, 'admin');
     }
 
@@ -165,6 +223,9 @@ class User extends Authenticatable
      */
     public function isInspector(): bool
     {
+        if (!$this->currentTeam) {
+            return false;
+        }
         return $this->hasTeamRole($this->currentTeam, 'inspect');
     }
 
@@ -198,5 +259,83 @@ class User extends Authenticatable
         return $this->belongsToMany(Message::class, 'message_user')
             ->withPivot('read_at', 'deleted_at')
             ->withTimestamps();
+    }
+
+    /**
+     * Check if the user can create more teams.
+     *
+     * @return boolean
+     */
+    public function canCreateTeam(): bool
+    {
+        // Prevent users in the Welcome Team from creating teams
+        if ($this->currentTeam && $this->currentTeam->name === Team::WELCOME_TEAM_NAME) {
+            return false;
+        }
+
+        // Global admins can create unlimited teams
+        if ($this->is_admin) {
+            return true;
+        }
+
+        // If max_owned_teams is null, user has unlimited teams
+        if ($this->max_owned_teams === null) {
+            return true;
+        }
+
+        // Check current owned teams count
+        return $this->ownedTeams()->count() < $this->max_owned_teams;
+    }
+
+    /**
+     * Get the number of remaining team slots available.
+     *
+     * @return int|null Returns null if unlimited
+     */
+    public function getRemainingTeamSlots(): ?int
+    {
+        // Global admins have unlimited slots
+        if ($this->is_admin) {
+            return null;
+        }
+
+        // If max_owned_teams is null, unlimited
+        if ($this->max_owned_teams === null) {
+            return null;
+        }
+
+        $currentCount = $this->ownedTeams()->count();
+        return max(0, $this->max_owned_teams - $currentCount);
+    }
+
+    /**
+     * Transfer this user to another team.
+     * Removes from current team memberships and adds to target team.
+     * Migrates user's events to the target team.
+     *
+     * @param \App\Models\Team $targetTeam
+     * @param string|null $role
+     * @return void
+     */
+    public function transferToTeam(Team $targetTeam, ?string $role = null): void
+    {
+        // Cannot transfer if user owns the target team
+        if ($targetTeam->user_id === $this->id) {
+            throw new \InvalidArgumentException('Cannot transfer user to a team they own.');
+        }
+
+        // Remove from all current team memberships (not owned teams)
+        $this->teams()->detach();
+
+        // Add to target team
+        $targetTeam->users()->attach($this->id, ['role' => $role]);
+
+        // Update current team
+        $this->forceFill([
+            'current_team_id' => $targetTeam->id,
+        ])->save();
+
+        // Migrate user's events to the target team
+        $this->events()->update(['team_id' => $targetTeam->id]);
     }
 }

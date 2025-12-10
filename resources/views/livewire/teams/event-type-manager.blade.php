@@ -9,83 +9,144 @@
         </x-slot>
 
         <x-slot name="content">
-            <div class="mt-6 overflow-hidden border-b border-gray-200 sm:rounded-lg shadow-sm">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Nombre') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Color') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Día Completo') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Jornada Principal') }}
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('Autorizable') }}
-                            </th>
-                            <th scope="col" class="relative px-6 py-3">
-                                <span class="sr-only">{{ __('Acciones') }}</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($eventTypes as $eventType)
-                            <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $eventType->name }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="w-6 h-6 rounded-full shadow-sm border border-gray-200" style="background-color: {{ $eventType->color }}"></div>
-                                        <span class="ml-2 text-xs text-gray-500">{{ $eventType->color }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    @if ($eventType->is_all_day)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {{ __('Sí') }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400 text-xs">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    @if ($eventType->is_workday_type)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            {{ __('Sí') }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400 text-xs">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    @if ($eventType->is_authorizable)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                            {{ __('Sí') }}
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400 text-xs">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    @if ($isTeamAdmin)
-                                        <button wire:click="manageEventType({{ $eventType->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors duration-150">
-                                            {{ __('Editar') }}
-                                        </button>
-                                        <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})" class="text-red-600 hover:text-red-900 transition-colors duration-150">
-                                            {{ __('Eliminar') }}
-                                        </button>
-                                    @endif
-                                </td>
+            <!-- Vista de tabla para pantallas grandes -->
+            <div class="mt-6 hidden md:block overflow-hidden border-b border-gray-200 sm:rounded-lg shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Nombre') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Color') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Día Completo') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Jornada Principal') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Autorizable') }}
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Acciones') }}
+                                </th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($eventTypes as $eventType)
+                                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ $eventType->name }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 rounded-full shadow-sm border border-gray-200" style="background-color: {{ $eventType->color }}"></div>
+                                            <span class="ml-2 text-xs text-gray-500">{{ $eventType->color }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if ($eventType->is_all_day)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ __('Sí') }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400 text-xs">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if ($eventType->is_workday_type)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {{ __('Sí') }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400 text-xs">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if ($eventType->is_authorizable)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                {{ __('Sí') }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400 text-xs">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        @if ($isTeamAdmin)
+                                            <button wire:click="manageEventType({{ $eventType->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors duration-150">
+                                                {{ __('Editar') }}
+                                            </button>
+                                            <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})" class="text-red-600 hover:text-red-900 transition-colors duration-150">
+                                                {{ __('Eliminar') }}
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Vista de cards para pantallas pequeñas -->
+            <div class="mt-6 md:hidden space-y-4">
+                @foreach ($eventTypes as $eventType)
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="p-4 space-y-3">
+                            <!-- Nombre y Color -->
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-semibold text-gray-900">{{ $eventType->name }}</h3>
+                                </div>
+                                <div class="ml-3 flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full shadow-sm border border-gray-200" style="background-color: {{ $eventType->color }}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Propiedades -->
+                            <div class="flex flex-wrap gap-2">
+                                @if ($eventType->is_all_day)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ __('Día Completo') }}
+                                    </span>
+                                @endif
+                                @if ($eventType->is_workday_type)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        {{ __('Jornada Principal') }}
+                                    </span>
+                                @endif
+                                @if ($eventType->is_authorizable)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        {{ __('Autorizable') }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Botones de acción -->
+                            @if ($isTeamAdmin)
+                                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                                    <button wire:click="manageEventType({{ $eventType->id }})" 
+                                            class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-indigo-300 shadow-sm text-sm font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        {{ __('Editar') }}
+                                    </button>
+                                    <button wire:click="confirmEventTypeDeletion({{ $eventType->id }})" 
+                                            class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        {{ __('Eliminar') }}
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
             @if ($isTeamAdmin)
@@ -148,8 +209,11 @@
                     <div>
                         <x-jet-label for="color" value="{{ __('Color') }}" class="font-semibold text-gray-700" />
                         <div class="mt-1 flex items-center space-x-3">
-                            <x-jet-input id="color" type="color" class="h-10 w-20 p-1 rounded-md border border-gray-300 cursor-pointer" wire:model.defer="state.color" />
-                            <span class="text-sm text-gray-500">{{ $state['color'] ?? '' }}</span>
+                            <input id="color" type="color" 
+                                   class="h-10 w-20 p-1 rounded-md border border-gray-300 cursor-pointer" 
+                                   wire:model="state.color" 
+                                   value="{{ $state['color'] ?? '#000000' }}" />
+                            <span class="text-sm text-gray-500 font-mono">{{ $state['color'] ?? '' }}</span>
                         </div>
                         <x-jet-input-error for="state.color" class="mt-2" />
                     </div>
@@ -210,3 +274,19 @@
         </x-slot>
     </x-jet-dialog-modal>
 </div>
+
+<script>
+    document.addEventListener('livewire:load', function () {
+        Livewire.on('saved', function () {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ __("Cambios guardados correctamente") }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    });
+</script>

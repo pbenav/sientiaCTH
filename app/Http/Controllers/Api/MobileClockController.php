@@ -77,16 +77,26 @@ class MobileClockController extends Controller
                     ], 404);
                 }
 
-                // ensure user belongs to the team owning the work center
-                $user = User::where('user_code', $request->user_code)
-                    ->whereHas('teams', function ($query) use ($workCenter) {
-                        $query->where('teams.id', $workCenter->team_id);
-                    })->first();
+                // Verify user can access this work center's team
+                $canAccess = false;
+                
+                // Check if user is global admin
+                if ($user->is_admin) {
+                    $canAccess = true;
+                }
+                // Check if user owns the team
+                elseif ($workCenter->team && $user->id === $workCenter->team->user_id) {
+                    $canAccess = true;
+                }
+                // Check if user is member of the team
+                elseif ($user->teams()->where('teams.id', $workCenter->team_id)->exists()) {
+                    $canAccess = true;
+                }
 
-                if (!$user) {
+                if (!$canAccess) {
                     return response()->json([
-                        'message' => 'Invalid user credentials or unauthorized for this work center'
-                    ], 401);
+                        'message' => __('You are not authorized to clock in at this work center')
+                    ], 403);
                 }
             }
 
@@ -420,13 +430,10 @@ class MobileClockController extends Controller
 
             $todayStats = $this->getTodayStats($user) ?? [];
 
-            $isWithinSchedule = $this->smartClockInService->isUserWithinWorkSchedule($user, now());
-            $customMessage = null;
-            if (!$isWithinSchedule) {
-                $customMessage = 'Fuera de horario laboral. Fichaje excepcional.';
-            } else if (($clockAction['action'] ?? '') === 'clock_in') {
-                $customMessage = 'LISTO';
-            }
+            $todayStats = $this->getTodayStats($user) ?? [];
+
+            // Use the message from the service, which already handles force_clock_in_delay logic
+            $message = $clockAction['message'] ?? null;
             
             // --- Calcular next_slot siempre ---
             $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
@@ -452,7 +459,7 @@ class MobileClockController extends Controller
                 'user' => $user,
                 'action' => $clockAction['action'] ?? 'unknown',
                 'can_clock' => $clockAction['can_clock'] ?? false,
-                'message' => $customMessage ?? $clockAction['message'] ?? null,
+                'message' => $message,
                 'overtime' => $clockAction['overtime'] ?? false,
                 'event_type_id' => $clockAction['event_type_id'] ?? null,
                 'pause_event_id' => $clockAction['pause_event_id'] ?? null,
@@ -593,17 +600,23 @@ class MobileClockController extends Controller
                 ], 404);
             }
 
-            $workCenters = $user->teams->flatMap(function ($team) {
-                return $team->workCenters->map(function ($workCenter) use ($team) {
-                    return [
+            $allTeams = $user->allTeams();
+            $workCenters = collect();
+
+            foreach ($allTeams as $team) {
+                // Ensure work centers are loaded
+                $teamWorkCenters = $team->workCenters;
+                
+                foreach ($teamWorkCenters as $workCenter) {
+                    $workCenters->push([
                         'id' => $workCenter->id,
                         'name' => $workCenter->name,
                         'code' => $workCenter->code,
                         'team_name' => $team->name,
                         'timezone' => $team->timezone ?? config('app.timezone')
-                    ];
-                });
-            })->values();
+                    ]);
+                }
+            }
 
             $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
             $workSchedule = [];

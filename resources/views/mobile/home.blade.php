@@ -77,7 +77,7 @@
             @if(($clockData['can_clock'] ?? false) || (($clockData['action'] ?? '') === 'confirm_exceptional_clock_in'))
                 @if(($clockData['action'] ?? '') === 'working_options')
                     <!-- Working State - Show pause and clock out buttons -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="flex flex-col space-y-3">
                         <!-- Pause Button -->
                         <button onclick="performClockAction('pause')" 
                                 class="bg-orange-500 text-white p-4 rounded-lg font-semibold text-center hover:bg-orange-600 transition duration-200 flex flex-col items-center min-h-[80px] max-w-xs">

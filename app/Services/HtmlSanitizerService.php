@@ -17,6 +17,10 @@ class HtmlSanitizerService
             // Disable cache to avoid compatibility issues with PHP 8.2+
             $config->set('Cache.DefinitionImpl', null);
             
+            // IMPORTANT: Prevent HTMLPurifier from adding extra newlines
+            $config->set('Output.TidyFormat', false);
+            $config->set('Core.NormalizeNewlines', false);
+            
             // Allowed HTML tags with class and style attributes
             $config->set('HTML.Allowed', 'p[class|style],br,strong[class],b[class],em[class],i[class],u[class],strike[class],a[href|target|title|class],ul[class],ol[class],li[class],h1[class],h2[class],h3[class],h4[class],h5[class],h6[class],img[src|alt|width|height|class],span[class|style],div[class|style],blockquote[class]');
             

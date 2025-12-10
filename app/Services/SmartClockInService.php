@@ -171,11 +171,34 @@ class SmartClockInService
             }
         }
 
-        // Check if user is outside work schedule
-        $isOutsideSchedule = !$this->isUserWithinWorkSchedule($user, $now);
+        // Check if force delay is enabled
+        $forceDelay = $user->currentTeam->force_clock_in_delay ?? false;
+
+        if (!$forceDelay) {
+            // If force delay is disabled, ALWAYS allow clock-in as normal (never exceptional)
+            // We only check schedule to show an informative warning message
+            $isInSchedule = $this->isWithinWorkSchedule($now, $user);
+            
+            $message = $isInSchedule ? __('Clock in to work') : __('Clock in to work (outside schedule)');
+            $buttonClass = $isInSchedule ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-orange-600 hover:bg-orange-700 text-white';
+
+            return [
+                'can_clock' => true,
+                'action' => 'clock_in',
+                'status_code' => self::STATUS_CAN_CLOCK_IN,
+                'message' => $message,
+                'button_text' => __('Clock In'),
+                'button_class' => $buttonClass,
+                'current_slot' => $currentSlot,
+                'event_type_id' => $workdayEventType->id,
+                'overtime' => false
+            ];
+        }
+
+        // If force delay is enabled, check strict entry window
+        $isAllowed = $this->isWithinEntryWindow($now, $user);
         
-        // If outside schedule and force_clock_in_delay is enabled, require exceptional clock-in
-        if ($isOutsideSchedule && $user->currentTeam->force_clock_in_delay) {
+        if (!$isAllowed) {
             return [
                 'can_clock' => false,
                 'action' => 'confirm_exceptional_clock_in',
@@ -189,26 +212,17 @@ class SmartClockInService
             ];
         }
 
-        // Clock in action - Allow clocking in if within schedule or force delay is disabled
-        $message = __('Clock in to work');
-        $buttonClass = 'bg-green-600 hover:bg-green-700 text-white';
-        
-        // If outside schedule but force_clock_in_delay is disabled, show warning but allow clock-in
-        if ($isOutsideSchedule && !$user->currentTeam->force_clock_in_delay) {
-            $message = __('Clock in to work (outside schedule)');
-            $buttonClass = 'bg-orange-600 hover:bg-orange-700 text-white';
-        }
-        
+        // Allowed and within strict window
         return [
             'can_clock' => true,
             'action' => 'clock_in',
             'status_code' => self::STATUS_CAN_CLOCK_IN,
-            'message' => $message,
+            'message' => __('Clock in to work'),
             'button_text' => __('Clock In'),
-            'button_class' => $buttonClass,
+            'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
             'current_slot' => $currentSlot,
             'event_type_id' => $workdayEventType->id,
-            'overtime' => !$currentSlot
+            'overtime' => false
         ];
     }
 
@@ -471,21 +485,21 @@ class SmartClockInService
     public function requestExceptionalClockIn(User $user, int $eventTypeId): array
     {
         // Create exceptional clock-in token
-        $this->createExceptionalClockInToken($user);
+        $token = $this->createExceptionalClockInToken($user);
         
         return [
             'success' => true,
             'action' => 'redirect_to_exceptional_clock_in',
             'status_code' => self::STATUS_EXCEPTIONAL_REQUEST_CREATED,
             'message' => __('Exceptional clock-in request created. Please complete the process.'),
-            'redirect_url' => route('events')
+            'redirect_url' => route('exceptional.clock-in.form', ['token' => $token])
         ];
     }
 
     /**
      * Create exceptional clock-in token and send message to admin
      */
-    private function createExceptionalClockInToken(User $user): void
+    private function createExceptionalClockInToken(User $user): string
     {
         $team = $user->currentTeam;
         $token = Str::random(60);
@@ -513,6 +527,8 @@ class SmartClockInService
 
         $message->recipients()->attach($user->id);
         $user->notify(new NewMessage($message));
+        
+        return $token;
     }
 
     /**
@@ -626,65 +642,4 @@ class SmartClockInService
         return $dayOfWeek;
     }
 
-    /**
-     * Check if a specific user is within their work schedule
-     */
-    public function isUserWithinWorkSchedule(User $user, Carbon $timeToCheck): bool
-    {
-        if (!$user || !$user->currentTeam) {
-            return false;
-        }
-
-        $team = $user->currentTeam;
-        $workScheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
-
-        if (!$workScheduleMeta || !$team || empty(json_decode($workScheduleMeta->meta_value, true))) {
-            return true; // If no schedule configured, allow clock-in
-        }
-
-        $workSchedule = json_decode($workScheduleMeta->meta_value, true);
-        $delayMinutes = $team->clock_in_delay_minutes ?? 0;
-
-        $dayOfWeek = (int) $timeToCheck->format('N'); // Número ISO: 1=Lunes, 7=Domingo
-
-        $isWithinAnySlot = false;
-        foreach ($workSchedule as $slot) {
-            $days = $slot['days'] ?? [];
-            // Comprobar solo con números ISO (post-migración)
-            $matchesDay = in_array($dayOfWeek, $days) || in_array((string)$dayOfWeek, $days);
-            
-            if ($matchesDay && isset($slot['start']) && isset($slot['end'])) {
-                // Parse slot times using the same timezone as the check time
-                $tz = $timeToCheck->getTimezone();
-                $startTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['start'], $tz);
-                $endTime = Carbon::parse($timeToCheck->format('Y-m-d') . ' ' . $slot['end'], $tz);
-
-                if ($endTime->lessThan($startTime)) {
-                    $endTime->addDay();
-                }
-                
-                // Handle case where current time is past midnight but slot started previous day
-                // e.g. Slot 22:00-06:00, Current time 01:00. 
-                // We need to check if we are in the "continuation" of yesterday's slot
-                if ($timeToCheck->hour < 12 && $startTime->hour > 12) {
-                     $startTime->subDay();
-                     $endTime->subDay();
-                }
-
-                $startTimeWithGrace = $startTime->copy()->subMinutes($delayMinutes);
-                $endTimeWithGrace = $endTime->copy()->addMinutes($delayMinutes);
-
-                if ($timeToCheck->between($startTimeWithGrace, $endTimeWithGrace)) {
-                    $isWithinAnySlot = true;
-                    break;
-                }
-            }
-        }
-
-        if (!$team->force_clock_in_delay) {
-            return $isWithinAnySlot;
-        }
-
-        return $isWithinAnySlot;
-    }
 }

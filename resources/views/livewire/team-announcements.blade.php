@@ -6,13 +6,21 @@
                     <h3 class="text-base font-bold text-gray-900">{{ $announcement->title }}</h3>
                     <div class="mt-2 prose prose-sm max-w-none text-gray-700">
                         <div x-show="!expanded">
-                            <p>{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
+                            @if($announcement->format === 'markdown')
+                                <p>{{ Str::limit(strip_tags(Str::markdown($announcement->content)), 100) }}</p>
+                            @else
+                                <p>{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
+                            @endif
                             <button @click="expanded = true" class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-1">
                                 {{ __('Ver más') }} →
                             </button>
                         </div>
                         <div x-show="expanded" x-transition>
-                            {!! $announcement->content !!}
+                            @if($announcement->format === 'markdown')
+                                {!! Str::markdown($announcement->content) !!}
+                            @else
+                                {!! $announcement->content !!}
+                            @endif
                             <button @click="expanded = false" class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2">
                                 ← {{ __('Ver menos') }}
                             </button>

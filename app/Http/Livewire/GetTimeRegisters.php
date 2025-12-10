@@ -24,7 +24,6 @@ class GetTimeRegisters extends Component
     use WithPagination;
     use HasTeams;
 
-    protected $events;
     public bool $showFiltersModal = false;
     public string $search = '';
     public Event $filter;
@@ -51,7 +50,23 @@ class GetTimeRegisters extends Component
     public ?int $filterUserId = null;
     public ?int $filterEventTypeId = null;
 
-    protected $listeners = ['render', 'confirm', 'delete', 'eventAuthorizationChanged' => '$refresh'];
+    protected $listeners = [
+        'render',
+        'confirm',
+        'delete',
+        'eventAuthorizationChanged' => '$refresh',
+        '$refresh' => 'refreshComponent'
+    ];
+    /**
+     * Forzar refresco y reinicio de paginación tras eliminación
+     */
+    public function refreshComponent(): void
+    {
+        \Log::debug('refreshComponent ejecutado'); // Registro de depuración
+        $this->readyonload = true; // Ensure events can be loaded
+        $this->resetPage();
+        // No need to call getEvents() - render() will do it
+    }
 
     protected $queryString = [
         'sort' => ['except' => 'start'],
@@ -101,11 +116,7 @@ class GetTimeRegisters extends Component
             "event_type_id" => $this->filterEventTypeId,
         ]);
         
-        // Sincronizar propiedades individuales con el objeto
-        $this->syncFilterProperties();
-        
         $this->user = Auth::user();
-        $this->events = $this->user->events()->Paginate($this->qtytoshow);
         $this->team = $this->user->currentTeam;
         $this->teamUserList = $this->team ? $this->team->allUsers() : collect();
         $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
@@ -161,17 +172,24 @@ class GetTimeRegisters extends Component
     {
         $this->showOnlyMine = !$this->showOnlyMine;
     }
-
     /**
      * Emit the event to edit an existing event.
      *
-     * @param \App\Models\Event $ev The event to edit.
+     * @param int $eventId The event ID to edit.
      * @return void
      */
-    public function edit(Event $ev): void
+    public function edit($eventId): void
     {
-        $this->emitTo('edit-event', 'edit', $ev);
+        \Log::info('GetTimeRegisters::edit called', ['eventId' => $eventId]);
+        $ev = Event::find($eventId);
+        if (!$ev) {
+            \Log::info('GetTimeRegisters::edit - Event not found', ['eventId' => $eventId]);
+            return;
+        }
+        \Log::info('GetTimeRegisters::edit - Emitting to edit-event', ['eventId' => $ev->id]);
+        $this->emitTo('edit-event', 'edit', $ev->id);
     }
+
 
     /**
      * Confirm an event based on user role and event status.
@@ -179,18 +197,16 @@ class GetTimeRegisters extends Component
      * @param \App\Models\Event $ev The event to confirm.
      * @return void
      */
-    public function confirm(Event $ev): void
+    public function confirm($eventId): void
     {
-        if (!$ev->hasCompleteDates()) {
+        $ev = Event::find($eventId);
+        if (!$ev || !$ev->hasCompleteDates()) {
             $this->emit('incompleteEventConfirmation');
             return;
         }
-
         if ($this->isTeamAdmin) {
-            $wasOpen = $ev->is_open; // Save previous state
+            $wasOpen = $ev->is_open;
             if ($ev->toggleConfirm()) {
-                // If it was open (is_open = true) and closed, it was confirmed
-                // If it was closed (is_open = false) and opened, it was unconfirmed
                 if ($wasOpen) {
                     $this->emit('alert', __('event_confirmation.confirmed'));
                 } else {
@@ -214,19 +230,19 @@ class GetTimeRegisters extends Component
      * @param \App\Models\Event $ev The event to confirm.
      * @return void
      */
-    public function alertConfirm(Event $ev): void
+    public function alertConfirm($eventId): void
     {
+        $ev = Event::find($eventId);
+        if (!$ev) return;
         if (!$ev->is_open && !$this->isTeamAdmin) {
             $this->emit('alertFail', __("This event is already closed and cannot be modified."));
             return;
         }
-        
         if (!$ev->hasCompleteDates()) {
             $this->emit('incompleteEventConfirmation');
             return;
         }
-        
-        $this->emit('confirmConfirmation', $ev);
+        $this->emit('confirmConfirmation', $ev->id);
     }
 
     /**
@@ -235,27 +251,35 @@ class GetTimeRegisters extends Component
      * @param \App\Models\Event $ev The event to delete.
      * @return void
      */
-    public function alertDelete(Event $ev): void
+    public function alertDelete($eventId): void
     {
+        $ev = Event::find($eventId);
+        if (!$ev) return;
         if (!$ev->is_open && !$this->isTeamAdmin) {
             $this->emit('alertFail', __("This event is already closed and cannot be modified."));
             return;
         }
-        $this->emit('deleteConfirmation', $ev);
+        $this->emit('deleteConfirmation', $ev->id);
     }
 
     /**
-     * Delete an event if authorized.
+     * Delete an event if authorized and refresh the component.
      *
-     * @param \App\Models\Event $ev The event to delete.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param int $eventId The ID of the event to delete.
+     * @return void
      */
-    public function delete(Event $ev)
+    public function delete($eventId): void
     {
+        $ev = Event::find($eventId);
+        if (!$ev) return;
+        \Log::debug('Intentando eliminar evento', ['event_id' => $eventId]);
         if ($this->isTeamAdmin || $ev->is_open) {
             $ev->delete();
-            // Emit alert without reloading the page
+            \Log::debug('Evento eliminado', ['event_id' => $eventId]);
             $this->emit('alert', __('Event has been removed!'));
+            $this->refreshComponent(); // Ensure the component refreshes after deletion
+        } else {
+            \Log::debug('No se pudo eliminar el evento', ['event_id' => $eventId]);
         }
     }
 
@@ -269,6 +293,20 @@ class GetTimeRegisters extends Component
         $this->showFiltersModal = false;
         $this->filtered = false;
         $this->confirmed = false;
+    }
+
+    /**
+     * Reset all filters to default values
+     */
+    protected function resetFilters(): void
+    {
+        $this->filtered = false;
+        $this->confirmed = false;
+        $this->search = '';
+        $this->filterStart = '';
+        $this->filterEnd = '';
+        $this->filterUserId = null;
+        $this->filterEventTypeId = null;
     }
 
     /**
@@ -297,67 +335,90 @@ class GetTimeRegisters extends Component
     /**
      * Retrieve and filter events based on the current settings.
      *
-     * @return void
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getEvents(): void
+    public function getEvents()
     {
+        \Log::info('getEvents ejecutado', [
+            'readyonload' => $this->readyonload,
+            'team_id' => $this->team ? $this->team->id : null,
+            'team_name' => $this->team ? $this->team->name : null,
+            'teamUsers' => $this->teamUsers,
+            'filters' => [
+                'search' => $this->search,
+                'filtered' => $this->filtered,
+                'confirmed' => $this->confirmed,
+                'showOnlyMine' => $this->showOnlyMine,
+            ],
+        ]);
+
         if (!$this->readyonload) {
-            return;
+            \Log::info('getEvents no se ejecuta porque readyonload es false');
+            return new \Illuminate\Pagination\LengthAwarePaginator([], 0, $this->qtytoshow);
         }
 
-        $query = Event::query()->with('eventType')
-            ->select(
-                'events.id', 'events.user_id', 'users.name', 'users.family_name1',
-                'events.start', 'events.end', 'events.description', 'events.is_open', 'events.event_type_id',
-                'events.is_authorized', 'events.observations', 'events.is_exceptional'
-            )
-            ->join('users', 'events.user_id', '=', 'users.id')
-            ->leftJoin('event_types', 'events.event_type_id', '=', 'event_types.id')
-            ->where(function ($query) {
-                $query->where('event_types.team_id', $this->team->id)
-                      ->orWhereNull('events.event_type_id');
-            })
-            ->whereIn('events.user_id', $this->teamUsers);
+        $query = Event::query()
+            ->with(['user', 'eventType'])
+            ->whereIn('user_id', $this->teamUsers)
+            ->where('team_id', $this->team->id);
+        
+        \Log::info('getEvents - Query construida', [
+            'filtering_by_team_id' => $this->team->id,
+            'filtering_by_users' => $this->teamUsers,
+        ]);
 
         // General search box
         $query->when($this->search, function ($q, $search) {
             $q->where(function ($subq) use ($search) {
-                $subq->where('users.name', 'like', '%' . $search . '%')
-                    ->orWhere('events.user_id', $search)
-                    ->orWhere('users.family_name1', 'like', '%' . $search . '%')
-                    ->orWhere('users.family_name2', 'like', '%' . $search . '%')
-                    ->orWhere('events.description', 'like', '%' . $search . '%');
+                $subq->whereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('family_name1', 'like', '%' . $search . '%')
+                            ->orWhere('family_name2', 'like', '%' . $search . '%');
+                    })
+                    ->orWhere('user_id', $search)
+                    ->orWhere('description', 'like', '%' . $search . '%');
             });
         });
 
         // Advanced filters modal
         $query->when($this->filtered, function ($q) {
-            $q->when($this->filter->start, fn($query) => $query->whereDate('events.start', '>=', $this->filter->start))
-              ->when($this->filter->end, fn($query) => $query->whereDate('events.end', '<=', $this->filter->end))
-              ->when($this->filter->user_id, fn($query) => $query->where('events.user_id', $this->filter->user_id))
-              ->when($this->filter->is_open, fn($query) => $query->where('events.is_open', '1'))
-              ->when($this->filter->event_type_id, fn($query) => $query->where('events.event_type_id', $this->filter->event_type_id));
+            $q->when($this->filter->start, fn($query) => $query->whereDate('start', '>=', $this->filter->start))
+              ->when($this->filter->end, fn($query) => $query->whereDate('end', '<=', $this->filter->end))
+              ->when($this->filter->user_id, fn($query) => $query->where('user_id', $this->filter->user_id))
+              ->when($this->filter->is_open, fn($query) => $query->where('is_open', '1'))
+              ->when($this->filter->event_type_id, fn($query) => $query->where('event_type_id', $this->filter->event_type_id));
         });
 
         // "Show only open" toggle
         $query->when($this->confirmed, function ($q) {
-            $q->where('events.is_open', '=', '1');
+            $q->where('is_open', '=', '1');
         });
 
-        // "My Records" filter logic - inverted behavior for admins
-        if ($this->isTeamAdmin) {
-            // For administrators: showOnlyMine=true shows only my records
-            $query->when($this->showOnlyMine, function ($q) {
-                $q->where('events.user_id', Auth::id());
-            });
+        // "My Records" filter logic - igual para admins y usuarios normales
+        $query->when($this->showOnlyMine, function ($q) {
+            $q->where('user_id', Auth::id());
+        });
+
+        if ($this->sort === 'name') {
+            $query->join('users', 'events.user_id', '=', 'users.id')
+                  ->select('events.*')
+                  ->orderBy('users.name', $this->direction)
+                  ->orderBy('users.family_name1', $this->direction);
         } else {
-            // For normal users: showOnlyMine=true shows only my records (original behavior)
-            $query->when($this->showOnlyMine, function ($q) {
-                $q->where('events.user_id', Auth::id());
-            });
+            $query->orderBy($this->sort, $this->direction);
         }
 
-        $this->events = $query->orderBy($this->sort, $this->direction)->paginate($this->qtytoshow);
+        $events = $query->paginate($this->qtytoshow);
+
+        \Log::info('getEvents resultados', [
+            'event_count' => $events->count(),
+            'total_events' => $events->total(),
+            'first_event_id' => $events->count() > 0 ? $events->first()->id : null,
+            'first_event_team_id' => $events->count() > 0 ? $events->first()->team_id : null,
+            'first_event_user_id' => $events->count() > 0 ? $events->first()->user_id : null,
+        ]);
+        
+        return $events;
     }
 
     /**
@@ -367,9 +428,65 @@ class GetTimeRegisters extends Component
      */
     public function render()
     {
-        $this->getEvents();
-        return view('livewire.events.get-time-registers',)
-            ->with('events', $this->events)
+        // Recargar equipo actual del usuario por si cambió con el selector
+        $this->user = Auth::user();
+        $currentTeam = $this->user->currentTeam;
+
+        // Ensure currentTeam is not null before proceeding
+        if ($currentTeam && (!$this->team || $this->team->id !== $currentTeam->id)) {
+            $this->team = $currentTeam;
+            $this->teamUserList = $this->team ? $this->team->allUsers() : collect();
+            $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
+            $this->isTeamAdmin = $this->user->isTeamAdmin();
+            $this->isInspector = $this->user->isInspector();
+
+            if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
+                $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();
+            } else {
+                $this->teamUsers = [$this->user->id];
+            }
+        }
+        
+        \Log::info('GetTimeRegisters - render()', [
+            'user_id' => $this->user->id,
+            'user_name' => $this->user->name,
+            'current_team_id' => $currentTeam ? $currentTeam->id : null,
+            'current_team_name' => $currentTeam ? $currentTeam->name : null,
+            'component_team_id' => $this->team ? $this->team->id : null,
+            'component_team_name' => $this->team ? $this->team->name : null,
+            'team_changed' => (!$this->team || $this->team->id !== $currentTeam->id),
+        ]);
+        
+        // Si el equipo cambió, actualizar todo el contexto
+        if (!$this->team || $this->team->id !== $currentTeam->id) {
+            \Log::info('GetTimeRegisters - Actualizando contexto de equipo', [
+                'old_team_id' => $this->team ? $this->team->id : null,
+                'new_team_id' => $currentTeam->id,
+            ]);
+            
+            $this->team = $currentTeam;
+            $this->teamUserList = $this->team ? $this->team->allUsers() : collect();
+            $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
+            $this->isTeamAdmin = $this->user->isTeamAdmin();
+            $this->isInspector = $this->user->isInspector();
+            
+            if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
+                $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();
+            } else {
+                $this->teamUsers = [$this->user->id];
+            }
+            
+            \Log::info('GetTimeRegisters - Contexto actualizado', [
+                'teamUsers_count' => count($this->teamUsers),
+                'teamUsers' => $this->teamUsers,
+                'isTeamAdmin' => $this->isTeamAdmin,
+                'isInspector' => $this->isInspector,
+            ]);
+        }
+        
+        $events = $this->getEvents();
+        return view('livewire.events.get-time-registers')
+            ->with('events', $events)
             ->with('isTeamAdmin', $this->isTeamAdmin)
             ->with('isInspector', $this->isInspector);
     }
@@ -396,11 +513,16 @@ class GetTimeRegisters extends Component
 
     /**
      * Reset the pagination when the quantity to show is updated.
+     * Cap the value at 100 to prevent DoS attacks.
      *
+     * @param mixed $value The new quantity value
      * @return void
      */
-    public function updatingQtytoshow(): void
+    public function updatingQtytoshow($value): void
     {
+        // Cap the value at 100 to prevent DoS attacks
+        // Ensure minimum of 1 and cast to integer for type safety
+        $this->qtytoshow = (string) min(100, max(1, (int)$value));
         $this->resetPage();
     }
 

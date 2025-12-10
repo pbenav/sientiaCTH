@@ -23,6 +23,7 @@ class TeamAnnouncement extends Model
     protected $fillable = [
         'title',
         'content',
+        'format',
         'is_active',
         'start_date',
         'end_date',

@@ -22,7 +22,15 @@ class IsTeamAdmin
             $team = $request->route('work_center')->team;
         }
 
-        if (!auth()->user()->ownsTeam($team) && !auth()->user()->hasTeamRole($team, 'admin')) {
+        $user = auth()->user();
+
+        // Allow global admins to access all teams
+        if ($user->is_admin) {
+            return $next($request);
+        }
+
+        // Check if user is owner or has admin role
+        if (!$user->ownsTeam($team) && !$user->hasTeamRole($team, 'admin')) {
             abort(403);
         }
 

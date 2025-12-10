@@ -155,10 +155,19 @@ class Calendar extends Component
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
-                $event->update([
-                    'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
-                    'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
-                ]);
+                if ($event->eventType && $event->eventType->is_all_day) {
+                    // For all-day events, store as pure dates in UTC
+                    $event->update([
+                        'start' => Carbon::parse($newStart)->format('Y-m-d') . ' 00:00:00',
+                        'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d') . ' 00:00:00' : null,
+                    ]);
+                } else {
+                    // For timed events, convert from team timezone to UTC
+                    $event->update([
+                        'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
+                        'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
+                    ]);
+                }
             }
             $this->refresh();
         }
@@ -179,10 +188,19 @@ class Calendar extends Component
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
-                $event->update([
-                    'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
-                    'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
-                ]);
+                if ($event->eventType && $event->eventType->is_all_day) {
+                    // For all-day events, store as pure dates in UTC
+                    $event->update([
+                        'start' => Carbon::parse($newStart)->format('Y-m-d') . ' 00:00:00',
+                        'end' => Carbon::parse($newEnd)->format('Y-m-d') . ' 00:00:00',
+                    ]);
+                } else {
+                    // For timed events, convert from team timezone to UTC
+                    $event->update([
+                        'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
+                        'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
+                    ]);
+                }
             }
             $this->refresh();
         }
@@ -196,7 +214,7 @@ class Calendar extends Component
      */
     public function triggerEditModal(int $eventId): void
     {
-        $this->emit('edit', $eventId);
+        $this->emit('edit', $eventId, 'calendar');
     }
 
     /**
@@ -260,9 +278,10 @@ class Calendar extends Component
 
         $events = collect();
 
-        // Get user events
+        // Get user events from current team
         $userEvents = Event::with('eventType')
             ->where('user_id', $user->id)
+            ->where('team_id', $user->currentTeam->id)
             ->get()
             ->map(function ($eventModel) use ($teamTimezone, $user) {
                 $iconHtml = $eventModel->is_open
@@ -292,11 +311,17 @@ class Calendar extends Component
                     'id' => 'event_' . $eventModel->id,
                     'title' => $eventModel->description,
                     'iconHtml' => $iconHtml,
-                    'start' => Carbon::parse($eventModel->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
-                    'end' => $eventModel->end ? Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String() : null,
+                    'start' => $eventModel->eventType && $eventModel->eventType->is_all_day
+                        ? Carbon::parse($eventModel->start, 'UTC')->format('Y-m-d')
+                        : Carbon::parse($eventModel->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
+                    'end' => $eventModel->end 
+                        ? ($eventModel->eventType && $eventModel->eventType->is_all_day
+                            ? Carbon::parse($eventModel->end, 'UTC')->format('Y-m-d')
+                            : Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String())
+                        : null,
                     'color' => $eventColor,
                     'allDay' => $eventModel->eventType->is_all_day ?? false,
-                    'editable' => $eventModel->is_open && ($user->hasTeamRole($user->currentTeam, 'admin') || $eventModel->user_id === $user->id),
+                    'editable' => $eventModel->is_open && ($user->ownsTeam($user->currentTeam) || $user->hasTeamRole($user->currentTeam, 'admin') || $eventModel->user_id === $user->id),
                 ];
             });
 

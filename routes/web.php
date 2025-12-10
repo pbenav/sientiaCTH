@@ -58,6 +58,7 @@ Route::middleware([
     // Reports - Reporting functionality
     Route::get('/informes', ReportsComponent::class)->name('reports');
     Route::get('/informes/preview', [App\Http\Controllers\ReportsController::class, 'preview'])->name('reports.preview');
+    Route::get('/informes/download/{file}', [App\Http\Controllers\ReportsController::class, 'download'])->name('reports.download');
     
     // Messages - Team messages
     Route::get('/mensajes', function () {
@@ -100,11 +101,41 @@ Route::middleware([
         })->name('.form');
     });
 
+    // Team invitation acceptance - Available for team owners and admins
+    Route::post('/teams/{team}/invitations/{invitation}/accept', [App\Http\Controllers\TeamInvitationController::class, 'accept'])->name('teams.invitations.accept');
+
     // Team Preferences
     Route::get('/team/preferences', [App\Http\Controllers\TeamPreferencesController::class, 'index'])->name('team.preferences');
     Route::post('/team/preferences/install', [App\Http\Controllers\TeamPreferencesController::class, 'installDependencies'])->name('team.preferences.install');
     Route::put('/team/preferences/pdf-engine', [App\Http\Controllers\TeamPreferencesController::class, 'updatePdfEngine'])->name('team.preferences.pdf-engine');
+    Route::put('/team/preferences/report-limits', [App\Http\Controllers\TeamPreferencesController::class, 'updateReportPreferences'])->name('team.preferences.report-limits');
     Route::post('/team/preferences/detect-chrome', [App\Http\Controllers\TeamPreferencesController::class, 'detectChrome'])->name('team.preferences.detect-chrome');
+    Route::post('/team/preferences/detect-node', [App\Http\Controllers\TeamPreferencesController::class, 'detectNode'])->name('team.preferences.detect-node');
+    Route::post('/team/preferences/detect-npm', [App\Http\Controllers\TeamPreferencesController::class, 'detectNpm'])->name('team.preferences.detect-npm');
+});
+
+// Admin routes - Only accessible to global administrators
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    // Mail Settings
+    Route::get('/mail-settings', function () {
+        if (!auth()->user() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+        return view('admin.mail-settings');
+    })->name('mail-settings');
+
+    // Team Administration
+    Route::get('/teams', [App\Http\Controllers\Admin\TeamController::class, 'index'])->name('teams.index');
+    Route::get('/teams/{team}/edit', [App\Http\Controllers\Admin\TeamController::class, 'edit'])->name('teams.edit');
+    Route::put('/teams/{team}', [App\Http\Controllers\Admin\TeamController::class, 'update'])->name('teams.update');
+    Route::delete('/teams/{team}', [App\Http\Controllers\Admin\TeamController::class, 'destroy'])->name('teams.destroy');
+    Route::post('/teams/{team}/members', [App\Http\Controllers\Admin\TeamController::class, 'addMember'])->name('teams.add-member');
+    Route::put('/teams/{team}/members/{user}/role', [App\Http\Controllers\Admin\TeamController::class, 'updateMemberRole'])->name('teams.update-member-role');
+    Route::delete('/teams/{team}/members/{user}', [App\Http\Controllers\Admin\TeamController::class, 'removeMember'])->name('teams.remove-member');
+    Route::post('/teams/{team}/members/{user}/transfer', [App\Http\Controllers\Admin\TeamController::class, 'transferUser'])->name('teams.transfer-user');
+    Route::put('/teams/{team}/transfer-ownership', [App\Http\Controllers\Admin\TeamController::class, 'transferOwnership'])->name('teams.transfer-ownership');
+    Route::put('/teams/{team}/assign-owner', [App\Http\Controllers\Admin\TeamController::class, 'assignOwner'])->name('teams.assign-owner');
+    Route::post('/teams/{team}/invitations/{invitation}/accept', [App\Http\Controllers\TeamInvitationController::class, 'accept'])->name('teams.accept-invitation');
 });
 
 /*

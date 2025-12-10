@@ -19,6 +19,7 @@ class AnnouncementManager extends Component
     public ?int $editingId = null;
     public string $title = '';
     public string $content = '';
+    public ?string $format = null;
     public bool $is_active = true;
     public ?string $start_date = null;
     public ?string $end_date = null;
@@ -26,6 +27,7 @@ class AnnouncementManager extends Component
     protected $rules = [
         'title' => 'required|string|max:255',
         'content' => 'required|string',
+        'format' => 'required|in:markdown,html',
         'is_active' => 'boolean',
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -51,6 +53,15 @@ class AnnouncementManager extends Component
     {
         $this->resetForm();
         $this->showModal = true;
+        // Clear the editor content on the frontend
+        $this->dispatchBrowserEvent('load-announcement-content', ['content' => '', 'format' => null]);
+    }
+
+    public function setFormat($format)
+    {
+        if (in_array($format, ['markdown', 'html'])) {
+            $this->format = $format;
+        }
     }
 
     /**
@@ -73,13 +84,18 @@ class AnnouncementManager extends Component
         $this->editingId = $announcement->id;
         $this->title = $announcement->title;
         $this->content = $announcement->content;
+        $this->format = $announcement->format ?? 'html'; // Default to html for existing records
         $this->is_active = $announcement->is_active;
         $this->start_date = $announcement->start_date?->format('Y-m-d');
         $this->end_date = $announcement->end_date?->format('Y-m-d');
         $this->showModal = true;
         
-        // Emitir evento para que JavaScript recargue el editor
-        $this->emit('loadAnnouncementContent');
+        // Emitir evento con el contenido directamente para que JavaScript lo cargue
+        // Emitir evento de navegador para Alpine.js
+        $this->dispatchBrowserEvent('load-announcement-content', [
+            'content' => $announcement->content,
+            'format' => $this->format
+        ]);
     }
 
     /**
@@ -87,11 +103,35 @@ class AnnouncementManager extends Component
      */
     public function save()
     {
+        // Log para debugging
+        \Log::info('AnnouncementManager::save', [
+            'title' => $this->title,
+            'content_length' => strlen($this->content ?? ''),
+            'format' => $this->format,
+            'content_preview' => substr($this->content ?? '', 0, 100),
+        ]);
+
         $this->validate();
 
-        // Sanitizar el contenido HTML para prevenir XSS
-        $sanitizer = new HtmlSanitizerService();
-        $sanitizedContent = $sanitizer->sanitize($this->content);
+        // Normalizar el contenido antes de sanitizar
+        $content = $this->content;
+        
+        if ($this->format === 'html') {
+            // Si es HTML, eliminar saltos de línea innecesarios entre etiquetas
+            $content = preg_replace('/>\s+</', '><', $content);
+            // Eliminar espacios en blanco al inicio y final
+            $content = trim($content);
+            
+            // Sanitizar el contenido HTML para prevenir XSS
+            $sanitizer = new HtmlSanitizerService();
+            $sanitizedContent = $sanitizer->sanitize($content);
+        } else {
+            // Si es Markdown, solo normalizar espacios en blanco y trim
+            $content = trim($content);
+            // Normalizar múltiples saltos de línea consecutivos (máximo 2)
+            $content = preg_replace('/\n{3,}/', "\n\n", $content);
+            $sanitizedContent = $content;
+        }
 
         if ($this->editingId) {
             $announcement = TeamAnnouncement::findOrFail($this->editingId);
@@ -110,6 +150,7 @@ class AnnouncementManager extends Component
             $announcement->update([
                 'title' => $this->title,
                 'content' => $sanitizedContent,
+                'format' => $this->format,
                 'is_active' => $this->is_active,
                 'start_date' => $this->start_date ?: null,
                 'end_date' => $this->end_date ?: null,
@@ -130,6 +171,7 @@ class AnnouncementManager extends Component
             ])->fill([
                 'title' => $this->title,
                 'content' => $sanitizedContent,
+                'format' => $this->format,
                 'is_active' => $this->is_active,
                 'start_date' => $this->start_date ?: null,
                 'end_date' => $this->end_date ?: null,
@@ -139,6 +181,7 @@ class AnnouncementManager extends Component
         }
 
         $this->closeModal();
+        $this->emit('saved');
     }
 
     /**
@@ -190,7 +233,9 @@ class AnnouncementManager extends Component
     {
         $this->showModal = false;
         $this->resetForm();
-        $this->emit('closeModal');
+        
+        // Disparar evento de navegador para limpiar el editor Alpine
+        $this->dispatchBrowserEvent('close-announcement-modal');
     }
 
     /**
@@ -201,6 +246,7 @@ class AnnouncementManager extends Component
         $this->editingId = null;
         $this->title = '';
         $this->content = '';
+        $this->format = null;
         $this->is_active = true;
         $this->start_date = now()->format('Y-m-d');
         $this->end_date = now()->format('Y-m-d');

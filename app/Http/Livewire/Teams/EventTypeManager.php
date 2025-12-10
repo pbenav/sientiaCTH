@@ -107,7 +107,23 @@ class EventTypeManager extends Component
 
         if ($eventTypeId) {
             $eventType = EventType::find($eventTypeId);
-            $this->state = $eventType->toArray();
+            
+            // Normalizar color: el input type="color" solo acepta #RRGGBB (6 caracteres)
+            // Si tiene 8 caracteres (#RRGGBBaa con alpha), eliminar los últimos 2
+            $color = $eventType->color ?? '#000000';
+            if (strlen($color) === 9) { // #RRGGBBAA
+                $color = substr($color, 0, 7); // #RRGGBB
+            }
+            
+            $this->state = [
+                'id' => $eventType->id,
+                'name' => $eventType->name,
+                'color' => $color,
+                'observations' => $eventType->observations ?? '',
+                'is_all_day' => (bool) $eventType->is_all_day,
+                'is_workday_type' => (bool) $eventType->is_workday_type,
+                'is_authorizable' => (bool) $eventType->is_authorizable,
+            ];
         } else {
             $this->state = [
                 'name' => '',
@@ -145,5 +161,6 @@ class EventTypeManager extends Component
 
         $this->eventTypes = $this->team->eventTypes()->get();
         $this->managingEventType = false;
+        $this->emit('saved');
     }
 }

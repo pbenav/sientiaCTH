@@ -35,7 +35,7 @@
 
                 <!-- Message Body -->
                 <div class="prose max-w-none">
-                    {!! nl2br(e($message->body)) !!}
+                    {!! $message->body !!}
                 </div>
 
                 <!-- Actions -->

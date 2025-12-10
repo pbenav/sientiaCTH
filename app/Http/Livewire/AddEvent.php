@@ -95,8 +95,9 @@ class AddEvent extends Component
             $this->selectedEventType = $this->eventTypes->firstWhere('id', $this->event_type_id);
         }
 
-        // Update description with event type name if it's currently the default or empty
-        if (empty($this->description) || $this->description === __('Workday')) {
+        // Update description with event type name if it matches any existing event type name or is the default
+        $isEventTypeName = $this->eventTypes->pluck('name')->contains($this->description);
+        if (empty($this->description) || $this->description === __('Workday') || $isEventTypeName) {
             $this->description = $this->selectedEventType ? $this->selectedEventType->name : '';
         }
     }
@@ -189,49 +190,62 @@ class AddEvent extends Component
 
         $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone);
 
-    // IMPORTANT: Always check if workday-type events are within work schedule
-    // If outside the schedule, trigger the exceptional clock-in flow
-    if ($this->selectedEventType && $this->selectedEventType->is_workday_type && !$this->isWithinWorkSchedule($eventStartTime)) {
-        // If outside the schedule, trigger the exceptional clock-in flow
-        $token = Str::random(60);
-        ExceptionalClockInToken::create([
-            'user_id' => $user->id,
-            'team_id' => $team->id,
-            'token' => $token,
-            'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 10),
-        ]);
+    // IMPORTANT: Check if the user is CURRENTLY within their work schedule
+    // We use the current time (now) to determine if this is an exceptional registration.
+    $currentTime = Carbon::now($appTimezone);
+    
+    $forceDelay = $team->force_clock_in_delay ?? false;
 
-        $adminSender = $team->owner;
-        $url = route('exceptional.clock-in.form', ['token' => $token]);
-        $messageContent = __('exceptional_clock_in.message_content', [
-            'minutes' => $team->clock_in_grace_period_minutes ?? 10,
-            'url' => $url
-        ]);
+    // Only perform strict checks if force delay is enabled
+    if ($forceDelay && $this->selectedEventType && $this->selectedEventType->is_workday_type) {
+        // Check strict entry window
+        $isAllowed = $this->isWithinEntryWindow($currentTime);
 
-        $message = Message::create([
-            'sender_id' => $adminSender->id,
-            'subject' => __('exceptional_clock_in.message_subject'),
-            'body' => $messageContent,
-            'is_log' => true,
-        ]);
+        if (!$isAllowed) {
+            // If outside the schedule AND force delay is enabled, trigger the exceptional clock-in flow
+            $token = Str::random(60);
+            ExceptionalClockInToken::create([
+                'user_id' => $user->id,
+                'team_id' => $team->id,
+                'token' => $token,
+                'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 10),
+            ]);
 
-        $message->recipients()->attach($user->id);
-        $user->notify(new NewMessage($message));
+            $adminSender = $team->owner;
+            $url = route('exceptional.clock-in.form', ['token' => $token]);
+            $messageContent = __('exceptional_clock_in.message_content', [
+                'minutes' => $team->clock_in_grace_period_minutes ?? 10,
+                'url' => $url
+            ]);
 
-        if ($this->origin === 'numpad') {
-            $this->showAddEventModal = false;
-            return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
-        } else {
-            $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
-            $this->showAddEventModal = false;
-            $this->emit('refreshCalendar');
+            $message = Message::create([
+                'sender_id' => $adminSender->id,
+                'subject' => __('exceptional_clock_in.message_subject'),
+                'body' => $messageContent,
+                'is_log' => true,
+            ]);
+
+            $message->recipients()->attach($user->id);
+            $user->notify(new NewMessage($message));
+
+            if ($this->origin === 'numpad') {
+                $this->showAddEventModal = false;
+                return redirect()->route('events')->with('alertFail', __('exceptional_clock_in.validation_error'));
+            } else {
+                $this->dispatchBrowserEvent('alertFail', ['message' => __('exceptional_clock_in.validation_error')]);
+                $this->showAddEventModal = false;
+                $this->emit('refreshCalendar');
+            }
+            return;
         }
-        return;
     }
 
         // NEW LOGIC: All time not within main workday events should be considered overtime
         // This includes holidays, weekends, and non-workday event types
         $isExtraHours = !($this->selectedEventType && $this->selectedEventType->is_workday_type);
+        
+        // If force_clock_in_delay is disabled, we treat all allowed registrations as normal (not exceptional)
+        $isExceptional = false;
 
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
@@ -246,11 +260,12 @@ class AddEvent extends Component
             'is_open' => true,
             'is_authorized' => false,
             'is_extra_hours' => $isExtraHours,
+            'is_exceptional' => $isExceptional,
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = Carbon::parse($this->start_date, $appTimezone)->startOfDay()->setTimezone('UTC');
-            $data['end'] = Carbon::parse($this->end_date, $appTimezone)->startOfDay()->addDay()->setTimezone('UTC');
+            $data['start'] = Carbon::parse($this->start_date . ' 00:00:00', 'UTC');
+            $data['end'] = Carbon::parse($this->end_date . ' 23:59:59', 'UTC');
         } else {
             $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone)->setTimezone('UTC');
             $data['end'] = null;
@@ -283,6 +298,8 @@ class AddEvent extends Component
         $this->reset(['showAddEventModal']);
 
         if ($this->origin == 'numpad') {
+            return redirect()->route('events')->with('info', 'E_SUCCESS');
+        } elseif ($this->origin == '1') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
         } else {
             $this->emitTo('get-time-registers', 'render');

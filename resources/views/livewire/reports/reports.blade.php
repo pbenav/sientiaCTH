@@ -22,6 +22,17 @@
     <div class="w-full max-w-7xl mx-auto">
         <div class="w-auto flex flex-row flex-wrap gap-2 mb-4">
 
+            <div>
+                <x-jet-label value="{{ __('Report Source') }}" />
+                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='report_source'>
+                    @foreach ($reportSources as $sourceKey => $sourceName)
+                        <option value="{{ $sourceKey }}">
+                            {{ $sourceName }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             @if ($isTeamAdmin or $isInspector)
                 <div>
                     <x-jet-label value="{{ __('Worker') }}" />
@@ -111,9 +122,13 @@
 @push('scripts')
 <script>
     let reportLoadingAlert = null;
+    let isGeneratingPreview = false;
+    let loadingStartTime = null;
 
     function showReportLoading() {
         if (!reportLoadingAlert) {
+            isGeneratingPreview = true;
+            loadingStartTime = Date.now();
             reportLoadingAlert = Swal.fire({
                 title: '{{ __("Generating...") }}',
                 html: '{{ __("Please wait while the report is being generated...") }}',
@@ -127,22 +142,53 @@
         
         // Set a timeout to close if it takes too long or something goes wrong
         setTimeout(() => {
-            hideReportLoading();
+            if (isGeneratingPreview) {
+                hideReportLoading();
+            }
         }, 60000); // 60 seconds max
     }
 
     function hideReportLoading() {
-        if (reportLoadingAlert) {
-            Swal.close();
-            reportLoadingAlert = null;
-        }
+        // Ensure minimum display time of 2 seconds to avoid flashing
+        const minDisplayTime = 2000; // 2 seconds
+        const elapsedTime = loadingStartTime ? Date.now() - loadingStartTime : minDisplayTime;
+        const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
+        
+        setTimeout(() => {
+            isGeneratingPreview = false;
+            if (reportLoadingAlert) {
+                Swal.close();
+                reportLoadingAlert = null;
+                loadingStartTime = null;
+            }
+        }, remainingTime);
     }
 
     // Listen for when Livewire finishes updating
     document.addEventListener('livewire:load', function () {
+        // NO cerramos el mensaje automáticamente cuando Livewire termina
+        // Solo lo cerramos cuando el iframe se carga (onload) o en caso de export directo
         Livewire.hook('message.processed', (message, component) => {
-            // Small delay to ensure UI has updated
-            setTimeout(hideReportLoading, 500);
+            // Si no estamos generando preview (es decir, es un export directo), cerramos después de un delay
+            setTimeout(() => {
+                // Solo cerrar si no hay preview activo (el iframe no se está cargando)
+                if (!document.querySelector('iframe[src*="reports.preview"]')) {
+                    hideReportLoading();
+                }
+            }, 1000); // Increased from 500ms to 1000ms
+        });
+
+        Livewire.on('async-report-started', function(data) {
+            hideReportLoading(); // Ensure loading spinner is closed
+            Swal.fire({
+                icon: 'info',
+                title: data.title,
+                text: data.text,
+                timer: 10000, // 10 seconds timeout as requested
+                timerProgressBar: true,
+                showConfirmButton: true,
+                confirmButtonText: '{{ __("sweetalert.ok_button") }}'
+            });
         });
     });
 </script>

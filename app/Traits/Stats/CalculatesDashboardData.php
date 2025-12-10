@@ -58,12 +58,21 @@ trait CalculatesDashboardData
                     if (empty($event->start) || empty($event->end)) {
                         return 0;
                     }
-                    // Parse as UTC (how Laravel stores timestamps) then convert to team timezone
-                    $start = Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);
-                    $end = Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone);
-                    // If the event is on the same day, count as 1 day
-                    // If it's multiple days, count the full days
-                    return max(1, $start->startOfDay()->diffInDays($end->startOfDay()) + 1);
+                    // Parse as UTC (how Laravel stores timestamps)
+                    $startUTC = Carbon::parse($event->start, 'UTC');
+                    $endUTC = Carbon::parse($event->end, 'UTC');
+                    
+                    // Calculate days based on UTC dates to avoid timezone conversion issues
+                    // For all-day events stored as 00:00:00 to 23:59:59, this will correctly count as 1 day
+                    $startDate = $startUTC->toDateString();
+                    $endDate = $endUTC->toDateString();
+                    
+                    // If same day in UTC, count as 1; otherwise count the difference + 1
+                    if ($startDate === $endDate) {
+                        return 1;
+                    }
+                    
+                    return $startUTC->copy()->startOfDay()->diffInDays($endUTC->copy()->startOfDay()) + 1;
                 });
                 
                 return [
@@ -260,23 +269,9 @@ trait CalculatesDashboardData
             $percentage_completion = 0;
         }
 
-        // NEW LOGIC: Calculate extra hours directly from is_extra_hours field
-        // Get all events marked as extra hours for the period
-        $extraHoursEvents = Event::where('user_id', $user->id)
-            ->where('is_extra_hours', true)
-            ->whereBetween('start', [$startDate->copy()->setTimezone('UTC'), $endDate->copy()->addDay()->setTimezone('UTC')])
-            ->whereNotNull('end')
-            ->get();
-
-        $extraHoursTotal = 0;
-        foreach ($extraHoursEvents as $event) {
-            $eventStart = Carbon::parse($event->start, 'UTC');
-            $eventEnd = Carbon::parse($event->end, 'UTC');
-            $extraHoursTotal += $eventStart->diffInSeconds($eventEnd);
-        }
-
-        // Use the new calculation method
-        $extra_hours = round($extraHoursTotal / 3600, 2);
+        // Calculate extra hours as the difference between registered and scheduled hours
+        // If registered hours exceed scheduled hours, the difference is overtime
+        $extra_hours = max(0, round($registeredHours - $scheduledHoursCalculated, 2));
 
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
         $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
@@ -338,10 +333,11 @@ trait CalculatesDashboardData
         $confidenceScores = [];
         // Calcular confianza sobre los eventos cerrados (ya filtrados en $closedEvents)
         foreach ($closedEvents as $event) {
-            $start = Carbon::parse($event->start);
-            $end = Carbon::parse($event->end);
-            $createdAt = Carbon::parse($event->created_at);
-            $updatedAt = Carbon::parse($event->updated_at);
+            // Parse as UTC since events are stored in UTC
+            $start = Carbon::parse($event->start, 'UTC');
+            $end = Carbon::parse($event->end, 'UTC');
+            $createdAt = Carbon::parse($event->created_at, 'UTC');
+            $updatedAt = Carbon::parse($event->updated_at, 'UTC');
 
             $diffStart = abs($start->diffInSeconds($createdAt));
             $diffEnd = abs($end->diffInSeconds($updatedAt));

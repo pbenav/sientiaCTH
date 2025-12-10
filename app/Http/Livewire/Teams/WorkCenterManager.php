@@ -25,8 +25,7 @@ class WorkCenterManager extends Component
     public bool $confirmingWorkCenterRemoval = false;
     public ?int $workCenterIdBeingRemoved = null;
 
-    public bool $confirmingWorkCenterCreation = false;
-    public bool $confirmingWorkCenterUpdate = false;
+    public bool $confirmingWorkCenterManagement = false;
     public ?int $workCenterBeingUpdatedId = null;
 
     public array $currentNFCContent = [];
@@ -68,9 +67,12 @@ class WorkCenterManager extends Component
     public function confirmWorkCenterCreation(): void
     {
         $this->resetErrorBag();
-        $this->state = [];
+        $this->state = [
+            'enable_nfc' => false,
+        ];
         $this->currentNFCContent = [];
-        $this->confirmingWorkCenterCreation = true;
+        $this->workCenterBeingUpdatedId = null;
+        $this->confirmingWorkCenterManagement = true;
     }
 
     /**
@@ -100,7 +102,7 @@ class WorkCenterManager extends Component
             $workCenter->enableNFC($this->state['nfc_tag_description'] ?? null);
         }
 
-        $this->confirmingWorkCenterCreation = false;
+        $this->confirmingWorkCenterManagement = false;
         $this->currentNFCContent = [];
         $this->emit('saved');
     }
@@ -113,7 +115,7 @@ class WorkCenterManager extends Component
      */
     public function confirmWorkCenterUpdate($workCenterId): void
     {
-    \Log::info('confirmWorkCenterUpdate called', ['raw' => $workCenterId]);
+        \Log::info('confirmWorkCenterUpdate called', ['raw' => $workCenterId]);
         $this->resetErrorBag();
 
         // Coerce flexible payloads (in case the caller accidentally passed the model/array)
@@ -131,14 +133,14 @@ class WorkCenterManager extends Component
 
         // Cargar el modelo internamente para evitar serialización pesada al pasar el modelo desde la vista
         $workCenter = WorkCenter::findOrFail($workCenterId);
-    $this->workCenterBeingUpdatedId = $workCenter->id;
-    $this->state = $workCenter->toArray();
-    $this->state['enable_nfc'] = $workCenter->hasNFC();
-    \Log::info('confirmWorkCenterUpdate state', ['state' => $this->state]);
-    // Generar contenido NFC actual para mostrar en el modal
-    $this->currentNFCContent = $workCenter->generateNFCTagContent();
-    \Log::info('confirmWorkCenterUpdate NFC', ['currentNFCContent' => $this->currentNFCContent]);
-    $this->confirmingWorkCenterUpdate = true;
+        $this->workCenterBeingUpdatedId = $workCenter->id;
+        $this->state = $workCenter->toArray();
+        $this->state['enable_nfc'] = $workCenter->hasNFC();
+        \Log::info('confirmWorkCenterUpdate state', ['state' => $this->state]);
+        // Generar contenido NFC actual para mostrar en el modal
+        $this->currentNFCContent = $workCenter->generateNFCTagContent();
+        \Log::info('confirmWorkCenterUpdate NFC', ['currentNFCContent' => $this->currentNFCContent]);
+        $this->confirmingWorkCenterManagement = true;
     }
 
     /**
@@ -179,7 +181,7 @@ class WorkCenterManager extends Component
                 $workCenter->disableNFC();
             }
 
-            $this->confirmingWorkCenterUpdate = false;
+            $this->confirmingWorkCenterManagement = false;
             $this->currentNFCContent = [];
             $this->workCenterBeingUpdatedId = null;
             $this->emit('saved');
@@ -296,7 +298,7 @@ class WorkCenterManager extends Component
             'teamId' => $this->teamId,
             'workCenterBeingUpdatedId' => $this->workCenterBeingUpdatedId,
             'state' => $this->state,
-            'confirmingWorkCenterUpdate' => $this->confirmingWorkCenterUpdate
+            'confirmingWorkCenterManagement' => $this->confirmingWorkCenterManagement
         ]);
         return view('livewire.teams.work-center-manager', [
             'workCenters' => $team->workCenters()->paginate(5)

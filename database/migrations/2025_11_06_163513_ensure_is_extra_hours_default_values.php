@@ -48,7 +48,9 @@ return new class extends Migration
             }
 
             // Ensure the column has the correct default value and not null constraint
-            if (Schema::hasColumn('events', 'is_extra_hours')) {
+            // Note: SQLite doesn't support MODIFY COLUMN, so we skip this step for SQLite
+            // The column was already created with proper defaults above if it didn't exist
+            if (Schema::hasColumn('events', 'is_extra_hours') && DB::connection()->getDriverName() !== 'sqlite') {
                 // Get column info to check if it needs updating
                 $columns = Schema::getColumnListing('events');
                 

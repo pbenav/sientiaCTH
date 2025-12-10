@@ -22,4 +22,11 @@ return [
     'Duration' => 'Duración',
     'Description' => 'Descripción',
     'Observations' => 'Observaciones',
+    'Statistics Report' => 'Informe de Estadísticas',
+    'Period' => 'Período',
+    'Days with activity' => 'Días con actividad',
+    'Average per day' => 'Promedio por día',
+    'Total hours' => 'Horas totales',
+    'Statistics reports are only available in PDF format.' => 'Los informes de estadísticas solo están disponibles en formato PDF.',
+    'select_specific_worker' => 'Por favor, seleccione un trabajador específico para los informes de estadísticas.',
 ];

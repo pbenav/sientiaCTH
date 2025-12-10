@@ -28,6 +28,7 @@ yarn-error.log
 /storage/framework/cache/
 /storage/framework/sessions/
 /storage/framework/views/
+/storage/npm-cache/
 /storage/app/purifier/
 
 # Archivos específicos de sistemas operativos y editores

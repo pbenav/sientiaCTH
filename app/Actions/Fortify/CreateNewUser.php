@@ -3,6 +3,7 @@
 namespace App\Actions\Fortify;
 
 use App\Models\Team;
+use App\Models\TeamInvitation;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -41,24 +42,82 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => Hash::make($input['password']),
             ]), function (User $user) {
-                $this->createTeam($user);
+                // Check if user has pending invitations
+                $pendingInvitations = TeamInvitation::where('email', $user->email)->get();
+                
+                if ($pendingInvitations->isNotEmpty()) {
+                    // User has pending invitations, accept them
+                    $this->acceptPendingInvitations($user, $pendingInvitations);
+                } else {
+                    // No pending invitations, assign to Welcome team
+                    $this->assignToWelcomeTeam($user);
+                }
             });
         });
     }
 
     /**
-     * Create a personal team for the user.
+     * Assign the new user to the Welcome team.
+     * Creates the Welcome team if it doesn't exist.
      *
      * @param  \App\Models\User  $user
      * @return void
      */
-    protected function createTeam(User $user)
+    protected function assignToWelcomeTeam(User $user)
     {
-        $user->ownedTeams()->save(Team::forceCreate([
-            'user_id' => $user->id,
-            'name' => explode(' ', $user->name, 2)[0]."'s Team",
-            'personal_team' => true,
-        ]));
+        // Find or create the Welcome team
+        $welcomeTeam = Team::firstOrCreate(
+            ['name' => Team::WELCOME_TEAM_NAME],
+            [
+                'user_id' => 1, // Assign to admin user (ID 1)
+                'personal_team' => false,
+            ]
+        );
+
+        // Add user to the Welcome team with default 'user' role
+        $welcomeTeam->users()->attach($user->id, ['role' => 'user']);
+        
+        // Set this as the user's current team
+        $user->forceFill([
+            'current_team_id' => $welcomeTeam->id,
+        ])->save();
+    }
+
+    /**
+     * Accept all pending team invitations for the user.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \Illuminate\Support\Collection  $invitations
+     * @return void
+     */
+    protected function acceptPendingInvitations(User $user, $invitations)
+    {
+        $firstTeam = null;
+
+        foreach ($invitations as $invitation) {
+            $team = $invitation->team;
+
+            // Add user to team with the invited role
+            $team->users()->attach($user->id, ['role' => $invitation->role]);
+
+            // Remember first team to set as current
+            if (!$firstTeam) {
+                $firstTeam = $team;
+            }
+
+            // Delete the invitation
+            $invitation->delete();
+        }
+
+        // Set first team as current team
+        if ($firstTeam) {
+            $user->forceFill([
+                'current_team_id' => $firstTeam->id,
+            ])->save();
+        }
+
+        // Mark email as verified since they received the invitation
+        $user->markEmailAsVerified();
     }
 }
 

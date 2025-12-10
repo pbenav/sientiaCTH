@@ -29,11 +29,34 @@ class AddTeamMember implements AddsTeamMembers
 
         $newTeamMember = Jetstream::findUserByEmailOrFail($email);
 
+        // Auto-verify email if the user is being added by a team admin
+        // This allows team owners to accept users without them needing to verify their email first
+        if (! $newTeamMember->hasVerifiedEmail()) {
+            $newTeamMember->markEmailAsVerified();
+        }
+
         AddingTeamMember::dispatch($team, $newTeamMember);
 
         $team->users()->attach(
             $newTeamMember, ['role' => $role]
         );
+
+        // Remove user from Welcome team if they are being added to another team
+        $welcomeTeam = \App\Models\Team::where('name', \App\Models\Team::WELCOME_TEAM_NAME)->first();
+        if ($welcomeTeam && $welcomeTeam->id !== $team->id && $welcomeTeam->hasUser($newTeamMember)) {
+            $welcomeTeam->users()->detach($newTeamMember);
+        }
+
+        // If this is the user's first real team (not Welcome), set it as current
+        if ($newTeamMember->current_team_id === $welcomeTeam?->id) {
+            $newTeamMember->forceFill([
+                'current_team_id' => $team->id,
+            ])->save();
+        }
+
+        // Refresh the teams relationship so the user can immediately switch to this team
+        // This ensures belongsToTeam() checks will pass when the user tries to switch teams
+        $newTeamMember->load('teams');
 
         TeamMemberAdded::dispatch($team, $newTeamMember);
     }

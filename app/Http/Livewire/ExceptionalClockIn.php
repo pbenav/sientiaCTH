@@ -23,7 +23,7 @@ class ExceptionalClockIn extends Component
     public string $end_date;
     public string $end_time;
     public string $observations;
-    public ExceptionalClockInToken $tokenRecord;
+    public ?ExceptionalClockInToken $tokenRecord = null;
     public bool $isValidToken = false;
 
     /**
@@ -37,7 +37,7 @@ class ExceptionalClockIn extends Component
             'start_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'end_time' => 'required|date_format:H:i',
             'observations' => 'required|string|max:255',
         ];
     }
@@ -112,6 +112,15 @@ class ExceptionalClockIn extends Component
     {
         $this->validate();
 
+        // Additional validation: ensure end datetime is after start datetime
+        $startDateTime = Carbon::parse($this->start_date . ' ' . $this->start_time);
+        $endDateTime = Carbon::parse($this->end_date . ' ' . $this->end_time);
+
+        if ($endDateTime->lessThanOrEqualTo($startDateTime)) {
+            $this->addError('end_time', __('The end date and time must be after the start date and time.'));
+            return;
+        }
+
         if (!$this->isValidToken) {
             return;
         }
@@ -136,6 +145,7 @@ class ExceptionalClockIn extends Component
 
         Event::create([
             'user_id' => $user->id,
+            'team_id' => $team->id,
             'work_center_id' => $defaultWorkCenterId,
             'description' => $workdayEventType->name,
             'observations' => $this->observations,

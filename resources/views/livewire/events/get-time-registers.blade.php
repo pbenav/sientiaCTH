@@ -163,7 +163,7 @@
                                     $eventColor = $this->getEventColor($ev);
                                     $isDark = $this->isDark($eventColor);
                                 @endphp
-                                <tr class="hover:bg-gray-50 transition-colors">
+                                <tr wire:key="event-desktop-{{ $ev->id }}" class="hover:bg-gray-50 transition-colors">
                                     <td class="px-4 py-3 whitespace-nowrap cursor-pointer" wire:click="showEventModal({{ $ev->id }})">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm" 
                                               style="background-color: {{ $eventColor }}; color: {{ $isDark ? 'white' : 'black' }}">
@@ -222,21 +222,21 @@
                                         <td class="px-4 py-3 whitespace-nowrap text-center">
                                             <div class="flex justify-center space-x-1">
                                                 <button class="p-2 rounded {{ $ev->is_open ? 'text-blue-600 hover:bg-blue-50' : 'text-gray-400' }}"
-                                                        wire:click="edit({{ $ev }})"
-                                                        @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
-                                                        title="{{ __('Edit') }}">
+                                                    wire:click="edit({{ $ev->id }})"
+                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
+                                                    title="{{ __('Edit') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                 </button>
                                                 <button class="p-2 rounded {{ $ev->is_open ? 'text-green-600 hover:bg-green-50' : 'text-gray-400' }}"
-                                                        wire:click="alertConfirm({{ $ev }})"
-                                                        @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
-                                                        title="{{ __('Confirm') }}">
+                                                    wire:click="alertConfirm({{ $ev->id }})"
+                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
+                                                    title="{{ __('Confirm') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 </button>
                                                 <button class="p-2 rounded {{ $ev->is_open ? 'text-red-600 hover:bg-red-50' : 'text-gray-400' }}"
-                                                        wire:click="alertDelete({{ $ev }})"
-                                                        @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
-                                                        title="{{ __('Delete') }}">
+                                                    wire:click="alertDelete({{ $ev->id }})"
+                                                    @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif
+                                                    title="{{ __('Delete') }}">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
                                             </div>
@@ -249,13 +249,13 @@
                 </div>
 
                 <!-- Mobile Card View (visible only on very small screens < 480px) -->
-                <div class="xs:hidden divide-y divide-gray-200">
+                <div class="block xs:hidden divide-y divide-gray-200">
                     @foreach ($events as $ev)
                         @php
                             $eventColor = $this->getEventColor($ev);
                             $isDark = $this->isDark($eventColor);
                         @endphp
-                        <div class="p-4 hover:bg-gray-50">
+                        <div wire:key="event-mobile-{{ $ev->id }}" class="p-4 hover:bg-gray-50">
                             <!-- Header with ID and Actions -->
                             <div class="flex items-center justify-between mb-3">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm cursor-pointer" 
@@ -267,18 +267,18 @@
                                 @if (!$isInspector || $isTeamAdmin)
                                     <div class="flex space-x-1">
                                         <button class="p-2 rounded {{ $ev->is_open ? 'text-blue-600 hover:bg-blue-50' : 'text-gray-400' }}"
-                                                wire:click="edit({{ $ev }})"
-                                                @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
+                                            wire:click="edit({{ $ev->id }})"
+                                            @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </button>
                                         <button class="p-2 rounded {{ $ev->is_open ? 'text-green-600 hover:bg-green-50' : 'text-gray-400' }}"
-                                                wire:click="alertConfirm({{ $ev }})"
-                                                @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
+                                            wire:click="alertConfirm({{ $ev->id }})"
+                                            @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         </button>
                                         <button class="p-2 rounded {{ $ev->is_open ? 'text-red-600 hover:bg-red-50' : 'text-gray-400' }}"
-                                                wire:click="alertDelete({{ $ev }})"
-                                                @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
+                                            wire:click="alertDelete({{ $ev->id }})"
+                                            @if(!$ev->is_open && !$isTeamAdmin) onclick="showClosedEventAlert()" @endif>
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
@@ -536,6 +536,11 @@
                             Livewire.emit('delete', event);
                         }
                     });
+                });
+
+                Livewire.on('modalClosed', () => {
+                    console.log('Modal closed from events view');
+                    // Add any additional logic if needed
                 });
             </script>
         @endpush

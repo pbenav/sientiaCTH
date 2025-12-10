@@ -46,5 +46,47 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // Handle SMTP connection errors for admins
+        $this->renderable(function (\Swift_TransportException $e, $request) {
+            if (auth()->check() && auth()->user()->is_admin) {
+                $errorMessage = $e->getMessage();
+                
+                // Check if it's a connection error
+                if (str_contains($errorMessage, 'Connection could not be established') ||
+                    str_contains($errorMessage, 'stream_socket_client') ||
+                    str_contains($errorMessage, 'Unable to connect')) {
+                    
+                    session()->flash('alertFail', __('Mail server connection error. Please check your SMTP configuration.'));
+                    
+                    return redirect()->route('admin.mail-settings')->with([
+                        'smtp_error' => $errorMessage,
+                        'message' => __('Cannot connect to mail server. Please verify your SMTP settings below.'),
+                        'messageType' => 'error'
+                    ]);
+                }
+            }
+        });
+
+        // Handle Symfony Mailer exceptions (Laravel 9+)
+        $this->renderable(function (\Symfony\Component\Mailer\Exception\TransportException $e, $request) {
+            if (auth()->check() && auth()->user()->is_admin) {
+                $errorMessage = $e->getMessage();
+                
+                // Check if it's a connection error
+                if (str_contains($errorMessage, 'Connection could not be established') ||
+                    str_contains($errorMessage, 'stream_socket_client') ||
+                    str_contains($errorMessage, 'Unable to connect')) {
+                    
+                    session()->flash('alertFail', __('Mail server connection error. Please check your SMTP configuration.'));
+                    
+                    return redirect()->route('admin.mail-settings')->with([
+                        'smtp_error' => $errorMessage,
+                        'message' => __('Cannot connect to mail server. Please verify your SMTP settings below.'),
+                        'messageType' => 'error'
+                    ]);
+                }
+            }
+        });
     }
 }

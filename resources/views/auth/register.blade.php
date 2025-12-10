@@ -37,6 +37,7 @@
                 <x-jet-label for="password" value="{{ __('Password') }}" class="required" />
                 <x-jet-input id="password" class="block mt-1 w-full" type="password" name="password" required
                     autocomplete="new-password" />
+                <p class="text-sm text-gray-600 mt-1">{{ __('Must be at least 8 characters.') }}</p>
             </div>
 
             <div class="mt-4">
@@ -49,6 +50,7 @@
                 <x-jet-label for="user_code" value="{{ __('Choose a User Code') }}" class="required" />
                 <x-jet-input id="user_code" class="block mt-1 w-full" type="text" name="user_code" :value="old('user_code')"
                     required auto-complete="user_code" />
+                <p class="text-sm text-gray-600 mt-1">{{ __('Must be between 8 and 10 characters.') }}</p>
             </div>
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())

@@ -73,45 +73,83 @@ class DashboardStatsComponent extends Component
         }
         
         // Calculate today's worked hours
+        // Use user's timezone for accurate "today" filtering
+        $userTimezone = config('app.timezone'); // or $user->timezone if you store it per user
+        $todayStart = Carbon::now($userTimezone)->startOfDay();
+        $todayEnd = Carbon::now($userTimezone)->endOfDay();
+        
         $todayEvents = Event::where('user_id', $user->id)
-            ->whereDate('start', $today)
+            ->where('start', '>=', $todayStart)
+            ->where('start', '<=', $todayEnd)
             ->get();
         
-        $todayMinutes = 0;
+        $todaySeconds = 0;
         foreach ($todayEvents as $event) {
-            $start = Carbon::parse($event->start);
-            $end = $event->end ? Carbon::parse($event->end) : Carbon::now();
-            $todayMinutes += $start->diffInMinutes($end);
+            // Parse with timezone to ensure correct interpretation
+            $start = Carbon::parse($event->start, 'UTC')->setTimezone($userTimezone);
+            
+            if ($event->end) {
+                $end = Carbon::parse($event->end, 'UTC')->setTimezone($userTimezone);
+            } else {
+                // If event is open, use current time
+                $end = Carbon::now($userTimezone);
+            }
+            
+            if ($end->greaterThan($start)) {
+                $todaySeconds += $start->diffInSeconds($end);
+            }
         }
         
         // Calculate this week's worked hours
-        $weekStart = $now->copy()->startOfWeek();
+        $weekStart = Carbon::now($userTimezone)->startOfWeek();
+        $weekEnd = Carbon::now($userTimezone)->endOfDay();
+        
         $weekEvents = Event::where('user_id', $user->id)
-            ->whereBetween('start', [$weekStart, $now])
+            ->where('start', '>=', $weekStart)
+            ->where('start', '<=', $weekEnd)
             ->get();
         
-        $weekMinutes = 0;
+        $weekSeconds = 0;
         foreach ($weekEvents as $event) {
-            $start = Carbon::parse($event->start);
-            $end = $event->end ? Carbon::parse($event->end) : Carbon::now();
-            $weekMinutes += $start->diffInMinutes($end);
+            $start = Carbon::parse($event->start, 'UTC')->setTimezone($userTimezone);
+            
+            if ($event->end) {
+                $end = Carbon::parse($event->end, 'UTC')->setTimezone($userTimezone);
+            } else {
+                // If event is open, use current time
+                $end = Carbon::now($userTimezone);
+            }
+            
+            if ($end->greaterThan($start)) {
+                $weekSeconds += $start->diffInSeconds($end);
+            }
         }
         
         // Calculate this year's worked days
-        $yearStart = $now->copy()->startOfYear();
+        $yearStart = Carbon::now($userTimezone)->startOfYear();
+        $yearEnd = Carbon::now($userTimezone)->endOfDay();
+        
         $yearDays = Event::where('user_id', $user->id)
-            ->whereBetween('start', [$yearStart, $now])
-            ->whereNotNull('end')
-            ->selectRaw('DATE(start) as work_date')
+            ->where('start', '>=', $yearStart)
+            ->where('start', '<=', $yearEnd)
+            ->selectRaw('DATE(CONVERT_TZ(start, "+00:00", "' . $userTimezone . '")) as work_date')
             ->groupBy('work_date')
             ->get()
             ->count();
+            
+        // Helper to format seconds to H:i:s
+        $formatSeconds = function($seconds) {
+            $hours = floor($seconds / 3600);
+            $minutes = floor(($seconds % 3600) / 60);
+            $secs = $seconds % 60;
+            return sprintf('%02d:%02d:%02d', $hours, $minutes, $secs);
+        };
         
         return view('livewire.dashboard-stats-component', [
             'currentSlot' => $currentSlot,
             'nextSlot' => $nextSlot,
-            'todayHours' => round($todayMinutes / 60, 2),
-            'weekHours' => round($weekMinutes / 60, 2),
+            'todayHours' => $formatSeconds($todaySeconds),
+            'weekHours' => $formatSeconds($weekSeconds),
             'yearDays' => $yearDays,
         ]);
     }

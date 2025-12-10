@@ -50,12 +50,7 @@
                     
 
                     
-                    eventAllow: function(dropInfo, draggedEvent) {
-                        // Allow drop unless the editable property exists and is false.
-                        // Some draggedEvent (e.g. external) don't have the editable property defined,
-                        // and in that case FullCalendar should allow the drop if not explicitly denied.
-                        return !(draggedEvent && draggedEvent.editable === false);
-                    },
+
 
                     // Callback for clicking an event
                     eventClick: function(info) {
@@ -278,6 +273,13 @@
                     calendar.removeAllEvents();
                     calendar.addEventSource(event.detail.events);
                 });
+            });
+        </script>
+
+        <script>
+            Livewire.on('modalClosed', () => {
+                console.log('Modal closed from calendar view');
+                // Add any additional logic if needed
             });
         </script>
     @endpush

@@ -36,7 +36,21 @@ class InviteTeamMember implements InvitesTeamMembers
             'role' => $role,
         ]);
 
+        // Log before sending the email
+        \Illuminate\Support\Facades\Log::info('Sending team invitation email', [
+            'email' => $email,
+            'team_id' => $team->id,
+            'invitation_id' => $invitation->id,
+        ]);
+
         Mail::to($email)->send(new TeamInvitation($invitation));
+
+        // Log after sending the email
+        \Illuminate\Support\Facades\Log::info('Team invitation email sent successfully', [
+            'email' => $email,
+            'team_id' => $team->id,
+            'invitation_id' => $invitation->id,
+        ]);
     }
 
     /**

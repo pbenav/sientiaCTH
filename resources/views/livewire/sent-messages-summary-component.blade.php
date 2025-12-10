@@ -1,13 +1,18 @@
-<div class="bg-white rounded-lg shadow-sm p-4">
+<div class="bg-white rounded-lg shadow-sm p-4 flex flex-col h-full">
     <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-medium text-gray-900">{{ __('Sent Messages') }}</h3>
+        <div class="flex items-center gap-2">
+            <h3 class="text-lg font-medium text-gray-900">{{ __('Sent Messages') }}</h3>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                {{ $messages->count() }}
+            </span>
+        </div>
         <a href="{{ route('messages') }}?view=sent" class="text-sm text-blue-600 hover:text-blue-800">
             {{ __('Ver todos') }} →
         </a>
     </div>
     
     @if($messages->count() > 0)
-        <div class="space-y-2">
+        <div class="space-y-2 overflow-y-auto" style="max-height: 320px; min-height: 320px;">
             @foreach($messages as $message)
                 <a href="{{ route('messages') }}?view=sent&message={{ $message->id }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-start space-x-3">
@@ -30,9 +35,10 @@
                                     {{ $message->created_at->diffForHumans() }}
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-600 truncate mt-1">
-                                {{ $message->subject }}
-                            </p>
+                            <p class="text-sm text-gray-600 truncate mt-1">{{ $message->subject }}</p>
+                            <div class="prose max-w-none mt-2">
+                                {!! $message->body !!}
+                            </div>
                         </div>
                     </div>
                 </a>

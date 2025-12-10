@@ -100,49 +100,40 @@ class EventsPdfExport
 
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
         
-        // Detectar la ruta del ejecutable de Chromium
-        $user = auth()->user();
-        $customChromePath = $user && $user->currentTeam ? $user->currentTeam->chrome_path : null;
-        
+        // Detectar la ruta del ejecutable de Chromium automáticamente
         $chromePath = null;
+        
+        // Rutas comunes de Chrome/Chromium
+        $defaultChromePaths = [
+            // Ruta preferida: chrome-headless-shell ligero
+            '/home/sientia/.cache/puppeteer/chrome-headless-shell/linux-142.0.7444.175/chrome-headless-shell-linux64/chrome-headless-shell',
+            
+            // Rutas del sistema
+            '/usr/bin/google-chrome',
+            '/usr/bin/chromium',
+            '/usr/local/bin/google-chrome',
+            '/usr/local/bin/chromium',
+            
+            // Rutas de caché de usuario (Puppeteer)
+            getenv('HOME') . '/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
+            '/home/sientia/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
+            
+            // Rutas dentro del proyecto
+            base_path('node_modules/puppeteer/.local-chromium/linux-142.0.7444.175/chrome-linux64/chrome'),
+            base_path('.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome'),
+            base_path('chrome-linux/chrome'),
+            public_path('chrome-linux/chrome'),
+        ];
 
-        if ($customChromePath && file_exists($customChromePath) && is_executable($customChromePath)) {
-            $chromePath = $customChromePath;
-        } else {
-            // Detección automática si no hay ruta personalizada o no es válida
-            $chromePath = '/home/sientia/.cache/puppeteer/chrome-headless-shell/linux-142.0.7444.175/chrome-headless-shell-linux64/chrome-headless-shell'; // Usar el binario ligero chrome-headless-shell
-
-            if (!file_exists($chromePath)) {
-                $defaultPaths = [
-                    // Rutas del sistema
-                    '/usr/bin/google-chrome',
-                    '/usr/bin/chromium',
-                    '/usr/local/bin/google-chrome',
-                    '/usr/local/bin/chromium',
-                    
-                    // Rutas de caché de usuario (Puppeteer)
-                    getenv('HOME') . '/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
-                    '/home/sientia/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
-                    
-                    // Rutas dentro del proyecto (Nuevas)
-                    base_path('node_modules/puppeteer/.local-chromium/linux-142.0.7444.175/chrome-linux64/chrome'),
-                    base_path('.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome'),
-                    base_path('chrome-linux/chrome'),
-                    public_path('chrome-linux/chrome'),
-                ];
-
-                foreach ($defaultPaths as $path) {
-                    if (file_exists($path) && is_executable($path)) {
-                        $chromePath = $path;
-                        break;
-                    }
-                }
+        foreach ($defaultChromePaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                $chromePath = $path;
+                break;
             }
         }
 
         if (!$chromePath) {
-            // Registrar las rutas verificadas para depuración
-            $checkedPaths = implode("\n", $defaultPaths);
+            $checkedPaths = implode("\n", $defaultChromePaths);
             throw new \Exception("No se encontró un ejecutable de Chromium válido. Rutas verificadas:\n" . $checkedPaths);
         }
 
@@ -167,41 +158,93 @@ class EventsPdfExport
         // Log para verificar los argumentos de Puppeteer
         \Log::info('Argumentos de Puppeteer:', ['args' => $puppeteerArgs]);
 
-        // Configuración de Node.js y NPM desde variables de entorno
-        $nodePath = env('NODE_BINARY_PATH', '/usr/bin/node');
-        $npmPath = env('NPM_BINARY_PATH', '/usr/bin/npm');
-        
-        // Verificar si las rutas existen, si no, intentar autodetectar o usar fallbacks
-        if (!file_exists($nodePath)) {
-            // Fallback a rutas comunes si la configurada no existe
+        // Configuración de Node.js automática
+        $nodePath = null;
+
+        // Método 1: Usar 'which node' (más confiable)
+        $whichOutput = [];
+        $whichReturnVar = null;
+        exec("which node 2>/dev/null", $whichOutput, $whichReturnVar);
+        if ($whichReturnVar === 0 && !empty($whichOutput[0]) && file_exists($whichOutput[0])) {
+            $nodePath = $whichOutput[0];
+            \Log::info('Node.js encontrado vía which:', ['path' => $nodePath]);
+        }
+
+        // Método 2: Buscar en rutas comunes si 'which' no funciona
+        if (!$nodePath) {
+            $homeDir = getenv('HOME') ?: (getenv('USERPROFILE') ?: '/root'); // Fallback para diferentes sistemas
+            
             $commonNodePaths = [
                 '/usr/local/bin/node',
                 '/usr/bin/node',
                 '/bin/node',
-                getenv('HOME') . '/.nvm/versions/node/v20.19.5/bin/node' // Fallback para dev local
+                '/opt/node/bin/node',
+                $homeDir . '/.nvm/versions/node/v20.19.5/bin/node',
+                $homeDir . '/.nvm/versions/node/v18.20.5/bin/node',
+                $homeDir . '/.nvm/versions/node/v16.20.2/bin/node',
             ];
+            
+            // Buscar dinámicamente en todas las versiones de NVM si el directorio existe
+            $nvmDir = $homeDir . '/.nvm/versions/node';
+            if (is_dir($nvmDir)) {
+                $nvmVersions = scandir($nvmDir);
+                foreach ($nvmVersions as $version) {
+                    if ($version !== '.' && $version !== '..') {
+                        $commonNodePaths[] = $nvmDir . '/' . $version . '/bin/node';
+                    }
+                }
+            }
+            
             foreach ($commonNodePaths as $path) {
-                if (file_exists($path)) {
+                if (file_exists($path) && is_executable($path)) {
                     $nodePath = $path;
+                    \Log::info('Node.js encontrado en ruta común:', ['path' => $nodePath]);
                     break;
                 }
             }
         }
 
+        if (!$nodePath) {
+            $errorMsg = "No se encontró un ejecutable de Node.js válido.\n\n";
+            $errorMsg .= "Sugerencias:\n";
+            $errorMsg .= "1. Instale Node.js: apt-get install nodejs (Ubuntu/Debian) o yum install nodejs (CentOS/RedHat)\n";
+            $errorMsg .= "2. Añada Node.js al PATH del sistema\n";
+            $errorMsg .= "3. Configure NODE_BINARY_PATH en el archivo .env\n";
+            throw new \Exception($errorMsg);
+        }
+
+        // Configuración de NPM (derivada de Node.js)
+        $npmPath = dirname($nodePath) . '/npm';
+        
+        // Si no existe en el mismo directorio que node, intentar 'which npm'
         if (!file_exists($npmPath)) {
-             $commonNpmPaths = [
-                '/usr/local/bin/npm',
-                '/usr/bin/npm',
-                '/bin/npm',
-                getenv('HOME') . '/.nvm/versions/node/v20.19.5/bin/npm' // Fallback para dev local
-            ];
-            foreach ($commonNpmPaths as $path) {
-                if (file_exists($path)) {
-                    $npmPath = $path;
-                    break;
+            $whichNpmOutput = [];
+            $whichNpmReturnVar = null;
+            exec("which npm 2>/dev/null", $whichNpmOutput, $whichNpmReturnVar);
+            if ($whichNpmReturnVar === 0 && !empty($whichNpmOutput[0]) && file_exists($whichNpmOutput[0])) {
+                $npmPath = $whichNpmOutput[0];
+            } else {
+                // Fallback a rutas comunes
+                $commonNpmPaths = [
+                    '/usr/local/bin/npm',
+                    '/usr/bin/npm',
+                    '/bin/npm',
+                    dirname($nodePath) . '/npm',
+                ];
+                foreach ($commonNpmPaths as $path) {
+                    if (file_exists($path)) {
+                        $npmPath = $path;
+                        break;
+                    }
                 }
             }
         }
+        
+        \Log::info('Configuración de BrowserShot:', [
+            'node_path' => $nodePath,
+            'npm_path' => $npmPath,
+            'chrome_path' => $chromePath
+        ]);
 
         $nodeBinDir = dirname($nodePath);
 
@@ -228,8 +271,9 @@ class EventsPdfExport
         $totalMinutes = 0;
 
         foreach ($this->events as $event) {
-            $start = \Carbon\Carbon::parse($event->start);
-            $end = \Carbon\Carbon::parse($event->end);
+            // Parse as UTC since events are stored in UTC in the database
+            $start = \Carbon\Carbon::parse($event->start, 'UTC');
+            $end = \Carbon\Carbon::parse($event->end, 'UTC');
             $totalMinutes += $start->diffInMinutes($end);
         }
 

@@ -29,7 +29,7 @@
     </x-slot>
 
     <x-slot name="actions">
-        <x-jet-button>
+        <x-jet-button class="bg-indigo-600 hover:bg-indigo-700">
             {{ __('Create') }}
         </x-jet-button>
     </x-slot>

@@ -12,6 +12,18 @@ class TeamAnnouncementPolicy
     use HandlesAuthorization;
 
     /**
+     * Bypass para administradores globales.
+     */
+    public function before(User $user, $ability)
+    {
+        if ($user->is_admin) {
+            return true;
+        }
+        
+        return null;
+    }
+
+    /**
      * Determine if the user can view any announcements for a team.
      */
     public function viewAny(User $user, Team $team): bool

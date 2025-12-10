@@ -38,13 +38,25 @@
 
     @if (Gate::check('update', $team))
         <x-slot name="actions">
-            <x-jet-action-message class="mr-3" on="saved">
-                {{ __('Saved.') }}
-            </x-jet-action-message>
-
-            <x-jet-button>
+            <x-jet-button class="bg-indigo-600 hover:bg-indigo-700">
                 {{ __('Save') }}
             </x-jet-button>
         </x-slot>
     @endif
 </x-jet-form-section>
+
+<script>
+    document.addEventListener('livewire:load', function () {
+        Livewire.on('saved', function () {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ __("Cambios guardados correctamente") }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    });
+</script>

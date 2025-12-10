@@ -28,10 +28,14 @@ return new class extends Migration
         ');
 
         // Remove the old columns after data migration
+        // SQLite requires separate calls for each dropColumn
         Schema::table('teams', function (Blueprint $table) {
             if (Schema::hasColumn('teams', 'irregular_event_color')) {
                 $table->dropColumn('irregular_event_color');
             }
+        });
+        
+        Schema::table('teams', function (Blueprint $table) {
             if (Schema::hasColumn('teams', 'exceptional_event_color')) {
                 $table->dropColumn('exceptional_event_color');
             }

@@ -17,11 +17,25 @@
 
     <div class="max-w-lg">
         <div class="content-center">
+            {{-- Branding Section --}}
+            <div class="flex flex-col items-center mb-4 sm:mb-6">
+                {{-- Logo --}}
+                <div class="mb-3 sm:mb-4">
+                    <img src="{{ asset('images/cth-logo.png') }}" 
+                         alt="{{ config('app.name') }}" 
+                         class="w-16 sm:w-20 md:w-24 aspect-square object-contain">
+                </div>
+                {{-- App Name --}}
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white text-center">
+                    {{ config('app.name') }}
+                </h1>
+            </div>
+
             <div class="mt-2">
                 <x-clock>{{ __('Reloj') }}</x-clock>
             </div>
 
-            <div class="w-auto mb-4 text-center">
+            <div class="w-auto mb-3 sm:mb-4 text-center">
                 <form wire:submit.prevent="insertCode">
                     <input type="password" id="user_code" x-model="user_code" class="btn btn-pad"
                         aria-label="{{ __('Código de usuario') }}"
@@ -30,30 +44,30 @@
                 </form>
             </div>
 
-            <div id="buttons" class="grid grid-cols-3 gap-4" role="group" aria-label="{{ __('Teclado numérico') }}">
-                <button @click="addCode('1')" class="btn-pad" aria-label="1">1</button>
-                <button @click="addCode('2')" class="btn-pad" aria-label="2">2</button>
-                <button @click="addCode('3')" class="btn-pad" aria-label="3">3</button>
-                <button @click="addCode('4')" class="btn-pad" aria-label="4">4</button>
-                <button @click="addCode('5')" class="btn-pad" aria-label="5">5</button>
-                <button @click="addCode('6')" class="btn-pad" aria-label="6">6</button>
-                <button @click="addCode('7')" class="btn-pad" aria-label="7">7</button>
-                <button @click="addCode('8')" class="btn-pad" aria-label="8">8</button>
-                <button @click="addCode('9')" class="btn-pad" aria-label="9">9</button>
-                <button @click="addCode('0')" class="btn-pad col-span-3" aria-label="0">0</button>
+            <div id="buttons" class="grid grid-cols-3 gap-2 sm:gap-4" role="group" aria-label="{{ __('Teclado numérico') }}">
+                <button @click="addCode('1')" class="btn-pad text-lg sm:text-xl" aria-label="1">1</button>
+                <button @click="addCode('2')" class="btn-pad text-lg sm:text-xl" aria-label="2">2</button>
+                <button @click="addCode('3')" class="btn-pad text-lg sm:text-xl" aria-label="3">3</button>
+                <button @click="addCode('4')" class="btn-pad text-lg sm:text-xl" aria-label="4">4</button>
+                <button @click="addCode('5')" class="btn-pad text-lg sm:text-xl" aria-label="5">5</button>
+                <button @click="addCode('6')" class="btn-pad text-lg sm:text-xl" aria-label="6">6</button>
+                <button @click="addCode('7')" class="btn-pad text-lg sm:text-xl" aria-label="7">7</button>
+                <button @click="addCode('8')" class="btn-pad text-lg sm:text-xl" aria-label="8">8</button>
+                <button @click="addCode('9')" class="btn-pad text-lg sm:text-xl" aria-label="9">9</button>
+                <button @click="addCode('0')" class="btn-pad col-span-3 text-lg sm:text-xl" aria-label="0">0</button>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-3 sm:mt-4">
                 <button type="submit" wire:click="insertCode" class="btn-code" aria-label="{{ __('Insertar código') }}">
                     {{ __('Insertar código') }}
                 </button>
             </div>
 
             <div class="mt-0 text-center content-center">
-                <button @click="resetCode()" class="mt-4 btn-aux w-min" aria-label="{{ __('Restablecer') }}">
+                <button @click="resetCode()" class="mt-3 sm:mt-4 btn-aux w-min" aria-label="{{ __('Restablecer') }}">
                     {{ __('Restablecer') }}
                 </button>
-                <button @click="deleteCode()" class="mt-4 btn-aux w-min sm:ml-4 sm:mt-0" aria-label="{{ __('Borrar') }}">
+                <button @click="deleteCode()" class="mt-3 sm:mt-4 btn-aux w-min sm:ml-4 sm:mt-0" aria-label="{{ __('Borrar') }}">
                     {{ __('Borrar') }}
                 </button>
             </div>

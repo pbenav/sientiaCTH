@@ -38,8 +38,8 @@ class EventsExport implements FromCollection, WithHeadings, WithMapping, ShouldA
     {
         return [
             $event->user->name . ' ' . $event->user->family_name1,
-            \Carbon\Carbon::parse($event->start)->format('d/m/Y H:i'),
-            \Carbon\Carbon::parse($event->end)->format('d/m/Y H:i'),
+            \Carbon\Carbon::parse($event->start, 'UTC')->format('d/m/Y H:i'),
+            \Carbon\Carbon::parse($event->end, 'UTC')->format('d/m/Y H:i'),
             $event->getPeriod(),
             $event->description,
             $event->observations,

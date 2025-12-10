@@ -20,7 +20,7 @@ class UserWorkScheduleForm extends Component
 
     protected $rules = [
         'schedule.*.start' => 'required|date_format:H:i',
-        'schedule.*.end' => 'required|date_format:H:i|after:schedule.*.start',
+        'schedule.*.end' => 'required|date_format:H:i',
     ];
 
     /**

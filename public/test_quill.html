@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="/css/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Test Quill</h1>
+    <div id="editor" style="height: 300px; border: 1px solid #ccc;"></div>
+    
+    <script src="/js/quill.js"></script>
+    <script>
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    ['link', 'image']
+                ]
+            }
+        });
+        console.log('Quill loaded:', quill);
+    </script>
+</body>
+</html>

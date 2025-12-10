@@ -23,7 +23,13 @@ class CreateTeam implements CreatesTeams
 
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
-        ])->validateWithBag('createTeam');
+        ])->after(function ($validator) use ($user) {
+            if (! $user->canCreateTeam()) {
+                $validator->errors()->add(
+                    'name', __('You have reached the maximum number of teams you can create.')
+                );
+            }
+        })->validateWithBag('createTeam');
 
         AddingTeam::dispatch($user);
 

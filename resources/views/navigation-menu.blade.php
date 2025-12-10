@@ -35,6 +35,11 @@
                             {{ __('Announcements') }}
                         </x-jet-nav-link>
                     @endcan
+                    @if (Auth::user()->is_admin)
+                        <x-jet-nav-link href="{{ route('admin.teams.index') }}" :active="request()->routeIs('admin.teams.*')">
+                            {{ __('Team Administration') }}
+                        </x-jet-nav-link>
+                    @endif
                     {{-- Enlace eliminado: Servicio técnico --}}
                 </div>
             </div>
@@ -47,7 +52,7 @@
                             <x-slot name="trigger">
                                 <span class="inline-flex rounded-md">
                                     <button type="button" class="text-formatted">
-                                        {{ Auth::user()->currentTeam->name }}
+                                        {{ Auth::user()->currentTeam?->name ?? __('No Team') }}
                                         <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd"
@@ -66,10 +71,12 @@
                                     </div>
 
                                     <!-- Team Settings -->
-                                    <x-jet-dropdown-link
-                                        href="{{ route('teams.show', Auth::user()->currentTeam->id) }}">
-                                        {{ __('Team Settings') }}
-                                    </x-jet-dropdown-link>
+                                    @if(Auth::user()->currentTeam)
+                                        <x-jet-dropdown-link
+                                            href="{{ route('teams.show', Auth::user()->currentTeam->id) }}">
+                                            {{ __('Team Settings') }}
+                                        </x-jet-dropdown-link>
+                                    @endif
 
                                     @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
                                         <x-jet-dropdown-link href="{{ route('teams.create') }}">
@@ -235,6 +242,11 @@
                     {{ __('Announcements') }}
                 </x-jet-responsive-nav-link>
             @endcan
+            @if (Auth::user()->is_admin)
+                <x-jet-responsive-nav-link href="{{ route('admin.teams.index') }}" :active="request()->routeIs('admin.teams.*')">
+                    {{ __('Team Administration') }}
+                </x-jet-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
@@ -287,10 +299,12 @@
                     </div>
 
                     <!-- Team Settings -->
-                    <x-jet-responsive-nav-link href="{{ route('teams.show', Auth::user()->currentTeam->id) }}"
-                        :active="request()->routeIs('teams.show')">
-                        {{ __('Team Settings') }}
-                    </x-jet-responsive-nav-link>
+                    @if(Auth::user()->currentTeam)
+                        <x-jet-responsive-nav-link href="{{ route('teams.show', Auth::user()->currentTeam->id) }}"
+                            :active="request()->routeIs('teams.show')">
+                            {{ __('Team Settings') }}
+                        </x-jet-responsive-nav-link>
+                    @endif
 
                     @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
                         <x-jet-responsive-nav-link href="{{ route('teams.create') }}" :active="request()->routeIs('teams.create')">

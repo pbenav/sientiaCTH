@@ -35,13 +35,25 @@ return new class extends Migration
             Log::info("Starting migration: fix_events_without_description");
 
             // Update events with NULL or empty descriptions using their event type name
-            $updated = DB::update("
-                UPDATE events 
-                LEFT JOIN event_types ON events.event_type_id = event_types.id 
-                SET events.description = COALESCE(event_types.name, 'Evento de trabajo')
-                WHERE (events.description IS NULL OR events.description = '' OR events.description = 'null')
-                AND event_types.name IS NOT NULL
-            ");
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $updated = DB::update("
+                    UPDATE events 
+                    SET description = COALESCE(
+                        (SELECT name FROM event_types WHERE event_types.id = events.event_type_id),
+                        'Evento de trabajo'
+                    )
+                    WHERE (description IS NULL OR description = '' OR description = 'null')
+                    AND event_type_id IS NOT NULL
+                ");
+            } else {
+                $updated = DB::update("
+                    UPDATE events 
+                    LEFT JOIN event_types ON events.event_type_id = event_types.id 
+                    SET events.description = COALESCE(event_types.name, 'Evento de trabajo')
+                    WHERE (events.description IS NULL OR events.description = '' OR events.description = 'null')
+                    AND event_types.name IS NOT NULL
+                ");
+            }
 
             Log::info("Migration: Updated {$updated} events with descriptions from their event types");
 

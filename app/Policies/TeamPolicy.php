@@ -12,17 +12,16 @@ class TeamPolicy
 
     /**
      * Bypass para administradores globales.
-     * Devuelve true si el usuario es admin global (propiedad is_admin o rol 'admin').
+     * Devuelve true si el usuario es admin global.
      * Devuelve null para que continúe la evaluación normal en caso contrario.
      */
     public function before(User $user, $ability)
     {
-        if (property_exists($user, 'is_admin') && $user->is_admin) {
+        // Los administradores globales tienen acceso total a todos los equipos
+        if ($user->is_admin) {
             return true;
         }
-        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
-            return true;
-        }
+        
         return null;
     }
 
@@ -66,7 +65,8 @@ class TeamPolicy
      */
     public function create(User $user)
     {
-        return true;
+        // Check if user can create more teams
+        return $user->canCreateTeam();
     }
 
     /**
@@ -129,6 +129,11 @@ class TeamPolicy
      */
     public function delete(User $user, Team $team)
     {
+        // Check if team can be deleted (prevents Welcome team deletion)
+        if (!$team->canBeDeleted()) {
+            return false;
+        }
+
         return $user->ownsTeam($team);
     }
 }

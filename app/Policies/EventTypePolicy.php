@@ -12,6 +12,18 @@ class EventTypePolicy
     use HandlesAuthorization;
 
     /**
+     * Bypass para administradores globales.
+     */
+    public function before(User $user, $ability)
+    {
+        if ($user->is_admin) {
+            return true;
+        }
+        
+        return null;
+    }
+
+    /**
      * Determine whether the user can create models.
      *
      * @param  \App\Models\User  $user

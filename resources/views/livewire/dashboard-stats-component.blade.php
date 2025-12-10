@@ -32,7 +32,7 @@
             </svg>
             <h4 class="text-sm font-semibold text-gray-700">{{ __('Hoy') }}</h4>
         </div>
-        <p class="text-2xl font-bold text-gray-900">{{ $todayHours }}h</p>
+        <p class="text-2xl font-bold text-gray-900">{{ $todayHours }}</p>
         <p class="text-xs text-gray-500">{{ __('Trabajadas') }}</p>
     </div>
 
@@ -44,7 +44,7 @@
             </svg>
             <h4 class="text-sm font-semibold text-gray-700">{{ __('Esta semana') }}</h4>
         </div>
-        <p class="text-2xl font-bold text-gray-900">{{ $weekHours }}h</p>
+        <p class="text-2xl font-bold text-gray-900">{{ $weekHours }}</p>
         <p class="text-xs text-gray-500">{{ __('Trabajadas') }}</p>
     </div>
 

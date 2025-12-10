@@ -34,6 +34,26 @@
     "Manage your notification preferences.": "Manage your notification preferences.",
     "Receive email notifications": "Receive email notifications",
     "Receive internal messages": "Receive internal messages",
-    "sweetalert.ok_button": "OK"
-    ,"ui.brand.name": "CTH Mobile"
+    "sweetalert.ok_button": "OK",
+    "ui.brand.name": "CTH Mobile",
+    "Back to Documentation Index": "Back to Documentation Index",
+    "The date range cannot exceed :months months.": "The date range cannot exceed :months months.",
+    "The date range cannot exceed the maximum allowed (:max months).": "The date range cannot exceed the maximum allowed (:max months).",
+    "The date range cannot exceed :months months for preview.": "The date range cannot exceed :months months for preview.",
+    "This report will be generated asynchronously and sent to your inbox.": "This report will be generated asynchronously and sent to your inbox.",
+    "Please wait, the report may take a few minutes...": "Please wait, the report may take a few minutes...",
+    "Your report is ready": "Your report is ready",
+    "The report for period :from to :to is ready for download.": "The report for period :from to :to is ready for download.",
+    "Report generation failed": "Report generation failed",
+    "There was an error generating your report. Please try again or contact support.": "There was an error generating your report. Please try again or contact support.",
+    "Max Report Time Limit": "Max Report Time Limit",
+    "Set the maximum time range (in months) for report generation.": "Set the maximum time range (in months) for report generation.",
+    "Async Report Threshold": "Async Report Threshold",
+    "Reports exceeding this period will be generated asynchronously. Leave empty to use default (6 months).": "Reports exceeding this period will be generated asynchronously. Leave empty to use default (6 months).",
+    "Report preferences updated successfully.": "Report preferences updated successfully.",
+    "Maximum allowed range for any report. Absolute limit is :max months.": "Maximum allowed range for any report. Absolute limit is :max months.",
+    "Months": "Months",
+    "Documentation": "Documentation",
+    "The async threshold must be less than the max report limit.": "The async threshold must be less than the max report limit.",
+    "The end date and time must be after the start date and time.": "The end date and time must be after the start date and time."
 }

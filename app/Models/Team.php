@@ -20,6 +20,27 @@ class Team extends JetstreamTeam
     use HasFactory;
 
     /**
+     * Maximum allowed months for report generation (absolute limit).
+     */
+    const ABSOLUTE_MAX_REPORT_MONTHS = 12;
+
+    /**
+     * Default maximum months for report generation.
+     */
+    const DEFAULT_MAX_REPORT_MONTHS = 3;
+
+    /**
+     * Default threshold for async report generation.
+     */
+    const DEFAULT_ASYNC_THRESHOLD_MONTHS = 6;
+
+    /**
+     * Name of the welcome team for new users.
+     */
+    const WELCOME_TEAM_NAME = 'Bienvenida';
+
+
+    /**
      * Get the event types associated with the team.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -59,6 +80,8 @@ class Team extends JetstreamTeam
         'force_clock_in_delay' => 'boolean',
         'clock_in_delay_minutes' => 'integer',
         'clock_in_grace_period_minutes' => 'integer',
+        'max_report_months' => 'integer',
+        'async_report_threshold_months' => 'integer',
     ];
 
     /**
@@ -75,7 +98,9 @@ class Team extends JetstreamTeam
         'clock_in_grace_period_minutes',
         'special_event_color',
         'pdf_engine',
-        'chrome_path',
+        'max_report_months',
+        'async_report_threshold_months',
+        'event_retention_months',
     ];
 
     /**
@@ -98,4 +123,54 @@ class Team extends JetstreamTeam
     {
         return $this->hasMany(TeamAnnouncement::class);
     }
+
+    /**
+     * Check if this is the welcome team.
+     *
+     * @return boolean
+     */
+    public function isWelcomeTeam(): bool
+    {
+        return $this->name === self::WELCOME_TEAM_NAME;
+    }
+
+    /**
+     * Scope a query to only include user-created teams (exclude Welcome team).
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeUserCreated($query)
+    {
+        return $query->where('name', '!=', self::WELCOME_TEAM_NAME);
+    }
+
+    /**
+     * Check if this team can be deleted.
+     * Welcome team and teams with the personal_team flag cannot be deleted.
+     *
+     * @return boolean
+     */
+    public function canBeDeleted(): bool
+    {
+        // Cannot delete the Welcome team
+        if ($this->isWelcomeTeam()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Migrate a user's events to this team.
+     * Used when transferring users between teams.
+     *
+     * @param \App\Models\User $user
+     * @return int Number of events migrated
+     */
+    public function migrateUserEvents(User $user): int
+    {
+        return $user->events()->update(['team_id' => $this->id]);
+    }
 }
+

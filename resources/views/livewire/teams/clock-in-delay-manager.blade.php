@@ -12,7 +12,11 @@
             <!-- Enable/Disable Feature -->
             <div class="col-span-6 sm:col-span-4">
                 <label for="force_clock_in_delay" class="flex items-center">
-                    <x-jet-checkbox id="force_clock_in_delay" wire:model.defer="state.force_clock_in_delay" />
+                    @if(\Illuminate\Support\Facades\Gate::check('update', $team))
+                        <x-jet-checkbox id="force_clock_in_delay" wire:model.defer="state.force_clock_in_delay" />
+                    @else
+                        <x-jet-checkbox id="force_clock_in_delay" wire:model.defer="state.force_clock_in_delay" disabled />
+                    @endif
                     <span class="ml-2 text-sm text-gray-600">{{ __('Activar Fichaje con Demora Forzada') }}</span>
                 </label>
             </div>
@@ -42,11 +46,7 @@
 
         @if (Gate::check('update', $team))
             <x-slot name="actions">
-                <x-jet-action-message class="mr-3" on="saved">
-                    {{ __('Guardado.') }}
-                </x-jet-action-message>
-
-                <x-jet-button>
+                <x-jet-button class="bg-indigo-600 hover:bg-indigo-700">
                     {{ __('Guardar') }}
                 </x-jet-button>
             </x-slot>
@@ -74,14 +74,26 @@
 
         @if (Gate::check('update', $team))
             <x-slot name="actions">
-                <x-jet-action-message class="mr-3" on="saved">
-                    {{ __('Guardado.') }}
-                </x-jet-action-message>
-
-                <x-jet-button>
+                <x-jet-button class="bg-indigo-600 hover:bg-indigo-700">
                     {{ __('Guardar') }}
                 </x-jet-button>
             </x-slot>
         @endif
     </x-jet-form-section>
 </div>
+
+<script>
+    document.addEventListener('livewire:load', function () {
+        Livewire.on('saved', function () {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ __("Cambios guardados correctamente") }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    });
+</script>

@@ -98,7 +98,7 @@
                             </div>
                         </div>
                         <!-- Working Actions -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-3">
                             <!-- Pause Button -->
                             @if($clockData['show_pause_option'] ?? false)
                             <button 

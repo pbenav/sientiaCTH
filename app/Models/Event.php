@@ -101,6 +101,21 @@ class Event extends Model
      */
     public function getPeriod()
     {
+        if ($this->eventType && $this->eventType->is_all_day) {
+            $start = Carbon::parse($this->start);
+            $end = Carbon::parse($this->end);
+            
+            // Round up to the next second if it ends at 23:59:59 to count as a full day
+            if ($end->format('H:i:s') === '23:59:59') {
+                $end->addSecond();
+            }
+            
+            $days = $start->diffInDays($end);
+            $days = $days < 1 ? 1 : $days;
+            
+            return $days . ' ' . ($days == 1 ? __('day') : __('days'));
+        }
+
         return $this->timeDiff($this->start, $this->end, true);
     }
 

@@ -122,20 +122,78 @@ class StatsComponent extends Component
         $daysWithEvents = [];
         $eventTypesInUse = [];
 
+        // Fetch holidays for the selected month
+        $teamTimezone = $this->actualUser->currentTeam->timezone ?? config('app.timezone');
+        $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1, 0, 0, 0, $teamTimezone);
+        $endDate = $startDate->copy()->endOfMonth();
+        
+        $holidays = $this->actualUser->currentTeam->holidays()
+            ->whereBetween('date', [$startDate, $endDate])
+            ->pluck('date')
+            ->map(fn ($date) => $date->format('Y-m-d'));
+
+        // Parse work schedule to get working days (1-7)
+        $workingDays = [1, 2, 3, 4, 5]; // Default M-F
+        $scheduleMeta = $this->actualUser->meta->where('meta_key', 'work_schedule')->first();
+        if ($scheduleMeta && $scheduleMeta->meta_value) {
+            $schedule = json_decode($scheduleMeta->meta_value, true);
+            if (!empty($schedule)) {
+                $workingDays = [];
+                foreach ($schedule as $slot) {
+                    if (!empty($slot['days'])) {
+                        foreach ($slot['days'] as $day) {
+                            $workingDays[] = (int)$day;
+                        }
+                    }
+                }
+                $workingDays = array_unique($workingDays);
+            }
+        }
+
+
+
+// Process each event. Full‑day events (00:00 → 00:00 next day) are counted only on the start day
         foreach ($events as $event) {
             if (!$event->end || !$event->eventType) continue;
 
             $eventTypesInUse[$event->eventType->name] = $event->eventType;
 
-            $start_date = Carbon::parse($event->start);
-            $end_date = Carbon::parse($event->end);
+            // Parse dates as UTC since they are stored in UTC in the database
+            $start_date = Carbon::parse($event->start, 'UTC');
+            $end_date = Carbon::parse($event->end, 'UTC');
 
             for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
                 if ($date->month != $this->selectedMonth) continue;
 
                 $dayKey = $date->format('d/m');
-                $daysWithEvents[$dayKey] = $date;
 
+                // Filter out non-working days for non-workday events (e.g. Vacations)
+                // This applies to both all-day and partial events to ensure accurate stats
+                if ($event->eventType && !$event->eventType->is_workday_type) {
+                     if ($holidays->contains($date->format('Y-m-d'))) {
+                         continue;
+                     }
+                     if (!in_array($date->format('N'), $workingDays)) {
+                         continue;
+                     }
+                }
+
+                // Special handling for all-day events
+                if ($event->eventType->is_all_day) {
+                     // If the current day starts at or after the end time, skip it.
+                     // This handles events ending at 00:00:00 (don't count that day)
+                     if ($date->gte($end_date)) {
+                         continue;
+                     }
+
+                     
+                     // Force 24 hours for all-day events (rounding to full day)
+                     $hours_for_day = 24;
+                     $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
+                     $daysWithEvents[$dayKey] = $date;
+                     continue;
+                }
+                
                 $day_start = $date->copy()->startOfDay();
                 $day_end = $date->copy()->endOfDay();
                 $effective_start = $start_date->max($day_start);
@@ -144,6 +202,7 @@ class StatsComponent extends Component
                 if ($effective_start->lt($effective_end)) {
                     $hours_for_day = $effective_start->diffInSeconds($effective_end) / 3600;
                     $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
+                    $daysWithEvents[$dayKey] = $date;
                 }
             }
         }

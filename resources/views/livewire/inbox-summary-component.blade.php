@@ -1,13 +1,18 @@
-<div class="bg-white rounded-lg shadow-sm p-4">
+<div class="bg-white rounded-lg shadow-sm p-4 flex flex-col h-full">
     <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-medium text-gray-900">Mensajes recibidos</h3>
+        <div class="flex items-center gap-2">
+            <h3 class="text-lg font-medium text-gray-900">{{ __('Inbox') }}</h3>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {{ $messages->count() }} {{ __('unread') }}
+            </span>
+        </div>
         <a href="{{ route('messages') }}" class="text-sm text-blue-600 hover:text-blue-800">
             {{ __('Ver todos') }} →
         </a>
     </div>
     
     @if($messages->count() > 0)
-        <div class="space-y-2">
+        <div class="space-y-2 overflow-y-auto" style="max-height: 320px; min-height: 320px;">
             @foreach($messages as $message)
                 <a href="{{ route('messages') }}?view=inbox&message={{ $message->id }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                     <div class="flex items-start space-x-3">

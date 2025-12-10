@@ -23,9 +23,16 @@ class MoveUserForm extends Component
         $this->user = $user;
         
         // Get teams where the authenticated user is owner or admin
-        $this->eligibleTeams = Auth::user()->allTeams()->filter(function ($t) {
-            return Auth::user()->ownsTeam($t) || Auth::user()->hasTeamRole($t, 'admin');
-        })->where('id', '!=', $this->team->id);
+        $authUser = Auth::user();
+        if ($authUser->is_admin) {
+            // Global admins can access all teams
+            $this->eligibleTeams = Team::where('id', '!=', $this->team->id)->get();
+        } else {
+            // Filter teams where user can administer
+            $this->eligibleTeams = $authUser->allTeams()->filter(function ($t) use ($authUser) {
+                return $authUser->ownsTeam($t) || $authUser->hasTeamRole($t, 'admin');
+            })->where('id', '!=', $this->team->id);
+        }
     }
 
     public function moveUser()
@@ -77,6 +84,9 @@ class MoveUserForm extends Component
         if (!$this->user->belongsToTeam($destinationTeam)) {
             $this->user->teams()->attach($this->destinationTeamId, ['role' => $role]);
         }
+
+        // Refresh the teams relationship so the user can immediately switch to this team
+        $this->user->load('teams');
 
         $this->emit('userMoved');
         $this->showModal = false;

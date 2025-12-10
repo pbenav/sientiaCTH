@@ -49,18 +49,29 @@ return new class extends Migration
 
             // Use raw SQL for better performance on large datasets
             // Update events to set is_extra_hours based on event type's is_workday_type
-            $updated = DB::update("
-                UPDATE events 
-                LEFT JOIN event_types ON events.event_type_id = event_types.id 
-                SET events.is_extra_hours = CASE 
-                    WHEN event_types.is_workday_type = 1 THEN 0 
-                    ELSE 1 
-                END
-                WHERE events.is_extra_hours != CASE 
-                    WHEN event_types.is_workday_type = 1 THEN 0 
-                    ELSE 1 
-                END
-            ");
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $updated = DB::update("
+                    UPDATE events 
+                    SET is_extra_hours = CASE 
+                        WHEN (SELECT is_workday_type FROM event_types WHERE event_types.id = events.event_type_id) = 1 THEN 0 
+                        ELSE 1 
+                    END
+                    WHERE event_type_id IS NOT NULL
+                ");
+            } else {
+                $updated = DB::update("
+                    UPDATE events 
+                    LEFT JOIN event_types ON events.event_type_id = event_types.id 
+                    SET events.is_extra_hours = CASE 
+                        WHEN event_types.is_workday_type = 1 THEN 0 
+                        ELSE 1 
+                    END
+                    WHERE events.is_extra_hours != CASE 
+                        WHEN event_types.is_workday_type = 1 THEN 0 
+                        ELSE 1 
+                    END
+                ");
+            }
 
             Log::info("Migration: Updated {$updated} events with new extra hours logic");
 
