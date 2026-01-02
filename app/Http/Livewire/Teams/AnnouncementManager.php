@@ -14,7 +14,7 @@ use Livewire\Component;
  */
 class AnnouncementManager extends Component
 {
-    public ?Team $team;
+    public $team;
     public bool $showModal = false;
     public ?int $editingId = null;
     public string $title = '';
@@ -258,10 +258,10 @@ class AnnouncementManager extends Component
      */
     public function render()
     {
-        $announcements = $this->team->announcements()
+        $announcements = $this->team ? $this->team->announcements()
             ->with('creator')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get() : collect();
 
         return view('livewire.teams.announcement-manager', [
             'announcements' => $announcements

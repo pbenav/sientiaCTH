@@ -33,8 +33,8 @@ class GetTimeRegisters extends Component
     public string $direction = 'desc';
     public string $qtytoshow = '10';
     public bool $readyonload = false;
-    public ?User $user;
-    public ?Team $team;
+    public $user;
+    public $team;
     public array $teamUsers;
     public $teamUserList;
     public $eventTypes;
@@ -451,7 +451,7 @@ class GetTimeRegisters extends Component
     {
         // Recargar equipo actual del usuario por si cambió con el selector
         $this->user = Auth::user();
-        $currentTeam = $this->user->currentTeam;
+        $currentTeam = $this->user ? $this->user->currentTeam : null;
 
         // Ensure currentTeam is not null before proceeding
         if ($currentTeam && (!$this->team || $this->team->id !== $currentTeam->id)) {
@@ -460,31 +460,31 @@ class GetTimeRegisters extends Component
                 return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
             })->values() : collect();
             $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
-            $this->isTeamAdmin = $this->user->isTeamAdmin() || $this->user->is_admin;
-            $this->isInspector = $this->user->isInspector();
+            $this->isTeamAdmin = $this->user ? ($this->user->isTeamAdmin() || $this->user->is_admin) : false;
+            $this->isInspector = $this->user ? $this->user->isInspector() : false;
 
             if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
                 $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();
             } else {
-                $this->teamUsers = [$this->user->id];
+                $this->teamUsers = $this->user ? [$this->user->id] : [];
             }
         }
         
         \Log::info('GetTimeRegisters - render()', [
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->name,
+            'user_id' => $this->user ? $this->user->id : null,
+            'user_name' => $this->user ? $this->user->name : null,
             'current_team_id' => $currentTeam ? $currentTeam->id : null,
             'current_team_name' => $currentTeam ? $currentTeam->name : null,
             'component_team_id' => $this->team ? $this->team->id : null,
             'component_team_name' => $this->team ? $this->team->name : null,
-            'team_changed' => (!$this->team || $this->team->id !== $currentTeam->id),
+            'team_changed' => (!$this->team || ($currentTeam && $this->team->id !== $currentTeam->id) || (!$currentTeam && $this->team)),
         ]);
         
         // Si el equipo cambió, actualizar todo el contexto
-        if (!$this->team || $this->team->id !== $currentTeam->id) {
+        if (!$this->team || ($currentTeam && $this->team->id !== $currentTeam->id) || (!$currentTeam && $this->team)) {
             \Log::info('GetTimeRegisters - Actualizando contexto de equipo', [
                 'old_team_id' => $this->team ? $this->team->id : null,
-                'new_team_id' => $currentTeam->id,
+                'new_team_id' => $currentTeam ? $currentTeam->id : null,
             ]);
             
             $this->team = $currentTeam;
@@ -492,13 +492,13 @@ class GetTimeRegisters extends Component
                 return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
             })->values() : collect();
             $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
-            $this->isTeamAdmin = $this->user->isTeamAdmin() || $this->user->is_admin;
-            $this->isInspector = $this->user->isInspector();
+            $this->isTeamAdmin = $this->user ? ($this->user->isTeamAdmin() || $this->user->is_admin) : false;
+            $this->isInspector = $this->user ? $this->user->isInspector() : false;
             
             if ($this->team && ($this->isTeamAdmin || $this->isInspector)) {
                 $this->teamUsers = $this->team->allUsers()->pluck('id')->toArray();
             } else {
-                $this->teamUsers = [$this->user->id];
+                $this->teamUsers = $this->user ? [$this->user->id] : [];
             }
             
             \Log::info('GetTimeRegisters - Contexto actualizado', [

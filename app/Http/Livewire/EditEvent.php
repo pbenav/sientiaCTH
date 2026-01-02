@@ -69,7 +69,7 @@ class EditEvent extends Component
      *
      * @var User
      */
-    public User $user;
+    public $user;
     
     /**
      * The origin of the edit request (e.g., 'events', 'calendar').

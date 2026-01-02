@@ -21,8 +21,8 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class ReportsComponent extends Component
 {
-    public ?User $user;
-    public ?Team $team;
+    public $user;
+    public $team;
     public bool $isTeamAdmin;
     public bool $isInspector;
     public $workers;

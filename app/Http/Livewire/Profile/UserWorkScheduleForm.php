@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class UserWorkScheduleForm extends Component
 {
-    public User $user;
+    public $user;
     public array $schedule = [];
 
     protected $rules = [
