@@ -415,7 +415,7 @@ class MobileWebController extends Controller
         $breakMinutes = 0;
         
         foreach ($events as $event) {
-            if ($event->eventType && $event->eventType->is_break_type && $event->end) {
+            if ($event->eventType && $event->eventType->is_pause_type && $event->end) {
                 $start = Carbon::parse($event->start);
                 $end = Carbon::parse($event->end);
                 $breakMinutes += $start->diffInMinutes($end);

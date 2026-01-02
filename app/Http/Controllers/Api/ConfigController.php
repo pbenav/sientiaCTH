@@ -1,15 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 /**
- * API Controller for Flutter app configuration
+ * Config Controller (Flutter API)
  * 
- * Provides endpoints for dynamic server configuration,
- * allowing Flutter apps to adapt to different CTH installations
+ * Provides dynamic server configuration endpoints for Flutter mobile app.
+ * Allows the app to automatically adapt to different CTH server installations
+ * with version detection, feature flags, and endpoint discovery.
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class ConfigController extends Controller
 {

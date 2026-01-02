@@ -37,8 +37,33 @@ class AddTeamMember implements AddsTeamMembers
 
         AddingTeamMember::dispatch($team, $newTeamMember);
 
+        // Determinar el custom_role_id por defecto según el rol legacy
+        $customRoleId = null;
+        if ($role === 'admin') {
+            // Buscar el rol "Administrador" para este equipo
+            $adminRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_administrador")
+                ->first();
+            $customRoleId = $adminRole?->id;
+        } elseif ($role === 'user') {
+            // Buscar el rol "Usuario" para este equipo
+            $userRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_usuario")
+                ->first();
+            $customRoleId = $userRole?->id;
+        } elseif ($role === 'inspect') {
+            // Buscar el rol "Inspector" para este equipo
+            $inspectorRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_inspector")
+                ->first();
+            $customRoleId = $inspectorRole?->id;
+        }
+
         $team->users()->attach(
-            $newTeamMember, ['role' => $role]
+            $newTeamMember, [
+                'role' => $role,
+                'custom_role_id' => $customRoleId,
+            ]
         );
 
         // Remove user from Welcome team if they are being added to another team

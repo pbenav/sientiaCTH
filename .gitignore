@@ -9,6 +9,9 @@ Homestead.yaml
 /node_modules
 /vendor
 
+# Chromium descargado por Puppeteer
+/.cache/puppeteer
+
 # Archivos de compilación y generados
 .phpunit.result.cache
 _ide_helper.php

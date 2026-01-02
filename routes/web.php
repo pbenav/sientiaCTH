@@ -58,6 +58,7 @@ Route::middleware([
     // Reports - Reporting functionality
     Route::get('/informes', ReportsComponent::class)->name('reports');
     Route::get('/informes/preview', [App\Http\Controllers\ReportsController::class, 'preview'])->name('reports.preview');
+    Route::get('/informes/export', [App\Http\Controllers\ReportsController::class, 'export'])->name('reports.export');
     Route::get('/informes/download/{file}', [App\Http\Controllers\ReportsController::class, 'download'])->name('reports.download');
     
     // Messages - Team messages
@@ -65,6 +66,9 @@ Route::middleware([
         return view('messages');
     })->name('messages');
     Route::get('/mensajes/{id}', [MessageController::class, 'show'])->name('messages.show');
+
+    // Audit Log - Accessible by admins and inspectors (permission check in component)
+    Route::get('/audit', \App\Http\Livewire\AuditLogComponent::class)->name('audit.index');
 
     // Documentation
     // Documentation
@@ -112,6 +116,14 @@ Route::middleware([
     Route::post('/team/preferences/detect-chrome', [App\Http\Controllers\TeamPreferencesController::class, 'detectChrome'])->name('team.preferences.detect-chrome');
     Route::post('/team/preferences/detect-node', [App\Http\Controllers\TeamPreferencesController::class, 'detectNode'])->name('team.preferences.detect-node');
     Route::post('/team/preferences/detect-npm', [App\Http\Controllers\TeamPreferencesController::class, 'detectNpm'])->name('team.preferences.detect-npm');
+
+    // Dashboard Preferences
+    Route::post('/dashboard/preferences', [App\Http\Controllers\DashboardPreferencesController::class, 'store'])->name('dashboard.preferences.store');
+    Route::delete('/dashboard/preferences', [App\Http\Controllers\DashboardPreferencesController::class, 'reset'])->name('dashboard.preferences.reset');
+
+    // Impersonation - Solo admin global
+    Route::post('/impersonate/{user}', [App\Http\Controllers\ImpersonateController::class, 'impersonate'])->name('impersonate');
+    Route::post('/impersonate/leave', [App\Http\Controllers\ImpersonateController::class, 'leave'])->name('impersonate.leave');
 });
 
 // Admin routes - Only accessible to global administrators

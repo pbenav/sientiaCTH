@@ -56,13 +56,13 @@
         </x-slot>
 
         <x-slot name="footer">
-            <x-jet-secondary-button wire:click="$set('showFiltersModal', false)">
+            <x-jet-secondary-button wire:click="closeFiltersModal">
                 {{ __('Cancel') }}
             </x-jet-secondary-button>
 
-            <x-jet-danger-button wire:click="$set('showFiltersModal', false)"
+            <x-jet-danger-button wire:click="applyFiltersFromModal"
                 wire:loading.attr="disabled" class="ml-2 disabled:bg-blue-500">
-                {{ __('Set filter') }}
+                {{ __('Apply filters') }}
             </x-jet-danger-button>
         </x-slot>
     </x-jet-dialog-modal>

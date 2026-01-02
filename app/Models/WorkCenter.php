@@ -1,15 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Represents a work center or location.
+ * WorkCenter Model
+ * 
+ * Represents a physical work location with support for NFC tags,
+ * geolocation, and custom configuration for clock-in/out validation.
  *
- * This model is used to store information about the different locations where
- * users can clock in and out.
+ * @property int $id
+ * @property int $team_id
+ * @property string $name Work center name
+ * @property string|null $code Work center code
+ * @property string|null $description
+ * @property string|null $location Address/location
+ * @property float|null $latitude GPS latitude
+ * @property float|null $longitude GPS longitude
+ * @property string|null $nfc_tag_id NFC tag identifier
+ * @property string|null $nfc_tag_name NFC tag friendly name
+ * @property string|null $nfc_tag_description
+ * @property string|null $nfc_tag_generated_at
+ * @property string|null $nfc_payload Encrypted NFC payload
+ * @property bool $nfc_requires_tag Require NFC for clock-in
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @property-read Team $team
+ * @property-read \Illuminate\Database\Eloquent\Collection<Event> $events
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class WorkCenter extends Model
 {

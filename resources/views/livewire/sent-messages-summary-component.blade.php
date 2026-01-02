@@ -26,7 +26,7 @@
                                 <p class="text-sm font-semibold text-gray-900 truncate">
                                     {{ __('To (recipient)') }}: 
                                     @if($message->recipients->count() === 1)
-                                        {{ $message->recipients->first()->name }}
+                                        {{ $message->recipients->first()->name }} {{ $message->recipients->first()->family_name1 }}
                                     @else
                                         {{ $message->recipients->count() }} {{ __('recipients') }}
                                     @endif
@@ -36,9 +36,9 @@
                                 </span>
                             </div>
                             <p class="text-sm text-gray-600 truncate mt-1">{{ $message->subject }}</p>
-                            <div class="prose max-w-none mt-2">
-                                {!! $message->body !!}
-                            </div>
+                            <p class="text-xs text-gray-500 mt-2 line-clamp-2 break-words">
+                                {{ Str::limit(strip_tags($message->body), 100) }}
+                            </p>
                         </div>
                     </div>
                 </a>

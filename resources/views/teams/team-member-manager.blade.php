@@ -250,6 +250,19 @@
                                             @livewire('teams.move-user-form', ['team' => $team, 'user' => $user], key('move-user-'.$user->id))
                                         </div>
                                     @endif
+
+                                    <!-- Impersonate User (Con permiso users.impersonate) -->
+                                    @if (userCan('users.impersonate') && $user->id !== auth()->id())
+                                        <form method="POST" action="{{ route('impersonate', $user->id) }}" class="inline-block ml-6">
+                                            @csrf
+                                            <button type="submit" 
+                                                class="cursor-pointer text-sm text-purple-600 hover:text-purple-900 font-medium"
+                                                onclick="return confirm('{{ __('Are you sure you want to view as this user?') }}')">
+                                                <i class="fas fa-user-secret mr-1"></i>
+                                                {{ __('View as') }}
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

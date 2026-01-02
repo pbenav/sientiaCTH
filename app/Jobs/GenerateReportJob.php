@@ -27,11 +27,15 @@ class GenerateReportJob implements ShouldQueue
     protected $todate;
     protected $eventTypeId;
     protected $rtype;
+    protected $reportSource;
+    protected $groupBy;
+    protected $orderBy;
+    protected $isChrome;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($userId, $teamId, $worker, $fromdate, $todate, $eventTypeId, $rtype)
+    public function __construct($userId, $teamId, $worker, $fromdate, $todate, $eventTypeId, $rtype, $reportSource = 'events', $groupBy = 'none', $orderBy = 'start', $isChrome = false)
     {
         $this->userId = $userId;
         $this->teamId = $teamId;
@@ -40,6 +44,10 @@ class GenerateReportJob implements ShouldQueue
         $this->todate = $todate;
         $this->eventTypeId = $eventTypeId;
         $this->rtype = $rtype;
+        $this->reportSource = $reportSource;
+        $this->groupBy = $groupBy;
+        $this->orderBy = $orderBy;
+        $this->isChrome = $isChrome;
     }
 
     /**
@@ -55,11 +63,64 @@ class GenerateReportJob implements ShouldQueue
                 throw new \Exception('User or team not found');
             }
 
-            // Query events
+            // Handle statistics reports differently
+            if ($this->reportSource === 'statistics') {
+                $fileName = 'cth_estadisticas_' . date('YmdHis') . '.pdf';
+                $filePath = 'reports/' . $fileName;
+
+                $exporter = new \App\Exports\StatsPdfExport(
+                    $this->userId,
+                    $this->teamId,
+                    $this->worker,
+                    $this->fromdate,
+                    $this->todate,
+                    $this->eventTypeId
+                );
+                
+                $pdf = $exporter->generate();
+                Storage::put($filePath, $pdf);
+
+                // Create download URL and send message
+                $downloadUrl = route('reports.download', ['file' => $fileName]);
+                
+                $body = __('The report for period :from to :to is ready for download. :link', [
+                    'from' => $this->fromdate,
+                    'to' => $this->todate,
+                    'link' => '<a href="' . $downloadUrl . '" class="text-blue-600 underline" target="_blank">' . __('Download') . '</a>'
+                ]);
+
+                if ($this->isChrome) {
+                    $body .= '<br><br><small style="color: #f59e0b;"><strong>' . __('Chrome users') . ':</strong> ' . __('If you cannot download reports, make sure popup blocker is disabled.') . '</small>';
+                }
+
+                $message = Message::create([
+                    'sender_id' => 1, // System/Admin
+                    'subject' => __('Your report is ready'),
+                    'body' => $body,
+                ]);
+                $message->recipients()->attach($this->userId);
+                return;
+            }
+
+            // Get team timezone for accurate date filtering
+            $teamTimezone = $team->timezone ?? 'UTC';
+            
+            // Convert user-selected dates to team timezone boundaries
+            $fromDateTime = \Carbon\Carbon::parse($this->fromdate, $teamTimezone)->startOfDay();
+            $toDateTime = \Carbon\Carbon::parse($this->todate, $teamTimezone)->endOfDay();
+            
+            // Convert to UTC for database comparison
+            $fromDateTimeUTC = $fromDateTime->copy()->setTimezone('UTC');
+            $toDateTimeUTC = $toDateTime->copy()->setTimezone('UTC');
+            
+            // Query events for regular reports
             $query = Event::query()
                 ->with(['user', 'eventType'])
-                ->whereDate('start', '>=', $this->fromdate)
-                ->whereDate('end', '<=', $this->todate);
+                // Use timestamp comparison instead of whereDate to account for timezone
+                ->where(function($q) use ($fromDateTimeUTC, $toDateTimeUTC) {
+                    $q->where('start', '<=', $toDateTimeUTC)
+                      ->where('end', '>=', $fromDateTimeUTC);
+                });
 
             if ($this->worker && $this->worker !== '%') {
                 $query->where('user_id', $this->worker);
@@ -97,16 +158,21 @@ class GenerateReportJob implements ShouldQueue
                     $team,
                     $workCenter,
                     $this->fromdate,
-                    $this->todate
+                    $this->todate,
+                    $this->groupBy,
+                    $this->orderBy
                 );
                 $pdf = $exporter->generate();
 
                 // Store PDF
                 Storage::put($filePath, $pdf);
             } else {
+                // Get team timezone for event clipping
+                $teamTimezone = $team->timezone ?? 'UTC';
+                
                 // Store other formats
                 Excel::store(
-                    new EventsExport($events),
+                    new EventsExport($events, $this->fromdate, $this->todate, $teamTimezone),
                     $filePath,
                     'local',
                     $this->getRtypeConstant($this->rtype)
@@ -116,15 +182,21 @@ class GenerateReportJob implements ShouldQueue
             // Create download URL
             $downloadUrl = route('reports.download', ['file' => $fileName]);
 
+            $body = __('The report for period :from to :to is ready for download. :link', [
+                'from' => $this->fromdate,
+                'to' => $this->todate,
+                'link' => '<a href="' . $downloadUrl . '" class="text-blue-600 underline" target="_blank">' . __('Download') . '</a>'
+            ]);
+
+            if ($this->isChrome) {
+                $body .= '<br><br><small style="color: #f59e0b;"><strong>' . __('Chrome users') . ':</strong> ' . __('If you cannot download reports, make sure popup blocker is disabled.') . '</small>';
+            }
+
             // Send message to user
             $message = Message::create([
-                'sender_id' => $this->userId, // Send as self/system
+                'sender_id' => 1, // System/Admin
                 'subject' => __('Your report is ready'),
-                'body' => __('The report for period :from to :to is ready for download. :link', [
-                    'from' => $this->fromdate,
-                    'to' => $this->todate,
-                    'link' => '<a href="' . $downloadUrl . '" class="text-blue-600 underline" target="_blank">' . __('Download') . '</a>'
-                ]),
+                'body' => $body,
             ]);
 
             $message->recipients()->attach($this->userId);
@@ -132,7 +204,7 @@ class GenerateReportJob implements ShouldQueue
         } catch (\Exception $e) {
             // Send error message to user
             $message = Message::create([
-                'sender_id' => $this->userId,
+                'sender_id' => 1, // System/Admin
                 'subject' => __('Report generation failed'),
                 'body' => __('There was an error generating your report. Please try again or contact support.') . "\n\n" . __('Error') . ': ' . $e->getMessage(),
             ]);

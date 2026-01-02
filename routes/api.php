@@ -33,10 +33,31 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
     // Ruta unificada para verificación NFC
     Route::post('nfc/verify', [ConfigController::class, 'verifyNFCTag']);
 
-    // Mobile API endpoints
+    // Clean API endpoints (Aliases for mobile app without /mobile prefix)
+    Route::post('/clock', [MobileClockController::class, 'clock']);
+    Route::post('/status', [MobileClockController::class, 'status']);
+    Route::post('/team/switch', [MobileClockController::class, 'confirmTeamSwitch']); // Renamed for clarity
+    Route::post('/sync', [MobileClockController::class, 'sync']);
+    
+    // History
+    Route::post('/history', [HistoryController::class, 'index']);
+    
+    // Schedule
+    Route::post('/schedule', [ScheduleController::class, 'index']);
+    Route::post('/schedule/update', [ScheduleController::class, 'update']);
+    
+    // Profile
+    Route::post('/profile/update', [\App\Http\Controllers\Api\ProfileController::class, 'update']);
+    
+    // Worker Data
+    Route::get('/worker/{code}', [MobileClockController::class, 'getWorkerData']);
+
+    // Legacy Mobile API endpoints (Kept for backward compatibility)
     Route::prefix('mobile')->group(function () {
+        // ... mapped to clean routes eventually
         Route::post('/clock', [MobileClockController::class, 'clock']);
         Route::post('/status', [MobileClockController::class, 'status']);
+        Route::post('/confirm-team-switch', [MobileClockController::class, 'confirmTeamSwitch']);
         Route::post('/sync', [MobileClockController::class, 'sync']);
         // History
         Route::post('/history', [HistoryController::class, 'index']);

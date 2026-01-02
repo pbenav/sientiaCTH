@@ -24,11 +24,13 @@
     <table>
         <thead>
             <tr>
-                <th>{{ __('Date') }}</th>
-                <th>{{ __('User') }}</th>
-                <th>{{ __('Table') }}</th>
-                <th>{{ __('Original Data') }}</th>
-                <th>{{ __('Modified Data') }}</th>
+                <th style="width: 10%;">{{ __('Date') }}</th>
+                <th style="width: 12%;">{{ __('Modified By') }}</th>
+                <th style="width: 8%;">{{ __('Event ID') }}</th>
+                <th style="width: 12%;">{{ __('Affected User') }}</th>
+                <th style="width: 10%;">{{ __('Team') }}</th>
+                <th style="width: 10%;">{{ __('Work Center') }}</th>
+                <th style="width: 38%;">{{ __('Differences') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -36,13 +38,65 @@
                 @php
                     $user = \App\Models\User::find($record->user_id);
                     $userName = $user ? $user->name . ' ' . $user->family_name1 : __('Unknown') . ' (' . $record->user_id . ')';
+                    
+                    // Extract event information from JSON
+                    $eventData = json_decode($record->modified_event ?? $record->original_event, true);
+                    $eventId = $eventData['id'] ?? '-';
+                    $affectedUserId = $eventData['user_id'] ?? null;
+                    $affectedUser = $affectedUserId ? \App\Models\User::find($affectedUserId) : null;
+                    $affectedUserName = $affectedUser ? $affectedUser->name . ' ' . $affectedUser->family_name1 : '-';
+                    
+                    $teamId = $eventData['team_id'] ?? null;
+                    $team = $teamId ? \App\Models\Team::find($teamId) : null;
+                    $teamName = $team ? $team->name : '-';
+                    
+                    $workCenterId = $eventData['work_center_id'] ?? null;
+                    $workCenter = $workCenterId ? \App\Models\WorkCenter::find($workCenterId) : null;
+                    $workCenterName = $workCenter ? $workCenter->name : '-';
                 @endphp
                 <tr>
-                    <td>{{ \Carbon\Carbon::parse($record->created_at)->format('d/m/Y H:i:s') }}</td>
-                    <td>{{ $userName }}</td>
-                    <td>{{ $record->tablename }}</td>
-                    <td><pre style="white-space: pre-wrap; font-size: 0.8em;">{{ $record->original_event }}</pre></td>
-                    <td><pre style="white-space: pre-wrap; font-size: 0.8em;">{{ $record->modified_event }}</pre></td>
+                    <td style="font-size: 0.85em;">{{ \Carbon\Carbon::parse($record->created_at)->format('d/m/Y H:i') }}</td>
+                    <td style="font-size: 0.85em;">{{ $userName }}</td>
+                    <td style="font-size: 0.85em; text-align: center;">#{{ $eventId }}</td>
+                    <td style="font-size: 0.85em;">{{ $affectedUserName }}</td>
+                    <td style="font-size: 0.85em;">{{ $teamName }}</td>
+                    <td style="font-size: 0.85em;">{{ $workCenterName }}</td>
+                    <td>
+                        @if(count($record->differences ?? []) > 0)
+                            <table style="width: 100%; border: none; margin-top: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%; background-color: #f9fafb; font-size: 0.8em;">{{ __('Field') }}</th>
+                                        <th style="width: 35%; background-color: #f9fafb; font-size: 0.8em;">{{ __('Old') }}</th>
+                                        <th style="width: 35%; background-color: #f9fafb; font-size: 0.8em;">{{ __('New') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($record->differences as $key => $diff)
+                                        <tr>
+                                            <td style="font-weight: bold; font-size: 0.75em;">{{ $key }}</td>
+                                            <td style="font-size: 0.75em; word-break: break-all;">
+                                                @if($diff['type'] == 'added')
+                                                    <span style="font-style: italic; color: #9ca3af;">{{ __('(New)') }}</span>
+                                                @else
+                                                    {{ $diff['original'] }}
+                                                @endif
+                                            </td>
+                                            <td style="font-size: 0.75em; word-break: break-all;">
+                                                @if($diff['type'] == 'deleted')
+                                                    <span style="font-style: italic; color: #9ca3af;">{{ __('(Deleted)') }}</span>
+                                                @else
+                                                    {{ $diff['modified'] }}
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                             <div style="font-style: italic; color: #6b7280; font-size: 0.8em;">{{ __('No differences') }}</div>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

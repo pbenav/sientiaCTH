@@ -34,7 +34,34 @@ class TeamInvitationController extends Controller
         }
 
         // Add user to team
-        $team->users()->attach($user->id, ['role' => $invitation->role]);
+        // Determinar el custom_role_id por defecto según el rol legacy
+        $customRoleId = null;
+        $role = $invitation->role;
+        
+        if ($role === 'admin') {
+            // Buscar el rol "Administrador" para este equipo
+            $adminRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_administrador")
+                ->first();
+            $customRoleId = $adminRole?->id;
+        } elseif ($role === 'user') {
+            // Buscar el rol "Usuario" para este equipo
+            $userRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_usuario")
+                ->first();
+            $customRoleId = $userRole?->id;
+        } elseif ($role === 'inspect') {
+            // Buscar el rol "Inspector" para este equipo
+            $inspectorRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_inspector")
+                ->first();
+            $customRoleId = $inspectorRole?->id;
+        }
+
+        $team->users()->attach($user->id, [
+            'role' => $role,
+            'custom_role_id' => $customRoleId,
+        ]);
 
         // Remove user from Welcome team if they are there
         $welcomeTeam = Team::where('name', 'Bienvenida')->first();

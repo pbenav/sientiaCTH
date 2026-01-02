@@ -22,7 +22,7 @@ class EventTypeApiController extends Controller
                 'id' => $type->id,
                 'name' => $translatedName,
                 'is_workday_type' => $type->is_workday_type,
-                'is_break_type' => $type->is_break_type,
+                'is_break_type' => $type->is_pause_type,
                 'color' => $type->color,
             ];
         });

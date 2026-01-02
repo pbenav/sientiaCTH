@@ -75,6 +75,25 @@
             </div>
 
             <div>
+                <x-jet-label value="{{ __('Group By') }}" />
+                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model.live='groupBy'>
+                    <option value="none">{{ __('None') }}</option>
+                    <option value="date">{{ __('Date') }}</option>
+                    <option value="user">{{ __('Worker') }}</option>
+                </select>
+                <x-jet-input-error for='groupBy' />
+            </div>
+
+            <div>
+                <x-jet-label value="{{ __('Order By') }}" />
+                <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model.live='orderBy'>
+                    <option value="start">{{ __('Date') }}</option>
+                    <option value="user_name">{{ __('Worker') }}</option>
+                </select>
+                <x-jet-input-error for='orderBy' />
+            </div>
+
+            <div>
                 <x-jet-label value="{{ __('Type') }}" />
                 <select class="form-control pt-1 h-8 whitespace-nowrap" wire:model='rtype'>
                     @foreach ($rtypes as $rtype_key => $rtype_val)
@@ -93,12 +112,34 @@
                     {{ __('Generate Report') }}
                 </x-jet-button>
 
-                <x-jet-button class="h-8 mt-4 bg-green-500 hover:bg-green-600 justify-center"
-                    wire:click='export'
-                    wire:loading.attr="disabled"
-                    onclick="showReportLoading()">
+                @php
+                    if ($rtype === 'PDF') {
+                        $downloadUrl = route('reports.preview', [
+                            'worker' => $worker,
+                            'fromdate' => $fromdate,
+                            'todate' => $todate,
+                            'event_type_id' => $event_type_id,
+                            'report_source' => $report_source,
+                            'groupBy' => $groupBy,
+                            'orderBy' => $orderBy,
+                            'download' => 1,
+                        ]);
+                    } else {
+                        $downloadUrl = route('reports.export', [
+                            'worker' => $worker,
+                            'fromdate' => $fromdate,
+                            'todate' => $todate,
+                            'event_type_id' => $event_type_id,
+                            'report_source' => $report_source,
+                            'rtype' => $rtype,
+                        ]);
+                    }
+                @endphp
+                <button 
+                   onclick="handleDownload('{{ $downloadUrl }}')"
+                   class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-600 active:bg-green-700 focus:outline-none focus:border-green-700 focus:ring focus:ring-green-200 disabled:opacity-25 transition h-8 mt-4 justify-center">
                     {{ __('Download') }}
-                </x-jet-button>
+                </button>
             </div>
         </div>
     </div>
@@ -124,6 +165,112 @@
     let reportLoadingAlert = null;
     let isGeneratingPreview = false;
     let loadingStartTime = null;
+
+    // Handle download button click
+    function handleDownload(url) {
+        // Make GET request and check response
+        fetch(url)
+            .then(response => {
+                // Check if response indicates async generation (202 status)
+                if (response.status === 202) {
+                    // Show SweetAlert in current tab
+                    Swal.fire({
+                        icon: 'info',
+                        title: '{{ __("Please wait, the report may take a few minutes...") }}',
+                        html: '{{ __("This report will be generated asynchronously and sent to your inbox.") }}<br><br>' +
+                              '<small>{{ __("You will receive a notification in your inbox with a download link.") }}</small><br><br>' +
+                              '<small style="color: #f59e0b;"><strong>{{ __("Chrome users") }}:</strong> {{ __("If you cannot download reports, make sure popup blocker is disabled.") }}</small>',
+                        confirmButtonText: '{{ __("OK") }}',
+                        confirmButtonColor: '#667eea',
+                        allowOutsideClick: false,
+                        allowEscapeKey: true
+                    });
+                    // Job already dispatched by the GET request above
+                } else {
+                    // Check if response is JSON (error) or Blob (file)
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.indexOf('application/json') !== -1) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || data.error || 'Server error');
+                        });
+                    }
+
+                    // Normal download - use anchor tag with download attribute
+                    return response.blob().then(blob => {
+                        // Check if blob is actually a JSON error (sometimes headers are lost)
+                        if (blob.type === 'application/json') {
+                             return blob.text().then(text => {
+                                 const data = JSON.parse(text);
+                                 throw new Error(data.message || data.error || 'Server error');
+                             });
+                        }
+
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = blobUrl;
+                        a.download = 'cth_informe_' + new Date().getTime() + '.pdf';
+                        document.body.appendChild(a);
+                        
+                        try {
+                            a.click();
+                            window.URL.revokeObjectURL(blobUrl);
+                            
+                            // Warning about popup blockers
+                            if ('{{ $isChrome }}') {
+                                setTimeout(() => {
+                                     Swal.fire({
+                                        icon: 'warning',
+                                        title: '{{ __("Download didn\'t start?") }}',
+                                        text: '{{ __("If the download failed, you may be using a popup blocker. Please generate the report first to view it.") }}',
+                                        confirmButtonText: '{{ __("OK") }}'
+                                     });
+                                }, 2000);
+                            }
+                        } catch (e) {
+                            console.error('Download click failed:', e);
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                
+                let errorMsg = '{{ __("There was an error generating your report. Please try again or contact support.") }}';
+                // Try to extract readable error message
+                if (error.message && error.message !== 'Failed to fetch') {
+                    errorMsg += '<br><br><small class="text-red-500">' + error.message + '</small>';
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ __("Error") }}',
+                    html: errorMsg,
+                    confirmButtonText: '{{ __("OK") }}'
+                });
+            })
+            .finally(() => {
+                 // Close loading
+                 if(reportLoadingAlert) {
+                      reportLoadingAlert.close();
+                 }
+            });
+    }
+
+    // Show message for Chrome popup blocker
+    function showChromePopupBlockerMessage() {
+        Swal.fire({
+            icon: 'warning',
+            title: '{{ __("Popup Blocker Detected") }}',
+            html: '{{ __("Your browser is blocking the download.") }}<br><br>' +
+                  '<strong>{{ __("Solution") }}:</strong><br>' +
+                  '1. {{ __("Click on \'Generate Report\' first to preview") }}<br>' +
+                  '2. {{ __("Or allow popups for this site in your browser settings") }}',
+            confirmButtonText: '{{ __("OK") }}',
+            confirmButtonColor: '#667eea'
+        });
+    }
 
     function showReportLoading() {
         if (!reportLoadingAlert) {
@@ -178,16 +325,62 @@
             }, 1000); // Increased from 500ms to 1000ms
         });
 
+        Livewire.on('download-report', function(data) {
+            // First, check if this will be an async report by making a HEAD request
+            fetch(data.url, { method: 'HEAD' })
+                .then(response => {
+                    // Check if response indicates async generation (202 status)
+                    if (response.status === 202) {
+                        // Show SweetAlert in current tab
+                        Swal.fire({
+                            icon: 'info',
+                            title: '{{ __("Please wait, the report may take a few minutes...") }}',
+                            html: '{{ __("This report will be generated asynchronously and sent to your inbox.") }}<br><br><small>{{ __("You will receive a notification in your inbox with a download link.") }}</small>',
+                            confirmButtonText: '{{ __("OK") }}',
+                            confirmButtonColor: '#667eea',
+                            allowOutsideClick: false,
+                            allowEscapeKey: true
+                        });
+                        
+                        // Trigger the actual async job by making GET request
+                        fetch(data.url).catch(err => console.log('Async job dispatched'));
+                    } else {
+                        // Normal download - use hidden iframe to avoid popup blocker
+                        let iframe = document.getElementById('download-iframe');
+                        if (!iframe) {
+                            iframe = document.createElement('iframe');
+                            iframe.id = 'download-iframe';
+                            iframe.style.display = 'none';
+                            document.body.appendChild(iframe);
+                        }
+                        iframe.src = data.url;
+                    }
+                })
+                .catch(err => {
+                    // Fallback: use hidden iframe
+                    let iframe = document.getElementById('download-iframe');
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.id = 'download-iframe';
+                        iframe.style.display = 'none';
+                        document.body.appendChild(iframe);
+                    }
+                    iframe.src = data.url;
+                });
+        });
+
         Livewire.on('async-report-started', function(data) {
             hideReportLoading(); // Ensure loading spinner is closed
             Swal.fire({
                 icon: 'info',
                 title: data.title,
                 text: data.text,
-                timer: 10000, // 10 seconds timeout as requested
+                timer: 20000, // 20 seconds timeout (increased from 10s)
                 timerProgressBar: true,
                 showConfirmButton: true,
-                confirmButtonText: '{{ __("sweetalert.ok_button") }}'
+                confirmButtonText: '{{ __("sweetalert.ok_button") }}',
+                allowOutsideClick: true,
+                allowEscapeKey: true
             });
         });
     });

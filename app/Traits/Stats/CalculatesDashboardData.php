@@ -4,11 +4,13 @@ namespace App\Traits\Stats;
 
 use App\Models\Event;
 use App\Models\User;
+use App\Traits\HandlesTimezoneConversion;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 
 trait CalculatesDashboardData
 {
+    use HandlesTimezoneConversion;
     /**
      * Get the data for the dashboard.
      *
@@ -19,7 +21,7 @@ trait CalculatesDashboardData
     private function getDashboardData(float $scheduledHours, int $scheduledDays): array
     {
         $user = User::find($this->browsedUser);
-        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $teamTimezone = $this->getUserTimezone($user);
         $workdayEventType = $user->currentTeam->eventTypes()->where('is_workday_type', true)->first();
         if (!$workdayEventType) {
             return [];
@@ -40,8 +42,30 @@ trait CalculatesDashboardData
         // Collection of workday type events
         $workdayEvents = $closedEvents->where('event_type_id', $workdayEventType->id);
 
-        // Calculate authorizable events for current year (full year, not just current month)
-        $currentYear = now()->year;
+        // Calculate authorizable events for selected year (full year, not just current month)
+        // IMPORTANTE: Usar selectedYear en lugar de now()->year para respetar el año que el usuario está viendo
+        $currentYear = $this->selectedYear;
+        
+        // Get team holidays for the selected year (and next year for events that might cross)
+        $yearStart = Carbon::create($currentYear, 1, 1, 0, 0, 0, $teamTimezone);
+        $yearEnd = Carbon::create($currentYear, 12, 31, 23, 59, 59, $teamTimezone);
+        $nextYearStart = Carbon::create($currentYear + 1, 1, 1, 0, 0, 0, $teamTimezone);
+        $nextYearEnd = Carbon::create($currentYear + 1, 12, 31, 23, 59, 59, $teamTimezone);
+        
+        $holidaysCurrentYear = $user->currentTeam->holidays()
+            ->whereBetween('date', [$yearStart, $yearEnd])
+            ->pluck('date')
+            ->map(fn ($date) => $date->format('Y-m-d'))
+            ->toArray();
+            
+        $holidaysNextYear = $user->currentTeam->holidays()
+            ->whereBetween('date', [$nextYearStart, $nextYearEnd])
+            ->pluck('date')
+            ->map(fn ($date) => $date->format('Y-m-d'))
+            ->toArray();
+            
+        $allHolidays = array_merge($holidaysCurrentYear, $holidaysNextYear);
+        
         $authorizableEventsByType = Event::with('eventType')
             ->where('user_id', $user->id)
             ->whereYear('start', $currentYear)
@@ -50,29 +74,55 @@ trait CalculatesDashboardData
             })
             ->get()
             ->groupBy('event_type_id')
-            ->map(function ($events, $typeId) use ($teamTimezone) {
+            ->map(function ($events, $typeId) use ($teamTimezone, $user, $allHolidays, $currentYear) {
                 $eventType = $events->first()->eventType;
                 
                 // Calculate the sum of days for all events of this type
-                $totalDays = $events->sum(function ($event) use ($teamTimezone) {
+                $totalDays = $events->sum(function ($event) use ($teamTimezone, $user, $allHolidays, $currentYear) {
                     if (empty($event->start) || empty($event->end)) {
                         return 0;
                     }
-                    // Parse as UTC (how Laravel stores timestamps)
-                    $startUTC = Carbon::parse($event->start, 'UTC');
-                    $endUTC = Carbon::parse($event->end, 'UTC');
                     
-                    // Calculate days based on UTC dates to avoid timezone conversion issues
-                    // For all-day events stored as 00:00:00 to 23:59:59, this will correctly count as 1 day
-                    $startDate = $startUTC->toDateString();
-                    $endDate = $endUTC->toDateString();
+                    // Parse as UTC and convert to team timezone to avoid timezone shift issues
+                    $startLocal = $this->utcToTeamTimezone($event->start, $teamTimezone);
+                    $endLocal = $this->utcToTeamTimezone($event->end, $teamTimezone);
                     
-                    // If same day in UTC, count as 1; otherwise count the difference + 1
+                    // Get date strings in local timezone
+                    $startDate = $startLocal->toDateString();
+                    $endDate = $endLocal->toDateString();
+                    
+                    // For all-day events ending at 00:00:00, don't count the end day
+                    // This handles events stored as "2025-01-15 00:00:00 to 2025-01-16 00:00:00"
+                    if ($endLocal->format('H:i:s') === '00:00:00') {
+                        $endLocal = $endLocal->subSecond();
+                        $endDate = $endLocal->toDateString();
+                    }
+                    
+                    // If same day in local timezone, count as 1
                     if ($startDate === $endDate) {
                         return 1;
                     }
                     
-                    return $startUTC->copy()->startOfDay()->diffInDays($endUTC->copy()->startOfDay()) + 1;
+                    // Calculate days based on user preference
+                    if ($user->vacation_calculation_type === 'working') {
+                        // Count working days (excluding weekends and holidays)
+                        // Only count days within the current year
+                        return $this->calculateWorkingDaysInYear($startLocal, $endLocal, $allHolidays, $currentYear);
+                    }
+                    
+                    // Natural days: count the difference in days + 1
+                    // Only count days within the current year
+                    $yearStart = Carbon::create($currentYear, 1, 1, 0, 0, 0, $startLocal->timezone);
+                    $yearEnd = Carbon::create($currentYear, 12, 31, 23, 59, 59, $startLocal->timezone);
+                    
+                    $effectiveStart = $startLocal->copy()->max($yearStart);
+                    $effectiveEnd = $endLocal->copy()->min($yearEnd);
+                    
+                    if ($effectiveStart->gt($effectiveEnd)) {
+                        return 0; // Event is entirely outside the current year
+                    }
+                    
+                    return $effectiveStart->copy()->startOfDay()->diffInDays($effectiveEnd->copy()->startOfDay()) + 1;
                 });
                 
                 return [
@@ -83,6 +133,7 @@ trait CalculatesDashboardData
             })
             ->values()
             ->toArray();
+
 
         // Calculate hours per day to avoid mismatches: only count workday hours
         // and compute non-workday hours only on scheduled days.
@@ -115,12 +166,14 @@ trait CalculatesDashboardData
     $exitBackdateSeconds = []; // abs(event.end - event.updated_at)
     $entryPctList = []; // percent punctuality per slot (0..1)
     $exitPctList = [];
+    $entryRealPctList = []; // Real punctuality (created_at vs slot)
+    $exitRealPctList = [];
     $breakdownLines = [];
 
         // PRIMER PASO: contar TODAS las horas registradas del tipo principal (incluyendo días sin schedule)
         foreach ($workdayEvents as $ev) {
-            $evStart = Carbon::parse($ev->start, 'UTC')->setTimezone($teamTimezone);
-            $evEnd = Carbon::parse($ev->end, 'UTC')->setTimezone($teamTimezone);
+            $evStart = $this->utcToTeamTimezone($ev->start, $teamTimezone);
+            $evEnd = $this->utcToTeamTimezone($ev->end, $teamTimezone);
             $hours = $evStart->diffInSeconds($evEnd) / 3600;
             $registeredHours += $hours;
         }
@@ -154,8 +207,8 @@ trait CalculatesDashboardData
 
             // eventos que intersectan este día
                         $eventsOfDay = $closedEvents->filter(function ($ev) use ($dayStart, $dayEnd, $teamTimezone) {
-                $evStart = Carbon::parse($ev->start, 'UTC')->setTimezone($teamTimezone);
-                $evEnd = Carbon::parse($ev->end, 'UTC')->setTimezone($teamTimezone);
+                $evStart = $this->utcToTeamTimezone($ev->start, $teamTimezone);
+                $evEnd = $this->utcToTeamTimezone($ev->end, $teamTimezone);
                 return $evStart->lte($dayEnd) && $evEnd->gte($dayStart);
             });
 
@@ -163,8 +216,8 @@ trait CalculatesDashboardData
             $dayNonWorkSeconds = 0;
 
             foreach ($eventsOfDay as $ev) {
-                $evStart = Carbon::parse($ev->start, 'UTC')->setTimezone($teamTimezone)->max($dayStart);
-                $evEnd = Carbon::parse($ev->end, 'UTC')->setTimezone($teamTimezone)->min($dayEnd);
+                $evStart = $this->utcToTeamTimezone($ev->start, $teamTimezone)->max($dayStart);
+                $evEnd = $this->utcToTeamTimezone($ev->end, $teamTimezone)->min($dayEnd);
                 $seconds = max(0, $evEnd->diffInSeconds($evStart));
 
                 if ($ev->event_type_id == $workdayEventType->id) {
@@ -194,8 +247,8 @@ trait CalculatesDashboardData
 
                 foreach ($eventsOfDay as $ev2) {
                     if ($ev2->event_type_id != $workdayEventType->id) continue;
-                    $evStart2 = Carbon::parse($ev2->start, 'UTC')->setTimezone($teamTimezone)->max($dayStart);
-                    $evEnd2 = Carbon::parse($ev2->end, 'UTC')->setTimezone($teamTimezone)->min($dayEnd);
+                    $evStart2 = $this->utcToTeamTimezone($ev2->start, $teamTimezone)->max($dayStart);
+                    $evEnd2 = $this->utcToTeamTimezone($ev2->end, $teamTimezone)->min($dayEnd);
                     // intersección con el slot
                     $intStart = $evStart2->max($slotStart);
                     $intEnd = $evEnd2->min($slotEnd);
@@ -213,10 +266,10 @@ trait CalculatesDashboardData
                 // Si encontramos un evento principal para esta franja, calcular desviaciones
                 if ($bestEventForSlot) {
                     try {
-                        $eventStart = Carbon::parse($bestEventForSlot->start, 'UTC')->setTimezone($teamTimezone);
-                        $eventEnd = Carbon::parse($bestEventForSlot->end, 'UTC')->setTimezone($teamTimezone);
-                        $createdAt = Carbon::parse($bestEventForSlot->created_at, 'UTC')->setTimezone($teamTimezone);
-                        $updatedAt = Carbon::parse($bestEventForSlot->updated_at, 'UTC')->setTimezone($teamTimezone);
+                        $eventStart = $this->utcToTeamTimezone($bestEventForSlot->start, $teamTimezone);
+                        $eventEnd = $this->utcToTeamTimezone($bestEventForSlot->end, $teamTimezone);
+                        $createdAt = $this->utcToTeamTimezone($bestEventForSlot->created_at, $teamTimezone);
+                        $updatedAt = $this->utcToTeamTimezone($bestEventForSlot->updated_at, $teamTimezone);
 
                         $entryDeviationsSeconds[] = abs($eventStart->diffInSeconds($slotStart));
                         $exitDeviationsSeconds[] = abs($eventEnd->diffInSeconds($slotEnd));
@@ -227,8 +280,13 @@ trait CalculatesDashboardData
                         $slotDuration = max(1, $slotEnd->diffInSeconds($slotStart));
                         $entryPct = max(0, min(1, 1 - (abs($eventStart->diffInSeconds($slotStart)) / $slotDuration)));
                         $exitPct = max(0, min(1, 1 - (abs($eventEnd->diffInSeconds($slotEnd)) / $slotDuration)));
+                        $entryRealPct = max(0, min(1, 1 - (abs($createdAt->diffInSeconds($slotStart)) / $slotDuration)));
+                        $exitRealPct = max(0, min(1, 1 - (abs($updatedAt->diffInSeconds($slotEnd)) / $slotDuration)));
+                        
                         $entryPctList[] = $entryPct;
                         $exitPctList[] = $exitPct;
+                        $entryRealPctList[] = $entryRealPct;
+                        $exitRealPctList[] = $exitRealPct;
 
                         // Añadir línea al desglose: fecha, franja y porcentajes
                         $breakdownLines[] = $date->format('Y-m-d') . ' ' . $slotStart->format('H:i') . '-' . $slotEnd->format('H:i') . ': entrada ' . round($entryPct * 100, 2) . '%, salida ' . round($exitPct * 100, 2) . '%';
@@ -276,7 +334,10 @@ trait CalculatesDashboardData
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
         $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
         $punctualDays = 0;
+        $realPunctualDays = 0;
         $absentDays = 0;
+        // Obtener el margen de cortesía (gracia) del equipo, por defecto 5 minutos
+        $courtesyMargin = $user->currentTeam->clock_in_grace_period_minutes ?? 5;
         // Los días trabajados se calculan a partir de la iteración diaria anterior
         $workedDays = collect($dailyWorked);
 
@@ -313,14 +374,22 @@ trait CalculatesDashboardData
                 } else {
                     // Buscar el primer evento del día entre los eventos de jornada laboral
                     $firstEvent = $workdayEvents->first(function ($event) use ($date, $teamTimezone) {
-                        return Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone)->isSameDay($date);
+                        return $this->utcToTeamTimezone($event->start, $teamTimezone)->isSameDay($date);
                     });
 
                     if ($firstEvent) {
                         $scheduledStartTime = Carbon::parse($date->format('Y-m-d') . ' ' . $daySchedule['start'], $teamTimezone);
-                        $actualStartTime = Carbon::parse($firstEvent->start, 'UTC')->setTimezone($teamTimezone);
-                        if ($actualStartTime <= $scheduledStartTime) {
+                        $actualStartTime = $this->utcToTeamTimezone($firstEvent->start, $teamTimezone);
+                        
+                        // Aplicar margen de cortesía
+                        if ($actualStartTime <= $scheduledStartTime->copy()->addMinutes($courtesyMargin)) {
                             $punctualDays++;
+                        }
+                        
+                        $realStartTime = $this->utcToTeamTimezone($firstEvent->created_at, $teamTimezone);
+                        // Aplicar margen de cortesía también a la comprobación real
+                        if ($realStartTime <= $scheduledStartTime->copy()->addMinutes($courtesyMargin)) {
+                            $realPunctualDays++;
                         }
                     }
                 }
@@ -329,10 +398,11 @@ trait CalculatesDashboardData
 
         $workedDaysCount = $scheduledDays - $absentDays;
         $punctuality = ($workedDaysCount > 0) ? round(($punctualDays / $workedDaysCount) * 100, 2) : 0;
+        $realPunctuality = ($workedDaysCount > 0) ? round(($realPunctualDays / $workedDaysCount) * 100, 2) : 0;
 
         $confidenceScores = [];
-        // Calcular confianza sobre los eventos cerrados (ya filtrados en $closedEvents)
-        foreach ($closedEvents as $event) {
+        // Calcular confianza SOLO sobre los eventos de jornada laboral (excluyendo pausas, vacaciones, etc)
+        foreach ($workdayEvents as $event) {
             // Parse as UTC since events are stored in UTC
             $start = Carbon::parse($event->start, 'UTC');
             $end = Carbon::parse($event->end, 'UTC');
@@ -363,20 +433,42 @@ trait CalculatesDashboardData
         ]);
 
     // --- Cálculo de puntualidad (entrada/salida) como porcentaje relativo a la duración de cada franja ---
+    // Filter outliers (deviations > 12 hours) to avoid distorting the average
+    $outlierThreshold = 12 * 3600; // 12 hours
+    
+    $filteredEntryBackdate = array_filter($entryBackdateSeconds, fn($s) => $s <= $outlierThreshold);
+    $filteredExitBackdate = array_filter($exitBackdateSeconds, fn($s) => $s <= $outlierThreshold);
+
+    // Calcular promedio sin outliers
     $avgEntryDeviationSec = !empty($entryDeviationsSeconds) ? array_sum($entryDeviationsSeconds) / count($entryDeviationsSeconds) : 0;
     $avgExitDeviationSec = !empty($exitDeviationsSeconds) ? array_sum($exitDeviationsSeconds) / count($exitDeviationsSeconds) : 0;
-    $avgEntryBackdateSec = !empty($entryBackdateSeconds) ? array_sum($entryBackdateSeconds) / count($entryBackdateSeconds) : 0;
-    $avgExitBackdateSec = !empty($exitBackdateSeconds) ? array_sum($exitBackdateSeconds) / count($exitBackdateSeconds) : 0;
+    $avgEntryBackdateSec = !empty($filteredEntryBackdate) ? array_sum($filteredEntryBackdate) / count($filteredEntryBackdate) : 0;
+    $avgExitBackdateSec = !empty($filteredExitBackdate) ? array_sum($filteredExitBackdate) / count($filteredExitBackdate) : 0;
 
-    // Convertir a minutos para presentación
-    $avgEntryDeviationMin = round($avgEntryDeviationSec / 60, 2);
-    $avgExitDeviationMin = round($avgExitDeviationSec / 60, 2);
-    $avgEntryBackdateMin = round($avgEntryBackdateSec / 60, 2);
-    $avgExitBackdateMin = round($avgExitBackdateSec / 60, 2);
+    // Convertir a formato Xm Ys para presentación
+    $formatDuration = function($seconds) {
+        $m = floor($seconds / 60);
+        $s = round($seconds % 60);
+        return sprintf('%dm %ds', $m, $s);
+    };
+
+    // Helper para formatear horas decimales a Xh Ym
+    $formatHours = function($hoursFloat) {
+        $h = floor($hoursFloat);
+        $m = round(($hoursFloat - $h) * 60);
+        return sprintf('%dh %02dm', $h, $m);
+    };
+
+    $avgEntryDeviationMin = $formatDuration($avgEntryDeviationSec);
+    $avgExitDeviationMin = $formatDuration($avgExitDeviationSec);
+    $avgEntryBackdateMin = $formatDuration($avgEntryBackdateSec);
+    $avgExitBackdateMin = $formatDuration($avgExitBackdateSec);
 
         // Calcular promedio de porcentajes por franja (no mediana para obtener valores más precisos con pocos registros)
         $avgEntryPct = !empty($entryPctList) ? round((array_sum($entryPctList) / count($entryPctList)) * 100, 2) : 0;
         $avgExitPct = !empty($exitPctList) ? round((array_sum($exitPctList) / count($exitPctList)) * 100, 2) : 0;
+        $avgEntryRealPct = !empty($entryRealPctList) ? round((array_sum($entryRealPctList) / count($entryRealPctList)) * 100, 2) : 0;
+        $avgExitRealPct = !empty($exitRealPctList) ? round((array_sum($exitRealPctList) / count($exitRealPctList)) * 100, 2) : 0;
 
         // Combinado: mediana/porcentaje promedio simple de entrada y salida
         $punctualityEntryWeighted = $avgEntryPct;
@@ -413,11 +505,18 @@ trait CalculatesDashboardData
             'automatically_closed_count' => $automaticallyClosedCount,
             'percentage_completion' => $percentage_completion,
             'extra_hours' => $extra_hours,
+            'extra_hours_fmt' => $formatHours($extra_hours),
+            'daily_overtime' => round($extraSeconds / 3600, 2),
+            'daily_overtime_fmt' => $formatHours($extraSeconds / 3600),
             'punctuality' => $punctuality,
+            'real_punctuality' => $realPunctuality,
             'absenteeism' => $absentDays,
             'registered_hours' => round($registeredHours, 2),
+            'registered_hours_fmt' => $formatHours($registeredHours),
             'registered_within_hours' => round($registeredWithinHours, 2),
+            'registered_within_hours_fmt' => $formatHours($registeredWithinHours),
             'effective_scheduled_hours' => round($scheduledHoursCalculated, 2),
+            'effective_scheduled_hours_fmt' => $formatHours($scheduledHoursCalculated),
             'avg_confidence' => $avgConfidence,
             'min_confidence' => $minConfidence,
             'max_confidence' => $maxConfidence,
@@ -431,10 +530,55 @@ trait CalculatesDashboardData
             'punctuality_exit_backdate_minutes' => $avgExitBackdateMin,
             'punctuality_entry_pct' => $punctualityEntryWeighted,
             'punctuality_exit_pct' => $punctualityExitWeighted,
+            'punctuality_entry_real_pct' => $avgEntryRealPct,
+            'punctuality_exit_real_pct' => $avgExitRealPct,
             'punctuality_combined_pct' => $punctualityCombinedPct,
             'punctuality_breakdown_lines' => $punctualityBreakdownLines,
             // Eventos autorizables del año en curso
             'authorizable_events' => $authorizableEventsByType,
         ];
+    }
+
+
+    /**
+     * Calculate working days between two dates within a specific year, excluding weekends and holidays.
+     *
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param array $holidays Array of holiday dates in 'Y-m-d' format
+     * @param int $year The year to count days within
+     * @return int
+     */
+    private function calculateWorkingDaysInYear(Carbon $startDate, Carbon $endDate, array $holidays, int $year): int
+    {
+        $workingDays = 0;
+        
+        // Constrain dates to the specified year
+        $yearStart = Carbon::create($year, 1, 1, 0, 0, 0, $startDate->timezone);
+        $yearEnd = Carbon::create($year, 12, 31, 23, 59, 59, $startDate->timezone);
+        
+        $effectiveStart = $startDate->copy()->max($yearStart)->startOfDay();
+        $effectiveEnd = $endDate->copy()->min($yearEnd)->startOfDay();
+        
+        // If the event is entirely outside the year, return 0
+        if ($effectiveStart->gt($effectiveEnd)) {
+            return 0;
+        }
+        
+        $current = $effectiveStart->copy();
+
+        while ($current->lte($effectiveEnd)) {
+            $dayOfWeek = (int) $current->format('N'); // 1 (Monday) to 7 (Sunday)
+            $dateString = $current->format('Y-m-d');
+
+            // Count if it's not a weekend (Saturday=6, Sunday=7) and not a holiday
+            if ($dayOfWeek < 6 && !in_array($dateString, $holidays)) {
+                $workingDays++;
+            }
+
+            $current->addDay();
+        }
+
+        return $workingDays;
     }
 }

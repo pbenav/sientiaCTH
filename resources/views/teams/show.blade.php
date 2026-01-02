@@ -43,6 +43,13 @@
                                 {{ __('User Management') }}
                             </a>
                         </li>
+                        <li class="mr-2" role="presentation">
+                            <a href="?tab=roles_permissions" 
+                               class="inline-block p-4 border-b-2 rounded-t-lg {{ request('tab') === 'roles_permissions' ? 'border-indigo-500 text-indigo-600' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}"
+                               role="tab">
+                                {{ __('Roles & Permissions') }}
+                            </a>
+                        </li>
 
                         @if (Auth::user()->is_admin)
                             <li class="mr-2" role="presentation">
@@ -87,6 +94,16 @@
                     @case('user_management')
                         @if (Auth::user()->is_admin || Auth::user()->ownsTeam($team) || Auth::user()->hasTeamRole($team, 'admin'))
                             @include('teams.tabs.user-management', ['team' => $team])
+                        @else
+                            <div class="p-4 bg-red-100 text-red-700 rounded">
+                                {{ __('Unauthorized action') }}
+                            </div>
+                        @endif
+                        @break
+
+                    @case('roles_permissions')
+                        @if (Auth::user()->is_admin || Auth::user()->ownsTeam($team) || Auth::user()->hasTeamRole($team, 'admin'))
+                            @livewire('roles-permissions-manager', ['team' => $team])
                         @else
                             <div class="p-4 bg-red-100 text-red-700 rounded">
                                 {{ __('Unauthorized action') }}

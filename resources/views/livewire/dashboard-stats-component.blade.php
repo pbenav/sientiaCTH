@@ -32,8 +32,12 @@
             </svg>
             <h4 class="text-sm font-semibold text-gray-700">{{ __('Hoy') }}</h4>
         </div>
-        <p class="text-2xl font-bold text-gray-900">{{ $todayHours }}</p>
-        <p class="text-xs text-gray-500">{{ __('Trabajadas') }}</p>
+        <p class="text-2xl font-bold text-gray-900">{{ $todayNetHours }}</p>
+        @if($todayPauseHours !== '00:00:00')
+            <p class="text-xs text-gray-500 mt-1">({{ $todayHours }} - {{ $todayPauseHours }} pausas)</p>
+        @else
+            <p class="text-xs text-gray-500">{{ __('Trabajadas') }}</p>
+        @endif
     </div>
 
     {{-- This Week --}}
@@ -44,8 +48,12 @@
             </svg>
             <h4 class="text-sm font-semibold text-gray-700">{{ __('Esta semana') }}</h4>
         </div>
-        <p class="text-2xl font-bold text-gray-900">{{ $weekHours }}</p>
-        <p class="text-xs text-gray-500">{{ __('Trabajadas') }}</p>
+        <p class="text-2xl font-bold text-gray-900">{{ $weekNetHours }}</p>
+        @if($weekPauseHours !== '00:00:00')
+            <p class="text-xs text-gray-500 mt-1">({{ $weekHours }} - {{ $weekPauseHours }} pausas)</p>
+        @else
+            <p class="text-xs text-gray-500">{{ __('Trabajadas') }}</p>
+        @endif
     </div>
 
     {{-- This Year --}}

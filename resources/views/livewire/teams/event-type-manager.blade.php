@@ -30,6 +30,9 @@
                                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     {{ __('Autorizable') }}
                                 </th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {{ __('Tipo Pausa') }}
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     {{ __('Acciones') }}
                                 </th>
@@ -74,6 +77,15 @@
                                             <span class="text-gray-400 text-xs">-</span>
                                         @endif
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        @if ($eventType->is_pause_type)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                {{ __('Sí') }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400 text-xs">-</span>
+                                        @endif
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         @if ($isTeamAdmin)
                                             <button wire:click="manageEventType({{ $eventType->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3 transition-colors duration-150">
@@ -92,7 +104,7 @@
             </div>
 
             <!-- Vista de cards para pantallas pequeñas -->
-            <div class="mt-6 md:hidden space-y-4">
+            <div class="mt-6 md:hidden space-y-4 overflow-x-auto pb-2">
                 @foreach ($eventTypes as $eventType)
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                         <div class="p-4 space-y-3">
@@ -123,11 +135,16 @@
                                         {{ __('Autorizable') }}
                                     </span>
                                 @endif
+                                @if ($eventType->is_pause_type)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                        {{ __('Tipo Pausa') }}
+                                    </span>
+                                @endif
                             </div>
 
                             <!-- Botones de acción -->
                             @if ($isTeamAdmin)
-                                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                                <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
                                     <button wire:click="manageEventType({{ $eventType->id }})" 
                                             class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-indigo-300 shadow-sm text-sm font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,6 +274,16 @@
                         <div class="ml-3 text-sm">
                             <label for="is_authorizable" class="font-medium text-gray-700">{{ __('Autorizable') }}</label>
                             <p class="text-gray-500">{{ __('Requiere aprobación de un administrador.') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <x-jet-checkbox id="is_pause_type" wire:model.defer="state.is_pause_type" class="text-indigo-600" />
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="is_pause_type" class="font-medium text-gray-700">{{ __('Es tipo pausa') }}</label>
+                            <p class="text-gray-500">{{ __('Los eventos de este tipo restarán del total de horas trabajadas (ej. pausas, comidas).') }}</p>
                         </div>
                     </div>
                 </div>

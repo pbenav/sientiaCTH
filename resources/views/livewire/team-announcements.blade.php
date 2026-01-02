@@ -1,17 +1,34 @@
 <div>
+    <style>
+        .announcement-preview-container > div > *:last-child {
+            margin-bottom: 0 !important;
+        }
+        .announcement-preview-container > div > * {
+            margin-top: 0.5rem !important;
+        }
+        .announcement-preview-container > div > *:first-child {
+            margin-top: 0 !important;
+        }
+    </style>
+
     @if ($announcements->count() > 0)
         <div class="space-y-3">
             @foreach ($announcements as $announcement)
-                <div class="p-4 bg-white rounded-lg shadow-sm border-l-4 border-blue-500" x-data="{ expanded: false }">
+                <div class="p-6 bg-white rounded-lg shadow-sm border-l-4 border-blue-500 min-h-[320px] flex flex-col" x-data="{ expanded: false }">
                     <h3 class="text-base font-bold text-gray-900">{{ $announcement->title }}</h3>
-                    <div class="mt-2 prose prose-sm max-w-none text-gray-700">
+                    <div class="mt-3 prose prose-sm max-w-none text-gray-700 flex-grow">
                         <div x-show="!expanded">
-                            @if($announcement->format === 'markdown')
-                                <p>{{ Str::limit(strip_tags(Str::markdown($announcement->content)), 100) }}</p>
-                            @else
-                                <p>{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
-                            @endif
-                            <button @click="expanded = true" class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-1">
+                            <div class="relative" style="height: 200px; overflow: hidden;">
+                                <div class="absolute top-0 left-0 right-0 announcement-preview-container">
+                                    @if($announcement->format === 'markdown')
+                                        <div class="markdown-content">{!! Str::markdown($announcement->content) !!}</div>
+                                    @else
+                                        <div class="html-content">{!! $announcement->content !!}</div>
+                                    @endif
+                                </div>
+                                <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                            </div>
+                            <button @click="expanded = true" class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2">
                                 {{ __('Ver más') }} →
                             </button>
                         </div>

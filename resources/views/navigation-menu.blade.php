@@ -8,10 +8,14 @@
                     <a href="{{ route('events') }}">
                         <x-jet-application-mark class="block h-9 w-auto" />
                     </a>
+                    <!-- App title for mobile -->
+                    <span class="sm:hidden ml-3 text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">
+                        CTH - Control Horario
+                    </span>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="align-middle ml-1 flex flex-wrap gap-4 py-4">
+                <div class="hidden sm:flex align-middle ml-1 flex-wrap gap-4 py-4">
                     <x-jet-nav-link href="{{ route('inicio') }}" :active="request()->routeIs('inicio')">
                         {{ __('Start') }}
                     </x-jet-nav-link>
@@ -27,6 +31,11 @@
                     <x-jet-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                         {{ __('Reports') }}
                     </x-jet-nav-link>
+                    @if(Auth::user()->is_admin || Auth::user()->isTeamAdmin() || Auth::user()->isInspector())
+                        <x-jet-nav-link href="{{ route('audit.index') }}" :active="request()->routeIs('audit.index')">
+                            {{ __('Audit Log') }}
+                        </x-jet-nav-link>
+                    @endif
                     <x-jet-nav-link href="{{ route('docs.index') }}" :active="request()->routeIs('docs.*')">
                         {{ __('Documentation') }}
                     </x-jet-nav-link>
@@ -222,6 +231,9 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <x-jet-responsive-nav-link href="{{ route('inicio') }}" :active="request()->routeIs('inicio')">
+                {{ __('Start') }}
+            </x-jet-responsive-nav-link>
             <x-jet-responsive-nav-link href="{{ route('events') }}" :active="request()->routeIs('events')">
                 {{ __('Events') }}
             </x-jet-responsive-nav-link>
@@ -234,6 +246,11 @@
             <x-jet-responsive-nav-link href="{{ route('reports') }}" :active="request()->routeIs('reports')">
                 {{ __('Reports') }}
             </x-jet-responsive-nav-link>
+            @if(Auth::user()->is_admin || Auth::user()->isTeamAdmin() || Auth::user()->isInspector())
+                <x-jet-responsive-nav-link href="{{ route('audit.index') }}" :active="request()->routeIs('audit.index')">
+                    {{ __('Audit Log') }}
+                </x-jet-responsive-nav-link>
+            @endif
             <x-jet-responsive-nav-link href="{{ route('docs.index') }}" :active="request()->routeIs('docs.*')">
                 {{ __('Documentation') }}
             </x-jet-responsive-nav-link>

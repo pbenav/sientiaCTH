@@ -27,6 +27,8 @@ class MessagesComponent extends Component
     public string $bulkAlertAction = '';
     public bool $selectAll = false;
     public ?int $message = null;
+    public ?int $replyingTo = null;
+    public array $collapsedThreads = [];
 
     protected $queryString = ['view', 'message'];
 
@@ -39,7 +41,9 @@ class MessagesComponent extends Component
 
         $team = Auth::user()->currentTeam;
         if ($team) {
-            $this->users = $team->allUsers()->where('id', '!=', Auth::id());
+            $this->users = $team->allUsers()->where('id', '!=', Auth::id())->sortBy(function ($user) {
+                return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
+            })->values();
         } else {
             $this->users = collect();
         }
@@ -124,6 +128,7 @@ class MessagesComponent extends Component
 
         $message = Message::create([
             'sender_id' => Auth::id(),
+            'parent_id' => $this->replyingTo,
             'subject' => $this->subject,
             'body' => $this->body,
         ]);
@@ -133,6 +138,7 @@ class MessagesComponent extends Component
         $this->recipients = [];
         $this->subject = '';
         $this->body = '';
+        $this->replyingTo = null;
 
         $this->showComposeForm = false;
         $this->showSent();
@@ -280,9 +286,10 @@ class MessagesComponent extends Component
         $this->markAsRead($messageId);
 
         $this->showComposeForm = true;
+        $this->replyingTo = $message->isReply() ? $message->parent_id : $messageId;
         $this->recipients = [$message->sender_id];
-        $this->subject = 'Re: ' . $message->subject;
-        $this->body = "\n\n\n> " . $message->body;
+        $this->subject = str_starts_with($message->subject, 'Re: ') ? $message->subject : 'Re: ' . $message->subject;
+        $this->body = '';
     }
 
     /**
@@ -312,6 +319,8 @@ class MessagesComponent extends Component
             $this->showSent();
         }
 
+        $this->selectAll = false;
+        $this->selectedMessages = [];
         $this->bulkAction = '';
         $this->emitTo('notification-icon', 'refreshCount');
     }
@@ -337,8 +346,11 @@ class MessagesComponent extends Component
     {
         if ($this->bulkAlertAction === 'delete') {
             Auth::user()->notifications()->whereIn('id', $this->selectedNotifications)->delete();
-            $this->bulkAlertAction = '';
         }
+        
+        $this->selectAll = false;
+        $this->selectedNotifications = [];
+        $this->bulkAlertAction = '';
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
@@ -354,13 +366,33 @@ class MessagesComponent extends Component
         $this->emitTo('notification-icon', 'refreshCount');
     }
 
+    public function toggleThread($messageId)
+    {
+        if (in_array($messageId, $this->collapsedThreads)) {
+            $this->collapsedThreads = array_diff($this->collapsedThreads, [$messageId]);
+        } else {
+            $this->collapsedThreads[] = $messageId;
+        }
+    }
+
     public function render()
     {
         $messageList = collect();
         if ($this->view === 'inbox') {
-            $messageList = Auth::user()->receivedMessages()->whereNull('message_user.deleted_at')->get();
+            // Load only root messages (no parent_id) with their replies
+            $messageList = Auth::user()->receivedMessages()
+                ->whereNull('message_user.deleted_at')
+                ->whereNull('parent_id')
+                ->with(['replies.sender', 'replies.recipients'])
+                ->get();
         } elseif ($this->view === 'sent') {
-            $messageList = Auth::user()->messages()->with('recipients')->whereNull('sender_deleted_at')->whereNull('sender_purged_at')->get();
+            // Load only root messages sent by user
+            $messageList = Auth::user()->messages()
+                ->with(['recipients', 'replies.sender', 'replies.recipients'])
+                ->whereNull('sender_deleted_at')
+                ->whereNull('sender_purged_at')
+                ->whereNull('parent_id')
+                ->get();
         } elseif ($this->view === 'trash') {
             $received = Auth::user()->receivedMessages()->whereNotNull('message_user.deleted_at')->get();
             $sent = Auth::user()->messages()->with('recipients')->whereNotNull('sender_deleted_at')->whereNull('sender_purged_at')->get();

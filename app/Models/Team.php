@@ -1,19 +1,51 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Models\EventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Jetstream\Events\TeamCreated;
 use Laravel\Jetstream\Events\TeamDeleted;
 use Laravel\Jetstream\Events\TeamUpdated;
 use Laravel\Jetstream\Team as JetstreamTeam;
 
 /**
- * Represents a team of users.
+ * Team Model
+ * 
+ * Represents a team/organization with custom configuration for time tracking,
+ * event types, work centers, holidays, and reporting settings.
  *
- * This model extends the base Jetstream team model to include custom
- * relationships and properties specific to the application.
+ * @property int $id
+ * @property int $user_id Owner user ID
+ * @property string $name Team name
+ * @property bool $personal_team Is this a personal team
+ * @property string $pdf_engine PDF generation engine (browsershot)
+ * @property int $max_report_months Maximum months for report generation
+ * @property int $async_report_threshold_months Threshold for async reports
+ * @property int $event_retention_months Event retention in months
+ * @property string $timezone Team timezone (default: Europe/Madrid)
+ * @property int|null $event_expiration_days Days before events expire
+ * @property bool $force_clock_in_delay Require clock-in delay
+ * @property int|null $clock_in_delay_minutes Clock-in delay in minutes
+ * @property int|null $clock_in_grace_period_minutes Grace period minutes
+ * @property string|null $special_event_color Color for special events
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @property-read User $owner
+ * @property-read \Illuminate\Database\Eloquent\Collection<User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<EventType> $eventTypes
+ * @property-read \Illuminate\Database\Eloquent\Collection<WorkCenter> $workCenters
+ * @property-read \Illuminate\Database\Eloquent\Collection<Holiday> $holidays
+ * @property-read \Illuminate\Database\Eloquent\Collection<Role> $roles
+ * @property-read \Illuminate\Database\Eloquent\Collection<Event> $events
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class Team extends JetstreamTeam
 {

@@ -35,7 +35,17 @@
 
                 <!-- Message Body -->
                 <div class="prose max-w-none">
-                    {!! $message->body !!}
+                    @php
+                        // Only parse as Markdown if content doesn't contain HTML tags
+                        $body = $message->body;
+                        if (strip_tags($body) === $body) {
+                            // No HTML tags found, it's Markdown
+                            // Convert literal \n to actual newlines
+                            $body = str_replace('\\n', "\n", $body);
+                            $body = \Illuminate\Support\Str::markdown($body);
+                        }
+                    @endphp
+                    {!! $body !!}
                 </div>
 
                 <!-- Actions -->

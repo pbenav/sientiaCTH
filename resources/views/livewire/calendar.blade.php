@@ -1,7 +1,7 @@
 <div>
     @livewire('add-event')
     @livewire('edit-event')
-    @livewire('event-info-modal')
+    @livewire('events.event-details-modal') {{-- Unified modal --}}
     
     <div id='calendar-container' wire:ignore>
         <div id='calendar'></div>
@@ -62,8 +62,8 @@
                             const isClosed = iconHtml.includes('fa-lock') && !iconHtml.includes('fa-lock-open');
                             
                             if (isClosed) {
-                                // Show info modal for closed events
-                                @this.call('showEventInfo', eventId);
+                                // Show info modal for closed events using unified modal
+                                Livewire.emit('showEventDetails', parseInt(eventId));
                             } else {
                                 // Allow editing open events
                                 @this.call('triggerEditModal', eventId);

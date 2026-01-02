@@ -154,7 +154,10 @@
                     {{ __('Cancel') }}
                 </x-jet-secondary-button>
 
-                <x-jet-button wire:click="save" wire:loading.attr="disabled" class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 justify-center">
+                <x-jet-button 
+                    id="save-event-btn"
+                    wire:loading.attr="disabled" 
+                    class="bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 justify-center">
                     {{ __('Guardar evento') }}
                 </x-jet-button>
             </div>
@@ -162,3 +165,49 @@
 
     </x-jet-dialog-modal>
 </div>
+
+@push('scripts')
+<script>
+    // Log GPS status when modal opens
+    window.addEventListener('show-add-event-modal', function() {
+        const userHasGeoEnabled = {{ (auth()->check() && auth()->user()->geolocation_enabled) ? 'true' : 'false' }};
+        
+        if (!userHasGeoEnabled) {
+            console.log('[GPS] Disabled for this user');
+            return;
+        }
+        
+        if (typeof window.cachedGeoPosition !== 'undefined' && window.cachedGeoPosition) {
+            console.log('[GPS] GPS ready for save():', window.cachedGeoPosition.latitude, window.cachedGeoPosition.longitude);
+        } else {
+            console.log('[GPS] No GPS position available');
+        }
+    });
+    
+    // Handle save button click with GPS coordinates
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'save-event-btn') {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('[GPS] Save button clicked');
+            
+            // Get the Livewire component
+            const component = Livewire.find(e.target.closest('[wire\\:id]').getAttribute('wire:id'));
+            
+            if (component) {
+                // Check if GPS is available
+                if (window.cachedGeoPosition) {
+                    console.log('[GPS] Calling save() with GPS:', window.cachedGeoPosition.latitude, window.cachedGeoPosition.longitude);
+                    component.call('save', window.cachedGeoPosition.latitude, window.cachedGeoPosition.longitude);
+                } else {
+                    console.log('[GPS] Calling save() without GPS');
+                    component.call('save', null, null);
+                }
+            } else {
+                console.error('[GPS] Livewire component not found');
+            }
+        }
+    });
+</script>
+@endpush

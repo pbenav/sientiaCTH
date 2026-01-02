@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 class EditEvent extends Component
 {
     use InsertHistory, HasWorkScheduleHint, HandlesEventAuthorization;
+    use \App\Traits\HandlesTimezoneConversion;
 
     /**
      * Determines if the event can be modified by the current user.
@@ -144,16 +145,20 @@ class EditEvent extends Component
         $this->original_event = clone $ev;
         $this->user = User::find($ev->user_id);
 
+        // Obtener zona horaria del equipo del evento
+        // Esto permite que la aplicación funcione correctamente en múltiples localizaciones
+        $teamTimezone = $this->getEventTimezone($ev);
+
         // Populate the properties for the form
-        // For all-day events, work with dates only (no timezone conversion)
-        // For timed events, convert from UTC to the app's timezone
+        // IMPORTANTE: Siempre convertir de UTC a zona horaria local ANTES de formatear o calcular
         if ($ev->eventType && $ev->eventType->is_all_day) {
-            $startCarbon = \Carbon\Carbon::parse($ev->start, 'UTC');
+            // Para eventos de día completo: convertir UTC a zona horaria del equipo
+            $startCarbon = $this->utcToTeamTimezone($ev->start, $teamTimezone);
             $this->start_date = $startCarbon->format('Y-m-d');
             
             if ($ev->end) {
                 // Parse the end date (which is stored at 23:59:59 of the event day)
-                $endCarbon = \Carbon\Carbon::parse($ev->end, 'UTC');
+                $endCarbon = $this->utcToTeamTimezone($ev->end, $teamTimezone);
                 $this->end_date = $endCarbon->format('Y-m-d');
             } else {
                 $this->end_date = $startCarbon->format('Y-m-d');
@@ -164,22 +169,21 @@ class EditEvent extends Component
             $this->start_datetime = '';
             $this->end_datetime = '';
         } else {
-            $startCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->start, 'UTC')
-                ->setTimezone(config('app.timezone'));
+            // Para eventos con hora: convertir UTC a zona horaria del equipo
+            $startCarbon = $this->utcToTeamTimezone($ev->start, $teamTimezone);
             
             $this->start_datetime = $startCarbon->toDateTimeLocalString();
             $this->start_date = $startCarbon->format('Y-m-d');
             $this->start_time = $startCarbon->format('H:i');
 
             if ($ev->end) {
-                $endCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ev->end, 'UTC')
-                    ->setTimezone(config('app.timezone'));
+                $endCarbon = $this->utcToTeamTimezone($ev->end, $teamTimezone);
                 
                 $this->end_datetime = $endCarbon->toDateTimeLocalString();
                 $this->end_date = $endCarbon->format('Y-m-d');
                 $this->end_time = $endCarbon->format('H:i');
             } else {
-                $nowCarbon = \Carbon\Carbon::now(config('app.timezone'));
+                $nowCarbon = \Carbon\Carbon::now($teamTimezone);
                 $this->end_datetime = $nowCarbon->toDateTimeLocalString();
                 $this->end_date = $nowCarbon->format('Y-m-d');
                 $this->end_time = $nowCarbon->format('H:i');
@@ -267,9 +271,14 @@ class EditEvent extends Component
         }
 
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
-            $this->event->start = Carbon::parse($this->start_date . ' 00:00:00', 'UTC')
+            // For all-day events, convert from local timezone to UTC
+            // User enters 2025-03-05, which means 2025-03-05 00:00:00 in Europe/Madrid
+            // This should be stored as 2025-03-04 23:00:00 UTC (CET) or 2025-03-04 22:00:00 UTC (CEST)
+            $this->event->start = Carbon::parse($this->start_date . ' 00:00:00', config('app.timezone'))
+                ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
-            $this->event->end = Carbon::parse($this->end_date . ' 23:59:59', 'UTC')
+            $this->event->end = Carbon::parse($this->end_date . ' 23:59:59', config('app.timezone'))
+                ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
         } else {
             // Combine separate date and time fields
@@ -297,7 +306,8 @@ class EditEvent extends Component
         $this->event->save();
 
         if (auth()->user()->isTeamAdmin()) {
-            $this->insertHistory('events', $this->original_event, $this->event);
+            // Solo audita si el evento está cerrado (is_open = false)
+            $this->insertHistory('events', $this->original_event, $this->event, false);
             unset($this->original_event);
         }
 

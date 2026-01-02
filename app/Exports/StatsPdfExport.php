@@ -56,6 +56,9 @@ class StatsPdfExport
 
     protected function generateMpdf(): string
     {
+        // Increase PCRE backtrack limit for large HTML content
+        ini_set('pcre.backtrack_limit', '5000000');
+        
         list($chartData, $elapsedTime) = $this->getData();
         list($scheduledHours, $scheduledDays) = $this->getScheduledData();
         $dashboardData = $this->getDashboardData($scheduledHours, $scheduledDays);
@@ -63,12 +66,28 @@ class StatsPdfExport
         $browsedUserModel = User::find($this->browsedUser);
         $eventTypes = $this->team->eventTypes;
 
+        $formatHours = function($hoursFloat) {
+            $h = floor($hoursFloat);
+            $m = round(($hoursFloat - $h) * 60);
+            return sprintf('%dh %02dm', $h, $m);
+        };
+
+        $totalHoursFmt = $formatHours($this->totalHours ?? 0);
+        $totalNetHours = round(($this->totalHours ?? 0) - ($this->totalPauseHours ?? 0), 2);
+        $totalNetHoursFmt = $formatHours($totalNetHours);
+        $scheduledHoursFmt = $formatHours($scheduledHours);
+
         $html = view('exports.stats_mpdf', [
             'chartData' => $chartData,
             'dashboardData' => $dashboardData,
             'scheduledHours' => $scheduledHours,
+            'scheduledHoursFmt' => $scheduledHoursFmt,
             'scheduledDays' => $scheduledDays,
             'totalHours' => $this->totalHours ?? 0,
+            'totalHoursFmt' => $totalHoursFmt,
+            'totalPauseHours' => $this->totalPauseHours ?? 0,
+            'totalNetHours' => $totalNetHours,
+            'totalNetHoursFmt' => $totalNetHoursFmt,
             'totalDays' => $this->totalDays ?? 0,
             'browsedUser' => $browsedUserModel,
             'team' => $this->team,
@@ -80,7 +99,14 @@ class StatsPdfExport
             'toDate' => $this->toDate,
         ])->render();
 
+        // Ensure temp directory exists and is writable
+        $tempDir = storage_path('app/mpdf');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
         $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => $tempDir,
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'margin_left' => 10,
@@ -124,12 +150,30 @@ class StatsPdfExport
         $browsedUserModel = User::find($this->browsedUser);
         $eventTypes = $this->team->eventTypes;
 
+        $formatHours = function($hoursFloat) {
+            $h = floor($hoursFloat);
+            $m = round(($hoursFloat - $h) * 60);
+            return sprintf('%dh %02dm', $h, $m);
+        };
+
+        $totalHoursFmt = $formatHours($this->totalHours ?? 0);
+        $totalNetHours = round(($this->totalHours ?? 0) - ($this->totalPauseHours ?? 0), 2);
+        $totalNetHoursFmt = $formatHours($totalNetHours);
+        
+        // Format scheduled hours
+        $scheduledHoursFmt = $formatHours($scheduledHours);
+
         $html = view('exports.stats_pdf', [
             'chartData' => $chartData,
             'dashboardData' => $dashboardData,
             'scheduledHours' => $scheduledHours,
+            'scheduledHoursFmt' => $scheduledHoursFmt,
             'scheduledDays' => $scheduledDays,
             'totalHours' => $this->totalHours ?? 0,
+            'totalHoursFmt' => $totalHoursFmt,
+            'totalPauseHours' => $this->totalPauseHours ?? 0,
+            'totalNetHours' => $totalNetHours,
+            'totalNetHoursFmt' => $totalNetHoursFmt,
             'totalDays' => $this->totalDays ?? 0,
             'browsedUser' => $browsedUserModel,
             'team' => $this->team,
@@ -163,15 +207,34 @@ class StatsPdfExport
             '--enable-features=NetworkService,NetworkServiceInProcess',
             '--disable-features=site-per-process,IsolateOrigins,SpeculativeServiceWorkerStart',
             '--no-zygote',
+            '--pipe',
+            '--disable-crash-reporter',
+            '--disable-breakpad',
+            '--disable-client-side-phishing-detection',
+            '--disable-component-extensions-with-background-pages',
+            '--disable-default-apps',
+            '--disable-extensions',
         ];
 
         $nodeBinDir = dirname($nodePath);
+
+        // Crear directorio temporal único para esta instancia
+        $tempDir = sys_get_temp_dir() . '/puppeteer_data_' . uniqid();
+        if (!file_exists($tempDir)) {
+            @mkdir($tempDir, 0777, true);
+        }
 
         return Browsershot::html($html)
             ->setNodeBinary($nodePath)
             ->setNpmBinary($npmPath)
             ->setIncludePath('$PATH:' . $nodeBinDir)
             ->setOption('executablePath', $chromePath)
+            ->setOption('userDataDir', $tempDir) // Definir directorio de usuario temporal y escribible
+            ->setOption('env', [
+                'XDG_CONFIG_HOME' => $tempDir, // Redirigir config home para evitar errores de permisos
+                'XDG_CACHE_HOME' => $tempDir,  // Redirigir cache home
+                'HOME' => $tempDir,            // Redirigir HOME como medida definitiva
+            ])
             ->setOption('args', $puppeteerArgs)
             ->format('A4')
             ->landscape()
@@ -189,22 +252,43 @@ class StatsPdfExport
 
     protected function detectChromePath(): string
     {
-        $defaultChromePaths = [
-            '/home/sientia/.cache/puppeteer/chrome-headless-shell/linux-142.0.7444.175/chrome-headless-shell-linux64/chrome-headless-shell',
-            '/usr/bin/google-chrome',
-            '/usr/bin/chromium',
-            '/usr/local/bin/google-chrome',
-            '/usr/local/bin/chromium',
-            getenv('HOME') . '/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
-            '/home/sientia/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
-            base_path('node_modules/puppeteer/.local-chromium/linux-142.0.7444.175/chrome-linux64/chrome'),
-            base_path('.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome'),
-            base_path('chrome-linux/chrome'),
-            public_path('chrome-linux/chrome'),
+        // 1. PRIORIDAD: Variable de entorno del .env
+        $envChromePath = env('CHROME_BINARY_PATH');
+        if ($envChromePath && @file_exists($envChromePath) && @is_executable($envChromePath)) {
+            return $envChromePath;
+        }
+
+        // 2. PRIORIDAD: Rutas locales del proyecto (Puppeteer instalado localmente)
+        $localChromePaths = [
+            base_path('node_modules/puppeteer/node_modules/puppeteer/.local-chromium/chrome/linux-*/chrome-linux64/chrome'),
+            base_path('node_modules/puppeteer/.local-chromium/chrome/linux-*/chrome-linux64/chrome'),
+            base_path('node_modules/puppeteer/.local-chromium/linux-*/chrome-linux*/chrome'),
+            base_path('.cache/puppeteer/chrome/linux-*/chrome-linux*/chrome'),
         ];
 
-        foreach ($defaultChromePaths as $path) {
-            if (file_exists($path) && is_executable($path)) {
+        foreach ($localChromePaths as $path) {
+            $matches = @glob($path);
+            if ($matches && !empty($matches)) {
+                foreach ($matches as $match) {
+                    if (@file_exists($match) && @is_executable($match)) {
+                        return $match;
+                    }
+                }
+            }
+        }
+
+        // 3. ÚLTIMA OPCIÓN: Rutas del sistema
+        $systemChromePaths = [
+            '/usr/bin/google-chrome',
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/usr/local/bin/google-chrome',
+            '/usr/local/bin/chromium',
+            '/snap/bin/chromium',
+        ];
+
+        foreach ($systemChromePaths as $path) {
+            if (@file_exists($path) && @is_executable($path)) {
                 return $path;
             }
         }
@@ -214,10 +298,17 @@ class StatsPdfExport
 
     protected function detectNodePath(): string
     {
+        // 1. PRIORIDAD: Variable de entorno del .env
+        $envNodePath = env('NODE_BINARY_PATH');
+        if ($envNodePath && @file_exists($envNodePath) && @is_executable($envNodePath)) {
+            return $envNodePath;
+        }
+
         $whichOutput = [];
         $whichReturnVar = null;
         exec("which node 2>/dev/null", $whichOutput, $whichReturnVar);
-        if ($whichReturnVar === 0 && !empty($whichOutput[0]) && file_exists($whichOutput[0])) {
+        
+        if ($whichReturnVar === 0 && !empty($whichOutput[0])) {
             return $whichOutput[0];
         }
 
@@ -233,7 +324,7 @@ class StatsPdfExport
         ];
 
         foreach ($commonNodePaths as $path) {
-            if (file_exists($path) && is_executable($path)) {
+            if (@file_exists($path) && @is_executable($path)) {
                 return $path;
             }
         }
@@ -243,18 +334,26 @@ class StatsPdfExport
 
     protected function detectNpmPath(string $nodePath): string
     {
+        // 1. PRIORIDAD: Variable de entorno del .env
+        $envNpmPath = env('NPM_BINARY_PATH');
+        if ($envNpmPath && @file_exists($envNpmPath)) {
+            return $envNpmPath;
+        }
+
         $npmPath = dirname($nodePath) . '/npm';
         
-        if (!file_exists($npmPath)) {
-            $whichNpmOutput = [];
-            $whichNpmReturnVar = null;
-            exec("which npm 2>/dev/null", $whichNpmOutput, $whichNpmReturnVar);
-            if ($whichNpmReturnVar === 0 && !empty($whichNpmOutput[0]) && file_exists($whichNpmOutput[0])) {
-                return $whichNpmOutput[0];
-            }
+        if (@file_exists($npmPath)) {
+            return $npmPath;
         }
         
-        return $npmPath;
+        $whichNpmOutput = [];
+        $whichNpmReturnVar = null;
+        @exec("which npm 2>/dev/null", $whichNpmOutput, $whichNpmReturnVar);
+        if ($whichNpmReturnVar === 0 && !empty($whichNpmOutput[0])) {
+            return $whichNpmOutput[0];
+        }
+        
+        return 'npm';
     }
 
     /**
@@ -343,7 +442,13 @@ class StatsPdfExport
 
                 if ($effective_start->lt($effective_end)) {
                     $hours_for_day = $effective_start->diffInSeconds($effective_end) / 3600;
-                    $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
+                    
+                    // If event type is pause, subtract from total; otherwise add
+                    if ($event->eventType->is_pause_type) {
+                        $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) - $hours_for_day;
+                    } else {
+                        $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
+                    }
                     $daysWithEvents[$dayKey] = $date;
                 }
             }
@@ -363,6 +468,7 @@ class StatsPdfExport
         }
 
         $totalHours = 0;
+        $totalPauseHours = 0;
         $dayCountsPerType = [];
         $uniqueDays = [];
 
@@ -374,6 +480,15 @@ class StatsPdfExport
                     $totalHours += $types[$workdayEventType->name]['hours'];
                 }
             }
+            
+            // Calculate pause hours separately
+            foreach ($types as $typeName => $data) {
+                $eventType = $eventTypesInUse[$typeName] ?? null;
+                if ($eventType && $eventType->is_pause_type && $data['hours'] < 0) { // Changed > 0 to < 0 because pause hours are stored as negative
+                    $totalPauseHours += abs($data['hours']); // Use abs since we stored it as negative
+                }
+            }
+            
             $uniqueDays[$day] = true;
 
             foreach ($types as $typeName => $data) {
@@ -385,6 +500,7 @@ class StatsPdfExport
         }
 
         $this->totalHours = round($totalHours, 2);
+        $this->totalPauseHours = round($totalPauseHours, 2);
 
         if ($this->eventTypeId && $this->eventTypeId !== 'All') {
             $this->totalDays = count($dailyTypeHours);

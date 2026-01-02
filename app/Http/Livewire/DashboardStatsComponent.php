@@ -4,11 +4,13 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Event;
+use App\Traits\HandlesTimezoneConversion;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class DashboardStatsComponent extends Component
 {
+    use HandlesTimezoneConversion;
     public function render()
     {
         $user = Auth::user();
@@ -74,7 +76,7 @@ class DashboardStatsComponent extends Component
         
         // Calculate today's worked hours
         // Use user's timezone for accurate "today" filtering
-        $userTimezone = config('app.timezone'); // or $user->timezone if you store it per user
+        $userTimezone = $this->getCurrentTeamTimezone();
         $todayStart = Carbon::now($userTimezone)->startOfDay();
         $todayEnd = Carbon::now($userTimezone)->endOfDay();
         
@@ -84,19 +86,27 @@ class DashboardStatsComponent extends Component
             ->get();
         
         $todaySeconds = 0;
+        $todayPauseSeconds = 0;
         foreach ($todayEvents as $event) {
             // Parse with timezone to ensure correct interpretation
-            $start = Carbon::parse($event->start, 'UTC')->setTimezone($userTimezone);
+            $start = $this->utcToTeamTimezone($event->start, $userTimezone);
             
             if ($event->end) {
-                $end = Carbon::parse($event->end, 'UTC')->setTimezone($userTimezone);
+                $end = $this->utcToTeamTimezone($event->end, $userTimezone);
             } else {
                 // If event is open, use current time
                 $end = Carbon::now($userTimezone);
             }
             
             if ($end->greaterThan($start)) {
-                $todaySeconds += $start->diffInSeconds($end);
+                $duration = $start->diffInSeconds($end);
+                
+                // Separate pause events from worked events
+                if ($event->eventType && $event->eventType->is_pause_type) {
+                    $todayPauseSeconds += $duration;
+                } else {
+                    $todaySeconds += $duration;
+                }
             }
         }
         
@@ -110,18 +120,26 @@ class DashboardStatsComponent extends Component
             ->get();
         
         $weekSeconds = 0;
+        $weekPauseSeconds = 0;
         foreach ($weekEvents as $event) {
-            $start = Carbon::parse($event->start, 'UTC')->setTimezone($userTimezone);
+            $start = $this->utcToTeamTimezone($event->start, $userTimezone);
             
             if ($event->end) {
-                $end = Carbon::parse($event->end, 'UTC')->setTimezone($userTimezone);
+                $end = $this->utcToTeamTimezone($event->end, $userTimezone);
             } else {
                 // If event is open, use current time
                 $end = Carbon::now($userTimezone);
             }
             
             if ($end->greaterThan($start)) {
-                $weekSeconds += $start->diffInSeconds($end);
+                $duration = $start->diffInSeconds($end);
+                
+                // Separate pause events from worked events
+                if ($event->eventType && $event->eventType->is_pause_type) {
+                    $weekPauseSeconds += $duration;
+                } else {
+                    $weekSeconds += $duration;
+                }
             }
         }
         
@@ -129,13 +147,19 @@ class DashboardStatsComponent extends Component
         $yearStart = Carbon::now($userTimezone)->startOfYear();
         $yearEnd = Carbon::now($userTimezone)->endOfDay();
         
-        $yearDays = Event::where('user_id', $user->id)
+        // Get all events for this year
+        $yearEvents = Event::where('user_id', $user->id)
             ->where('start', '>=', $yearStart)
             ->where('start', '<=', $yearEnd)
-            ->selectRaw('DATE(CONVERT_TZ(start, "+00:00", "' . $userTimezone . '")) as work_date')
-            ->groupBy('work_date')
-            ->get()
-            ->count();
+            ->get();
+        
+        // Count unique dates using PHP (more reliable than SQL CONVERT_TZ)
+        $uniqueDates = [];
+        foreach ($yearEvents as $event) {
+            $eventDate = $this->utcToTeamTimezone($event->start, $userTimezone)->format('Y-m-d');
+            $uniqueDates[$eventDate] = true;
+        }
+        $yearDays = count($uniqueDates);
             
         // Helper to format seconds to H:i:s
         $formatSeconds = function($seconds) {
@@ -149,7 +173,11 @@ class DashboardStatsComponent extends Component
             'currentSlot' => $currentSlot,
             'nextSlot' => $nextSlot,
             'todayHours' => $formatSeconds($todaySeconds),
+            'todayPauseHours' => $formatSeconds($todayPauseSeconds),
+            'todayNetHours' => $formatSeconds($todaySeconds - $todayPauseSeconds),
             'weekHours' => $formatSeconds($weekSeconds),
+            'weekPauseHours' => $formatSeconds($weekPauseSeconds),
+            'weekNetHours' => $formatSeconds($weekSeconds - $weekPauseSeconds),
             'yearDays' => $yearDays,
         ]);
     }

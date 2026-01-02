@@ -2,6 +2,19 @@
 
 CTH is a web application based on Laravel and is intended to track time control in bussines.
 
+## 📚 Documentation
+
+Detailed documentation is available in `public/docs`:
+
+### English 🇺🇸
+- [Developer Manual](public/docs/en/DEVELOPER_MANUAL.md)
+- [API Reference v1](public/docs/en/API_REFERENCE.md)
+
+### Español 🇪🇸
+- [Manual del Desarrollador](public/docs/es/DEVELOPER_MANUAL.md)
+- [Referencia API v1](public/docs/es/REFERENCIA_API.md)
+- [Resumen Semanal de Cambios](public/docs/es/RESUMEN_SEMANAL.md)
+
 ## Security Vulnerabilities
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](webmaster@zafarraya.net). All security vulnerabilities will be promptly addressed.

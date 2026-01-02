@@ -139,6 +139,10 @@
             border-bottom: 2px solid #E5E7EB;
         }
         
+        .page-break-before {
+            page-break-before: always;
+        }
+        
         .chart-container {
             background: white;
             border: 1px solid #E5E7EB;
@@ -256,7 +260,10 @@
         @endif
         <div class="meta-info-item">
             <strong>{{ __('Total Hours') }}:</strong> 
-            <span class="badge" style="background: linear-gradient(135deg, #4F46E5 0%, #4338ca 100%);">{{ $totalHours }}</span>
+            <span class="badge" style="background: linear-gradient(135deg, #4F46E5 0%, #4338ca 100%);">{{ $totalNetHoursFmt }}</span>
+            @if($totalPauseHours > 0)
+                <span style="font-size: 7.5pt; color: #6B7280; margin-left: 5px;">({{ $totalHoursFmt }} - {{ $totalPauseHours }} pausas)</span>
+            @endif
         </div>
         <div class="meta-info-item">
             <strong>{{ __('Total Days') }}:</strong> 
@@ -388,14 +395,18 @@
     @endif
 
     {{-- KPIs: Workday Compliance --}}
-    <div class="section-title">{{ __('stats.workday_compliance') }}</div>
+    <div class="section-title page-break-before">{{ __('stats.workday_compliance') }}</div>
     <div class="kpi-grid">
         <div class="kpi-card">
             <div class="kpi-card-header">
                 <div class="kpi-icon blue">⏰</div>
                 <div>
                     <div class="kpi-title">{{ __('Punctuality') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['punctuality'] ?? '0' }}%</div>
+                    <div style="display: flex; gap: 8px; align-items: baseline;">
+                        <span class="kpi-value">{{ $dashboardData['punctuality'] ?? '0' }}%</span>
+                        <span class="kpi-value" style="font-size: 14pt; color: #9CA3AF;">{{ $dashboardData['real_punctuality'] ?? '0' }}%</span>
+                    </div>
+                    <div class="kpi-subtitle">Cumplimiento general de horario</div>
                 </div>
             </div>
         </div>
@@ -405,8 +416,11 @@
                 <div class="kpi-icon blue">→</div>
                 <div>
                     <div class="kpi-title">{{ __('stats.entry') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</div>
-                    <div class="kpi-subtitle">{{ $dashboardData['punctuality_entry_minutes'] ?? '0' }} {{ __('stats.min') }}</div>
+                    <div style="display: flex; gap: 8px; align-items: baseline;">
+                        <span class="kpi-value">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</span>
+                        <span class="kpi-value" style="font-size: 14pt; color: #9CA3AF;">{{ $dashboardData['punctuality_entry_real_pct'] ?? '0' }}%</span>
+                    </div>
+                    <div class="kpi-subtitle">Retraso: {{ $dashboardData['punctuality_entry_minutes'] ?? '0m 0s' }} <span style="color: #D1D5DB">|</span> Verif: {{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0m 0s' }}</div>
                 </div>
             </div>
         </div>
@@ -416,8 +430,11 @@
                 <div class="kpi-icon green">←</div>
                 <div>
                     <div class="kpi-title">{{ __('stats.exit') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</div>
-                    <div class="kpi-subtitle">{{ $dashboardData['punctuality_exit_minutes'] ?? '0' }} {{ __('stats.min') }}</div>
+                    <div style="display: flex; gap: 8px; align-items: baseline;">
+                        <span class="kpi-value">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</span>
+                        <span class="kpi-value" style="font-size: 14pt; color: #9CA3AF;">{{ $dashboardData['punctuality_exit_real_pct'] ?? '0' }}%</span>
+                    </div>
+                    <div class="kpi-subtitle">Adelanto: {{ $dashboardData['punctuality_exit_minutes'] ?? '0m 0s' }} <span style="color: #D1D5DB">|</span> Verif: {{ $dashboardData['punctuality_exit_backdate_minutes'] ?? '0m 0s' }}</div>
                 </div>
             </div>
         </div>
@@ -428,7 +445,7 @@
                 <div>
                     <div class="kpi-title">{{ __('stats.combined') }}</div>
                     <div class="kpi-value">{{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</div>
-                    <div class="kpi-subtitle">{{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0' }} {{ __('stats.min') }} backdate</div>
+                    <div class="kpi-subtitle">Puntualidad entrada y salida</div>
                 </div>
             </div>
         </div>
@@ -439,19 +456,19 @@
                 <div>
                     <div class="kpi-title">{{ __('Workday Completion') }}</div>
                     <div class="kpi-value">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</div>
+                    <div class="kpi-subtitle">Horas registradas vs programadas</div>
                 </div>
             </div>
         </div>
 
-        <div class="kpi-card">
             <div class="kpi-card-header">
                 <div class="kpi-icon green">+</div>
                 <div>
-                    <div class="kpi-title">{{ __('Extra Hours') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['extra_hours'] ?? '0' }}</div>
+                    <div class="kpi-title">{{ __('Extra Hours') }} ({{ __('Balance') }})</div>
+                    <div class="kpi-value">{{ $dashboardData['extra_hours_fmt'] ?? '0h 00m' }}</div>
+                    <div class="kpi-subtitle">Exceso sobre horas programadas</div>
                 </div>
             </div>
-        </div>
 
         <div class="kpi-card">
             <div class="kpi-card-header">
@@ -459,6 +476,7 @@
                 <div>
                     <div class="kpi-title">{{ __('Absenteeism (days)') }}</div>
                     <div class="kpi-value">{{ $dashboardData['absenteeism'] ?? '0' }}</div>
+                    <div class="kpi-subtitle">Días sin registros de trabajo</div>
                 </div>
             </div>
         </div>
@@ -472,7 +490,8 @@
                 <div class="kpi-icon gray">⏰</div>
                 <div>
                     <div class="kpi-title">{{ __('Scheduled Hours') }}</div>
-                    <div class="kpi-value">{{ $scheduledHours }}</div>
+                    <div class="kpi-value">{{ $scheduledHoursFmt }}</div>
+                    <div class="kpi-subtitle">Horas según horario laboral</div>
                 </div>
             </div>
         </div>
@@ -482,7 +501,8 @@
                 <div class="kpi-icon gray">⏰</div>
                 <div>
                     <div class="kpi-title">{{ __('Registered Hours') }}</div>
-                    <div class="kpi-value">{{ $totalHours }}</div>
+                    <div class="kpi-value">{{ $totalHoursFmt }}</div>
+                    <div class="kpi-subtitle">Horas realmente trabajadas</div>
                 </div>
             </div>
         </div>
@@ -504,6 +524,7 @@
                 <div>
                     <div class="kpi-title">{{ __('Exceptional Clock-ins') }}</div>
                     <div class="kpi-value">{{ $dashboardData['exceptional_events_count'] ?? '0' }}</div>
+                    <div class="kpi-subtitle">Fichajes fuera de horario</div>
                 </div>
             </div>
         </div>
@@ -514,6 +535,7 @@
                 <div>
                     <div class="kpi-title">{{ __('Automatic Closures') }}</div>
                     <div class="kpi-value">{{ $dashboardData['automatically_closed_count'] ?? '0' }}</div>
+                    <div class="kpi-subtitle">Eventos cerrados automáticamente</div>
                 </div>
             </div>
         </div>

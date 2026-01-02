@@ -144,7 +144,7 @@
 
     <div class="meta-info">
         <strong>{{ trans('reports.Total Records') }}:</strong> 
-        <span class="badge">{{ $events->count() }}</span>
+        <span class="badge">{{ $totalRecords }}</span>
         <span style="margin-left: 20px;">
             <strong>{{ trans('reports.Total Duration') }}:</strong> 
             <span class="badge" style="background: linear-gradient(135deg, #4F46E5 0%, #4338ca 100%);">{{ $totalDuration }}</span>
@@ -163,28 +163,98 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($events as $event)
-            <tr>
-                <td class="font-medium">
-                    {{ $event->user->name }} {{ $event->user->family_name1 }}
-                </td>
-                <td class="text-center">
-                    {{ \Carbon\Carbon::parse($event->start)->format('d/m/Y H:i') }}
-                </td>
-                <td class="text-center">
-                    {{ \Carbon\Carbon::parse($event->end)->format('d/m/Y H:i') }}
-                </td>
-                <td class="text-right font-medium">
-                    {{ $event->getPeriod() }}
-                </td>
-                <td>
-                    {{ $event->description }}
-                </td>
-                <td>
-                    {{ $event->observations }}
-                </td>
-            </tr>
-            @endforeach
+            @if(isset($groupBy) && $groupBy !== 'none')
+                @foreach($events as $groupName => $groupEvents)
+                    <tr style="background-color: #E0E7FF; border-bottom: 2px solid #C7D2FE;">
+                        <td colspan="6" style="padding: 8px 12px; font-weight: 700; color: #3730A3;">
+                            {{ $groupName }}
+                        </td>
+                    </tr>
+                    @foreach($groupEvents as $event)
+                        <tr>
+                            <td class="font-medium">
+                                {{ $event->user->name }} {{ $event->user->family_name1 }} {{ $event->user->family_name2 }}
+                            </td>
+                            <td class="text-center">
+                                {{ \Carbon\Carbon::parse($event->start, 'UTC')->setTimezone($team->timezone ?? 'UTC')->format('d/m/Y H:i') }}
+                            </td>
+                            <td class="text-center">
+                                {{ \Carbon\Carbon::parse($event->end, 'UTC')->setTimezone($team->timezone ?? 'UTC')->format('d/m/Y H:i') }}
+                            </td>
+                            <td class="text-right font-medium">
+                                {{ $event->getPeriodForUser($event->user) }}
+                            </td>
+                            <td>
+                                {{ $event->description }}
+                            </td>
+                            <td>
+                                {{ $event->observations }}
+                            </td>
+                        </tr>
+                    @endforeach
+                    
+                    @php
+                        // Calculate totals for this group
+                        $totalSeconds = 0;
+                        $pauseSeconds = 0;
+                        foreach($groupEvents as $event) {
+                            $duration = \Carbon\Carbon::parse($event->start)->diffInSeconds(\Carbon\Carbon::parse($event->end));
+                            $totalSeconds += $duration;
+                            
+                            // Check if it's a pause event
+                            if ($event->eventType && stripos($event->eventType->name, 'pausa') !== false) {
+                                $pauseSeconds += $duration;
+                            }
+                        }
+                        $netSeconds = $totalSeconds - $pauseSeconds;
+                        
+                        $totalHours = floor($totalSeconds / 3600);
+                        $totalMinutes = floor(($totalSeconds % 3600) / 60);
+                        
+                        $pauseHours = floor($pauseSeconds / 3600);
+                        $pauseMinutes = floor(($pauseSeconds % 3600) / 60);
+                        
+                        $netHours = floor($netSeconds / 3600);
+                        $netMinutes = floor(($netSeconds % 3600) / 60);
+                    @endphp
+                    
+                    <tr style="background-color: #F3F4F6; border-top: 2px solid #D1D5DB; font-weight: bold;">
+                        <td colspan="3" style="text-align: right; padding: 8px 12px; color: #374151;">
+                            {{ trans('reports.Totals') }}:
+                        </td>
+                        <td class="text-right" style="padding: 8px 12px; color: #1F2937;">
+                            {{ $totalHours }}h {{ $totalMinutes }}m
+                        </td>
+                        <td colspan="2" style="padding: 8px 12px; color: #6B7280; font-size: 8pt;">
+                            {{ trans('reports.Pauses') }}: {{ $pauseHours }}h {{ $pauseMinutes }}m | 
+                            {{ trans('reports.Net') }}: {{ $netHours }}h {{ $netMinutes }}m
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                @foreach($events as $event)
+                <tr>
+                    <td class="font-medium">
+                        {{ $event->user->name }} {{ $event->user->family_name1 }} {{ $event->user->family_name2 }}
+                    </td>
+                    <td class="text-center">
+                        {{ \Carbon\Carbon::parse($event->start, 'UTC')->setTimezone($team->timezone ?? 'UTC')->format('d/m/Y H:i') }}
+                    </td>
+                    <td class="text-center">
+                        {{ \Carbon\Carbon::parse($event->end, 'UTC')->setTimezone($team->timezone ?? 'UTC')->format('d/m/Y H:i') }}
+                    </td>
+                    <td class="text-right font-medium">
+                        {{ $event->getPeriodForUser($event->user) }}
+                    </td>
+                    <td>
+                        {{ $event->description }}
+                    </td>
+                    <td>
+                        {{ $event->observations }}
+                    </td>
+                </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 </body>

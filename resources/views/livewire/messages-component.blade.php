@@ -14,6 +14,12 @@
     @if ($showComposeForm)
         <div class="mb-6 p-4 bg-white rounded-lg shadow-md">
             <form wire:submit.prevent="sendMessage">
+                @if($replyingTo)
+                    <div class="mb-3 p-2 bg-blue-50 border-l-4 border-blue-400 text-sm text-blue-700">
+                        <i class="fas fa-reply mr-1"></i> Respondiendo a mensaje
+                    </div>
+                @endif
+                
                 <div class="mb-4">
                     <div class="flex justify-between items-center mb-2">
                         <label for="recipients" class="block text-sm font-medium text-gray-700">Destinatarios</label>
@@ -36,11 +42,11 @@
                 </div>
                 <div class="mb-4">
                     <label for="subject" class="block text-sm font-medium text-gray-700">Asunto</label>
-                    <input type="text" id="subject" wire:model="subject" class="block w-full mt-1">
+                    <input type="text" id="subject" wire:model.defer="subject" class="block w-full mt-1">
                 </div>
                 <div class="mb-4">
                     <label for="body" class="block text-sm font-medium text-gray-700">Mensaje</label>
-                    <textarea id="body" wire:model="body" rows="5" class="block w-full mt-1"></textarea>
+                    <textarea id="body" wire:model.defer="body" rows="5" class="block w-full mt-1"></textarea>
                 </div>
                 <div class="flex justify-end">
                     <button type="submit" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue">
@@ -139,70 +145,10 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         @foreach ($messageList as $message)
-    <div class="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
-         wire:key="{{ 'message-' . $view . '-' . $message->id }}"
-         onclick="window.location.href='{{ route('messages') }}?view={{ $view }}&message={{ $message->id }}'">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-center">
-                @if ($message->sender_id === Auth::id())
-                    {{-- Sent Message --}}
-                    <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4" onclick="event.stopPropagation()">
-                    <div class="ml-4">
-                        <p class="font-semibold text-gray-700">
-                            Para:
-                            @foreach ($message->recipients as $recipient)
-                                {{ $recipient->name }} {{ $recipient->family_name1 }}@if (!$loop->last), @endif
-                            @endforeach
-                        </p>
-                        <p class="text-sm text-gray-500">{{ $message->subject }}</p>
-                    </div>
-                @else
-                    {{-- Received Message --}}
-                    @if ($view === 'inbox' && isset($message->pivot) && $message->pivot->read_at === null)
-                        <input type="checkbox" wire:model="selectedMessages" value="{{ $message->id }}" class="mr-4" onclick="event.stopPropagation()">
-                    @endif
-                    <img class="w-10 h-10 rounded-full object-cover" src="{{ $message->sender->profile_photo_url }}" alt="{{ $message->sender->name }}">
-                    <div class="ml-4">
-                        <p class="font-semibold text-gray-700">{{ $message->sender->name }} {{ $message->sender->family_name1 }}</p>
-                        <p class="text-sm text-gray-500">{{ $message->subject }}</p>
-                    </div>
-                @endif
-            </div>
-            <div class="flex items-center text-sm text-gray-500">
-                {{ $message->created_at->format('d/m/Y H:i') }}
-            </div>
-        </div>
-        <div class="mt-4 text-gray-600">
-            {!! $message->body !!}
-        </div>
-        <div class="mt-4 flex flex-wrap items-center justify-end space-x-4">
-            @if ($view !== 'trash')
-                @if ($message->sender_id !== Auth::id())
-                    @if (isset($message->pivot) && $message->pivot->read_at === null)
-                        <button wire:click="markAsRead({{ $message->id }})" class="text-sm text-green-600 hover:text-green-800" onclick="event.stopPropagation()">
-                            Marcar como leído
-                        </button>
-                    @endif
-                    <button wire:click="replyTo({{ $message->id }})" class="text-sm text-blue-600 hover:text-blue-800" onclick="event.stopPropagation()">
-                        Responder
-                    </button>
-                @endif
-                <button wire:click="deleteMessage({{ $message->id }})" class="text-sm text-red-600 hover:text-red-800" onclick="event.stopPropagation()">
-                    Eliminar
-                </button>
-            @else
-                <button wire:click="restoreMessage({{ $message->id }})" class="text-sm text-blue-600 hover:text-blue-800" onclick="event.stopPropagation()">
-                    Restaurar
-                </button>
-                <button wire:click="forceDeleteMessage({{ $message->id }})" class="text-sm text-red-600 hover:text-red-800" onclick="event.stopPropagation()">
-                    Eliminar permanentemente
-                </button>
-            @endif
-        </div>
-    </div>
-@endforeach
+                            @include('livewire.partials.message-thread-item', ['message' => $message, 'level' => 0])
+                        @endforeach
                     </div>
                 @endif
             </div>

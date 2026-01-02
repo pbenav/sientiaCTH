@@ -42,6 +42,8 @@ class ReportsComponent extends Component
     public $report_source = 'events';
     public $reportSources = [];
     public $pdfUrl = null;
+    public $groupBy = 'none';
+    public $orderBy = 'start';
 
     /**
      * The validation rules for the component.
@@ -51,9 +53,11 @@ class ReportsComponent extends Component
     protected $rules = [
         "worker" => 'required',
         "fromdate" => 'bail|required|date|before_or_equal:todate',
-        "todate" => 'required|date|before_or_equal:now',
+        "todate" => 'required|date',
         "event_type_id" => 'required',
         "rtype" => 'required',
+        "groupBy" => 'required|in:date,user,none',
+        "orderBy" => 'required|in:start,user_name',
     ];
 
     /**
@@ -69,7 +73,9 @@ class ReportsComponent extends Component
         $this->isTeamAdmin = $this->user->isTeamAdmin();
         $this->isInspector = $this->user->isInspector();
         if ($this->isTeamAdmin || $this->isInspector) {
-            $this->workers = $this->team->allUsers();
+            $this->workers = $this->team->allUsers()->sortBy(function ($worker) {
+                return strtolower(($worker->name ?? '') . ' ' . ($worker->family_name ?? '') . ' ' . ($worker->family_name2 ?? ''));
+            })->values();
         }
         $this->worker = $this->user->id;
         $this->fromdate = date('Y-m-01');
@@ -97,6 +103,35 @@ class ReportsComponent extends Component
     public function updated(string $propertyName): void
     {
         $this->validateOnly($propertyName);
+        
+        // Additional validation for date range
+        if ($propertyName === 'todate' || $propertyName === 'fromdate') {
+            $this->validateDateRange();
+        }
+    }
+    
+    /**
+     * Validates that the date range doesn't exceed the maximum allowed months.
+     */
+    protected function validateDateRange(): void
+    {
+        if (!$this->fromdate || !$this->todate) {
+            return;
+        }
+        
+        try {
+            $start = \Carbon\Carbon::parse($this->fromdate);
+            $end = \Carbon\Carbon::parse($this->todate);
+            
+            $maxMonths = $this->team->max_report_months ?? Team::DEFAULT_MAX_REPORT_MONTHS;
+            $diffInDays = $start->diffInDays($end);
+            
+            if ($diffInDays > ($maxMonths * 30.5)) {
+                $this->addError('todate', __('The date range cannot exceed :months months.', ['months' => $maxMonths]));
+            }
+        } catch (\Exception $e) {
+            // Invalid date format, will be caught by regular validation
+        }
     }
 
     /**
@@ -218,18 +253,48 @@ class ReportsComponent extends Component
             // Or force XLS if PDF is selected?
             
             if ($this->rtype === 'PDF') {
-                 // Fallback to XLSX for now or throw error? 
-                 // Let's just download as XLSX to avoid breaking
-                 return Excel::download(new \App\Exports\EventsHistoryExport($history), $fn . '.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+                 try {
+                     $exporter = new \App\Exports\EventsHistoryPdfExport($history, $this->fromdate, $this->todate);
+                     $pdf = $exporter->generate();
+                     
+                     return response()->streamDownload(function() use ($pdf) {
+                         echo $pdf;
+                     }, $fn . '.pdf', [
+                         'Content-Type' => 'application/pdf',
+                     ]);
+                 } catch (\Exception $e) {
+                     $this->dispatchBrowserEvent('swal', [
+                         'title' => __('Error'),
+                         'text' => __('Could not generate PDF: ') . $e->getMessage(),
+                         'icon' => 'error',
+                     ]);
+                     return;
+                 }
             }
 
             return Excel::download(new \App\Exports\EventsHistoryExport($history), $fn, $this->rtypes[$this->rtype]);
         }
 
+        // Get team timezone for accurate date filtering
+        $teamTimezone = $this->team->timezone ?? 'UTC';
+        
+        // Convert user-selected dates to team timezone boundaries
+        $fromDateTime = \Carbon\Carbon::parse($this->fromdate, $teamTimezone)->startOfDay();
+        $toDateTime = \Carbon\Carbon::parse($this->todate, $teamTimezone)->endOfDay();
+        
+        // Convert to UTC for database comparison
+        $fromDateTimeUTC = $fromDateTime->copy()->setTimezone('UTC');
+        $toDateTimeUTC = $toDateTime->copy()->setTimezone('UTC');
+        
         $query = Event::query()
             ->with(['user', 'eventType'])
-            ->whereDate('start', '>=', $this->fromdate)
-            ->whereDate('end', '<=', $this->todate);
+            // Use timestamp comparison instead of whereDate to account for timezone
+            // An event is included if it overlaps with the selected date range in team timezone
+            ->where(function($q) use ($fromDateTimeUTC, $toDateTimeUTC) {
+                // Event starts before range ends AND event ends after range starts
+                $q->where('start', '<=', $toDateTimeUTC)
+                  ->where('end', '>=', $fromDateTimeUTC);
+            });
 
         if ($this->worker && $this->worker !== '%') {
             $query->where('user_id', $this->worker);
@@ -242,7 +307,7 @@ class ReportsComponent extends Component
             $query->where('event_type_id', $this->event_type_id);
         }
 
-        $events = $query->orderBy('start')->get();
+        $events = $query->get();
 
         $ext = strtoLower($this->rtype);
         $fn = 'cth_informe_' . date('YmdHis'). '.' . $ext;
@@ -265,18 +330,37 @@ class ReportsComponent extends Component
                 $this->team, 
                 $workCenter, 
                 $this->fromdate, 
-                $this->todate
+                $this->todate,
+                $this->groupBy,
+                $this->orderBy
             );
-            $pdf = $exporter->generate();
-            
-            return response()->streamDownload(function() use ($pdf) {
-                echo $pdf;
-            }, $fn, [
-                'Content-Type' => 'application/pdf',
+            // Emit event to trigger download via JavaScript
+            $this->emit('download-report', [
+                'url' => route('reports.preview', [
+                    'worker' => $this->worker,
+                    'fromdate' => $this->fromdate,
+                    'todate' => $this->todate,
+                    'event_type_id' => $this->event_type_id,
+                    'report_source' => $this->report_source,
+                    'groupBy' => $this->groupBy,
+                    'orderBy' => $this->orderBy,
+                    'download' => 1,
+                ])
             ]);
+            return;
         }
 
-        return Excel::download(new EventsExport($events), $fn, $this->rtypes[$this->rtype]);
+        // For non-PDF exports, also use JavaScript download
+        $this->emit('download-report', [
+            'url' => route('reports.export', [
+                'worker' => $this->worker,
+                'fromdate' => $this->fromdate,
+                'todate' => $this->todate,
+                'event_type_id' => $this->event_type_id,
+                'report_source' => $this->report_source,
+                'rtype' => $this->rtype,
+            ])
+        ]);
     }
 
     public function generatePreview()
@@ -320,6 +404,8 @@ class ReportsComponent extends Component
             'todate' => $this->todate, 
             'event_type_id' => $this->event_type_id,
             'report_source' => $this->report_source,
+            'groupBy' => $this->groupBy,
+            'orderBy' => $this->orderBy,
             't' => time() // Force cache busting
         ]);
     }
@@ -333,8 +419,15 @@ class ReportsComponent extends Component
      */
     public function render()
     {
+        $userAgent = request()->header('User-Agent');
+        $isChrome = false;
+        if (strpos($userAgent, 'Chrome') !== false && strpos($userAgent, 'Chromium') === false) {
+             $isChrome = true;
+        }
+
         return view('livewire.reports.reports')->with([
             'workers' => $this->workers,
+            'isChrome' => $isChrome,
         ]);
     }
 }

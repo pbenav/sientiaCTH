@@ -1,7 +1,10 @@
 <?php
-namespace App\Http\Controllers\Api;
-use Illuminate\Support\Facades\Log;
 
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api;
+
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\WorkCenter;
@@ -15,7 +18,18 @@ use App\Http\Resources\ClockStatusResource;
 use App\Http\Resources\WorkCenterResource;
 use App\Models\Holiday;
 
-
+/**
+ * Mobile Clock Controller
+ * 
+ * Handles clock-in/out operations for mobile Flutter app with support for:
+ * - NFC tag validation
+ * - GPS geolocation
+ * - Smart clock-in with automatic work center detection
+ * - Clock status synchronization
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
+ */
 class MobileClockController extends Controller
 {
     protected SmartClockInService $smartClockInService;
@@ -98,6 +112,35 @@ class MobileClockController extends Controller
                         'message' => __('You are not authorized to clock in at this work center')
                     ], 403);
                 }
+                
+                // TEAM VALIDATION: Check if selected team matches user's current team
+                // Skip this check for global admins (they can switch teams freely)
+                if (!$user->is_admin && $workCenter->team_id !== $user->current_team_id) {
+                    // Team mismatch detected - require confirmation
+                    Log::info('[MobileClockController][clock] Team mismatch detected', [
+                        'user_id' => $user->id,
+                        'user_code' => $user->user_code,
+                        'selected_team_id' => $workCenter->team_id,
+                        'selected_team_name' => $workCenter->team?->name,
+                        'current_team_id' => $user->current_team_id,
+                        'current_team_name' => $user->currentTeam?->name,
+                    ]);
+                    
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'El equipo seleccionado no coincide con tu equipo actual en el servidor',
+                        'status_code' => 'TEAM_MISMATCH',
+                        'data' => [
+                            'selected_team_id' => $workCenter->team_id,
+                            'selected_team_name' => $workCenter->team?->name,
+                            'selected_work_center_code' => $workCenter->code,
+                            'current_team_id' => $user->current_team_id,
+                            'current_team_name' => $user->currentTeam?->name,
+                            'current_work_center_code' => $user->currentTeam?->workCenters()->first()?->code,
+                            'requires_confirmation' => true,
+                        ]
+                    ], 409); // 409 Conflict
+                }
             }
 
             // Set user's current team to the work center's team
@@ -113,7 +156,7 @@ class MobileClockController extends Controller
                 if (($clockAction['action'] ?? null) === 'confirm_exceptional_clock_in') {
                     $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
                     $now = Carbon::now($teamTimezone);
-                    $isWithinSchedule = $this->smartClockInService->isUserWithinWorkSchedule($user, $now);
+                    $isWithinSchedule = $this->smartClockInService->isWithinWorkSchedule($now, $user);
 
                     // Override to allow clock-in - only mark as exceptional if truly outside schedule
                     $clockAction = [
@@ -149,6 +192,8 @@ class MobileClockController extends Controller
                 'overtime' => $clockAction['overtime'] ?? false,
                 'event_type_id' => $clockAction['event_type_id'] ?? null,
                 'pause_event_id' => $clockAction['pause_event_id'] ?? null,
+                'pause_event_type_id' => $clockAction['pause_event_type_id'] ?? null,
+                'special_event_color' => $user->currentTeam->special_event_color ?? null,
                 'today_stats' => $todayStats,
                 'today_records' => $todayRecords,
                 'current_slot' => null, // Calculate if needed
@@ -201,12 +246,13 @@ class MobileClockController extends Controller
                 $overtime = $clockAction['overtime'] ?? false;
                 $eventTypeId = $clockAction['event_type_id'] ?? null;
                 $observations = $request->input('observations');
+                $location = $request->input('location'); // Obtener datos de geolocalización
 
                 if (!$eventTypeId) {
                     throw new \Exception('No event type configured for clock in');
                 }
 
-                $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime, 'mobile_api', $observations);
+                $result = $this->smartClockInService->clockIn($user, $eventTypeId, $overtime, 'mobile_api', $observations, $location);
 
                 if (empty($result['success'])) {
                     throw new \Exception(json_encode([
@@ -271,15 +317,15 @@ class MobileClockController extends Controller
 
                 if ($requestedAction === 'pause') {
                     $pauseEventType = $user->currentTeam->eventTypes()
-                        ->where('name', 'Pausa')
-                        ->where('is_break_type', true)
+                        ->where('is_pause_type', true)
                         ->first();
 
                     if (!$pauseEventType) {
                         throw new \Exception('No pause event type configured');
                     }
 
-                    $result = $this->smartClockInService->pauseWorkday($user, $pauseEventType->id);
+                    $location = $request->input('location'); // Obtener datos de geolocalización
+                    $result = $this->smartClockInService->pauseWorkday($user, $pauseEventType->id, $location);
 
                     if (empty($result['success'])) {
                         throw new \Exception(json_encode([
@@ -356,7 +402,7 @@ class MobileClockController extends Controller
 
         $events = $user->events()
             ->whereBetween('start', [$todayUTC, $tomorrowUTC])
-            ->with('eventType')
+            ->with(['eventType', 'team', 'workCenter'])
             ->orderBy('start')
             ->get();
 
@@ -370,6 +416,11 @@ class MobileClockController extends Controller
                 'type' => $event->eventType->name ?? 'Unknown',
                 'event_type_id' => $event->event_type_id ?? null,
                 'pause_event_id' => $event->pause_event_id ?? null,
+                'team_id' => $event->team_id,
+                'team_name' => $event->team?->name,
+                'work_center_id' => $event->work_center_id,
+                'work_center_code' => $event->workCenter?->code,
+                'work_center_name' => $event->workCenter?->name,
                 'start' => $start ? $start->toISOString() : null,
                 'end' => $end ? $end->toISOString() : null,
                 'duration_seconds' => $duration,
@@ -463,11 +514,17 @@ class MobileClockController extends Controller
                 'overtime' => $clockAction['overtime'] ?? false,
                 'event_type_id' => $clockAction['event_type_id'] ?? null,
                 'pause_event_id' => $clockAction['pause_event_id'] ?? null,
+                'pause_event_type_id' => $clockAction['pause_event_type_id'] ?? null,
+                'special_event_color' => $user->currentTeam->special_event_color ?? null,
                 'next_slot' => $nextSlot,
                 'current_slot' => $currentSlot,
                 'today_stats' => $todayStats,
                 'today_records' => $todayRecords,
                 'status_code' => $clockAction['status_code'] ?? null,
+                // Team information for validation
+                'current_team_id' => $user->current_team_id,
+                'current_team_name' => $user->currentTeam?->name,
+                'current_work_center_code' => $user->currentTeam?->workCenters()->first()?->code,
             ];
             
             Log::debug('[MobileClockController][status] Resource data:', [
@@ -500,9 +557,123 @@ class MobileClockController extends Controller
         }
         return match ($action) {
             'working_options' => 'TRABAJANDO',
+            'clock_out' => 'TRABAJANDO',
             'resume_workday' => 'EN PAUSA',
             default => 'INICIAR JORNADA'
         };
+    }
+
+    /**
+     * Confirm team switch and perform clock action
+     * This endpoint is called when user confirms they want to switch teams
+     * 
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function confirmTeamSwitch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_code' => 'required|string',
+            'work_center_code' => 'required|string',
+        ]);
+
+        try {
+            $user = User::where('user_code', $request->user_code)->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Usuario no encontrado'
+                ], 404);
+            }
+
+            $workCenter = WorkCenter::where('code', $request->work_center_code)->first();
+            if (!$workCenter) {
+                return response()->json([
+                    'message' => 'Centro de trabajo no encontrado'
+                ], 404);
+            }
+
+            // Verify user can access this work center's team
+            $canAccess = false;
+            
+            if ($user->is_admin) {
+                $canAccess = true;
+            } elseif ($workCenter->team && $user->id === $workCenter->team->user_id) {
+                $canAccess = true;
+            } elseif ($user->teams()->where('teams.id', $workCenter->team_id)->exists()) {
+                $canAccess = true;
+            }
+
+            if (!$canAccess) {
+                return response()->json([
+                    'message' => __('You are not authorized to switch to this team')
+                ], 403);
+            }
+
+            // Perform the team switch
+            if ($workCenter->team) {
+                Log::info('[MobileClockController][confirmTeamSwitch] Team switch confirmed', [
+                    'user_id' => $user->id,
+                    'user_code' => $user->user_code,
+                    'from_team_id' => $user->current_team_id,
+                    'from_team_name' => $user->currentTeam?->name,
+                    'to_team_id' => $workCenter->team_id,
+                    'to_team_name' => $workCenter->team->name,
+                ]);
+                
+                $user->switchTeam($workCenter->team);
+            }
+
+            // Return updated status after team switch
+            $clockAction = $this->smartClockInService->getClockAction($user);
+            $todayStats = $this->getTodayStats($user);
+            $todayRecords = $this->getTodayRecords($user);
+            
+            $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+            $now = Carbon::now($teamTimezone);
+            $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+            $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+            
+            $nextSlot = !empty($schedule) ? $this->smartClockInService->getNextScheduledSlot($now, $schedule) : null;
+            $currentSlot = !empty($schedule) ? $this->smartClockInService->getCurrentScheduledSlot($now, $schedule) : null;
+
+            $resourceData = [
+                'user' => $user,
+                'action' => $clockAction['action'] ?? 'unknown',
+                'can_clock' => $clockAction['can_clock'] ?? false,
+                'message' => $clockAction['message'] ?? 'Equipo cambiado correctamente',
+                'overtime' => $clockAction['overtime'] ?? false,
+                'event_type_id' => $clockAction['event_type_id'] ?? null,
+                'pause_event_id' => $clockAction['pause_event_id'] ?? null,
+                'pause_event_type_id' => $clockAction['pause_event_type_id'] ?? null,
+                'special_event_color' => $user->currentTeam->special_event_color ?? null,
+                'next_slot' => $nextSlot,
+                'current_slot' => $currentSlot,
+                'today_stats' => $todayStats,
+                'today_records' => $todayRecords,
+                'status_code' => $clockAction['status_code'] ?? null,
+                'current_team_id' => $user->current_team_id,
+                'current_team_name' => $user->currentTeam?->name,
+                'current_work_center_code' => $user->currentTeam?->workCenters()->first()?->code,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Equipo cambiado correctamente',
+                'data' => new ClockStatusResource($resourceData)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Mobile confirmTeamSwitch error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all(),
+            ]);
+
+            return response()->json([
+                'message' => 'Error al cambiar de equipo',
+                'status_code' => 'ERROR'
+            ], 500);
+        }
     }
 
     public function sync(SyncRequest $request): JsonResponse
@@ -735,7 +906,7 @@ class MobileClockController extends Controller
             $pauseSeconds = 0;
             $pauseStart = null;
             foreach ($events as $event) {
-                if ($event->eventType && $event->eventType->is_break_type) {
+                if ($event->eventType && $event->eventType->is_pause_type) {
                     if ($event->type === 'start') {
                         $pauseStart = Carbon::parse($event->start);
                     } elseif ($event->type === 'end' && $pauseStart) {

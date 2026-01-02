@@ -11,14 +11,18 @@ class EventsPdfExport
     protected $workCenter;
     protected $startDate;
     protected $endDate;
+    protected $groupBy;
+    protected $orderBy;
 
-    public function __construct($events, $team, $workCenter = null, $startDate = null, $endDate = null)
+    public function __construct($events, $team, $workCenter = null, $startDate = null, $endDate = null, $groupBy = 'none', $orderBy = 'start')
     {
         $this->events = $events;
         $this->team = $team;
         $this->workCenter = $workCenter;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->groupBy = $groupBy;
+        $this->orderBy = $orderBy;
     }
 
     public function generate(): string
@@ -38,18 +42,69 @@ class EventsPdfExport
 
     protected function generateMpdf(): string
     {
+        // Increase PCRE backtrack limit for large HTML content
+        ini_set('pcre.backtrack_limit', '5000000');
+
         $totalDuration = $this->calculateTotalDuration();
+        $totalRecords = $this->events->count();
+
+        // Start with the collection
+        $eventsForView = $this->events;
+        
+        // Clip events to date range if specified
+        if ($this->startDate && $this->endDate) {
+            $eventsForView = $eventsForView->map(function($event) {
+                return $this->clipEventToDateRange($event);
+            });
+        }
+
+        // Apply sorting based on orderBy
+        if ($this->orderBy === 'user_name') {
+            // Sort by user name only
+            $eventsForView = $eventsForView->sortBy(function ($event) {
+                $name = $event->user->name ?? '';
+                $family1 = $event->user->family_name1 ?? '';
+                $family2 = $event->user->family_name2 ?? '';
+                return strtolower(trim($name . ' ' . $family1 . ' ' . $family2));
+            })->values();
+        } else {
+            // Sort by date only
+            $eventsForView = $eventsForView->sortBy('start')->values();
+        }
+
+        // Grouping logic
+        if ($this->groupBy === 'user') {
+            $eventsForView = $eventsForView->groupBy(function($event) {
+                $name = $event->user->name ?? '';
+                $family1 = $event->user->family_name1 ?? '';
+                $family2 = $event->user->family_name2 ?? '';
+                return trim($name . ' ' . $family1 . ' ' . $family2);
+            });
+        } elseif ($this->groupBy === 'date') {
+            $eventsForView = $eventsForView->groupBy(function($event) {
+                return \Carbon\Carbon::parse($event->start)->format('d/m/Y');
+            });
+        }
 
         $html = view('exports.events_mpdf', [
-            'events' => $this->events,
+            'events' => $eventsForView,
             'team' => $this->team,
             'workCenter' => $this->workCenter,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
             'totalDuration' => $totalDuration,
+            'groupBy' => $this->groupBy,
+            'totalRecords' => $totalRecords,
         ])->render();
 
+        // Ensure temp directory exists and is writable
+        $tempDir = storage_path('app/mpdf');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
         $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => $tempDir,
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'margin_left' => 10,
@@ -88,14 +143,55 @@ class EventsPdfExport
     protected function generateBrowsershot(): string
     {
         $totalDuration = $this->calculateTotalDuration();
+        $totalRecords = $this->events->count();
+
+        // Start with the collection
+        $eventsForView = $this->events;
+        
+        // Clip events to date range if specified
+        if ($this->startDate && $this->endDate) {
+            $eventsForView = $eventsForView->map(function($event) {
+                return $this->clipEventToDateRange($event);
+            });
+        }
+
+        // Apply sorting based on orderBy
+        if ($this->orderBy === 'user_name') {
+            // Sort by user name only
+            $eventsForView = $eventsForView->sortBy(function ($event) {
+                $name = $event->user->name ?? '';
+                $family1 = $event->user->family_name1 ?? '';
+                $family2 = $event->user->family_name2 ?? '';
+                return strtolower(trim($name . ' ' . $family1 . ' ' . $family2));
+            })->values();
+        } else {
+            // Sort by date only
+            $eventsForView = $eventsForView->sortBy('start')->values();
+        }
+
+        // Grouping logic
+        if ($this->groupBy === 'user') {
+            $eventsForView = $eventsForView->groupBy(function($event) {
+                $name = $event->user->name ?? '';
+                $family1 = $event->user->family_name1 ?? '';
+                $family2 = $event->user->family_name2 ?? '';
+                return trim($name . ' ' . $family1 . ' ' . $family2);
+            });
+        } elseif ($this->groupBy === 'date') {
+            $eventsForView = $eventsForView->groupBy(function($event) {
+                return \Carbon\Carbon::parse($event->start)->format('d/m/Y');
+            });
+        }
 
         $html = view('exports.events_pdf', [
-            'events' => $this->events,
+            'events' => $eventsForView,
             'team' => $this->team,
             'workCenter' => $this->workCenter,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
             'totalDuration' => $totalDuration,
+            'groupBy' => $this->groupBy,
+            'totalRecords' => $totalRecords,
         ])->render();
 
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
@@ -103,38 +199,52 @@ class EventsPdfExport
         // Detectar la ruta del ejecutable de Chromium automáticamente
         $chromePath = null;
         
-        // Rutas comunes de Chrome/Chromium
-        $defaultChromePaths = [
-            // Ruta preferida: chrome-headless-shell ligero
-            '/home/sientia/.cache/puppeteer/chrome-headless-shell/linux-142.0.7444.175/chrome-headless-shell-linux64/chrome-headless-shell',
-            
-            // Rutas del sistema
-            '/usr/bin/google-chrome',
-            '/usr/bin/chromium',
-            '/usr/local/bin/google-chrome',
-            '/usr/local/bin/chromium',
-            
-            // Rutas de caché de usuario (Puppeteer)
-            getenv('HOME') . '/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
-            '/home/sientia/.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome',
-            
-            // Rutas dentro del proyecto
-            base_path('node_modules/puppeteer/.local-chromium/linux-142.0.7444.175/chrome-linux64/chrome'),
-            base_path('.cache/puppeteer/chrome/linux-142.0.7444.175/chrome-linux64/chrome'),
-            base_path('chrome-linux/chrome'),
-            public_path('chrome-linux/chrome'),
-        ];
+        // 1. PRIORIDAD: Variable de entorno del .env
+        $envChromePath = env('CHROME_BINARY_PATH');
+        if ($envChromePath && @file_exists($envChromePath) && @is_executable($envChromePath)) {
+            $chromePath = $envChromePath;
+        } else {
+            // 2. PRIORIDAD: Rutas locales del proyecto
+            $defaultChromePaths = [
+                // Nueva estructura de Puppeteer (nested node_modules)
+                base_path('node_modules/puppeteer/node_modules/puppeteer/.local-chromium/chrome/linux-*/chrome-linux64/chrome'),
+                // Estructura antigua
+                base_path('node_modules/puppeteer/.local-chromium/chrome/linux-*/chrome-linux64/chrome'),
+                base_path('node_modules/puppeteer/.local-chromium/linux-*/chrome-linux*/chrome'),
+                base_path('.cache/puppeteer/chrome/linux-*/chrome-linux*/chrome'),
+                
+                // 3. Rutas del sistema (última opción)
+                '/usr/bin/google-chrome',
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser',
+                '/usr/local/bin/google-chrome',
+                '/usr/local/bin/chromium',
+                '/snap/bin/chromium',
+            ];
 
-        foreach ($defaultChromePaths as $path) {
-            if (file_exists($path) && is_executable($path)) {
-                $chromePath = $path;
-                break;
+            foreach ($defaultChromePaths as $path) {
+                // Usar glob para rutas con comodines
+                if (strpos($path, '*') !== false) {
+                    $matches = @glob($path);
+                    if ($matches && !empty($matches)) {
+                        foreach ($matches as $match) {
+                            if (@file_exists($match) && @is_executable($match)) {
+                                $chromePath = $match;
+                                break 2;
+                            }
+                        }
+                    }
+                } else {
+                    if (@file_exists($path) && @is_executable($path)) {
+                        $chromePath = $path;
+                        break;
+                    }
+                }
             }
         }
 
         if (!$chromePath) {
-            $checkedPaths = implode("\n", $defaultChromePaths);
-            throw new \Exception("No se encontró un ejecutable de Chromium válido. Rutas verificadas:\n" . $checkedPaths);
+            throw new \Exception("No se encontró un ejecutable de Chromium válido. Por favor, ejecuta el instalador de Puppeteer desde Configuración del Sistema.");
         }
 
         // Argumentos adicionales para Puppeteer
@@ -147,16 +257,20 @@ class EventsPdfExport
             '--enable-features=NetworkService,NetworkServiceInProcess',
             '--disable-features=site-per-process,IsolateOrigins,SpeculativeServiceWorkerStart',
             '--no-zygote',
+            '--pipe',
+            '--disable-crash-reporter',
+            '--disable-breakpad',
+            '--disable-client-side-phishing-detection',
+            '--disable-component-extensions-with-background-pages',
+            '--disable-default-apps',
+            '--disable-extensions',
         ]; // Argumentos adicionales para deshabilitar telemetría y crashpad
 
         // Log para verificar el contenido HTML
-        \Log::info('Contenido HTML para PDF:', ['html' => $html]);
+        \Log::info('Contenido HTML para PDF:', ['html' => substr($html, 0, 100) . '...']);
 
         // Log para verificar la ruta del ejecutable
         \Log::info('Ruta del ejecutable de Chromium:', ['path' => $chromePath]);
-
-        // Log para verificar los argumentos de Puppeteer
-        \Log::info('Argumentos de Puppeteer:', ['args' => $puppeteerArgs]);
 
         // Configuración de Node.js automática
         $nodePath = null;
@@ -165,7 +279,9 @@ class EventsPdfExport
         $whichOutput = [];
         $whichReturnVar = null;
         exec("which node 2>/dev/null", $whichOutput, $whichReturnVar);
-        if ($whichReturnVar === 0 && !empty($whichOutput[0]) && file_exists($whichOutput[0])) {
+        
+        // Si 'which' devuelve algo, lo usamos directamente.
+        if ($whichReturnVar === 0 && !empty($whichOutput[0])) {
             $nodePath = $whichOutput[0];
             \Log::info('Node.js encontrado vía which:', ['path' => $nodePath]);
         }
@@ -187,16 +303,18 @@ class EventsPdfExport
             // Buscar dinámicamente en todas las versiones de NVM si el directorio existe
             $nvmDir = $homeDir . '/.nvm/versions/node';
             if (is_dir($nvmDir)) {
-                $nvmVersions = scandir($nvmDir);
-                foreach ($nvmVersions as $version) {
-                    if ($version !== '.' && $version !== '..') {
-                        $commonNodePaths[] = $nvmDir . '/' . $version . '/bin/node';
+                $nvmVersions = @scandir($nvmDir);
+                if ($nvmVersions) {
+                    foreach ($nvmVersions as $version) {
+                        if ($version !== '.' && $version !== '..') {
+                            $commonNodePaths[] = $nvmDir . '/' . $version . '/bin/node';
+                        }
                     }
                 }
             }
             
             foreach ($commonNodePaths as $path) {
-                if (file_exists($path) && is_executable($path)) {
+                if (@file_exists($path) && @is_executable($path)) {
                     $nodePath = $path;
                     \Log::info('Node.js encontrado en ruta común:', ['path' => $nodePath]);
                     break;
@@ -216,27 +334,18 @@ class EventsPdfExport
         // Configuración de NPM (derivada de Node.js)
         $npmPath = dirname($nodePath) . '/npm';
         
-        // Si no existe en el mismo directorio que node, intentar 'which npm'
-        if (!file_exists($npmPath)) {
+        // Intentar verificar si existe (puede fallar con open_basedir)
+        if (!@file_exists($npmPath)) {
+            // Intentar 'which npm'
             $whichNpmOutput = [];
             $whichNpmReturnVar = null;
-            exec("which npm 2>/dev/null", $whichNpmOutput, $whichNpmReturnVar);
-            if ($whichNpmReturnVar === 0 && !empty($whichNpmOutput[0]) && file_exists($whichNpmOutput[0])) {
+            @exec("which npm 2>/dev/null", $whichNpmOutput, $whichNpmReturnVar);
+            if ($whichNpmReturnVar === 0 && !empty($whichNpmOutput[0])) {
                 $npmPath = $whichNpmOutput[0];
             } else {
-                // Fallback a rutas comunes
-                $commonNpmPaths = [
-                    '/usr/local/bin/npm',
-                    '/usr/bin/npm',
-                    '/bin/npm',
-                    dirname($nodePath) . '/npm',
-                ];
-                foreach ($commonNpmPaths as $path) {
-                    if (file_exists($path)) {
-                        $npmPath = $path;
-                        break;
-                    }
-                }
+                // Si no se puede detectar, usar 'npm' como comando genérico
+                // Esto funcionará si NPM está en el PATH del proceso PHP
+                $npmPath = 'npm';
             }
         }
         
@@ -248,11 +357,23 @@ class EventsPdfExport
 
         $nodeBinDir = dirname($nodePath);
 
+        // Crear directorio temporal único para esta instancia
+        $tempDir = sys_get_temp_dir() . '/puppeteer_data_' . uniqid();
+        if (!file_exists($tempDir)) {
+            @mkdir($tempDir, 0777, true);
+        }
+
         return Browsershot::html($html)
             ->setNodeBinary($nodePath)
             ->setNpmBinary($npmPath)
             ->setIncludePath('$PATH:' . $nodeBinDir) // Añadir directorio de Node al PATH
             ->setOption('executablePath', $chromePath) // Usar la ruta detectada
+            ->setOption('userDataDir', $tempDir) // Definir directorio de usuario temporal y escribible
+            ->setOption('env', [
+                'XDG_CONFIG_HOME' => $tempDir, // Redirigir config home para evitar errores de permisos
+                'XDG_CACHE_HOME' => $tempDir,  // Redirigir cache home
+                'HOME' => $tempDir,            // Redirigir HOME como medida definitiva
+            ])
             ->setOption('args', $puppeteerArgs) // Añadir argumentos adicionales
             ->format('A4')
             ->landscape()
@@ -268,19 +389,92 @@ class EventsPdfExport
 
     protected function calculateTotalDuration(): string
     {
+        $totalDays = 0;
         $totalMinutes = 0;
 
-        foreach ($this->events as $event) {
-            // Parse as UTC since events are stored in UTC in the database
-            $start = \Carbon\Carbon::parse($event->start, 'UTC');
-            $end = \Carbon\Carbon::parse($event->end, 'UTC');
-            $totalMinutes += $start->diffInMinutes($end);
+        // Get the clipped events (same as what's displayed)
+        $eventsForCalculation = $this->events;
+        
+        if ($this->startDate && $this->endDate) {
+            $eventsForCalculation = $eventsForCalculation->map(function($event) {
+                return $this->clipEventToDateRange($event);
+            });
         }
 
-        return $this->formatDuration($totalMinutes);
+        foreach ($eventsForCalculation as $event) {
+            // Check if it's an all-day event
+            if ($event->eventType && $event->eventType->is_all_day) {
+                // For all-day events, use getPeriodForUser to respect user preference
+                $period = $event->getPeriodForUser($event->user);
+                // Extract number from string like "3 días" or "1 día"
+                if (preg_match('/(\d+)/', $period, $matches)) {
+                    $totalDays += (int)$matches[1];
+                }
+            } else {
+                // For regular events, calculate minutes
+                $start = \Carbon\Carbon::parse($event->start, 'UTC');
+                $end = \Carbon\Carbon::parse($event->end, 'UTC');
+                $totalMinutes += $start->diffInMinutes($end);
+            }
+        }
+
+        // Convert total minutes to days/hours/minutes if there are any
+        if ($totalMinutes > 0) {
+            $days = floor($totalMinutes / 1440);
+            $hours = floor(($totalMinutes % 1440) / 60);
+            $minutes = $totalMinutes % 60;
+            
+            $totalDays += $days;
+            
+            return $this->formatDuration($totalDays * 1440 + $hours * 60 + $minutes);
+        }
+
+        // If only all-day events, return just days
+        return $totalDays . ' ' . ($totalDays == 1 ? __('day') : __('days'));
+    }
+
+
+    /**
+     * Clip an event's dates to the report date range.
+     * Returns a cloned event with adjusted start/end dates.
+     */
+    protected function clipEventToDateRange($event)
+    {
+        $clonedEvent = clone $event;
+        
+        if (!$this->startDate || !$this->endDate) {
+            return $clonedEvent;
+        }
+        
+        $teamTimezone = $this->team->timezone ?? 'UTC';
+        
+        // Parse event dates in team timezone
+        $eventStart = \Carbon\Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);
+        $eventEnd = \Carbon\Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone);
+        
+        // Parse range boundaries
+        $rangeStart = \Carbon\Carbon::parse($this->startDate, $teamTimezone)->startOfDay();
+        $rangeEnd = \Carbon\Carbon::parse($this->endDate, $teamTimezone)->endOfDay();
+        
+        // Clip start date if event starts before range
+        if ($eventStart->lt($rangeStart)) {
+            $eventStart = $rangeStart;
+        }
+        
+        // Clip end date if event ends after range
+        if ($eventEnd->gt($rangeEnd)) {
+            $eventEnd = $rangeEnd;
+        }
+        
+        // Convert back to UTC for storage
+        $clonedEvent->start = $eventStart->copy()->setTimezone('UTC')->toDateTimeString();
+        $clonedEvent->end = $eventEnd->copy()->setTimezone('UTC')->toDateTimeString();
+        
+        return $clonedEvent;
     }
 
     protected function formatDuration(int $minutes): string
+
     {
         $days = floor($minutes / (24 * 60));
         $hours = floor(($minutes % (24 * 60)) / 60);

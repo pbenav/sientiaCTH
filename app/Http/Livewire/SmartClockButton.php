@@ -10,6 +10,7 @@ class SmartClockButton extends Component
 {
     public $clockData = [];
     public $showConfirmation = false;
+    public $showClockOutConfirmation = false;
     public $message = '';
     public $messageType = 'info'; // success, error, info
     public $canClock = false;
@@ -93,8 +94,16 @@ class SmartClockButton extends Component
         return now($teamTimezone)->locale('es');
     }
 
-    public function handleClockAction()
+    public function handleClockAction($latitude = null, $longitude = null)
     {
+        \Log::info('SmartClockButton::handleClockAction', [
+            'user_id' => Auth::id(),
+            'action' => $this->clockData['action'] ?? 'unknown',
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'has_coordinates' => ($latitude !== null && $longitude !== null)
+        ]);
+
         if (!$this->canClock || empty($this->clockData)) {
             $this->message = $this->clockData['message'] ?? __('Cannot clock in/out at this time');
             $this->messageType = 'error';
@@ -102,6 +111,15 @@ class SmartClockButton extends Component
         }
 
         $user = Auth::user();
+        
+        // Prepare location data if provided
+        $location = null;
+        if ($latitude !== null && $longitude !== null) {
+            $location = [
+                'latitude' => $latitude,
+                'longitude' => $longitude
+            ];
+        }
         
         if ($this->clockData['action'] === 'clock_in') {
             $overtime = $this->clockData['overtime'] ?? false;
@@ -113,7 +131,7 @@ class SmartClockButton extends Component
                 return;
             }
             
-            $result = $this->getSmartClockService()->clockIn($user, $eventTypeId, $overtime);
+            $result = $this->getSmartClockService()->clockIn($user, $eventTypeId, $overtime, 'web', null, $location);
         } elseif ($this->clockData['action'] === 'clock_out') {
             $openEventId = $this->clockData['open_event_id'] ?? null;
             
@@ -180,7 +198,7 @@ class SmartClockButton extends Component
         $this->showConfirmation = false;
     }
 
-    public function confirmExceptionalClockIn()
+    public function confirmExceptionalClockIn($latitude = null, $longitude = null)
     {
         $user = Auth::user();
         $eventTypeId = $this->clockData['event_type_id'] ?? null;
@@ -217,7 +235,8 @@ class SmartClockButton extends Component
             return;
         }
 
-        $result = $this->getSmartClockService()->pauseWorkday($user, $pauseEventTypeId);
+        // No GPS for pause - call service without location
+        $result = $this->getSmartClockService()->pauseWorkday($user, $pauseEventTypeId, null);
         
         $this->message = $result['message'];
         $this->messageType = $result['success'] ? 'success' : 'error';
@@ -233,19 +252,28 @@ class SmartClockButton extends Component
 
     public function clockOutFromWork()
     {
+        // Show confirmation dialog before clocking out
+        $this->showClockOutConfirmation = true;
+    }
+
+    public function confirmClockOut($latitude = null, $longitude = null)
+    {
         $user = Auth::user();
         $openEventId = $this->clockData['open_event_id'] ?? null;
         
         if (!$openEventId) {
             $this->message = __('No open event found');
             $this->messageType = 'error';
+            $this->showClockOutConfirmation = false;
             return;
         }
         
+        // Note: clockOut currently doesn't support location update, but we accept params for consistency
         $result = $this->getSmartClockService()->clockOut($user, $openEventId);
         
         $this->message = $result['message'];
         $this->messageType = $result['success'] ? 'success' : 'error';
+        $this->showClockOutConfirmation = false;
 
         if ($result['success']) {
             // Refresh the clock data to update the button state
@@ -254,6 +282,11 @@ class SmartClockButton extends Component
             // Emit event to refresh other components if needed
             $this->emit('eventCreated');
         }
+    }
+
+    public function cancelClockOut()
+    {
+        $this->showClockOutConfirmation = false;
     }
 
     public function render()

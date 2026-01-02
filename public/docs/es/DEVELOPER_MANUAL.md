@@ -1,7 +1,7 @@
 # 📚 Manual del Desarrollador - CTH (Control de Tiempo y Horarios)
 
-**Versión**: 2025.11  
-**Última actualización**: Noviembre 2025  
+**Versión**: 2025.12  
+**Última actualización**: Diciembre 2025  
 **Estado**: ✅ Producción
 
 ---
@@ -506,103 +506,21 @@ php artisan events:update-extra-hours
 
 ### API Móvil v1
 
-**Base URL**: `/api/v1/mobile`
+> 📘 **Documentación Detallada**
+>
+> Para una lista completa de endpoints, parámetros y respuestas, por favor consulte el documento de **[Referencia de API Móvil v1](REFERENCIA_API.md)**.
 
-#### 1. Fichaje (Clock Action)
+**Base URL**: `/api/v1`
 
-**Endpoint**: `POST /api/v1/mobile/clock`
+#### 1. Resumen de Endpoints
 
-**Request**:
-```json
-{
-  "work_center_code": "CTH001",
-  "user_secret_code": "1234",
-  "location": {
-    "latitude": 40.4168,
-    "longitude": -3.7038
-  }
-}
-```
+La API ofrece endpoints para:
+- **Autenticación y Configuración**: `/setup`, `/worker/{code}`
+- **Fichaje**: `/clock`, `/status`
+- **Gestión de Equipo**: `/team/switch`
+- **Sincronización de Datos**: `/sync`, `/history`, `/schedule`
 
-**Response Exitosa**:
-```json
-{
-  "success": true,
-  "action_taken": "clock_in",
-  "message": "Successfully clocked in",
-  "user": {
-    "id": 1,
-    "name": "Juan",
-    "family_name1": "Pérez",
-    "current_status": "working",
-    "work_center": {
-      "id": 1,
-      "name": "Centro Principal",
-      "code": "CTH001"
-    }
-  },
-  "work_schedule": {
-    "monday": {
-      "slots": [
-        {"start": "08:00", "end": "12:00"},
-        {"start": "13:00", "end": "17:00"}
-      ]
-    }
-  },
-  "today_records": [
-    {
-      "id": 123,
-      "type": "Jornada laboral",
-      "start": "2024-11-06T08:00:00Z",
-      "end": null,
-      "is_closed": false
-    }
-  ],
-  "server_time": "2024-11-06T08:30:00Z"
-}
-```
-
-**Acciones Posibles**:
-- `clock_in`: Iniciar jornada
-- `break_start`: Iniciar pausa
-- `break_end`: Finalizar pausa
-- `clock_out`: Finalizar jornada
-
-#### 2. Verificación NFC
-
-**Endpoint**: `POST /api/v1/config/verify-nfc`
-
-**Request**:
-```json
-{
-  "nfc_data": "{\"server_url\":\"...\",\"nfc_tag_id\":\"...\",...}"
-}
-```
-
-**Response**:
-```json
-{
-  "success": true,
-  "data": {
-    "work_center": {
-      "id": 1,
-      "name": "Oficina Principal",
-      "code": "WC001",
-      "team_id": 1
-    },
-    "verification": {
-      "verified_at": "2025-11-07T01:45:31.000Z",
-      "status": "verified"
-    },
-    "auto_configuration": {
-      "server_configured": true,
-      "server_url": "https://tu-cth-server.com",
-      "api_endpoint": "https://tu-cth-server.com/api/v1"
-    }
-  },
-  "message": "NFC verified and server auto-configuration data provided"
-}
-```
+Para detalles completos, consulte el documento de **[Referencia de API Móvil v1](REFERENCIA_API.md)**.
 
 ### Controlador API
 
@@ -750,7 +668,7 @@ class ClockApiService {
   }) async {
     try {
       final response = await _dio.post(
-        '$baseUrl/mobile/clock',
+        '$baseUrl/clock', // Ruta API Limpia
         data: {
           'work_center_code': workCenterCode,
           'user_secret_code': userSecretCode,

@@ -9,6 +9,7 @@ use App\Models\ExceptionalClockInToken;
 use App\Models\Message;
 use App\Notifications\NewMessage;
 use App\Traits\HandlesEventAuthorization;
+use App\Traits\HandlesTimezoneConversion;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,7 @@ use Illuminate\Support\Str;
 class SmartClockInService
 {
     use HandlesEventAuthorization;
+    use HandlesTimezoneConversion;
 
     // Status Codes Constants
     public const STATUS_USER_OR_TEAM_NOT_FOUND = 'USER_OR_TEAM_NOT_FOUND';
@@ -58,8 +60,8 @@ class SmartClockInService
         }
 
         // Get team timezone
-        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
-        $now = Carbon::now($teamTimezone);
+        $teamTimezone = $this->getUserTimezone($user);
+        $now = $this->nowInTeamTimezone($user->currentTeam);
 
         // Get work schedule
         $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
@@ -105,8 +107,7 @@ class SmartClockInService
         
         try {
             $pauseEventType = $user->currentTeam->eventTypes()
-                ->whereIn('name', ['Pausa', 'Pause'])
-                ->where('is_break_type', true)
+                ->where('is_pause_type', true)
                 ->first();
                 
             if ($pauseEventType) {
@@ -129,8 +130,7 @@ class SmartClockInService
                 'button_class' => 'bg-blue-600 hover:bg-blue-700 text-white',
                 'open_event_id' => $openEvent->id,
                 'pause_event_id' => $activePause->id,
-                'paused_at' => Carbon::parse($activePause->start, 'UTC')
-                    ->setTimezone($teamTimezone)
+                'paused_at' => $this->utcToTeamTimezone($activePause->start, $teamTimezone)
                     ->format('H:i'),
                 'current_slot' => $currentSlot
             ];
@@ -145,8 +145,7 @@ class SmartClockInService
                     'button_text' => __('Working'),
                     'button_class' => 'bg-green-600 hover:bg-green-700 text-white',
                     'open_event_id' => $openEvent->id,
-                    'started_at' => Carbon::parse($openEvent->start, 'UTC')
-                        ->setTimezone($teamTimezone)
+                    'started_at' => $this->utcToTeamTimezone($openEvent->start, $teamTimezone)
                         ->format('H:i'),
                     'current_slot' => $currentSlot,
                     'show_pause_option' => true,
@@ -163,8 +162,7 @@ class SmartClockInService
                     'button_text' => __('Clock Out'),
                     'button_class' => 'bg-red-600 hover:bg-red-700 text-white',
                     'open_event_id' => $openEvent->id,
-                    'started_at' => Carbon::parse($openEvent->start, 'UTC')
-                        ->setTimezone($teamTimezone)
+                    'started_at' => $this->utcToTeamTimezone($openEvent->start, $teamTimezone)
                         ->format('H:i'),
                     'current_slot' => $currentSlot
                 ];
@@ -229,13 +227,13 @@ class SmartClockInService
     /**
      * Execute the clock in action
      */
-    public function clockIn(User $user, int $eventTypeId, bool $overtime = false, string $source = null, $observations = null): array
+    public function clockIn(User $user, int $eventTypeId, bool $overtime = false, string $source = null, $observations = null, array $location = null): array
     {
-        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $teamTimezone = $this->getUserTimezone($user);
         
         // Always start from UTC to avoid server timezone interference
         $nowUTC = Carbon::now('UTC');
-        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
+        $nowTeamTz = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
 
         Log::debug('[SmartClockInService][clockIn] Timezone conversion:', [
             'team_timezone' => $teamTimezone,
@@ -253,7 +251,7 @@ class SmartClockInService
                 $observations = __('Exceptional clock-in made through mobile API (outside work schedule)');
             }
             
-            $event = Event::create([
+            $eventData = [
                 'user_id' => $user->id,
                 'event_type_id' => $eventTypeId,
                 'team_id' => $user->current_team_id,
@@ -267,7 +265,18 @@ class SmartClockInService
                 'is_exceptional' => $overtime,
                 'is_extra_hours' => $eventType ? !$eventType->is_workday_type : false,
                 'is_closed_automatically' => false,
-            ]);
+            ];
+            
+            // Añadir geolocalización si el usuario la tiene habilitada y se proporcionó
+            if ($user->geolocation_enabled && $location && isset($location['latitude']) && isset($location['longitude'])) {
+                $eventData['latitude'] = $location['latitude'];
+                $eventData['longitude'] = $location['longitude'];
+            }
+            
+            // Añadir dirección IP
+            $eventData['ip_address'] = request()->ip();
+            
+            $event = Event::create($eventData);
             
             Log::debug('[SmartClockInService][clockIn] Event created:', [
                 'event_id' => $event->id,
@@ -300,11 +309,11 @@ class SmartClockInService
      */
     public function clockOut(User $user, int $eventId): array
     {
-        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $teamTimezone = $this->getUserTimezone($user);
         
         // Always start from UTC to avoid server timezone interference
         $nowUTC = Carbon::now('UTC');
-        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
+        $nowTeamTz = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
 
         try {
             $event = Event::where('id', $eventId)
@@ -325,8 +334,7 @@ class SmartClockInService
                 'is_open' => false,
             ]);
 
-            $startTime = Carbon::parse($event->start, 'UTC')
-                ->setTimezone($teamTimezone)
+            $startTime = $this->utcToTeamTimezone($event->start, $teamTimezone)
                 ->format('H:i');
 
             return [
@@ -351,13 +359,13 @@ class SmartClockInService
     /**
      * Pause the current workday
      */
-    public function pauseWorkday(User $user, int $pauseEventTypeId): array
+    public function pauseWorkday(User $user, int $pauseEventTypeId, array $location = null): array
     {
-        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $teamTimezone = $this->getUserTimezone($user);
         
         // Always start from UTC to avoid server timezone interference
         $nowUTC = Carbon::now('UTC');
-        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
+        $nowTeamTz = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
 
         try {
             // Verify there's an active workday event
@@ -384,7 +392,7 @@ class SmartClockInService
 
             // Get pause event type
             $pauseEventType = EventType::find($pauseEventTypeId);
-            if (!$pauseEventType || !$pauseEventType->is_break_type) {
+            if (!$pauseEventType || !$pauseEventType->is_pause_type) {
                 return [
                     'success' => false,
                     'status_code' => self::STATUS_ERROR,
@@ -393,7 +401,7 @@ class SmartClockInService
             }
 
             // Create pause event
-            $pauseEvent = Event::create([
+            $pauseEventData = [
                 'user_id' => $user->id,
                 'event_type_id' => $pauseEventTypeId,
                 'team_id' => $user->current_team_id,
@@ -404,9 +412,18 @@ class SmartClockInService
                 'is_open' => true,
                 'is_authorized' => false,
                 'is_exceptional' => false,
-                'is_extra_hours' => false, // Pause is not work time
+                'is_extra_hours' => true,
                 'is_closed_automatically' => false,
-            ]);
+                'ip_address' => request()->ip(),
+            ];
+            
+            // Añadir geolocalización si el usuario la tiene habilitada y se proporcionó
+            if ($user->geolocation_enabled && $location && isset($location['latitude']) && isset($location['longitude'])) {
+                $pauseEventData['latitude'] = $location['latitude'];
+                $pauseEventData['longitude'] = $location['longitude'];
+            }
+            
+            $pauseEvent = Event::create($pauseEventData);
 
             return [
                 'success' => true,
@@ -429,11 +446,11 @@ class SmartClockInService
      */
     public function resumeWorkday(User $user, int $pauseEventId): array
     {
-        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+        $teamTimezone = $this->getUserTimezone($user);
         
         // Always start from UTC to avoid server timezone interference
         $nowUTC = Carbon::now('UTC');
-        $nowTeamTz = $nowUTC->copy()->setTimezone($teamTimezone);
+        $nowTeamTz = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
 
         try {
             // Find and close the pause event
@@ -456,8 +473,7 @@ class SmartClockInService
                 'is_open' => false,
             ]);
 
-            $pauseStartTime = Carbon::parse($pauseEvent->start, 'UTC')
-                ->setTimezone($teamTimezone)
+            $pauseStartTime = $this->utcToTeamTimezone($pauseEvent->start, $teamTimezone)
                 ->format('H:i');
 
             return [
@@ -482,10 +498,10 @@ class SmartClockInService
     /**
      * Handle exceptional clock-in request when user is outside schedule
      */
-    public function requestExceptionalClockIn(User $user, int $eventTypeId): array
+    public function requestExceptionalClockIn(User $user, int $eventTypeId, array $location = null): array
     {
         // Create exceptional clock-in token
-        $token = $this->createExceptionalClockInToken($user);
+        $token = $this->createExceptionalClockInToken($user, $location);
         
         return [
             'success' => true,
@@ -499,7 +515,7 @@ class SmartClockInService
     /**
      * Create exceptional clock-in token and send message to admin
      */
-    private function createExceptionalClockInToken(User $user): string
+    private function createExceptionalClockInToken(User $user, array $location = null): string
     {
         $team = $user->currentTeam;
         $token = Str::random(60);
@@ -509,6 +525,7 @@ class SmartClockInService
             'team_id' => $team->id,
             'token' => $token,
             'expires_at' => now()->addMinutes($team->clock_in_grace_period_minutes ?? 10),
+            'location_data' => $location, // Save location for later use when approving/creating event
         ]);
 
         $adminSender = $team->owner;
@@ -640,6 +657,15 @@ class SmartClockInService
     {
         // Devolver directamente el número ISO
         return $dayOfWeek;
+    }
+
+    /**
+     * Backward compatibility wrapper for isWithinWorkSchedule
+     * @deprecated Use isWithinWorkSchedule instead
+     */
+    public function isUserWithinWorkSchedule($timeToCheck, $user = null)
+    {
+        return $this->isWithinWorkSchedule($timeToCheck, $user);
     }
 
 }

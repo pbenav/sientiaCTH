@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\User;
 use App\Models\Event;
+use App\Traits\HandlesTimezoneConversion;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,7 @@ class StatsComponent extends Component
 {
     use CalculatesDashboardData;
     use CalculatesScheduledData;
+    use HandlesTimezoneConversion;
 
     #[On('onColumnClick')]
     public function onColumnClick($column)
@@ -74,10 +76,12 @@ class StatsComponent extends Component
         // Normalizar eventTypes (collection/array)
         $this->eventTypes = $this->actualUser?->currentTeam?->eventTypes ?? collect();
 
-        // Normalizar workers: convertir arrays a objetos para la vista
+        // Normalizar workers: convertir arrays a objetos para la vista y ordenar alfabéticamente
         $this->workers = collect($this->workers)->map(function ($w) {
             return is_array($w) ? (object) $w : $w;
-        })->all();
+        })->sortBy(function ($worker) {
+            return strtolower(($worker->name ?? '') . ' ' . ($worker->family_name ?? '') . ' ' . ($worker->family_name2 ?? ''));
+        })->values()->all();
 
         $this->eventTypeId = null;
     }
@@ -123,7 +127,7 @@ class StatsComponent extends Component
         $eventTypesInUse = [];
 
         // Fetch holidays for the selected month
-        $teamTimezone = $this->actualUser->currentTeam->timezone ?? config('app.timezone');
+        $teamTimezone = $this->getUserTimezone($this->actualUser);
         $startDate = Carbon::create($this->selectedYear, $this->selectedMonth, 1, 0, 0, 0, $teamTimezone);
         $endDate = $startDate->copy()->endOfMonth();
         
@@ -152,17 +156,18 @@ class StatsComponent extends Component
 
 
 
+
 // Process each event. Full‑day events (00:00 → 00:00 next day) are counted only on the start day
         foreach ($events as $event) {
             if (!$event->end || !$event->eventType) continue;
 
             $eventTypesInUse[$event->eventType->name] = $event->eventType;
 
-            // Parse dates as UTC since they are stored in UTC in the database
-            $start_date = Carbon::parse($event->start, 'UTC');
-            $end_date = Carbon::parse($event->end, 'UTC');
+            // Parse dates as UTC and convert to team timezone to avoid timezone shift issues
+            $start_date = $this->utcToTeamTimezone($event->start, $teamTimezone);
+            $end_date = $this->utcToTeamTimezone($event->end, $teamTimezone);
 
-            for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
+            for ($date = $start_date->copy(); $date->lt($end_date); $date->addDay()) {
                 if ($date->month != $this->selectedMonth) continue;
 
                 $dayKey = $date->format('d/m');
@@ -308,8 +313,10 @@ class StatsComponent extends Component
                 'columnChartModel' => $columnChartModel,
                 'elapsedTime' => $elapsedTime,
                 'scheduledHours' => $scheduledHours,
+                'scheduledHoursFmt' => floor($scheduledHours) . 'h ' . sprintf('%02d', round(($scheduledHours - floor($scheduledHours)) * 60)) . 'm',
                 'scheduledDays' => $scheduledDays,
                 'dashboardData' => $this->dashboardData,
+                'totalHoursFmt' => floor($this->totalHours) . 'h ' . sprintf('%02d', round(($this->totalHours - floor($this->totalHours)) * 60)) . 'm',
             ]);
     }
 }

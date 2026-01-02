@@ -44,6 +44,8 @@ class AddEvent extends Component
     public ?EventType $selectedEventType = null;
     public string $observations = '';
     public string $origin;
+    public ?float $latitude = null;
+    public ?float $longitude = null;
     protected $listeners = ['add'];
 
     /**
@@ -160,6 +162,9 @@ class AddEvent extends Component
         $this->setWorkScheduleHint();
         $this->origin = is_array($data) ? $data['origin'] : $data;
         $this->showAddEventModal = true;
+        
+        // Notify JavaScript to capture GPS
+        $this->dispatchBrowserEvent('show-add-event-modal');
     }
 
     /**
@@ -178,10 +183,18 @@ class AddEvent extends Component
     /**
      * Save the new event.
      *
+     * @param float|null $gpsLatitude
+     * @param float|null $gpsLongitude
      * @return \Illuminate\Http\RedirectResponse|void
      */
-    public function save()
+    public function save($gpsLatitude = null, $gpsLongitude = null)
     {
+        // Override latitude/longitude with GPS parameters if provided
+        if ($gpsLatitude !== null && $gpsLongitude !== null) {
+            $this->latitude = $gpsLatitude;
+            $this->longitude = $gpsLongitude;
+        }
+        
         $this->validate();
 
         $user = Auth::user();
@@ -264,8 +277,11 @@ class AddEvent extends Component
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            $data['start'] = Carbon::parse($this->start_date . ' 00:00:00', 'UTC');
-            $data['end'] = Carbon::parse($this->end_date . ' 23:59:59', 'UTC');
+            // For all-day events, convert from local timezone to UTC
+            // User enters 2025-03-05, which means 2025-03-05 00:00:00 in Europe/Madrid
+            // This should be stored as 2025-03-04 23:00:00 UTC (CET) or 2025-03-04 22:00:00 UTC (CEST)
+            $data['start'] = Carbon::parse($this->start_date . ' 00:00:00', $appTimezone)->setTimezone('UTC');
+            $data['end'] = Carbon::parse($this->end_date . ' 23:59:59', $appTimezone)->setTimezone('UTC');
         } else {
             $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone)->setTimezone('UTC');
             $data['end'] = null;
@@ -273,6 +289,12 @@ class AddEvent extends Component
 
         if (Schema::hasColumn('events', 'is_authorized')) {
             $data['is_authorized'] = false;
+        }
+
+        // Add geolocation data if available and user has it enabled
+        if ($user->geolocation_enabled && $this->latitude !== null && $this->longitude !== null) {
+            $data['latitude'] = $this->latitude;
+            $data['longitude'] = $this->longitude;
         }
 
         $event = Event::create($data);

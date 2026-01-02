@@ -1,15 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
 /**
- * Represents a team announcement/message.
+ * TeamAnnouncement Model
+ * 
+ * Represents a team-wide announcement/notification with optional
+ * date ranges for display scheduling and priority support.
  *
- * Announcements can be displayed to team members with optional date ranges.
+ * @property int $id
+ * @property int $team_id
+ * @property int $created_by_id
+ * @property string $title
+ * @property string $content
+ * @property string $type Announcement type (info/warning/success/error)
+ * @property bool $is_priority
+ * @property bool $is_active
+ * @property \Carbon\Carbon|null $start_date
+ * @property \Carbon\Carbon|null $end_date
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @property-read Team $team
+ * @property-read User $createdBy
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class TeamAnnouncement extends Model
 {

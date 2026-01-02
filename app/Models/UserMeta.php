@@ -1,15 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Represents a piece of metadata for a user.
+ * UserMeta Model
+ * 
+ * Stores flexible key-value metadata for users including preferences,
+ * schedules, and custom settings.
  *
- * This model is used to store additional, flexible information about a user,
- * such as their preferences or settings.
+ * @property int $id
+ * @property int $user_id
+ * @property string $meta_key Metadata key identifier
+ * @property mixed $meta_value Metadata value (JSON or string)
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @property-read User $user
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class UserMeta extends Model
 {

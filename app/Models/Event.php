@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Carbon\Carbon;
@@ -9,18 +11,53 @@ use App\Traits\InsertHistory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Represents a time tracking event, such as a clock-in or clock-out.
+ * Event Model
+ * 
+ * Represents a time tracking event (clock-in/clock-out) with support for
+ * geolocation, NFC tags, work centers, and event type classification.
  *
- * This model contains all the information related to a single work event,
- * including start and end times, the associated user, and its status.
+ * @property int $id
+ * @property int $user_id
+ * @property int $team_id
+ * @property int|null $work_center_id
+ * @property int|null $event_type_id
+ * @property int|null $authorized_by_id
+ * @property \Carbon\Carbon $start Event start datetime
+ * @property \Carbon\Carbon|null $end Event end datetime (null if open)
+ * @property bool $is_open Event is currently open (not closed)
+ * @property bool $is_authorized Event has been authorized
+ * @property bool $is_closed_automatically Closed automatically by system
+ * @property bool $is_extra_hours Marked as extra hours
+ * @property bool $is_exceptional Exceptional event
+ * @property string|null $description Event description
+ * @property string|null $observations Additional observations
+ * @property float|null $latitude GPS latitude coordinate
+ * @property float|null $longitude GPS longitude coordinate
+ * @property string|null $location_start Location name at start
+ * @property string|null $location_end Location name at end
+ * @property string|null $nfc_tag_id NFC tag identifier
+ * @property string|null $ip_address IP address of request
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @property-read User $user
+ * @property-read Team $team
+ * @property-read WorkCenter|null $workCenter
+ * @property-read EventType|null $eventType
+ * @property-read User|null $authorizedBy
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class Event extends Model
 {
     use HasFactory;
     use TimeDiff;
     use InsertHistory;
+    use \App\Traits\HandlesTimezoneConversion;
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +78,12 @@ class Event extends Model
         'description',
         'observations',
         'event_type_id',
+        'latitude',
+        'longitude',
+        'location_start',
+        'location_end',
+        'nfc_tag_id',
+        'ip_address',
     ];
 
     /**
@@ -52,6 +95,10 @@ class Event extends Model
         'is_open' => 'boolean',
         'is_extra_hours' => 'boolean',
         'is_exceptional' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'location_start' => 'array',
+        'location_end' => 'array',
     ];
 
     /**
@@ -72,6 +119,16 @@ class Event extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the team associated with the event.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
 
     /**
@@ -96,23 +153,85 @@ class Event extends Model
 
     /**
      * Calculate the duration of the event.
+     * NOTA: Siempre devuelve días naturales (para listados).
      *
      * @return string
      */
     public function getPeriod()
     {
         if ($this->eventType && $this->eventType->is_all_day) {
-            $start = Carbon::parse($this->start);
-            $end = Carbon::parse($this->end);
+            // IMPORTANTE: Convertir de UTC a zona horaria local antes de calcular
+            $timezone = $this->getEventTimezone($this);
+            $days = $this->calculateAllDayEventDays($this->start, $this->end, $timezone);
             
-            // Round up to the next second if it ends at 23:59:59 to count as a full day
-            if ($end->format('H:i:s') === '23:59:59') {
-                $end->addSecond();
+            return $days . ' ' . ($days == 1 ? __('day') : __('days'));
+        }
+
+        return $this->timeDiff($this->start, $this->end, true);
+    }
+
+    /**
+     * Calculate the duration of the event respecting user preferences.
+     * Para eventos autorizables, respeta vacation_calculation_type del usuario.
+     *
+     * @param \App\Models\User|null $user Usuario para verificar preferencias
+     * @return string
+     */
+    public function getPeriodForUser($user = null)
+    {
+        if ($this->eventType && $this->eventType->is_all_day) {
+            $timezone = $this->getEventTimezone($this);
+            
+            // Si no hay usuario o no es evento autorizable, usar días naturales
+            if (!$user || !$this->eventType->is_authorizable) {
+                $days = $this->calculateAllDayEventDays($this->start, $this->end, $timezone);
+                return $days . ' ' . ($days == 1 ? __('day') : __('days'));
             }
             
-            $days = $start->diffInDays($end);
-            $days = $days < 1 ? 1 : $days;
+            // Verificar preferencia del usuario
+            if ($user->vacation_calculation_type === 'working') {
+                // Calcular días hábiles
+                $start = $this->utcToTeamTimezone($this->start, $timezone);
+                $end = $this->utcToTeamTimezone($this->end, $timezone);
+                
+                $startDay = $start->copy()->startOfDay();
+                $endDay = $end->copy()->startOfDay();
+                
+                if ($end->format('H:i:s') !== '00:00:00') {
+                    $endDay->addDay();
+                }
+                
+                // Obtener festivos del equipo
+                $team = $user->currentTeam;
+                $holidays = [];
+                if ($team) {
+                    $holidays = $team->holidays()
+                        ->whereBetween('date', [$startDay, $endDay])
+                        ->pluck('date')
+                        ->map(fn($date) => $date->format('Y-m-d'))
+                        ->toArray();
+                }
+                
+                // Contar días hábiles
+                $workingDays = 0;
+                $current = $startDay->copy();
+                while ($current->lt($endDay)) {
+                    $dayOfWeek = (int) $current->format('N');
+                    $dateString = $current->format('Y-m-d');
+                    
+                    if ($dayOfWeek < 6 && !in_array($dateString, $holidays)) {
+                        $workingDays++;
+                    }
+                    
+                    $current->addDay();
+                }
+                
+                $days = $workingDays < 1 ? 1 : $workingDays;
+                return $days . ' ' . ($days == 1 ? __('day') : __('days'));
+            }
             
+            // Días naturales
+            $days = $this->calculateAllDayEventDays($this->start, $this->end, $timezone);
             return $days . ' ' . ($days == 1 ? __('day') : __('days'));
         }
 
@@ -155,7 +274,8 @@ class Event extends Model
         $this->is_open = !$this->is_open;
         $this->save();
         if (auth()->user()->isTeamAdmin()) {
-            $this->insertHistory('events', $orig_ev, $this);
+            // Solo audita si el evento quedó cerrado (is_open = false)
+            $this->insertHistory('events', $orig_ev, $this, false);
         }
         unset($orig_ev);
         return true;
@@ -220,7 +340,7 @@ class Event extends Model
     }
 
     /**
-     * Scope a query to only include open events.
+     * Scope: Get only open events.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
@@ -228,6 +348,71 @@ class Event extends Model
     public function scopeIsOpen(Builder $query)
     {
         return $query->where('is_open', '=', 1);
+    }
+
+    /**
+     * Scope: Get events with eager loaded relationships.
+     * Optimizes N+1 queries for common use cases.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithRelations(Builder $query): Builder
+    {
+        return $query->with(['user', 'team', 'eventType', 'workCenter', 'authorizedBy']);
+    }
+
+    /**
+     * Scope: Get events for a specific date range.
+     * Uses indexed columns for optimal performance.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Carbon\Carbon|string  $startDate
+     * @param  \Carbon\Carbon|string  $endDate
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDateRange(Builder $query, $startDate, $endDate): Builder
+    {
+        $start = $startDate instanceof Carbon ? $startDate : Carbon::parse($startDate);
+        $end = $endDate instanceof Carbon ? $endDate : Carbon::parse($endDate);
+        
+        return $query->where('start', '<=', $end)
+                     ->where('end', '>=', $start);
+    }
+
+    /**
+     * Scope: Get events for a specific team.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $teamId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForTeam(Builder $query, int $teamId): Builder
+    {
+        return $query->where('team_id', $teamId);
+    }
+
+    /**
+     * Scope: Get events for a specific user.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $userId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForUser(Builder $query, int $userId): Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Scope: Get closed events only.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeClosed(Builder $query): Builder
+    {
+        return $query->where('is_open', false);
     }
 
     /**

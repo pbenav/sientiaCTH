@@ -55,6 +55,10 @@
             border-bottom: 2px solid #E5E7EB;
         }
         
+        .page-break-before {
+            page-break-before: always;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -141,33 +145,135 @@
             @endif
         @endif
         <strong>{{ __('Total Hours') }}:</strong> 
-        <span class="badge">{{ $totalHours }}</span>
+        <span class="badge">{{ $totalHoursFmt }}</span>
         &nbsp;&nbsp;
         <strong>{{ __('Total Days') }}:</strong> 
         <span class="badge">{{ $totalDays }}</span>
     </div>
 
-    {{-- Chart Summary (simplified for mPDF) --}}
+    {{-- Chart Section --}}
     @if(!empty($chartData))
         <div class="chart-container">
             <div class="chart-title">{{ __('Registered hours') }}</div>
-            <div class="chart-summary">
-                @php
-                    $dayCount = count($chartData);
-                    $totalHoursChart = 0;
-                    foreach ($chartData as $day => $types) {
-                        foreach ($types as $type => $data) {
-                            $totalHoursChart += $data['hours'] ?? 0;
-                        }
+            
+            @php
+                // 1. Preparar datos
+                $days = array_keys($chartData);
+                $values = [];
+                $maxHours = 0;
+                
+                foreach ($chartData as $day => $types) {
+                    $dayTotal = 0;
+                    foreach ($types as $type => $data) {
+                        $dayTotal += $data['hours'] ?? 0;
                     }
-                    $avgHours = $dayCount > 0 ? round($totalHoursChart / $dayCount, 2) : 0;
-                @endphp
+                    $values[] = $dayTotal;
+                    if ($dayTotal > $maxHours) {
+                        $maxHours = $dayTotal;
+                    }
+                }
+                
+                // Asegurar un máximo razonable para el eje Y
+                $maxHours = max($maxHours, 1);
+                $yMax = ceil($maxHours * 1.1); 
+                
+                // 2. Configuración SVG - Aumentado para A4 apaisado
+                $width = 1000; // Aumentado para aprovechar el ancho de página
+                $height = 350; // Aumentado para mejor visualización
+                $padding = ['top' => 30, 'right' => 30, 'bottom' => 30, 'left' => 40];
+                
+                $graphWidth = $width - $padding['left'] - $padding['right'];
+                $graphHeight = $height - $padding['top'] - $padding['bottom'];
+                
+                $count = count($values);
+                $stepX = $count > 1 ? $graphWidth / ($count - 1) : $graphWidth;
+                
+                // 3. Generar puntos y barras
+                $points = [];
+                $barWidth = ($stepX * 0.6);
+                
+                foreach ($values as $i => $val) {
+                    $x = $padding['left'] + ($i * $stepX);
+                    $y = $padding['top'] + $graphHeight - (($val / $yMax) * $graphHeight);
+                    $barHeight = ($val / $yMax) * $graphHeight;
+                    
+                    $points[] = [
+                        'x' => $x, 
+                        'y' => $y, 
+                        'val' => $val, 
+                        'label' => $days[$i],
+                        'barHeight' => $barHeight
+                    ];
+                }
+                
+                // String para la polilínea
+                $polylinePoints = "";
+                foreach ($points as $p) {
+                    $polylinePoints .= "{$p['x']},{$p['y']} ";
+                }
+                
+                // Colores
+                $lineColor = '#4F46E5';
+                $barColor = '#818CF8';
+                
+                // Calcular resumen
+                $dayCount = count($chartData);
+                $totalHoursChart = array_sum($values);
+                $avgHours = $dayCount > 0 ? round($totalHoursChart / $dayCount, 2) : 0;
+            @endphp
+
+            <svg viewBox="0 0 {{ $width }} {{ $height }}" style="width: 100%; height: auto; font-family: DejaVu Sans, sans-serif;">
+                
+                {{-- Grid Lines (Horizontal) --}}
+                @for ($i = 0; $i <= 5; $i++)
+                    @php
+                        $gridY = $padding['top'] + ($graphHeight * $i / 5);
+                        $labelVal = round($yMax * (1 - $i/5), 1);
+                    @endphp
+                    <line x1="{{ $padding['left'] }}" y1="{{ $gridY }}" x2="{{ $width - $padding['right'] }}" y2="{{ $gridY }}" stroke="#E5E7EB" stroke-width="1" />
+                    <text x="{{ $padding['left'] - 5 }}" y="{{ $gridY + 4 }}" font-size="10" fill="#9CA3AF" text-anchor="end">{{ $labelVal }}h</text>
+                @endfor
+
+                {{-- Bars --}}
+                @foreach ($points as $p)
+                    @if($p['val'] > 0)
+                        <rect x="{{ $p['x'] - ($barWidth / 2) }}" 
+                              y="{{ $p['y'] }}" 
+                              width="{{ $barWidth }}" 
+                              height="{{ $p['barHeight'] }}" 
+                              fill="{{ $barColor }}" 
+                              opacity="0.7" />
+                    @endif
+                @endforeach
+
+                {{-- Data Line --}}
+                <polyline points="{{ $polylinePoints }}" fill="none" stroke="{{ $lineColor }}" stroke-width="2" />
+
+                {{-- Data Points & Labels --}}
+                @foreach ($points as $p)
+                    {{-- X Axis Label --}}
+                    <text x="{{ $p['x'] }}" y="{{ $height - 5 }}" font-size="9" fill="#6B7280" text-anchor="middle">{{ $p['label'] }}</text>
+                    
+                    {{-- Point Circle --}}
+                    <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="3" fill="white" stroke="{{ $lineColor }}" stroke-width="2" />
+                    
+                    {{-- Value Label (only if > 0) --}}
+                    @if($p['val'] > 0)
+                        <text x="{{ $p['x'] }}" y="{{ $p['y'] - 8 }}" font-size="8" font-weight="bold" fill="#374151" text-anchor="middle">{{ round($p['val'], 1) }}</text>
+                    @endif
+                @endforeach
+            </svg>
+            
+            <div class="chart-summary">
                 <strong>{{ __('Days with activity') }}:</strong> {{ $dayCount }} &nbsp;|&nbsp;
                 <strong>{{ __('Total hours') }}:</strong> {{ round($totalHoursChart, 2) }}h &nbsp;|&nbsp;
                 <strong>{{ __('Average per day') }}:</strong> {{ $avgHours }}h
             </div>
         </div>
     @endif
+
+    {{-- Page break before KPIs section --}}
+    <pagebreak />
 
     {{-- KPIs: Workday Compliance --}}
     <div class="section-title">{{ __('stats.workday_compliance') }}</div>
@@ -176,28 +282,38 @@
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Punctuality') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['punctuality'] ?? '0' }}%</div>
+                    <div>
+                        <span class="kpi-value">{{ $dashboardData['punctuality'] ?? '0' }}%</span>
+                        <span class="kpi-value" style="font-size: 13pt; color: #9CA3AF; margin-left: 5px;">{{ $dashboardData['real_punctuality'] ?? '0' }}%</span>
+                    </div>
+                    <div class="kpi-subtitle">Cumplimiento general de horario</div>
                 </div>
             </td>
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('stats.entry') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</div>
-                    <div class="kpi-subtitle">{{ $dashboardData['punctuality_entry_minutes'] ?? '0' }} {{ __('stats.min') }}</div>
+                    <div>
+                        <span class="kpi-value">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</span>
+                        <span class="kpi-value" style="font-size: 13pt; color: #9CA3AF; margin-left: 5px;">{{ $dashboardData['punctuality_entry_real_pct'] ?? '0' }}%</span>
+                    </div>
+                    <div class="kpi-subtitle">Retraso: {{ $dashboardData['punctuality_entry_minutes'] ?? '0m 0s' }} | Verif: {{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0m 0s' }}</div>
                 </div>
             </td>
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('stats.exit') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</div>
-                    <div class="kpi-subtitle">{{ $dashboardData['punctuality_exit_minutes'] ?? '0' }} {{ __('stats.min') }}</div>
+                    <div>
+                        <span class="kpi-value">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</span>
+                        <span class="kpi-value" style="font-size: 13pt; color: #9CA3AF; margin-left: 5px;">{{ $dashboardData['punctuality_exit_real_pct'] ?? '0' }}%</span>
+                    </div>
+                    <div class="kpi-subtitle">Adelanto: {{ $dashboardData['punctuality_exit_minutes'] ?? '0m 0s' }} | Verif: {{ $dashboardData['punctuality_exit_backdate_minutes'] ?? '0m 0s' }}</div>
                 </div>
             </td>
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('stats.combined') }}</div>
                     <div class="kpi-value">{{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</div>
-                    <div class="kpi-subtitle">{{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0' }} {{ __('stats.min') }} backdate</div>
+                    <div class="kpi-subtitle">Puntualidad entrada y salida</div>
                 </div>
             </td>
         </tr>
@@ -206,18 +322,21 @@
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Workday Completion') }}</div>
                     <div class="kpi-value">{{ round($dashboardData['percentage_completion'] ?? 0) }}%</div>
+                    <div class="kpi-subtitle">Horas registradas vs programadas</div>
                 </div>
             </td>
             <td>
                 <div class="kpi-card">
-                    <div class="kpi-title">{{ __('Extra Hours') }}</div>
-                    <div class="kpi-value">{{ $dashboardData['extra_hours'] ?? '0' }}</div>
+                    <div class="kpi-title">{{ __('Extra Hours') }} ({{ __('Balance') }})</div>
+                    <div class="kpi-value">{{ $dashboardData['extra_hours_fmt'] ?? '0h 00m' }}</div>
+                    <div class="kpi-subtitle">Exceso sobre horas programadas</div>
                 </div>
             </td>
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Absenteeism (days)') }}</div>
                     <div class="kpi-value">{{ $dashboardData['absenteeism'] ?? '0' }}</div>
+                    <div class="kpi-subtitle">Días sin registros de trabajo</div>
                 </div>
             </td>
             <td></td>
@@ -231,13 +350,15 @@
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Scheduled Hours') }}</div>
-                    <div class="kpi-value">{{ $scheduledHours }}</div>
+                    <div class="kpi-value">{{ $scheduledHoursFmt }}</div>
+                    <div class="kpi-subtitle">Horas según horario laboral</div>
                 </div>
             </td>
             <td>
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Registered Hours') }}</div>
-                    <div class="kpi-value">{{ $totalHours }}</div>
+                    <div class="kpi-value">{{ $totalHoursFmt }}</div>
+                    <div class="kpi-subtitle">Horas realmente trabajadas</div>
                 </div>
             </td>
             <td>
@@ -251,6 +372,7 @@
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Exceptional Clock-ins') }}</div>
                     <div class="kpi-value">{{ $dashboardData['exceptional_events_count'] ?? '0' }}</div>
+                    <div class="kpi-subtitle">Fichajes fuera de horario</div>
                 </div>
             </td>
         </tr>
@@ -259,6 +381,7 @@
                 <div class="kpi-card">
                     <div class="kpi-title">{{ __('Automatic Closures') }}</div>
                     <div class="kpi-value">{{ $dashboardData['automatically_closed_count'] ?? '0' }}</div>
+                    <div class="kpi-subtitle">Eventos cerrados automáticamente</div>
                 </div>
             </td>
             <td colspan="3"></td>

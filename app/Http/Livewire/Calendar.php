@@ -236,7 +236,7 @@ class Calendar extends Component
      */
     public function showEventInfo(int $eventId): void
     {
-        $event = Event::with(['eventType', 'workCenter', 'user'])
+        $event = Event::with(['eventType', 'team', 'workCenter', 'user'])
             ->find($eventId);
             
         if ($event) {

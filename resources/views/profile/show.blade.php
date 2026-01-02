@@ -7,9 +7,16 @@
 
     <div x-data="{ 
         tab: new URLSearchParams(window.location.search).get('tab') || 'account',
+        setTab(newTab) {
+            this.tab = newTab;
+            // Update URL to preserve tab state
+            const url = new URL(window.location);
+            url.searchParams.set('tab', newTab);
+            window.history.replaceState({}, '', url);
+        },
         init() {
-            // Check for work schedule navigation
-            if (window.location.hash === '#work-schedule-section' || new URLSearchParams(window.location.search).get('tab') === 'preferences') {
+            // Check for work schedule navigation (only if hash is present)
+            if (window.location.hash === '#work-schedule-section') {
                 this.tab = 'preferences'; // Ensure preferences tab is active
                 
                 // Try multiple times to find the element (wait for Livewire to load)
@@ -43,14 +50,14 @@
                     <li class="mr-2">
                         <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
                            :class="{ 'border-indigo-500 text-indigo-600': tab === 'account', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'account' }"
-                           @click.prevent="tab = 'account'">
+                           @click.prevent="setTab('account')">
                             {{ __('Información de cuenta') }}
                         </a>
                     </li>
                     <li class="mr-2">
                         <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
                            :class="{ 'border-indigo-500 text-indigo-600': tab === 'preferences', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'preferences' }"
-                           @click.prevent="tab = 'preferences'">
+                           @click.prevent="setTab('preferences')">
                             {{ __('Preferencias') }}
                         </a>
                     </li>
@@ -59,7 +66,7 @@
                     <li class="mr-2">
                         <a href="#" class="inline-block p-4 border-b-2 rounded-t-lg"
                            :class="{ 'border-indigo-500 text-indigo-600': tab === 'security', 'border-transparent hover:text-gray-600 hover:border-gray-300': tab !== 'security' }"
-                           @click.prevent="tab = 'security'">
+                           @click.prevent="setTab('security')">
                             {{ __('Seguridad') }}
                         </a>
                     </li>
@@ -125,6 +132,18 @@
                     <div class="mt-10 sm:mt-0">
                         @livewire('profile.update-notification-preferences-form')
                     </div>
+
+                    <x-jet-section-border />
+
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('profile.update-geolocation-preferences-form')
+                    </div>
+
+                    <x-jet-section-border />
+
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('profile.update-vacation-preferences-form')
+                    </div>
                 </div>
 
                 @can('viewSecurityPanel')
@@ -142,12 +161,26 @@
     <script>
         // Additional script to handle navigation after Livewire loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Preserve the current tab when Livewire updates
+            window.addEventListener('livewire:load', function () {
+                Livewire.hook('message.processed', (message, component) => {
+                    // Get current tab from Alpine
+                    const currentTab = new URLSearchParams(window.location.search).get('tab') || 'account';
+                    
+                    // Update URL without reloading to preserve tab state
+                    if (currentTab && !window.location.search.includes('tab=' + currentTab)) {
+                        const url = new URL(window.location);
+                        url.searchParams.set('tab', currentTab);
+                        window.history.replaceState({}, '', url);
+                    }
+                });
+            });
+            
             // Handle navigation to work schedule section
             function scrollToWorkSchedule() {
                 const hash = window.location.hash;
-                const urlParams = new URLSearchParams(window.location.search);
                 
-                if (hash === '#work-schedule-section' || urlParams.get('tab') === 'preferences') {
+                if (hash === '#work-schedule-section') {
                     // Wait for Livewire components to load
                     const checkAndScroll = () => {
                         const scheduleSection = document.getElementById('work-schedule-section');
@@ -185,3 +218,4 @@
         });
     </script>
 </x-app-layout>
+

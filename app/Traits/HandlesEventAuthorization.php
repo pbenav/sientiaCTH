@@ -170,6 +170,15 @@ trait HandlesEventAuthorization
     }
 
     /**
+     * Backward compatibility wrapper for isWithinWorkSchedule
+     * @deprecated Use isWithinWorkSchedule instead
+     */
+    public function isUserWithinWorkSchedule($timeToCheck, $user = null)
+    {
+        return $this->isWithinWorkSchedule($timeToCheck, $user);
+    }
+
+    /**
      * Check if a given time is within the allowed entry window of any work slot.
      *
      * @param Carbon $timeToCheck

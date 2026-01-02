@@ -31,6 +31,7 @@ class EventTypeManager extends Component
         'state.is_all_day' => 'required|boolean',
         'state.is_workday_type' => 'required|boolean',
         'state.is_authorizable' => 'boolean',
+        'state.is_pause_type' => 'boolean',
     ];
 
     protected $validationAttributes = [
@@ -40,6 +41,7 @@ class EventTypeManager extends Component
         'state.is_all_day' => 'all day',
         'state.is_workday_type' => 'workday type',
         'state.is_authorizable' => 'authorizable',
+        'state.is_pause_type' => 'pause type',
     ];
 
     /**
@@ -52,7 +54,8 @@ class EventTypeManager extends Component
     {
         $this->team = $team;
         $this->eventTypes = $team->eventTypes;
-        $this->isTeamAdmin = auth()->user()->isTeamAdmin();
+        $user = auth()->user();
+        $this->isTeamAdmin = $user->is_admin || $user->isTeamAdmin($team);
     }
 
     /**
@@ -123,6 +126,7 @@ class EventTypeManager extends Component
                 'is_all_day' => (bool) $eventType->is_all_day,
                 'is_workday_type' => (bool) $eventType->is_workday_type,
                 'is_authorizable' => (bool) $eventType->is_authorizable,
+                'is_pause_type' => (bool) $eventType->is_pause_type,
             ];
         } else {
             $this->state = [
@@ -132,6 +136,7 @@ class EventTypeManager extends Component
                 'is_all_day' => false,
                 'is_workday_type' => false,
                 'is_authorizable' => false,
+                'is_pause_type' => false,
             ];
         }
 

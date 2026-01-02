@@ -1,15 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Represents a holiday for a specific team.
+ * Holiday Model
+ * 
+ * Represents a holiday (national, regional, or local) for a specific team,
+ * used for work schedule adjustments and time calculations.
  *
- * This model is used to store information about holidays, which can be used
- * to adjust work schedules and calculations.
+ * @property int $id
+ * @property int $team_id
+ * @property string $name Holiday name
+ * @property string $date Holiday date (Y-m-d)
+ * @property string $type Holiday type (national/regional/local)
+ * @property string|null $observations
+ * @property \Carbon\Carbon|null $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * 
+ * @property-read Team $team
+ * 
+ * @version 1.0.0
+ * @since 2025-01-10
  */
 class Holiday extends Model
 {

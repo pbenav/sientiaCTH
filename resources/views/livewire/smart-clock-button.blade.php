@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" id="smart-clock-container" data-geo-enabled="{{ optional(auth()->user())->geolocation_enabled ? 'true' : 'false' }}">
     
     <!-- User Information Header -->
     @auth
@@ -77,7 +77,36 @@
     <!-- Clock Action Button -->
     <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div class="p-4 sm:p-6">
-            @if($clockData['can_clock'] ?? false)
+            @if($showClockOutConfirmation)
+                <!-- Clock Out Confirmation Modal -->
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-sign-out-alt text-red-600 dark:text-red-400 mr-2"></i>
+                        <p class="text-red-800 dark:text-red-200 font-medium">{{ __('Confirm End Workday') }}</p>
+                    </div>
+                    <p class="text-sm text-red-700 dark:text-red-300 mb-4">
+                        {{ __('Are you sure you want to end your workday?') }}
+                    </p>
+                    <div class="bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-700 rounded p-3 mb-4">
+                        <p class="text-xs text-red-800 dark:text-red-200">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            {{ __('This will close your current work event and you will need to clock in again to continue working.') }}
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button
+                            onclick="callSmartClockMethod('confirmClockOut', this)"
+                            class="w-full flex justify-center items-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                            <i class="fas fa-check mr-2"></i><span>{{ __('Confirm') }}</span>
+                        </button>
+                        <button
+                            wire:click="cancelClockOut"
+                            class="w-full flex justify-center items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i><span>{{ __('Cancel') }}</span>
+                        </button>
+                    </div>
+                </div>
+            @elseif($clockData['can_clock'] ?? false)
                 <!-- Working Options State - Show pause and clock out buttons -->
                 @if(($clockData['action'] ?? '') === 'working_options')
                     <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
@@ -103,7 +132,7 @@
                             @if($clockData['show_pause_option'] ?? false)
                             <button 
                                 wire:click="pauseWorkday"
-                                class="flex items-center justify-center px-4 py-3 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 min-h-[48px]">
+                                class="flex items-center justify-center min-w-[160px] px-4 py-3 text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 min-h-[48px]">
                                 <i class="fas fa-pause mr-2 text-sm"></i>
                                 <span class="text-sm font-medium">{{ __('Pause Workday') }}</span>
                             </button>
@@ -112,7 +141,7 @@
                             @if($clockData['show_clock_out_option'] ?? false && ($clockData['action'] ?? '') !== 'resume_workday')
                             <button 
                                 wire:click="clockOutFromWork"
-                                class="flex items-center justify-center px-4 py-3 text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 min-h-[48px]">
+                                class="flex items-center justify-center min-w-[160px] px-4 py-3 text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 min-h-[48px]">
                                 <i class="fas fa-sign-out-alt mr-2 text-sm"></i>
                                 <span class="text-sm font-medium">{{ __('End Workday') }}</span>
                             </button>
@@ -134,8 +163,8 @@
                             </div>
                         </div>
                         <button 
-                            wire:click="handleClockAction"
-                            class="w-full px-6 py-4 text-lg font-semibold text-white transition-all duration-200 rounded-lg hover:shadow-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            onclick="callSmartClockMethod('handleClockAction', this)"
+                            class="w-full px-6 py-4 text-lg font-semibold text-white transition-all duration-200 rounded-lg hover:shadow-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex justify-center items-center">
                             <div class="flex items-center justify-center">
                                 <i class="fas fa-play mr-3 text-lg"></i>
                                 <span>{{ __('Resume Work') }}</span>
@@ -161,26 +190,32 @@
                         {{ ($clockData['action'] ?? '') === 'clock_in' ? __('Ready to start your shift') : __('Ready to end your shift') }}
                     </p>
             @else
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+
+                @php
+                    $isClockIn = ($clockData['action'] ?? '') === 'clock_in';
+                    $colorName = $isClockIn ? 'green' : 'red';
+                    $iconName = $isClockIn ? 'sign-in-alt' : 'sign-out-alt';
+                @endphp
+                <div class="bg-{{ $colorName }}-50 dark:bg-{{ $colorName }}-900/20 border border-{{ $colorName }}-200 dark:border-{{ $colorName }}-800 rounded-lg p-4">
                     <div class="flex items-center mb-4">
-                        <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 mr-2"></i>
-                        <p class="text-yellow-800 dark:text-yellow-200 font-medium">
-                            {{ ($clockData['action'] ?? '') === 'clock_in' ? __('Confirm Clock In') : __('Confirm Clock Out') }}
+                        <i class="fas fa-{{ $iconName }} text-{{ $colorName }}-600 dark:text-{{ $colorName }}-400 mr-2"></i>
+                        <p class="text-{{ $colorName }}-800 dark:text-{{ $colorName }}-200 font-medium">
+                            {{ $isClockIn ? __('Confirm Clock In') : __('Confirm Clock Out') }}
                         </p>
                     </div>
-                    <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
-                        {{ ($clockData['action'] ?? '') === 'clock_in' ? __('Are you sure you want to clock in now?') : __('Are you sure you want to clock out now?') }}
+                    <p class="text-sm text-{{ $colorName }}-700 dark:text-{{ $colorName }}-300 mb-4">
+                        {{ $isClockIn ? __('Are you sure you want to clock in now?') : __('Are you sure you want to clock out now?') }}
                     </p>
-                    <div class="flex space-x-3">
+                    <div class="flex flex-col gap-3">
                         <button
-                            wire:click="handleClockAction"
-                            class="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                            <i class="fas fa-check mr-2"></i>{{ __('Confirm') }}
+                            onclick="callSmartClockMethod('handleClockAction', this)"
+                            class="w-full flex justify-center items-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-{{ $colorName }}-600 to-{{ $colorName }}-700 hover:from-{{ $colorName }}-700 hover:to-{{ $colorName }}-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-{{ $colorName }}-500 transition-all duration-200">
+                            <i class="fas fa-check mr-2"></i><span>{{ __('Confirm') }}</span>
                         </button>
                         <button
                             wire:click="$set('showConfirmation', false)"
-                            class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
-                            <i class="fas fa-times mr-2"></i>{{ __('Cancel') }}
+                            class="w-full flex justify-center items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i><span>{{ __('Cancel') }}</span>
                         </button>
                     </div>
                 </div>
@@ -229,16 +264,16 @@
                                     El fichaje excepcional requerirá autorización del administrador.
                                 </p>
                             </div>
-                            <div class="flex space-x-3">
+                            <div class="flex flex-col gap-3">
                                 <button
-                                    wire:click="confirmExceptionalClockIn"
-                                    class="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
-                                    <i class="fas fa-check mr-2"></i>Confirmar
+                                    onclick="callSmartClockMethod('confirmExceptionalClockIn', this)"
+                                    class="w-full flex justify-center items-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 rounded-lg hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200">
+                                    <i class="fas fa-check mr-2"></i><span>Confirmar</span>
                                 </button>
                                 <button
                                     wire:click="$set('showConfirmation', false)"
-                                    class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
-                                    <i class="fas fa-times mr-2"></i>Cancelar
+                                    class="w-full flex justify-center items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                                    <i class="fas fa-times mr-2"></i><span>Cancelar</span>
                                 </button>
                             </div>
                         </div>
@@ -291,58 +326,237 @@
         </div>
     </div>
 
-</div>
-
-<script>
-    // Dynamic clock functionality
-    function updateDynamicClock() {
-        var now = new Date();
-        
-        // Format time (HH:MM:SS)
-        var hours = now.getHours().toString().padStart(2, '0');
-        var minutes = now.getMinutes().toString().padStart(2, '0');
-        var seconds = now.getSeconds().toString().padStart(2, '0');
-        var timeString = hours + ':' + minutes + ':' + seconds;
-        
-        // Update time display
-        var timeElement = document.getElementById('current-time');
-        if (timeElement) {
-            timeElement.textContent = timeString;
+    <script>
+        // Dynamic clock functionality
+        function updateDynamicClock() {
+            var now = new Date();
+            
+            // Format time (HH:MM:SS)
+            var hours = now.getHours().toString().padStart(2, '0');
+            var minutes = now.getMinutes().toString().padStart(2, '0');
+            var seconds = now.getSeconds().toString().padStart(2, '0');
+            var timeString = hours + ':' + minutes + ':' + seconds;
+            
+            // Update time display
+            var timeElement = document.getElementById('current-time');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+            
+            // Update date only when it changes (at midnight)
+            var dateElement = document.getElementById('current-date');
+            if (dateElement && now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
+                // Refresh the entire component to get the new date
+                @this.call('refreshClockData');
+            }
         }
         
-        // Update date only when it changes (at midnight)
-        var dateElement = document.getElementById('current-date');
-        if (dateElement && now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
-            // Refresh the entire component to get the new date
+        // Start the dynamic clock (legacy function for compatibility)
+        function startDynamicClock() {
+            initializeClock();
+        }
+        
+        // Auto-refresh clock data every minute (for status updates)
+        setInterval(function() {
             @this.call('refreshClockData');
-        }
-    }
-    
-    // Start the dynamic clock (legacy function for compatibility)
-    function startDynamicClock() {
-        initializeClock();
-    }
-    
-    // Auto-refresh clock data every minute (for status updates)
-    setInterval(function() {
-        @this.call('refreshClockData');
-    }, 60000);
-    
-    // Initialize the dynamic clock
-    function initializeClock() {
-        // Clear any existing intervals to prevent duplicates
-        if (window.clockInterval) {
-            clearInterval(window.clockInterval);
+        }, 60000);
+        
+        // Initialize the dynamic clock when the page loads
+        function initializeClock() {
+            // Clear any existing intervals to prevent duplicates
+            if (window.clockInterval) {
+                clearInterval(window.clockInterval);
+            }
+            
+            updateDynamicClock(); // Update immediately
+            window.clockInterval = setInterval(updateDynamicClock, 1000); // Update every second
         }
         
-        updateDynamicClock(); // Update immediately
-        window.clockInterval = setInterval(updateDynamicClock, 1000); // Update every second
-    }
-    
-    // Initialize the dynamic clock when the page loads
-    document.addEventListener('DOMContentLoaded', initializeClock);
-    
-    // Also restart the clock when Livewire updates the component
-    document.addEventListener('livewire:load', initializeClock);
-    document.addEventListener('livewire:update', initializeClock);
-</script>
+        // Initialize the dynamic clock when the page loads
+        document.addEventListener('DOMContentLoaded', initializeClock);
+        
+        // Also restart the clock when Livewire updates the component
+        document.addEventListener('livewire:load', initializeClock);
+        document.addEventListener('livewire:update', initializeClock);
+        
+        // Function to call SmartClock methods with GPS
+        function callSmartClockMethod(methodName, element) {
+            console.log('[GPS] Calling ' + methodName + '...');
+            
+            // UI Feedback: Show loading state immediately
+            // NO PHP HERE - HARDCODED TEXT FOR SAFETY
+            const processingText = "Procesando...";
+            const originalContent = element.innerHTML;
+            
+            element.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>' + processingText;
+            element.disabled = true;
+            element.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            // Get the Livewire component
+            const componentRoot = element.closest('[wire\\:id]');
+            if (!componentRoot) {
+                 console.error('[GPS] Component root not found');
+                 alert('Error: Component not found. Please refresh.');
+                 // Restore button
+                 element.innerHTML = originalContent;
+                 element.disabled = false;
+                 element.classList.remove('opacity-75', 'cursor-not-allowed');
+                 return;
+            }
+            const componentId = componentRoot.getAttribute('wire:id');
+            const component = Livewire.find(componentId);
+            
+            if (!component) {
+                console.error('[GPS] Livewire component not found');
+                alert('Error: Livewire component not found. Please refresh.');
+                // Restore button
+                element.innerHTML = originalContent;
+                element.disabled = false;
+                element.classList.remove('opacity-75', 'cursor-not-allowed');
+                return;
+            }
+            
+            // Get geolocation preference from data attribute
+            const container = document.getElementById('smart-clock-container');
+            const geoEnabledAttr = container ? container.getAttribute('data-geo-enabled') : 'false';
+            const userHasGeoEnabled = geoEnabledAttr === 'true';
+            
+            if (!userHasGeoEnabled) {
+                console.log('[GPS] Geolocation disabled for user, calling without GPS');
+                component.call(methodName, null, null);
+                return;
+            }
+            
+            if (navigator.geolocation) {
+                // Check if we have a recent cached position (less than 10 minutes old)
+                if (window.cachedGeoPosition && (Date.now() - (window.cachedGeoPosition.timestamp || 0)) < 600000) {
+                    console.log('[GPS] Using cached location (age: ' + Math.round((Date.now() - window.cachedGeoPosition.timestamp) / 1000) + 's)');
+                    component.call(methodName, window.cachedGeoPosition.latitude, window.cachedGeoPosition.longitude);
+                    return;
+                }
+                
+                console.log('[GPS] Requesting fresh location...');
+                
+                // Helper function to try getting location with fallback
+                const getBestAvailableLocation = (onSuccess, onError) => {
+                    // Method 1: Try High Accuracy first (ideal for mobiles/outdoors)
+                    // Short timeout (5s) to fail fast if no satellite fix
+                    console.log('[GPS] Attempt 1: High Accuracy');
+                    navigator.geolocation.getCurrentPosition(
+                        onSuccess, 
+                        function(errorHigh) {
+                            console.warn('[GPS] High Accuracy failed:', errorHigh.message);
+                            
+                            // Method 2: Fallback to Low Accuracy (WiFi/IP)
+                            // Reduced timeout (4s) for better UX
+                            console.log('[GPS] Attempt 2: Low Accuracy Fallback');
+                            navigator.geolocation.getCurrentPosition(
+                                onSuccess,
+                                onError,
+                                {
+                                    enableHighAccuracy: false, 
+                                    timeout: 4000, 
+                                    maximumAge: 0
+                                }
+                            );
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 1000, // Reduced to 1s - if no instant lock, fallback to IP immediately
+                            maximumAge: 0
+                        }
+                    );
+                };
+
+                getBestAvailableLocation(
+                    function(position) {
+                        console.log('[GPS] Location captured:', position.coords.latitude, position.coords.longitude);
+                        
+                        // Update global cache
+                        window.cachedGeoPosition = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            timestamp: Date.now()
+                        };
+                        
+                        // Call method with GPS
+                        component.call(methodName, position.coords.latitude, position.coords.longitude);
+                    },
+                    function(error) {
+                        console.warn('[GPS] All attempts failed:', error.message);
+                        
+                        // Fallback: try cached or null
+                        if (window.cachedGeoPosition) {
+                            console.log('[GPS] Using cached location fallback');
+                            component.call(methodName, window.cachedGeoPosition.latitude, window.cachedGeoPosition.longitude);
+                        } else {
+                            console.log('[GPS] Calling without GPS (error)');
+                            component.call(methodName, null, null);
+                        }
+                    }
+                );
+            } else {
+                console.warn('[GPS] Geolocation not supported');
+                component.call(methodName, null, null);
+            }
+        }
+        
+        // GPS Pre-loading System
+        // Helper for independent preloading using same logic
+        function performGPSPreload() {
+             navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    window.cachedGeoPosition = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: Date.now()
+                    };
+                    console.log('[GPS Preload] High Accuracy Location cached');
+                },
+                function(error) {
+                    // Fallback on preload too
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            window.cachedGeoPosition = {
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                timestamp: Date.now()
+                            };
+                            console.log('[GPS Preload] Low Accuracy Location cached');
+                        },
+                        function(err) {
+                            console.warn('[GPS Preload] Failed:', err.message);
+                        },
+                        { enableHighAccuracy: false, timeout: 4000, maximumAge: 0 }
+                    );
+                },
+                { enableHighAccuracy: true, timeout: 1000, maximumAge: 0 }
+            );
+        }
+
+        // Pre-load GPS location on page load and update periodically
+        function preloadGPSLocation() {
+            // Check if user has geolocation enabled
+            const userHasGPS = {{ Auth::user()->geolocation_enabled ? 'true' : 'false' }};
+            
+            if (!userHasGPS || !navigator.geolocation) {
+                console.log('[GPS Preload] GPS disabled or not supported');
+                return;
+            }
+            
+            console.log('[GPS Preload] Fetching location in background...');
+            performGPSPreload();
+        }
+        
+        // Preload GPS on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            preloadGPSLocation();
+            
+            // Update GPS location every 5 minutes
+            setInterval(preloadGPSLocation, 300000); // 5 minutes
+        });
+        
+        // Also preload when Livewire loads
+        document.addEventListener('livewire:load', preloadGPSLocation);
+    </script>
+</div>
