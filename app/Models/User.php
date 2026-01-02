@@ -80,7 +80,8 @@ class User extends Authenticatable
         static::creating(function ($user) {
             // Auto-generate user_code if not provided
             if (empty($user->user_code)) {
-                $user->user_code = 'USR' . str_pad(User::max('id') + 1, 6, '0', STR_PAD_LEFT);
+                $nextId = (int) User::max('id') + 1;
+                $user->user_code = 'USR' . str_pad((string) $nextId, 6, '0', STR_PAD_LEFT);
             }
         });
 

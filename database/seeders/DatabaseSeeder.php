@@ -86,6 +86,7 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Ensure admin user exists (ID: 1).
+     * Note: Admin is created by the migration with default password "admin123"
      *
      * @return User
      */
@@ -94,18 +95,10 @@ class DatabaseSeeder extends Seeder
         $admin = User::find(1);
 
         if (!$admin) {
-            $admin = User::create([
-                'id' => 1,
-                'name' => 'Administrador',
-                'email' => 'informatica@zafarraya.es',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-                'is_admin' => true,
-                'current_team_id' => null,
-            ]);
-
-            $this->command->warn('⚠️  Admin user created (default password: "password")');
+            throw new \RuntimeException('Admin user not found. Migration may not have run correctly.');
         }
+
+        $this->command->info('✅ Admin user verified (email: ' . $admin->email . ', default password: "admin123")');
 
         return $admin;
     }
@@ -130,9 +123,9 @@ class DatabaseSeeder extends Seeder
                 $user->save();
             }
 
-            // 30% of users have geolocation tracking
+            // 30% of users have geolocation enabled
             if ($i % 3 === 0) {
-                $user->geolocation_tracking = true;
+                $user->geolocation_enabled = true;
                 $user->save();
             }
 

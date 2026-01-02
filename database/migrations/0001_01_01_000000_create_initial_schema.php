@@ -408,6 +408,20 @@ return new class extends Migration
         Schema::table('team_user', function (Blueprint $table) {
             $table->foreign('custom_role_id')->references('id')->on('roles')->onDelete('set null');
         });
+
+        // Create global administrator user
+        // Default password: "admin123" - MUST be changed on first login
+        \DB::table('users')->insert([
+            'id' => 1,
+            'user_code' => 'ADMIN',
+            'name' => 'Administrador',
+            'email' => 'admin@cth.local',
+            'is_admin' => true,
+            'email_verified_at' => now(),
+            'password' => \Hash::make('admin123'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
