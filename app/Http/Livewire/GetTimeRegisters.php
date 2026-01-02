@@ -688,21 +688,22 @@ class GetTimeRegisters extends Component
     public function getEventColor(Event $event): string
     {
         $defaultColor = '#3788d8';
+        $specialColor = $this->team ? ($this->team->special_event_color ?? '#DC2626') : '#DC2626';
         
         if ($event->is_exceptional) {
             // Use special event color if event is exceptional
-            return $this->team->special_event_color ?? '#DC2626';
+            return $specialColor;
         } elseif ($event->eventType) {
             if ($event->eventType->color) {
                 // Use event type color if available
                 return $event->eventType->color;
             } elseif (!$event->eventType->is_workday_type) {
                 // Use special event color for non-workday types without specific color
-                return $this->team->special_event_color ?? '#EA8000';
+                return $specialColor;
             }
         } else {
             // Use special event color for events without type
-            return $this->team->special_event_color ?? '#EA8000';
+            return $specialColor;
         }
         
         return $defaultColor;
@@ -716,8 +717,13 @@ class GetTimeRegisters extends Component
      */
     private function applyFilters($query)
     {
-        $query->whereIn('user_id', $this->teamUsers)
-              ->where('team_id', $this->team->id);
+        if ($this->team) {
+            $query->whereIn('user_id', $this->teamUsers)
+                  ->where('team_id', $this->team->id);
+        } else {
+            // If no team is selected, only show user's own events or nothing
+            $query->where('user_id', Auth::id());
+        }
 
         $query->when($this->search, function ($q, $search) {
             $q->where(function ($subq) use ($search) {
