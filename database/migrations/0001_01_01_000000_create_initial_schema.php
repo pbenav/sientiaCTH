@@ -624,7 +624,7 @@ return new class extends Migration
     public function down(): void
     {
         // Disable foreign key checks to avoid constraint errors during rollback
-        \DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        Schema::disableForeignKeyConstraints();
 
         Schema::dropIfExists('permission_audit_log');
         Schema::dropIfExists('user_permissions');
@@ -652,6 +652,6 @@ return new class extends Migration
         Schema::dropIfExists('password_resets');
         Schema::dropIfExists('users');
 
-        \DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+        Schema::enableForeignKeyConstraints();
     }
 };
