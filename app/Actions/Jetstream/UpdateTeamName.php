@@ -20,12 +20,14 @@ class UpdateTeamName implements UpdatesTeamNames
     {
         Gate::forUser($user)->authorize('update', $team);
 
+        $canManageTeamLimit = $user->is_admin
+            || $user->hasPermission('teams.limits.manage', ['team_id' => $team->id]);
+
         $rules = [
             'name' => ['required', 'string', 'max:255'],
         ];
 
-        // Only global admins can update the team limit
-        if ($user->is_admin) {
+        if ($canManageTeamLimit) {
             $rules['max_member_teams'] = ['required', 'integer', 'min:0'];
         }
 
@@ -33,7 +35,7 @@ class UpdateTeamName implements UpdatesTeamNames
 
         $data = ['name' => $input['name']];
 
-        if ($user->is_admin && isset($input['max_member_teams'])) {
+        if ($canManageTeamLimit && isset($input['max_member_teams'])) {
             $data['max_member_teams'] = $input['max_member_teams'];
         }
 

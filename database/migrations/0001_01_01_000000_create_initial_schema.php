@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\Permissions\PermissionMatrix;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -499,35 +500,8 @@ return new class extends Migration
             ]);
         }
 
-        // Create basic roles
-        $roles = [
-            ['id' => 1, 'team_id' => 1, 'name' => 'admin', 'display_name' => 'Administrador', 'description' => 'Control total del equipo y configuración.', 'is_system' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2, 'team_id' => 1, 'name' => 'inspector', 'display_name' => 'Inspector', 'description' => 'Puede ver todos los registros e informes pero no modificar configuración.', 'is_system' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 3, 'team_id' => 1, 'name' => 'user', 'display_name' => 'Usuario', 'description' => 'Acceso estándar para fichaje y consulta de datos propios.', 'is_system' => true, 'created_at' => now(), 'updated_at' => now()],
-        ];
-
-        foreach ($roles as $role) {
-            \DB::table('roles')->updateOrInsert(['id' => $role['id']], $role);
-        }
-
-        // Seed teams.create permission and assign to admin role
-        if (\DB::table('permissions')->where('name', 'teams.create')->doesntExist()) {
-            $permissionId = \DB::table('permissions')->insertGetId([
-                'name' => 'teams.create',
-                'display_name' => 'Crear equipos',
-                'description' => 'Permite crear nuevos equipos en el sistema.',
-                'category' => 'teams',
-                'is_system' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            \DB::table('permission_role')->insert([
-                'permission_id' => $permissionId,
-                'role_id' => 1, // Admin role of Welcome team
-                'granted_at' => now(),
-            ]);
-        }
+        // Seed base permissions and system roles for the Welcome team
+        PermissionMatrix::syncTeamRoles(1, 1);
 
         // Create default work center
         if (\DB::table('work_centers')->where('id', 1)->doesntExist()) {

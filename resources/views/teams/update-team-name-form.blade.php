@@ -8,6 +8,11 @@
     </x-slot>
 
     <x-slot name="form">
+        @php
+            $canManageTeamLimit = auth()->user()->is_admin
+                || auth()->user()->hasPermission('teams.limits.manage', ['team_id' => $team->id]);
+        @endphp
+
         <!-- Team Owner Information -->
         <div class="col-span-6">
             <x-jet-label value="{{ __('Team Owner') }}" />
@@ -41,16 +46,16 @@
             
             <x-jet-input id="max_member_teams"
                         type="number"
-                        class="mt-1 block w-full {{ !auth()->user()->is_admin ? 'bg-gray-100' : '' }}"
+                        class="mt-1 block w-full {{ !$canManageTeamLimit ? 'bg-gray-100' : '' }}"
                         wire:model.defer="state.max_member_teams"
-                        :disabled="!auth()->user()->is_admin" />
+                        :disabled="!$canManageTeamLimit" />
 
             <x-jet-input-error for="max_member_teams" class="mt-2" />
             
             <p class="text-sm text-gray-600 mt-2">
                 {{ __('Define cuántos equipos pueden crear los miembros de este equipo (que tengan permiso para ello).') }}
-                @if(!auth()->user()->is_admin)
-                    <span class="text-amber-600 block mt-1 italic">{{ __('Solo un administrador global puede modificar este límite.') }}</span>
+                @if(!$canManageTeamLimit)
+                    <span class="text-amber-600 block mt-1 italic">{{ __('Solo un administrador autorizado puede modificar este límite.') }}</span>
                 @endif
             </p>
         </div>

@@ -37,7 +37,7 @@
         "@fullcalendar/timegrid": "^6.1.19",
         "flatpickr": "^4.6.13",
         "pupeteer": "^0.0.1",
-        "puppeteer": "^24.33.0",
+        "puppeteer": "^24.34.0",
         "quill": "^2.0.3",
         "quilljs-markdown": "^1.2.0",
         "sweetalert2": "^11.23.0"
