@@ -4,16 +4,16 @@ Bienvenido al manual de usuario de CTH, tu sistema integral de control de tiempo
 
 ## 📋 Tabla de Contenidos
 
-1. [Introducción y Acceso](#introducción-y-acceso)
-2. [Dashboard (Panel Principal)](#dashboard-panel-principal)
-3. [Sistema de Fichajes y SmartClockIn](#sistema-de-fichajes-y-smartclockin)
-4. [Gestión de Eventos](#gestión-de-eventos)
-5. [Calendario y Horarios](#calendario-y-horarios)
-6. [Informes y Estadísticas](#informes-y-estadísticas)
-7. [Configuración Personal](#configuración-personal)
-8. [Funciones de Equipo](#funciones-de-equipo)
-9. [Preguntas Frecuentes](#preguntas-frecuentes)
-10. [Solución de Problemas](#solución-de-problemas)
+1. [Introducción y Acceso](#1-introducción-y-acceso)
+2. [Dashboard (Panel Principal)](#2-dashboard-panel-principal)
+3. [Sistema de Fichajes y SmartClockIn](#3-sistema-de-fichajes-y-smartclockin)
+4. [Gestión de Eventos](#4-gestión-de-eventos)
+5. [Calendario y Horarios](#5-calendario-y-horarios)
+6. [Informes y Estadísticas](#6-informes-y-estadísticas)
+7. [Configuración Personal](#7-configuración-personal)
+8. [Funciones de Equipo](#8-funciones-de-equipo)
+9. [Preguntas Frecuentes](#9-preguntas-frecuentes)
+10. [Solución de Problemas](#10-solución-de-problemas)
 
 ---
 

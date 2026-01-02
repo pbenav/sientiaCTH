@@ -4,16 +4,16 @@ Welcome to the CTH user manual, your comprehensive time and schedule control sys
 
 ## 📋 Table of Contents
 
-1. [Introduction and Access](#introduction-and-access)
-2. [Dashboard (Main Panel)](#dashboard-main-panel)
-3. [Clock-In System and SmartClockIn](#clock-in-system-and-smartclockin)
-4. [Event Management](#event-management)
-5. [Calendar and Schedules](#calendar-and-schedules)
-6. [Reports and Statistics](#reports-and-statistics)
-7. [Personal Settings](#personal-settings)
-8. [Team Functions](#team-functions)
-9. [Frequently Asked Questions](#frequently-asked-questions)
-10. [Troubleshooting](#troubleshooting)
+1. [Introduction and Access](#1-introduction-and-access)
+2. [Dashboard (Main Panel)](#2-dashboard-main-panel)
+3. [Clock-In System and SmartClockIn](#3-clock-in-system-and-smartclockin)
+4. [Event Management](#4-event-management)
+5. [Calendar and Schedules](#5-calendar-and-schedules)
+6. [Reports and Statistics](#6-reports-and-statistics)
+7. [Personal Settings](#7-personal-settings)
+8. [Team Functions](#8-team-functions)
+9. [Frequently Asked Questions](#9-frequently-asked-questions)
+10. [Troubleshooting](#10-troubleshooting)
 
 ---
 
