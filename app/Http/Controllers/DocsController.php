@@ -35,7 +35,18 @@ class DocsController extends Controller
      */
     public function index()
     {
-        $readmePath = public_path('docs/README.md');
+        // Get user's locale preference
+        $userLocale = auth()->check() && auth()->user()->locale 
+            ? auth()->user()->locale 
+            : app()->getLocale();
+
+        $readmePath = public_path("docs/{$userLocale}/README.md");
+        
+        // Fallback to root README if localized one doesn't exist
+        if (!File::exists($readmePath)) {
+            $readmePath = public_path('docs/README.md');
+        }
+
         $files = $this->getDocFiles();
         
         if (!File::exists($readmePath)) {
@@ -47,12 +58,12 @@ class DocsController extends Controller
         }
 
         $content = File::get($readmePath);
-        $html = $this->parseMarkdown($content);
+        $html = $this->parseMarkdown($content, $userLocale);
 
         return view('docs.show', [
             'title' => 'Documentation',
             'content' => $html,
-            'currentPath' => 'README.md',
+            'currentPath' => Str::after($readmePath, public_path() . '/'),
             'files' => $files
         ]);
     }
@@ -80,7 +91,7 @@ class DocsController extends Controller
         }
 
         $content = File::get($fullPath);
-        $html = $this->parseMarkdown($content);
+        $html = $this->parseMarkdown($content, $locale);
 
         // Extract title from first H1
         preg_match('/^#\s+(.+)$/m', $content, $matches);
@@ -194,13 +205,13 @@ class DocsController extends Controller
     /**
      * Parse Markdown to HTML and fix internal links.
      */
-    private function parseMarkdown($markdown)
+    private function parseMarkdown($markdown, $locale = null)
     {
         $parsedown = new \Parsedown();
         $html = $parsedown->text($markdown);
 
         // Fix internal documentation links
-        $html = preg_replace_callback('/<a href="([^"]+)"/', function($matches) {
+        $html = preg_replace_callback('/<a href="([^"]+)"/', function($matches) use ($locale) {
             $url = $matches[1];
 
             // If it's a .md file, convert to route
@@ -210,6 +221,12 @@ class DocsController extends Controller
                 
                 if (Str::startsWith($url, 'http')) {
                     return $matches[0];
+                }
+
+                // If we are in a localized context and the link is relative, 
+                // prepend the locale if not present
+                if ($locale && !Str::contains($url, '/')) {
+                    $url = "{$locale}/{$url}";
                 }
 
                 return '<a href="' . $this->buildUrl($url) . '"';
