@@ -224,6 +224,11 @@ class User extends Authenticatable
      */
     public function switchTeam($team)
     {
+        // Handle null team gracefully
+        if (!$team) {
+            return false;
+        }
+
         // Allow global administrators to switch to any team
         if ($this->is_admin) {
             $this->forceFill([

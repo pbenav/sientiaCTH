@@ -409,6 +409,16 @@ return new class extends Migration
             $table->foreign('custom_role_id')->references('id')->on('roles')->onDelete('set null');
         });
 
+        // Create Welcome team
+        \DB::table('teams')->insert([
+            'id' => 1,
+            'user_id' => 1, // Will be the admin user
+            'name' => 'Bienvenida',
+            'personal_team' => false,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         // Create global administrator user
         // Default password: "admin123" - MUST be changed on first login
         \DB::table('users')->insert([
@@ -417,8 +427,18 @@ return new class extends Migration
             'name' => 'Administrador',
             'email' => 'admin@cth.local',
             'is_admin' => true,
+            'current_team_id' => 1, // Assign to Welcome team
             'email_verified_at' => now(),
             'password' => \Hash::make('admin123'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Add admin to Welcome team
+        \DB::table('team_user')->insert([
+            'team_id' => 1,
+            'user_id' => 1,
+            'role' => 'admin',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
