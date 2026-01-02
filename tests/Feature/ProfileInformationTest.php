@@ -34,6 +34,7 @@ class ProfileInformationTest extends TestCase
                     'family_name1' => $user->family_name1,
                     'family_name2' => $user->family_name2,
                     'phone' => $user->phone,
+                    'locale' => 'es',
                 ])
                 ->call('updateProfileInformation');
 

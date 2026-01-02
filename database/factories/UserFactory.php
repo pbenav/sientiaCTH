@@ -46,7 +46,6 @@ class UserFactory extends Factory
             'password' => Hash::make('password'), // Default password for testing
             'remember_token' => Str::random(10),
             'is_admin' => false,
-            'max_owned_teams' => 5,
             'week_starts_on' => 1, // Monday
             'vacation_calculation_type' => $this->faker->randomElement(['natural', 'working']),
             'vacation_working_days' => 22,
@@ -64,7 +63,6 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_admin' => true,
-            'max_owned_teams' => 999,
         ]);
     }
 
@@ -104,5 +102,28 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'geolocation_enabled' => true,
         ]);
+    }
+
+    /**
+     * Indicate that the user should have a personal team.
+     *
+     * @return $this
+     */
+    public function withPersonalTeam(callable $callback = null): static
+    {
+        if (! \Laravel\Jetstream\Features::hasTeamFeatures()) {
+            return $this;
+        }
+
+        return $this->has(
+            \App\Models\Team::factory()
+                ->state(fn (array $attributes, User $user) => [
+                    'name' => $user->name.'\'s Team',
+                    'user_id' => $user->id,
+                    'personal_team' => true,
+                ])
+                ->when($callback, fn ($factory) => $factory->state($callback)),
+            'ownedTeams'
+        );
     }
 }

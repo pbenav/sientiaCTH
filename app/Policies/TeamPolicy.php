@@ -65,8 +65,9 @@ class TeamPolicy
      */
     public function create(User $user)
     {
-        // Check if user can create more teams
-        return $user->canCreateTeam();
+        // We allow the action here so that the CreateTeam action can 
+        // provide a validation error message with the specific reason.
+        return true;
     }
 
     /**
@@ -105,7 +106,7 @@ class TeamPolicy
      */
     public function updateTeamMember(User $user, Team $team)
     {
-        return $user->ownsTeam($team) || $user->hasTeamRole($team, 'admin');
+        return $user->ownsTeam($team);
     }
 
     /**
@@ -117,7 +118,7 @@ class TeamPolicy
      */
     public function removeTeamMember(User $user, Team $team)
     {
-        return $user->ownsTeam($team) || $user->hasTeamRole($team, 'admin');
+        return $user->ownsTeam($team);
     }
 
     /**

@@ -35,7 +35,6 @@ return new class extends Migration
                 $table->string('family_name2')->nullable();
                 $table->string('email')->unique();
                 $table->boolean('is_admin')->default(false)->index();
-                $table->unsignedInteger('max_owned_teams')->default(5);
                 $table->tinyInteger('week_starts_on')->default(1);
                 $table->enum('vacation_calculation_type', ['natural', 'working'])
                     ->default('natural')
@@ -91,6 +90,7 @@ return new class extends Migration
                 $table->string('token', 64)->unique();
                 $table->text('abilities')->nullable();
                 $table->timestamp('last_used_at')->nullable();
+                $table->timestamp('expires_at')->nullable();
                 $table->timestamps();
 
                 $table->index('last_used_at');
@@ -114,6 +114,8 @@ return new class extends Migration
                 $table->unsignedInteger('clock_in_delay_minutes')->nullable();
                 $table->unsignedInteger('clock_in_grace_period_minutes')->nullable();
                 $table->string('special_event_color', 7)->nullable();
+                $table->unsignedInteger('max_member_teams')->default(5)
+                    ->comment('Maximum number of teams that members of this team can create');
                 $table->timestamps();
             });
         }
@@ -463,6 +465,7 @@ return new class extends Migration
                 'user_id' => 1, // Will be the admin user
                 'name' => 'Bienvenida',
                 'personal_team' => false,
+                'max_member_teams' => 5, // Default limit for new users in Welcome team
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -505,6 +508,25 @@ return new class extends Migration
 
         foreach ($roles as $role) {
             \DB::table('roles')->updateOrInsert(['id' => $role['id']], $role);
+        }
+
+        // Seed teams.create permission and assign to admin role
+        if (\DB::table('permissions')->where('name', 'teams.create')->doesntExist()) {
+            $permissionId = \DB::table('permissions')->insertGetId([
+                'name' => 'teams.create',
+                'display_name' => 'Crear equipos',
+                'description' => 'Permite crear nuevos equipos en el sistema.',
+                'category' => 'teams',
+                'is_system' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            \DB::table('permission_role')->insert([
+                'permission_id' => $permissionId,
+                'role_id' => 1, // Admin role of Welcome team
+                'granted_at' => now(),
+            ]);
         }
 
         // Create default work center

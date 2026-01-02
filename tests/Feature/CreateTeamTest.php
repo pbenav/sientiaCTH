@@ -14,7 +14,24 @@ class CreateTeamTest extends TestCase
 
     public function test_teams_can_be_created()
     {
-        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+        $user = User::factory()->withPersonalTeam()->create();
+        $user->switchTeam($user->personalTeam());
+        $this->actingAs($user);
+
+        // Grant permission to create teams (global)
+        $permission = \App\Models\Permission::firstOrCreate(
+            ['name' => 'teams.create'], 
+            ['display_name' => 'Create Teams', 'is_system' => true, 'requires_context' => false]
+        );
+        
+        // Use the trait method
+        $user->givePermissionTo('teams.create');
+        
+        // Set a limit on the current team
+        $user->currentTeam->update(['max_member_teams' => 5]);
+        
+        // Clear cache to ensure permission is detected
+        \Illuminate\Support\Facades\Cache::flush();
 
         Livewire::test(CreateTeamForm::class)
                     ->set(['state' => ['name' => 'Test Team']])

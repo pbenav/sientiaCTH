@@ -114,6 +114,7 @@ class Team extends JetstreamTeam
         'clock_in_grace_period_minutes' => 'integer',
         'max_report_months' => 'integer',
         'async_report_threshold_months' => 'integer',
+        'max_member_teams' => 'integer',
     ];
 
     /**
@@ -133,6 +134,7 @@ class Team extends JetstreamTeam
         'max_report_months',
         'async_report_threshold_months',
         'event_retention_months',
+        'max_member_teams',
     ];
 
     /**

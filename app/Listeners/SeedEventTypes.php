@@ -39,7 +39,7 @@ class SeedEventTypes
             ];
 
             foreach ($roles as $roleData) {
-                \App\Models\Role::firstOrCreate(
+                $role = \App\Models\Role::firstOrCreate(
                     ['team_id' => $team->id, 'name' => $roleData['name']],
                     [
                         'display_name' => $roleData['display_name'],
@@ -49,6 +49,14 @@ class SeedEventTypes
                         'updated_at' => now(),
                     ]
                 );
+
+                // Assign teams.create permission to the admin role
+                if ($roleData['name'] === 'admin') {
+                    $permission = \App\Models\Permission::where('name', 'teams.create')->first();
+                    if ($permission) {
+                        $role->permissions()->syncWithoutDetaching([$permission->id]);
+                    }
+                }
             }
 
             // 2. Create default work center

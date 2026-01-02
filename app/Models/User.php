@@ -110,7 +110,6 @@ class User extends Authenticatable
         'vacation_working_days',
         'geolocation_enabled',
         'is_admin',
-        'max_owned_teams',
         'locale',
     ];
 
@@ -134,7 +133,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean',
-        'max_owned_teams' => 'integer',
         'vacation_calculation_type' => 'string',
         'vacation_working_days' => 'integer',
         'geolocation_enabled' => 'boolean',
@@ -322,23 +320,21 @@ class User extends Authenticatable
      */
     public function canCreateTeam(): bool
     {
-        // Prevent users in the Welcome Team from creating teams
-        if ($this->currentTeam && $this->currentTeam->name === Team::WELCOME_TEAM_NAME) {
-            return false;
-        }
-
         // Global admins can create unlimited teams
         if ($this->is_admin) {
             return true;
         }
 
-        // If max_owned_teams is null, user has unlimited teams
-        if ($this->max_owned_teams === null) {
-            return true;
+        // Check if user has the permission to create teams
+        if (!$this->hasPermission('teams.create')) {
+            return false;
         }
 
+        // Get the maximum limit from all teams the user belongs to
+        $maxLimit = $this->allTeams()->max('max_member_teams') ?? 0;
+
         // Check current owned teams count
-        return $this->ownedTeams()->count() < $this->max_owned_teams;
+        return $this->ownedTeams()->count() < $maxLimit;
     }
 
     /**
@@ -353,13 +349,14 @@ class User extends Authenticatable
             return null;
         }
 
-        // If max_owned_teams is null, unlimited
-        if ($this->max_owned_teams === null) {
-            return null;
+        if (!$this->hasPermission('teams.create')) {
+            return 0;
         }
 
+        $maxLimit = $this->teams()->max('max_member_teams') ?? 0;
         $currentCount = $this->ownedTeams()->count();
-        return max(0, $this->max_owned_teams - $currentCount);
+
+        return max(0, $maxLimit - $currentCount);
     }
 
     /**
@@ -466,60 +463,5 @@ class User extends Authenticatable
         }
         
         return 30; // Natural days default
-    }
-
-    /**
-     * Check if user can perform an action (granular permission system).
-     * 
-     * @param string $permission Permission name (e.g., 'events.create.team')
-     * @param Team|int|null $team Team context
-     * @param array $additionalContext Additional context data
-     * @return bool
-     */
-    public function can($permission, $team = null, array $additionalContext = []): bool
-    {
-        $context = $additionalContext;
-        
-        if ($team) {
-            $context['team_id'] = $team instanceof Team ? $team->id : $team;
-        } elseif ($this->currentTeam) {
-            $context['team_id'] = $this->currentTeam->id;
-        }
-
-        return $this->hasPermission($permission, $context);
-    }
-
-    /**
-     * Check if user cannot perform an action.
-     */
-    public function cannot($permission, $team = null, array $additionalContext = []): bool
-    {
-        return !$this->can($permission, $team, $additionalContext);
-    }
-
-    /**
-     * Check if user has ANY of the given permissions.
-     */
-    public function hasAnyPermission(array $permissions, $team = null): bool
-    {
-        foreach ($permissions as $permission) {
-            if ($this->can($permission, $team)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if user has ALL of the given permissions.
-     */
-    public function hasAllPermissions(array $permissions, $team = null): bool
-    {
-        foreach ($permissions as $permission) {
-            if (!$this->can($permission, $team)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

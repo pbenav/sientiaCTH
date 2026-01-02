@@ -16,14 +16,36 @@ class TeamHierarchyTest extends TestCase
 
     public function test_user_cannot_exceed_team_limit()
     {
-        $this->actingAs($user = User::factory()->create(['max_owned_teams' => 2]));
+        $user = User::factory()->create();
+        // Create a team that the user belongs to, which defines their limit
+        $team = Team::factory()->create(['max_member_teams' => 2]);
+        $user->teams()->attach($team, ['role' => 'admin']);
+        $user->switchTeam($team);
 
-        // Create 1st team (user already has personal team if factory creates it, but let's assume standard factory)
-        // Note: User factory usually creates a personal team if withPersonalTeam() is called.
-        // Let's create teams manually to be sure.
+        // Ensure user has permission to create teams
+        $permission = \App\Models\Permission::firstOrCreate(
+            ['name' => 'teams.create'], 
+            ['display_name' => 'Create Teams', 'is_system' => true]
+        );
+        $role = \App\Models\Role::firstOrCreate(
+            ['team_id' => $team->id, 'name' => 'admin'], 
+            ['display_name' => 'Admin', 'is_system' => true]
+        );
+        $role->permissions()->syncWithoutDetaching([$permission->id]);
         
-        $user->ownedTeams()->create(['name' => 'Team 1', 'personal_team' => false]);
-        $user->ownedTeams()->create(['name' => 'Team 2', 'personal_team' => false]);
+        \DB::table('team_user')
+            ->where('team_id', $team->id)
+            ->where('user_id', $user->id)
+            ->update(['custom_role_id' => $role->id]);
+
+        $this->actingAs($user);
+
+        // Create 2 teams (user now owns 2 teams)
+        $user->ownedTeams()->create(['name' => 'Owned 1', 'personal_team' => false, 'max_member_teams' => 2]);
+        $user->ownedTeams()->create(['name' => 'Owned 2', 'personal_team' => false, 'max_member_teams' => 2]);
+
+        $this->assertEquals(2, $user->ownedTeams()->count());
+        $this->assertFalse($user->canCreateTeam());
 
         // Try to create 3rd team via Livewire component
         Livewire::test(CreateTeamForm::class)
@@ -36,7 +58,7 @@ class TeamHierarchyTest extends TestCase
 
     public function test_global_admin_can_exceed_team_limit()
     {
-        $this->actingAs($admin = User::factory()->create(['max_owned_teams' => 1, 'is_admin' => true]));
+        $this->actingAs($admin = User::factory()->create(['is_admin' => true]));
 
         $admin->ownedTeams()->create(['name' => 'Team 1', 'personal_team' => false]);
         
@@ -63,9 +85,9 @@ class TeamHierarchyTest extends TestCase
         $event = Event::create([
             'user_id' => $user->id,
             'team_id' => $sourceTeam->id,
-            'title' => 'Test Event',
             'start' => now(),
             'end' => now()->addHour(),
+            'is_open' => false,
         ]);
 
         // Perform transfer
