@@ -14,7 +14,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // Disable Sanctum's default migrations since we have our own consolidated schema
+        \Laravel\Sanctum\Sanctum::ignoreMigrations();
     }
 
     /**
@@ -24,9 +25,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Disable Sanctum's default migrations since we have our own consolidated schema
-        \Laravel\Sanctum\Sanctum::ignoreMigrations();
-        
         // Set Carbon locale to Spanish
         \Carbon\Carbon::setLocale('es');
         
