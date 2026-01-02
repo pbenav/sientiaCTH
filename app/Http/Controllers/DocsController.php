@@ -86,6 +86,20 @@ class DocsController extends Controller
 
         $fullPath = public_path($path);
 
+        // If file doesn't exist, check if it's a localized file without the locale in the URL
+        if (!File::exists($fullPath) && !$locale) {
+            $userLocale = auth()->check() && auth()->user()->locale 
+                ? auth()->user()->locale 
+                : app()->getLocale();
+            
+            $localizedPath = "docs/{$userLocale}/{$file}.md";
+            if (File::exists(public_path($localizedPath))) {
+                $path = $localizedPath;
+                $fullPath = public_path($path);
+                $locale = $userLocale;
+            }
+        }
+
         if (!File::exists($fullPath)) {
             abort(404, 'Documentation file not found');
         }
@@ -197,7 +211,10 @@ class DocsController extends Controller
         $path = str_replace('.md', '', $relativePath);
         if (Str::contains($path, '/')) {
             $parts = explode('/', $path);
-            return route('docs.show.locale', ['locale' => $parts[0], 'file' => $parts[1]]);
+            // If the first part is a known locale, use the locale route
+            if (in_array($parts[0], ['es', 'en'])) {
+                return route('docs.show.locale', ['locale' => $parts[0], 'file' => $parts[1]]);
+            }
         }
         return route('docs.show.root', ['file' => $path]);
     }
