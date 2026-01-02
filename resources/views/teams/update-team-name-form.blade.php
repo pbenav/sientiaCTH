@@ -34,6 +34,26 @@
 
             <x-jet-input-error for="name" class="mt-2" />
         </div>
+
+        <!-- Max Member Teams -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-jet-label for="max_member_teams" value="{{ __('Límite de equipos para miembros') }}" />
+            
+            <x-jet-input id="max_member_teams"
+                        type="number"
+                        class="mt-1 block w-full {{ !auth()->user()->is_admin ? 'bg-gray-100' : '' }}"
+                        wire:model.defer="state.max_member_teams"
+                        :disabled="!auth()->user()->is_admin" />
+
+            <x-jet-input-error for="max_member_teams" class="mt-2" />
+            
+            <p class="text-sm text-gray-600 mt-2">
+                {{ __('Define cuántos equipos pueden crear los miembros de este equipo (que tengan permiso para ello).') }}
+                @if(!auth()->user()->is_admin)
+                    <span class="text-amber-600 block mt-1 italic">{{ __('Solo un administrador global puede modificar este límite.') }}</span>
+                @endif
+            </p>
+        </div>
     </x-slot>
 
     @if (Gate::check('update', $team))

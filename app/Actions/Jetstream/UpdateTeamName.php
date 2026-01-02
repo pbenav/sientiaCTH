@@ -20,12 +20,23 @@ class UpdateTeamName implements UpdatesTeamNames
     {
         Gate::forUser($user)->authorize('update', $team);
 
-        Validator::make($input, [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
-        ])->validateWithBag('updateTeamName');
+        ];
 
-        $team->forceFill([
-            'name' => $input['name'],
-        ])->save();
+        // Only global admins can update the team limit
+        if ($user->is_admin) {
+            $rules['max_member_teams'] = ['required', 'integer', 'min:0'];
+        }
+
+        Validator::make($input, $rules)->validateWithBag('updateTeamName');
+
+        $data = ['name' => $input['name']];
+
+        if ($user->is_admin && isset($input['max_member_teams'])) {
+            $data['max_member_teams'] = $input['max_member_teams'];
+        }
+
+        $team->forceFill($data)->save();
     }
 }
