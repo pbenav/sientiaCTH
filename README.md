@@ -1,123 +1,91 @@
-## About CTH
+# CTH - Control de Tiempo y Horarios
 
-CTH is a web application based on Laravel and is intended to track time control in bussines.
+CTH es una solución integral para la gestión del control horario y la productividad empresarial, compuesta por una potente plataforma web (Laravel) y una aplicación móvil (Flutter).
 
-## 📚 Documentation
+## 🚀 Características Principales
 
-Detailed documentation is available in `public/docs`:
+- **SmartClockIn**: Sistema inteligente de fichaje con detección de horarios.
+- **Multi-idioma**: Soporte completo para Español e Inglés (UI y Documentación).
+- **Gestión de Equipos**: Estructura multi-inquilino para gestionar múltiples departamentos o empresas.
+- **Informes Avanzados**: Exportación de datos en PDF, Excel y CSV.
+- **Integración Móvil**: Fichaje mediante App con soporte para etiquetas NFC.
 
-### English 🇺🇸
-- [Developer Manual](public/docs/en/DEVELOPER_MANUAL.md)
-- [API Reference v1](public/docs/en/API_REFERENCE.md)
+## 📚 Documentación
+
+La documentación detallada está disponible en el directorio `public/docs` y es accesible directamente desde la aplicación según el idioma del usuario:
 
 ### Español 🇪🇸
+- [Manual de Usuario](public/docs/es/USER_MANUAL.md)
 - [Manual del Desarrollador](public/docs/es/DEVELOPER_MANUAL.md)
-- [Referencia API v1](public/docs/es/REFERENCIA_API.md)
-- [Resumen Semanal de Cambios](public/docs/es/RESUMEN_SEMANAL.md)
+- [Referencia API](public/docs/es/REFERENCIA_API.md)
 
-## Security Vulnerabilities
+### English 🇺🇸
+- [User Manual](public/docs/en/USER_MANUAL.md)
+- [Developer Manual](public/docs/en/DEVELOPER_MANUAL.md)
+- [API Reference](public/docs/en/API_REFERENCE.md)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](webmaster@zafarraya.net). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🛠️ Instalación y Configuración
 
-The CTH & Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Requisitos Previos
+- **PHP** ^8.4 (Recomendado)
+- **Composer**
+- **Node.js & npm**
+- **MySQL / MariaDB**
 
-### **Instalación**
+### Pasos de Instalación
 
-Para poner en funcionamiento esta aplicación, debes tener instalados **PHP** (`^8.1`), **Composer**, **Node** y **npm**.
+1. **Clonar el repositorio y entrar en la carpeta**:
+   ```bash
+   git clone <url-del-repositorio>
+   cd cth
+   ```
 
-1.  **Actualizar dependencias de Composer**:
+2. **Instalar dependencias de Backend**:
+   ```bash
+   composer install
+   ```
 
-    ```bash
-    composer update
-    ```
+3. **Instalar dependencias de Frontend**:
+   ```bash
+   npm install && npm run build
+   ```
 
-2.  **Actualizar dependencias de Node**:
+4. **Configuración del Entorno**:
+   Copia el archivo de ejemplo y configura tus credenciales de base de datos:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-    ```bash
-    npm install && npm run dev
-    ```
+5. **Base de Datos e Inicialización**:
+   El sistema incluye una migración consolidada que crea automáticamente el administrador global (`admin@cth.local` / `password`) y el equipo de bienvenida:
+   ```bash
+   php artisan migrate --seed
+   ```
 
-3.  **Configurar la base de datos**:
-    Copia el archivo `.env.example` a `.env` y modifica las opciones de la base de datos según sea necesario.
+6. **Servidor de Desarrollo**:
+   ```bash
+   php artisan serve
+   ```
 
-4.  **Generar la clave de la aplicación**:
+---
 
-    ```bash
-    php artisan key:generate
-    ```
+## 📱 Aplicación Móvil (Flutter)
 
-5.  **Correr las migraciones**:
+El código fuente de la aplicación móvil se encuentra en la carpeta `cth_mobile/`. Para compilar la aplicación:
 
-    ```bash
-    php artisan migrate
-    ```
+1. Entra en la carpeta: `cd cth_mobile`
+2. Instala dependencias: `flutter pub get`
+3. Compila el APK: `flutter build apk`
 
-6.  **Opcional: Incluir datos de prueba**:
-    Si necesitas incluir datos de prueba, usa este comando:
+---
 
-    ```bash
-    php artisan migrate:refresh --seed
-    ```
+## 🛡️ Seguridad y Licencia
 
-7.  **Ejecutar el servidor de desarrollo**:
+- **Seguridad**: Si descubres alguna vulnerabilidad, por favor abre un *issue* o contacta con el equipo de desarrollo.
+- **Licencia**: Este proyecto está bajo la licencia MIT.
 
-    ```bash
-    php artisan serve
-    ```
-
-    Puedes ver la aplicación en funcionamiento en la dirección y puertos configurados en el archivo `.env`, por defecto: **http://localhost:8000**.
-
------
-
-### **Instalación con Apache en Debian**
-
-1.  **Añadir extensiones de PHP**:
-
-    ```bash
-    sudo apt install php-curl php-xml php-gd php-zip
-    ```
-
-2.  **Asegurar que `mod_rewrite` esté activo**:
-
-    ```bash
-    sudo a2enmod rewrite
-    ```
-
-3.  **Añadir alias de Apache**:
-    Abre el archivo de configuración `000-default.conf` con `nano`:
-
-    ```bash
-    sudo nano /etc/apache2/sites-available/000-default.conf
-    ```
-
-    Añade el siguiente bloque de alias y directorio dentro de `<VirtualHost *:80>`:
-
-    ```
-    Alias /cth /var/www/html/cth/public
-
-    <Directory /var/www/html/cth/public>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-    ```
-
-4.  **Actualizar las rutas de Laravel**:
-
-    ```bash
-    php artisan route:clear
-    ```
-
-5.  **Configurar permisos de la carpeta**:
-    Ejecuta estos comandos desde la carpeta de tu aplicación para corregir los permisos:
-
-    ```bash
-    chown user:www-data * -R
-    find ./ -type d -exec chmod 775 {} \;
-    find ./ -type f -exec chmod 664 {} \;
-    ```
-
-6.  **Optimizar para producción**:
-    Finalmente, puedes usar el script `update_prod.sh` para optimizar la configuración para un entorno de producción.
+---
+*© 2025 CTH - Control de Tiempo y Horarios*
