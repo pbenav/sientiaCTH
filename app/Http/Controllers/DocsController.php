@@ -6,6 +6,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
+/**
+ * Documentation Repository Controller
+ * 
+ * Manages the application's documentation repository. Documents are organized by locale
+ * in the public/docs directory:
+ * 
+ * Structure:
+ * - public/docs/README.md (main index, shown to all users)
+ * - public/docs/es/ (Spanish documents - only shown to es locale users)
+ * - public/docs/en/ (English documents - only shown to en locale users)
+ * - public/docs/*.md (root documents - shown to all users)
+ * 
+ * The system automatically filters documents based on the authenticated user's locale preference.
+ * This allows maintaining separate documentation for different languages while providing
+ * a seamless, localized experience.
+ * 
+ * Future expansion: This can be extended to support user-uploaded documents with
+ * proper access control and categorization.
+ */
 class DocsController extends Controller
 {
     /**
@@ -88,6 +107,11 @@ class DocsController extends Controller
             return [];
         }
 
+        // Get user's locale preference
+        $userLocale = auth()->check() && auth()->user()->locale 
+            ? auth()->user()->locale 
+            : app()->getLocale();
+
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($docsPath, \RecursiveDirectoryIterator::SKIP_DOTS)
         );
@@ -102,6 +126,17 @@ class DocsController extends Controller
                 }
 
                 $parts = explode('/', $relativePath);
+                
+                // Filter documents by user's locale
+                // If the document is in a locale folder, only show it if it matches user's locale
+                if (count($parts) > 1) {
+                    $docLocale = $parts[0];
+                    // Only show documents matching user's locale
+                    if ($docLocale !== $userLocale) {
+                        continue;
+                    }
+                }
+                
                 $name = str_replace('.md', '', end($parts));
                 
                 // Humanize name fallback
@@ -132,6 +167,7 @@ class DocsController extends Controller
                         'url' => $this->buildUrl($relativePath)
                     ];
                 } else {
+                    // Root level documents are shown to everyone
                     $files['root'][] = [
                         'path' => $relativePath,
                         'label' => $label,
