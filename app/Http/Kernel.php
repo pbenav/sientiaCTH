@@ -39,6 +39,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SessionExpired::class,
             \App\Http\Middleware\PreventBackHistory::class,
+            \App\Http\Middleware\SetUserLocale::class,
         ],
 
         'api' => [

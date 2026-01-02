@@ -107,6 +107,16 @@
             </div>
             <x-jet-input-error for="user_code" class="mt-2" />
         </div>
+
+        <!-- Language / Locale -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-jet-label for="locale" value="{{ __('Language') }}" />
+            <select id="locale" wire:model.defer="state.locale" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+            </select>
+            <x-jet-input-error for="locale" class="mt-2" />
+        </div>
     </x-slot>
 
     <x-slot name="actions">

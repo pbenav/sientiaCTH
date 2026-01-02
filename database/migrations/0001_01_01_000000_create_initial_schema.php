@@ -42,6 +42,7 @@ return new class extends Migration
                 ->comment('Number of working days for vacation calculation when type is "working"');
             $table->boolean('geolocation_enabled')->default(false);
             $table->boolean('notify_new_messages')->default(true);
+            $table->string('locale', 5)->default('es')->comment('User preferred language (es, en)');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->text('two_factor_secret')->nullable();

@@ -111,6 +111,7 @@ class User extends Authenticatable
         'geolocation_enabled',
         'is_admin',
         'max_owned_teams',
+        'locale',
     ];
 
     /**
