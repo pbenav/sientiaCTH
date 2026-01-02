@@ -216,6 +216,8 @@ class DocsController extends Controller
                 return route('docs.show.locale', ['locale' => $parts[0], 'file' => $parts[1]]);
             }
         }
+        
+        // If it's just a filename, it might be a root file or we need to handle it
         return route('docs.show.root', ['file' => $path]);
     }
 
@@ -231,22 +233,30 @@ class DocsController extends Controller
         $html = preg_replace_callback('/<a href="([^"]+)"/', function($matches) use ($locale) {
             $url = $matches[1];
 
-            // If it's a .md file, convert to route
-            if (Str::endsWith($url, '.md')) {
-                // Remove .md extension
-                $cleanUrl = str_replace('.md', '', $url);
-                
-                if (Str::startsWith($url, 'http')) {
-                    return $matches[0];
-                }
+            // If it's an external link or an anchor only, don't touch it
+            if (Str::startsWith($url, ['http', 'https', '#'])) {
+                return $matches[0];
+            }
 
+            // Handle links with anchors (e.g., USER_MANUAL.md#section)
+            $anchor = '';
+            if (Str::contains($url, '#')) {
+                $parts = explode('#', $url);
+                $url = $parts[0];
+                $anchor = '#' . $parts[1];
+            }
+
+            // If it's a .md file, convert to route
+            if (Str::endsWith($url, '.md') || !Str::contains($url, '.')) {
                 // If we are in a localized context and the link is relative, 
                 // prepend the locale if not present
                 if ($locale && !Str::contains($url, '/')) {
-                    $url = "{$locale}/{$url}";
+                    $url = "{$locale}/" . str_replace('.md', '', $url);
+                } else {
+                    $url = str_replace('.md', '', $url);
                 }
 
-                return '<a href="' . $this->buildUrl($url) . '"';
+                return '<a href="' . $this->buildUrl($url) . $anchor . '"';
             }
 
             return $matches[0];
