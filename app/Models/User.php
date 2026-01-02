@@ -180,8 +180,8 @@ class User extends Authenticatable
     protected function familyName1(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ucwords($value),
-            set: fn ($value) => ucwords(strtolower($value)),
+            get: fn ($value) => $value ? ucwords($value) : null,
+            set: fn ($value) => $value ? ucwords(strtolower($value)) : null,
         );
     }
 
@@ -193,8 +193,8 @@ class User extends Authenticatable
     protected function familyName2(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ucwords($value),
-            set: fn ($value) => ucwords(strtolower($value)),
+            get: fn ($value) => $value ? ucwords($value) : null,
+            set: fn ($value) => $value ? ucwords(strtolower($value)) : null,
         );
     }
 
