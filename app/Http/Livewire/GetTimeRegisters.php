@@ -33,8 +33,8 @@ class GetTimeRegisters extends Component
     public string $direction = 'desc';
     public string $qtytoshow = '10';
     public bool $readyonload = false;
-    public User $user;
-    public Team $team;
+    public ?User $user;
+    public ?Team $team;
     public array $teamUsers;
     public $teamUserList;
     public $eventTypes;
@@ -115,7 +115,7 @@ class GetTimeRegisters extends Component
         ]);
         
         $this->user = Auth::user();
-        $this->team = $this->user->currentTeam;
+        $this->team = $this->user ? $this->user->currentTeam : null;
         $this->teamUserList = $this->team ? $this->team->allUsers()->sortBy(function ($user) {
             return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
         })->values() : collect();

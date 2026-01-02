@@ -14,7 +14,7 @@ use Livewire\Component;
  */
 class AnnouncementManager extends Component
 {
-    public Team $team;
+    public ?Team $team;
     public bool $showModal = false;
     public ?int $editingId = null;
     public string $title = '';

@@ -21,8 +21,8 @@ use Maatwebsite\Excel\Facades\Excel;
  */
 class ReportsComponent extends Component
 {
-    public User $user;
-    public Team $team;
+    public ?User $user;
+    public ?Team $team;
     public bool $isTeamAdmin;
     public bool $isInspector;
     public $workers;
@@ -68,19 +68,21 @@ class ReportsComponent extends Component
      */
     public function mount()
     {
-        $this->user = User::find(Auth::user()->id);
-        $this->team = $this->user->currentTeam;
-        $this->isTeamAdmin = $this->user->isTeamAdmin();
-        $this->isInspector = $this->user->isInspector();
-        if ($this->isTeamAdmin || $this->isInspector) {
+        $this->user = Auth::user();
+        $this->team = $this->user ? $this->user->currentTeam : null;
+        $this->isTeamAdmin = $this->user ? $this->user->isTeamAdmin() : false;
+        $this->isInspector = $this->user ? $this->user->isInspector() : false;
+        if (($this->isTeamAdmin || $this->isInspector) && $this->team) {
             $this->workers = $this->team->allUsers()->sortBy(function ($worker) {
                 return strtolower(($worker->name ?? '') . ' ' . ($worker->family_name ?? '') . ' ' . ($worker->family_name2 ?? ''));
             })->values();
+        } else {
+            $this->workers = collect();
         }
         $this->worker = $this->user->id;
         $this->fromdate = date('Y-m-01');
         $this->todate = date('Y-m-d');
-        $this->eventTypes = $this->team->eventTypes;
+        $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
         $this->event_type_id = 'All';
         $this->rtype = 'PDF';
         $this->reportSources = [

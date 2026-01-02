@@ -33,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Register custom Blade directives for permissions
         $this->registerPermissionDirectives();
+
+        // Override Jetstream's UpdateTeamNameForm with our custom one
+        \Livewire\Livewire::component('teams.update-team-name-form', \App\Http\Livewire\Teams\UpdateTeamNameForm::class);
     }
 
     /**
