@@ -88,4 +88,4 @@ El código fuente de la aplicación móvil se encuentra en la carpeta `cth_mobil
 - **Licencia**: Este proyecto se distribuye bajo la licencia MIT.
 
 ---
-*© 2025 CTH - Control de Tiempo y Horarios*
+*© 2026 CTH - Control de Tiempo y Horarios*
