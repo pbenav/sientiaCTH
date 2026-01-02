@@ -159,15 +159,15 @@ class User extends Authenticatable
     }
 
     /**
-     * Interact with the user's first name.
+     * Interact with the user's name.
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => ucwords($value),
-            set: fn ($value) => ucwords(strtolower($value)),
+            get: fn ($value) => $value ? ucwords($value) : null,
+            set: fn ($value) => $value ? ucwords(strtolower($value)) : null,
         );
     }
 
