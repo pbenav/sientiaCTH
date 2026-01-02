@@ -3,7 +3,7 @@
     @livewire('edit-event')
     @livewire('events.event-details-modal') {{-- Unified modal --}}
     
-    <div id='calendar-container' wire:ignore>
+    <div id='calendar-container' wire:ignore style="height: 800px;">
         <div id='calendar'></div>
     </div>
 
