@@ -82,7 +82,7 @@ class SeedEventTypes
                         'is_workday_type' => false,
                         'is_break_type' => false,
                         'is_pause_type' => false,
-                        'is_authorizable' => false,
+                        'is_authorizable' => true,
                     ],
                     [
                         'name' => 'Asuntos Propios',
@@ -92,7 +92,7 @@ class SeedEventTypes
                         'is_workday_type' => false,
                         'is_break_type' => false,
                         'is_pause_type' => false,
-                        'is_authorizable' => false,
+                        'is_authorizable' => true,
                     ],
                     [
                         'name' => 'Pausa',
@@ -106,13 +106,13 @@ class SeedEventTypes
                     ],
                     [
                         'name' => 'Evento Especial',
-                        'observations' => 'Eventos fuera de lo común o autorizables.',
+                        'observations' => 'Eventos fuera de lo común.',
                         'color' => '#ef4444', // Red
                         'is_all_day' => false,
                         'is_workday_type' => false,
                         'is_break_type' => false,
                         'is_pause_type' => false,
-                        'is_authorizable' => true,
+                        'is_authorizable' => false,
                     ],
                 ];
 
