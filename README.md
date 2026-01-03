@@ -5,6 +5,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)](https://php.net)
 
+[🇬🇧 English Version](README.en.md)
+
 CTH es una solución integral de código abierto para la gestión del control horario y la productividad empresarial, compuesta por una potente plataforma web (Laravel + Livewire) y una aplicación móvil multiplataforma (Flutter).
 
 ## ✨ Características Destacadas
