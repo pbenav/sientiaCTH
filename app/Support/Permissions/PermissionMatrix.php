@@ -346,7 +346,7 @@ class PermissionMatrix
                 'category' => 'announcements',
                 'requires_context' => true,
                 'is_system' => true,
-                'roles' => ['administrador', 'inspector', 'usuario'],
+                'roles' => ['administrador', 'inspector', 'usuario', 'editor'],
             ],
             'announcements.create' => [
                 'display_name' => 'Crear anuncios',
@@ -354,7 +354,7 @@ class PermissionMatrix
                 'category' => 'announcements',
                 'requires_context' => true,
                 'is_system' => true,
-                'roles' => ['administrador'],
+                'roles' => ['administrador', 'editor'],
             ],
             'announcements.update' => [
                 'display_name' => 'Editar anuncios',
@@ -362,7 +362,7 @@ class PermissionMatrix
                 'category' => 'announcements',
                 'requires_context' => true,
                 'is_system' => true,
-                'roles' => ['administrador'],
+                'roles' => ['administrador', 'editor'],
             ],
             'announcements.delete' => [
                 'display_name' => 'Eliminar anuncios',
@@ -370,7 +370,7 @@ class PermissionMatrix
                 'category' => 'announcements',
                 'requires_context' => true,
                 'is_system' => true,
-                'roles' => ['administrador'],
+                'roles' => ['administrador', 'editor'],
             ],
             'announcements.publish' => [
                 'display_name' => 'Publicar o pausar anuncios',
@@ -378,7 +378,7 @@ class PermissionMatrix
                 'category' => 'announcements',
                 'requires_context' => true,
                 'is_system' => true,
-                'roles' => ['administrador'],
+                'roles' => ['administrador', 'editor'],
             ],
             'reports.view.own' => [
                 'display_name' => 'Ver informes propios',
@@ -593,6 +593,10 @@ class PermissionMatrix
                 'display_name' => 'Usuario',
                 'description' => 'Acceso estandar centrado en el fichaje diario.',
             ],
+            'editor' => [
+                'display_name' => 'Editor',
+                'description' => 'Usuario con capacidad para gestionar anuncios del equipo.',
+            ],
         ];
     }
 
@@ -744,6 +748,7 @@ class PermissionMatrix
             'usuario' => 'usuario',
             'inspect' => 'inspector',
             'inspector' => 'inspector',
+            'editor' => 'editor',
         ];
 
         $rows = DB::table('team_user')

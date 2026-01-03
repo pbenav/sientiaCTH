@@ -57,6 +57,12 @@ class AddTeamMember implements AddsTeamMembers
                 ->where('name', "team_{$team->id}_inspector")
                 ->first();
             $customRoleId = $inspectorRole?->id;
+        } elseif ($role === 'editor') {
+            // Buscar el rol "Editor" para este equipo
+            $editorRole = \App\Models\Role::where('team_id', $team->id)
+                ->where('name', "team_{$team->id}_editor")
+                ->first();
+            $customRoleId = $editorRole?->id;
         }
 
         $team->users()->attach(

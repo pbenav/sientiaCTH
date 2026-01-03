@@ -166,6 +166,21 @@ class PermissionService
             return str_contains($permissionName, '.view');
         }
 
+        // Editor has user permissions + announcement management
+        if ($legacyRole === 'editor') {
+            $editorAllowed = [
+                'events.view.own', 'events.view.team', 'events.create.own',
+                'events.update.own', 'events.delete.own', 'events.export',
+                'teams.view', 'teams.view_settings', 'teams.switch',
+                'event_types.view', 'holidays.view', 'work_centers.view',
+                'announcements.view', 'announcements.create', 'announcements.update',
+                'announcements.delete', 'announcements.publish',
+                'reports.view', 'reports.generate',
+                'users.view', 'roles.view', 'permissions.view'
+            ];
+            return in_array($permissionName, $editorAllowed);
+        }
+
         return false;
     }
 

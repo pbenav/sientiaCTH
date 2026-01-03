@@ -217,16 +217,30 @@
 
                                 <div class="flex items-center">
                                     <!-- Manage Team Member Role -->
-                                    @if (Gate::check('addTeamMember', $team) && Laravel\Jetstream\Jetstream::hasRoles())
-                                        @if ($user->membership->role)
+                                    @php
+                                        static $customRolesCache = [];
+                                        $roleLabel = null;
+
+                                        if ($user->membership?->custom_role_id) {
+                                            $roleId = $user->membership->custom_role_id;
+                                            $customRolesCache[$roleId] = $customRolesCache[$roleId]
+                                                ?? \App\Models\Role::find($roleId);
+                                            $roleLabel = $customRolesCache[$roleId]?->display_name;
+                                        }
+
+                                        if (!$roleLabel && $user->membership?->role) {
+                                            $roleLabel = optional(Laravel\Jetstream\Jetstream::findRole($user->membership->role))->name;
+                                        }
+                                    @endphp
+
+                                    @if ($roleLabel)
+                                        @if (Gate::check('addTeamMember', $team) && Laravel\Jetstream\Jetstream::hasRoles())
                                             <button class="ml-2 text-sm text-gray-400 underline" wire:click="manageRole('{{ $user->id }}')">
-                                                {{ Laravel\Jetstream\Jetstream::findRole($user->membership->role)->name }}
+                                                {{ $roleLabel }}
                                             </button>
-                                        @endif
-                                    @elseif (Laravel\Jetstream\Jetstream::hasRoles())
-                                        @if ($user->membership->role)
+                                        @elseif (Laravel\Jetstream\Jetstream::hasRoles())
                                             <div class="ml-2 text-sm text-gray-400">
-                                                {{ Laravel\Jetstream\Jetstream::findRole($user->membership->role)->name }}
+                                                {{ $roleLabel }}
                                             </div>
                                         @endif
                                     @endif

@@ -273,8 +273,6 @@ class RolesPermissionsManager extends Component
                     'team_id' => $this->team->id,
                     'granted_by' => Auth::id(),
                     'granted_at' => now(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ]);
             }
 
