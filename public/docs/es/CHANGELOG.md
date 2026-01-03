@@ -2,190 +2,287 @@
 
 ## Resumen Histórico
 
-Este documento recoge los hitos más importantes en la evolución de **CTH (Control de Tiempo y Horarios)**, desde su creación hasta la actualidad.
+Este documento recoge los hitos más importantes en la evolución de **CTH (Control de Tiempo y Horarios)**, desde su creación en mayo de 2022 hasta la actualidad.
 
 ---
 
-## 🎯 Septiembre 2025 - Fundación y Sistema Base
+## 🎓 Enero 2026 - Sistema de Permisos v1.0 y Documentación Integral
 
-### Características Iniciales
-- **Sistema de Fichajes**: Implementación del sistema básico de entrada/salida
-- **Eventos Todo el Día**: Soporte para eventos de jornada completa
-- **Calendario Interactivo**: Integración de FullCalendar con localización en español
-- **Gestión de Equipos**: Sistema multiequipo con roles básicos (Owner, Admin, Member, Inspector)
-- **Tipos de Evento**: Sistema de clasificación de eventos con códigos de color
-- **Estadísticas**: Panel de estadísticas en tiempo real
+### Sistema de Permisos Granular
+- **PermissionMatrix**: Matriz centralizada con más de 60 permisos definidos
+- **Roles del Sistema**: Administrador, Editor, Usuario e Inspector
+- **Permisos Contextuales**: Validación por equipo y recurso específico
+- **Límites de Equipos**: Control de cuántos equipos puede crear cada miembro (`teams.limits.manage`)
+- **Migración Idempotente**: Sistema seguro para actualizar bases de datos existentes
 
-### Mejoras de UX/UI
-- Modales reactivos para crear/editar eventos
-- Sistema de validación de formularios
-- Interfaz responsive para móviles
-- Localización completa al español
+### Documentación y Localización
+- **Visor de Documentación**: Sistema navegable integrado en la aplicación
+- **Manuales Consolidados**: Usuario, Desarrollador, API Móvil, Migraciones
+- **Soporte Multiidioma**: Documentación completa en español e inglés
+- **Filtrado por Idioma**: Contenido adaptado automáticamente al idioma del usuario
+- **Enlaces Internos**: Navegación fluida entre documentos con anchors
 
----
-
-## 📊 Octubre 2025 - Expansión y Seguridad
-
-### Nuevas Funcionalidades
-- **Centros de Trabajo**: Sistema completo de gestión de ubicaciones
-  - Asociación con equipos
-  - Dirección estructurada
-  - Centro predeterminado por usuario
-- **Gestión de Festivos**: Calendario de festivos por equipo con importación desde API externa
-- **Sistema de Mensajería**: Comunicación interna entre usuarios y equipos
-- **Notificaciones**: Sistema de alertas en tiempo real
-- **Fichaje Excepcional**: Tokens de un solo uso para fichajes fuera de horario
-
-### Seguridad y Autenticación
-- **Login Avanzado**: Protección contra ataques de fuerza bruta
-- **Períodos de Gracia**: Validación flexible de horarios
-- **Cierre Automático**: Eventos abiertos se cierran automáticamente
-- **Auditoría**: Sistema de registro de acciones críticas
-
-### Mejoras del Sistema
-- Actualización a Laravel 10
-- Roles personalizados con permisos granulares (Editor añadido)
-- Zonas horarias por equipo
-- Cálculo inteligente de horas trabajadas vs. programadas
-- Sistema de KPIs en el dashboard
+### Optimización y Rendimiento
+- **Consolidación de Migraciones**: Schema inicial unificado para instalaciones limpias
+- **Índices Estratégicos**: Optimización de consultas frecuentes
+- **Equipo de Bienvenida**: Team inicial automático para nuevos usuarios
+- **Null-Safety**: Mejoras en componentes Livewire para prevenir errores
 
 ---
 
-## 🚀 Noviembre 2025 - SmartClockIn y API Móvil
+## 📱 Diciembre 2025 - Reportes Profesionales y Dashboard Mejorado
+
+### Sistema de Reportes Avanzado
+- **Generación de PDF con Browsershot**: PDFs de alta calidad usando Puppeteer/Chromium
+  - Numeración automática de páginas
+  - Diseño landscape optimizado
+  - Metadatos completos (totales, promedios, resúmenes)
+- **Motor Alternativo mPDF**: Fallback para entornos sin Node.js
+- **Exportación Múltiple**: Excel, CSV y PDF
+- **Traducciones Específicas**: Namespace dedicado para informes (`reports.`)
+- **Indicadores de Carga**: SweetAlert durante generación de informes
+
+### Dashboard de Control
+- **Panel Unificado**: Estadísticas clave en vista consolidada
+- **Resumen de Inbox**: Mensajes pendientes y recientes
+- **Anuncios Acordeón**: Visualización compacta de avisos del equipo
+- **Mensajes Difusión**: Botón "Mensaje a Todos" para comunicaciones masivas
+- **KPIs Visuales**: Indicadores de rendimiento en tiempo real
+
+### Sistema de Anuncios
+- **Editor Enriquecido**: Soporte Markdown con vista previa
+- **Publicación Programada**: Fechas de inicio/fin configurables
+- **Permisos Granulares**: Control de creación/edición según rol
+- **Sanitización HTML**: HTMLPurifier con CSS personalizado
+
+### Mejoras de Vistas
+- **Rediseño de Eventos**: Interfaz renovada con Tailwind CSS y Jetstream
+- **Responsive Mejorado**: Adaptación completa para móviles
+- **Calendario Optimizado**: Altura viewport y auto-scroll según horario
+
+---
+
+## 🚀 Noviembre 2025 - SmartClockIn y API Móvil Completa
 
 ### SmartClockIn
 - **Fichaje Inteligente**: Botón que detecta automáticamente la siguiente acción
   - Inicio de jornada
   - Pausa/Reanudación
   - Fin de jornada
+  - Fichaje excepcional (fuera de horario)
 - **Validación de Horarios**: Integración con horarios laborales del usuario
-- **Sistema de Pausas**: Gestión completa de descansos dentro de la jornada
+- **Sistema de Pausas**: Gestión completa de descansos (`pause_event_id`)
+- **Períodos de Gracia**: Flexibilidad configurable en entrada/salida
 
-### API Móvil
-- **Endpoints RESTful**: API completa para aplicación Flutter
-  - `/api/v1/clock` - Fichaje inteligente
-  - `/api/v1/status` - Estado actual del usuario
-  - `/api/v1/history` - Historial de fichajes
-  - `/api/v1/schedule` - Horarios de trabajo
-- **Autenticación por Código**: Login simplificado con `user_code`
-- **Sistema NFC**: Soporte para fichaje mediante etiquetas NFC
-- **Configuración Dinámica**: Descarga de configuración desde el servidor
+### API Móvil RESTful
+- **Endpoints Principales**:
+  - `POST /api/v1/clock` - Fichaje inteligente con localización
+  - `POST /api/v1/status` - Estado actual y próxima acción
+  - `POST /api/v1/history` - Historial de fichajes con filtros
+  - `GET /api/v1/schedule` - Horarios de trabajo del usuario
+  - `POST /api/v1/sync` - Sincronización offline
+- **Autenticación Simplificada**: Login con `user_code` único
+- **Sistema NFC**: Verificación de etiquetas NFC en centros de trabajo
+- **Configuración Dinámica**: Descarga automática de parámetros del servidor
+- **Formato ISO 8601**: Estandarización de días de la semana (1-7)
+
+### Internacionalización
+- **Códigos de Estado**: Mensajes localizables en respuestas API
+- **Traducciones Completas**: ES/EN en toda la aplicación
+- **Preferencia de Idioma**: Configuración por usuario (`locale`)
 
 ### Mejoras de UX
-- Internacionalización completa (ES/EN)
-- Rediseño de vistas de eventos con Tailwind CSS
-- Interfaz responsive mejorada
-- Auto-scroll inteligente del calendario según horario laboral
+- **Rediseño Mobile**: Interfaz optimizada para dispositivos móviles
+- **Auto-scroll Calendario**: Posicionamiento inteligente según horario laboral
+- **Iconos Consistentes**: Diseño unificado de botones y navegación
+- **Tooltips Informativos**: Ayuda contextual en elementos clave
 
 ---
 
-## 📱 Diciembre 2025 - Reportes Profesionales y Dashboard
+## 📊 Octubre 2025 - Centros de Trabajo y Seguridad
 
-### Sistema de Reportes
-- **Generación de PDF**: Integración con Browsershot para PDFs de alta calidad
-  - Numeración de páginas automática
-  - Diseño landscape optimizado
-  - Metadatos completos (totales, promedios)
-- **Exportación Múltiple**: Excel, CSV y PDF
-- **Motor Alternativo**: mPDF como fallback para entornos sin Node.js
-- **Localización**: Traducciones específicas para informes
+### Centros de Trabajo
+- **Gestión Completa**: CRUD de ubicaciones de trabajo
+- **Asociación con Equipos**: Cada centro pertenece a un equipo
+- **Dirección Estructurada**: Campos detallados (ciudad, código postal, país)
+- **Centro Predeterminado**: Preferencia por usuario
+- **Integración con Fichajes**: Registro de ubicación en cada evento
 
-### Dashboard Mejorado
-- **Panel de Control**: Vista unificada con estadísticas clave
-- **Resumen de Inbox**: Mensajes pendientes y recientes
-- **Anuncios Acordeón**: Visualización compacta de avisos del equipo
-- **Mensajes Difusión**: Función "Mensaje a todos" para comunicaciones masivas
+### Gestión de Festivos
+- **Calendario por Equipo**: Festivos independientes por team
+- **Importación Automática**: API externa para festivos oficiales españoles
+- **Tipos de Festivo**: Clasificación (nacional, regional, local)
+- **Visualización en Calendario**: Integración con FullCalendar (color naranja)
 
-### Sistema de Anuncios
-- **Editor Enriquecido**: Soporte Markdown con vista previa
-- **Publicación Programada**: Fechas de inicio/fin para anuncios
-- **Permisos Granulares**: Control de quién puede crear/editar anuncios
-- **Sanitización HTML**: Seguridad mejorada con HTMLPurifier
+### Sistema de Mensajería
+- **Mensajes Internos**: Comunicación entre usuarios
+- **Hilos de Conversación**: Respuestas anidadas (`parent_id`)
+- **Notificaciones en Tiempo Real**: Alertas de nuevos mensajes
+- **Gestión de Bandeja**: Marcar como leído, eliminar, archivar
+- **Mensajes Masivos**: Difusión a todo el equipo
+
+### Fichaje Excepcional
+- **Tokens de Un Solo Uso**: Generación segura para fichajes fuera de horario
+- **Validación Temporal**: Tokens con expiración configurable
+- **Notificaciones Admin**: Alertas de fichajes excepcionales
+- **Modal Específico**: Interfaz dedicada para crear excepcionales
+
+### Seguridad
+- **Login Avanzado**: Protección anti brute-force con bloqueos progresivos
+- **Auditoría Completa**: Registro de acciones críticas
+- **Períodos de Gracia**: Configuración de tolerancia en fichajes
+- **Cierre Automático**: Comando `AutoCloseEvents` para eventos abiertos
+- **Actualización Laravel 10**: Migración a versión LTS con mejoras de seguridad
+
+### Zonas Horarias
+- **Timezone por Equipo**: Cada team puede definir su zona horaria
+- **Conversión Automática**: Cálculos correctos independiente del servidor
+- **Validación de Tramos**: Soporte para turnos que cruzan medianoche
 
 ---
 
-## 🎓 Enero 2026 - Documentación y Sistema de Permisos v1.0
+## 🎯 Septiembre 2025 - Fundación de la Era Moderna
 
-### Documentación Integral
-- **Visor Interno**: Sistema de documentación navegable dentro de la aplicación
-- **Multiidioma**: Documentación completa en español e inglés
-- **Manuales Consolidados**:
-  - Manual de Usuario
-  - Manual del Desarrollador
-  - Referencia de API Móvil
-  - Guía de Migración de Horarios
-- **Enlaces Internos**: Navegación fluida entre documentos con anchors
+### Características Iniciales
+- **Sistema de Fichajes**: Implementación del sistema básico de entrada/salida
+- **Eventos Todo el Día**: Soporte para eventos de jornada completa (`is_all_day`)
+- **Calendario Interactivo**: Integración de FullCalendar con localización en español
+- **Gestión de Equipos**: Sistema multiequipo con roles básicos (Owner, Admin, Member, Inspector)
+- **Tipos de Evento**: Sistema de clasificación de eventos con códigos de color
+- **Estadísticas**: Panel de estadísticas en tiempo real con Chart.js
 
-### Sistema de Permisos Granular
-- **PermissionMatrix**: Matriz centralizada de 60+ permisos
-- **Roles del Sistema**:
-  - **Administrador**: Control total del equipo
-  - **Editor**: Usuario + gestión de anuncios
-  - **Usuario**: Acceso estándar para fichajes
-  - **Inspector**: Solo lectura para auditorías
-- **Permisos Contextuales**: Validación por equipo y recurso
-- **Migración Idempotente**: Sistema seguro para actualizar bases de datos existentes
+### Tipos de Evento Base
+- Jornada Laboral (verde)
+- Vacaciones (azul, autorizable)
+- Asuntos Propios (púrpura, autorizable)
+- Pausa (naranja)
+- Evento Especial (rojo)
 
-### Optimización y Rendimiento
-- **Consolidación de Migraciones**: Schema inicial unificado
-- **Índices Estratégicos**: Optimización de consultas frecuentes
-- **Caché de Permisos**: Reducción de consultas a base de datos
-- **Lazy Loading**: Carga diferida de relaciones en modelos
+### Mejoras de UX/UI
+- Modales reactivos con Livewire para crear/editar eventos
+- Sistema de validación de formularios en tiempo real
+- Interfaz responsive optimizada para móviles
+- Localización completa al español de España
 
-### Mejoras del Sistema
-- **Equipo de Bienvenida**: Team inicial para nuevos usuarios
-- **Límites de Equipos**: Control de cuántos equipos puede crear cada miembro
-- **Soporte Multiidioma**: Preferencia de idioma por usuario (ES/EN)
-- **Filtrado de Documentación**: Contenido adaptado al idioma del usuario
+---
+
+## 📈 2023-2024 - Evolución y Refinamiento
+
+### Año 2024: Consolidación
+- **Optimización de Queries**: Refactorización de consultas para mejor rendimiento
+- **Sistema de Roles Avanzado**: Permisos contextuales por equipo
+- **Filtrado Mejorado**: Componentes reactivos para búsqueda de eventos y usuarios
+- **Exportación Excel**: Integración de Laravel Excel para reportes
+- **Validación de Datos**: Mejoras en formularios con validación en tiempo real
+- **Internacionalización**: Expansión del sistema de traducciones
+
+### Año 2023: Expansión de Funcionalidades
+- **Dashboard con Gráficos**: Integración de Chart.js para estadísticas visuales
+- **Reportes Dinámicos**: Sistema flexible de generación de informes
+- **Filtros GetTimeRegisters**: Componente reutilizable para filtrado de fichajes
+- **Observaciones en Eventos**: Campo de texto libre para notas adicionales
+- **Mejoras GDPR**: Cumplimiento con normativa de protección de datos
+- **Exportación CSV**: Formato alternativo para análisis de datos
+- **Búsqueda por Código de Usuario**: Filtrado rápido con `user_code`
+- **Optimización de Caché**: Reducción de consultas redundantes
+
+---
+
+## 🏗️ 2022 - Fundación del Proyecto
+
+### Mayo - Junio 2022: Los Primeros Pasos
+- **Commit Inicial** (1 de mayo de 2022): Estructura base con Laravel
+- **Sistema de Eventos**: Primera implementación de registro de entrada/salida
+- **Interfaz Numpad**: Teclado numérico para fichaje rápido con código de usuario
+- **Códigos de Usuario**: Sistema de identificación único (`user_code`) para cada trabajador
+- **Componentes Livewire**: Migración progresiva de Blade a componentes reactivos
+- **Autenticación**: Login con Laravel Jetstream
+
+### Julio - Septiembre 2022: Construcción de Fundamentos
+- **Gestión de Usuarios**: CRUD completo de trabajadores
+- **Permisos por Rol**: Lógica inicial de autorización (Owner, Admin, Member)
+- **Nombres Completos**: Soporte para apellidos (`family_name1`, `family_name2`)
+- **Búsqueda y Filtrado**: Primeras versiones funcionales
+- **Localización**: Formato de fechas español (d/m/Y H:i)
+- **Sesión Segura**: Cierre automático por inactividad
+- **Calendario FullCalendar**: Integración inicial con eventos arrastrables
+
+### Octubre - Diciembre 2022: Refinamiento Inicial
+- **Optimización de Eventos**: Mejoras en performance de consultas a `events` table
+- **Estadísticas v1**: Primeros gráficos funcionales con horas trabajadas
+- **Tipos de Evento**: Clasificación básica (Jornada, Vacaciones, Pausa)
+- **Códigos de Color**: Sistema visual para diferenciar tipos
+- **Mejoras CSS**: Refinamiento continuo de interfaz con Tailwind
+- **Reportes Básicos**: Primera versión de exportación de datos
+- **Validación de Horarios**: Lógica inicial para verificar solapamientos
 
 ---
 
 ## 🔧 Características Técnicas Actuales
 
 ### Stack Tecnológico
-- **Backend**: Laravel 10 + Jetstream + Livewire
-- **Frontend**: Tailwind CSS + Alpine.js + FullCalendar
-- **Base de Datos**: MySQL 8.0+ con soporte timezone
-- **API**: RESTful con autenticación Sanctum
-- **PDF**: Browsershot (Puppeteer) + mPDF fallback
-- **Móvil**: Flutter app con sincronización NFC
+- **Backend**: Laravel 10.x + Jetstream + Livewire 3.x
+- **Frontend**: Tailwind CSS 3.x + Alpine.js + FullCalendar 6.x
+- **Base de Datos**: MySQL 8.0+ con soporte completo de timezone
+- **API**: RESTful con Sanctum para autenticación móvil
+- **PDF**: Browsershot (Puppeteer/Chromium) + mPDF como fallback
+- **Móvil**: Flutter con WebView híbrida y sincronización NFC
 
-### Integraciones
-- API de festivos españoles
+### Integraciones Externas
+- API de festivos españoles (calendario oficial)
 - Sistema NFC para fichajes sin contacto
-- WebView híbrida para app móvil
 - Notificaciones push en tiempo real
+- Servicios de geolocalización
 
-### Seguridad
-- Autenticación 2FA opcional
-- Tokens de sesión seguros
-- Sanitización HTML automática
-- Auditoría completa de acciones
-- Rate limiting en API
+### Seguridad Implementada
+- Autenticación 2FA opcional (Fortify)
+- Tokens de sesión seguros (Sanctum)
+- Sanitización HTML automática (HTMLPurifier)
+- Auditoría completa de acciones críticas
+- Rate limiting en endpoints API
+- Protección CSRF en todos los formularios
+- Hash seguro de contraseñas (bcrypt)
 
 ---
 
 ## 📊 Estadísticas del Proyecto
 
+- **Período de Desarrollo**: Mayo 2022 - Enero 2026 (44 meses)
 - **Commits Totales**: 695+
 - **Idiomas Soportados**: Español, Inglés
 - **Permisos del Sistema**: 60+
-- **Roles Predefinidos**: 4
+- **Roles Predefinidos**: 4 (Administrador, Editor, Usuario, Inspector)
 - **Endpoints API**: 15+
-- **Documentos**: 10+ (multiidioma)
+- **Modelos Eloquent**: 20+
+- **Componentes Livewire**: 25+
+- **Documentos**: 10+ manuales (multiidioma)
 
 ---
 
-## 🎯 Próximos Pasos
+## 🎯 Roadmap Futuro
 
-- Mejoras en reportes avanzados
-- Dashboard personalizable por usuario
-- Aplicación móvil nativa mejorada
-- Sistema de notificaciones push
-- Integración con calendarios externos
+### Próximas Funcionalidades
+- **Reportes Avanzados**: Informes personalizables por usuario con filtros dinámicos
+- **Dashboard Configurable**: Widgets arrastrables y preferencias guardadas
+- **PWA Mejorada**: Aplicación móvil nativa con mejor offline support
+- **Notificaciones Push**: Sistema mejorado de alertas en tiempo real
+- **Integración con Calendarios**: Sincronización bidireccional con Google Calendar y Outlook
+- **API Pública**: Endpoints documentados para integraciones de terceros
+- **Turnos Rotativos**: Gestión automática de horarios por turnos
+- **Gestión de Ausencias**: Módulo completo para bajas médicas y permisos
+- **Nóminas Básicas**: Cálculo automático de horas para nóminas
+
+### Mejoras Técnicas Planificadas
+- **Laravel 11**: Migración a próxima versión LTS
+- **Redis Cache**: Implementación de caché distribuida para mejor rendimiento
+- **Queue Workers**: Procesamiento asíncrono de tareas pesadas (reportes, emails)
+- **Websockets**: Actualizaciones en tiempo real sin polling
+- **Tests Automatizados**: Incremento de cobertura con PHPUnit y Pest
+- **CI/CD Pipeline**: Automatización completa de despliegues
 
 ---
 
-**Última actualización**: Enero 2026  
+**Última actualización**: 3 de Enero de 2026  
 **Versión actual**: 1.0.0  
-**Desarrollado por**: pbenav
+**Desarrollado por**: pbenav  
+**Licencia**: Propietaria
