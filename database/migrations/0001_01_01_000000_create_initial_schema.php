@@ -165,6 +165,13 @@ return new class extends Migration
 
                 $table->unique(['team_id', 'user_id']);
             });
+        } else {
+            // Add custom_role_id column to existing team_user table if missing
+            if (!Schema::hasColumn('team_user', 'custom_role_id')) {
+                Schema::table('team_user', function (Blueprint $table) {
+                    $table->foreignId('custom_role_id')->nullable()->after('role')->constrained('roles')->onDelete('set null');
+                });
+            }
         }
 
         // Team invitations (Jetstream)
