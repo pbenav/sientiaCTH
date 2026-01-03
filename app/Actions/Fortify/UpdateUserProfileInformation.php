@@ -18,6 +18,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update($user, array $input)
     {
+        // Normalizar campos opcionales: convertir cadenas vacías a null
+        $input['family_name2'] = !empty($input['family_name2']) ? $input['family_name2'] : null;
+        $input['locale'] = !empty($input['locale']) ? $input['locale'] : null;
+
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'family_name1' => ['required', 'string', 'max:255'],
