@@ -50,6 +50,7 @@ class TeamAnnouncement extends Model
         'is_active',
         'start_date',
         'end_date',
+        'created_by',
     ];
 
     /**
@@ -60,7 +61,6 @@ class TeamAnnouncement extends Model
     protected $guarded = [
         'id',
         'team_id',
-        'created_by',
         'created_at',
         'updated_at',
     ];
