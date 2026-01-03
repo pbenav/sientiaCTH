@@ -160,14 +160,6 @@ Las contribuciones son bienvenidas. Por favor:
 
 ---
 
-## 📄 Licencia
-
-Este proyecto está bajo una licencia propietaria. Consulta el archivo [LICENSE](LICENSE) para más detalles.
-
-**Nota**: Aunque el código es visible públicamente, su uso comercial requiere autorización explícita del autor.
-
----
-
 ## 👨‍💻 Autor
 
 **Pablo Benavides** ([@pbenav](https://github.com/pbenav))
