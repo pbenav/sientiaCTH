@@ -43,14 +43,21 @@ CTH es una solución integral de código abierto para la gestión del control ho
 La documentación detallada está disponible en el directorio `public/docs` y se filtra automáticamente en la aplicación según el idioma de preferencia del usuario:
 
 ### Español 🇪🇸
-- [Manual de Usuario](public/docs/es/USER_MANUAL.md)
-- [Manual del Desarrollador](public/docs/es/DEVELOPER_MANUAL.md)
-- [Referencia API](public/docs/es/REFERENCIA_API.md)
+- [Manual de Usuario](public/docs/es/USER_MANUAL.md) - Guía completa para usuarios finales
+- [Manual del Desarrollador](public/docs/es/DEVELOPER_MANUAL.md) - Documentación técnica para desarrolladores
+- [Referencia API](public/docs/es/REFERENCIA_API.md) - Endpoints de la API móvil
+- [Registro de Cambios](public/docs/es/CHANGELOG.md) - Historial completo del proyecto
 
 ### English 🇺🇸
-- [User Manual](public/docs/en/USER_MANUAL.md)
-- [Developer Manual](public/docs/en/DEVELOPER_MANUAL.md)
-- [API Reference](public/docs/en/API_REFERENCE.md)
+- [User Manual](public/docs/en/USER_MANUAL.md) - Complete guide for end users
+- [Developer Manual](public/docs/en/DEVELOPER_MANUAL.md) - Technical documentation for developers
+- [API Reference](public/docs/en/API_REFERENCE.md) - Mobile API endpoints
+- [Changelog](public/docs/en/CHANGELOG.md) - Complete project history
+
+### Technical Documentation 🔧
+- [Permission System Analysis](public/docs/technical/PERMISSION_SYSTEM_ANALYSIS.md) - Deep dive into permissions architecture
+- [Permission System Guide](public/docs/technical/PERMISSION_SYSTEM_GUIDE.md) - Developer guide for permissions
+- [Performance Optimization](public/docs/technical/PERFORMANCE_OPTIMIZATION.md) - Performance improvements and benchmarks
 
 ---
 
