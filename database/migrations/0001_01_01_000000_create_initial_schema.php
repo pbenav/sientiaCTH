@@ -12,10 +12,11 @@ use Illuminate\Support\Facades\Schema;
  * 
  * This migration consolidates all previous migrations into a single, optimized schema.
  * It includes all core tables, optimized indexes for performance, and proper foreign key constraints.
- * It is designed to be fully idempotent.
+ * It is designed to be fully idempotent and handles incremental updates for existing databases.
  * 
- * @version 1.0.1
+ * @version 1.0.2
  * @since 2026-01-02
+ * @updated 2026-01-03
  */
 return new class extends Migration
 {
@@ -58,6 +59,13 @@ return new class extends Migration
                 // Indexes for performance
                 $table->index('email_verified_at');
             });
+        } else {
+            // Add missing columns to existing users table
+            if (!Schema::hasColumn('users', 'locale')) {
+                Schema::table('users', function (Blueprint $table) {
+                    $table->string('locale', 5)->default('es')->after('notify_new_messages')->comment('User preferred language (es, en)');
+                });
+            }
         }
 
         // Password resets
@@ -119,6 +127,14 @@ return new class extends Migration
                     ->comment('Maximum number of teams that members of this team can create');
                 $table->timestamps();
             });
+        } else {
+            // Add missing columns to existing teams table
+            if (!Schema::hasColumn('teams', 'max_member_teams')) {
+                Schema::table('teams', function (Blueprint $table) {
+                    $table->unsignedInteger('max_member_teams')->default(5)->after('special_event_color')
+                        ->comment('Maximum number of teams that members of this team can create');
+                });
+            }
         }
 
         // Permissions system
