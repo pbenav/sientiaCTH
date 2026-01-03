@@ -19,8 +19,14 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
     public function update($user, array $input)
     {
         // Normalizar campos opcionales: convertir cadenas vacías a null
-        $input['family_name2'] = !empty($input['family_name2']) ? $input['family_name2'] : null;
-        $input['locale'] = !empty($input['locale']) ? $input['locale'] : null;
+        if (empty($input['family_name2'])) {
+            $input['family_name2'] = null;
+        }
+        
+        // Si locale está vacío, usar el valor actual del usuario o 'es' por defecto
+        if (empty($input['locale'])) {
+            $input['locale'] = $user->locale ?? 'es';
+        }
 
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
@@ -29,7 +35,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'user_code' => ['required', 'max:10', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
-            'locale' => ['nullable', 'string', 'in:es,en'],
+            'locale' => ['required', 'string', 'in:es,en'],
         ])->validateWithBag('updateProfileInformation');
 
         if (isset($input['photo'])) {
