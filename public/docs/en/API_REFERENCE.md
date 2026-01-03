@@ -244,3 +244,25 @@ Retrieves public information about a worker by their code.
     "photo_url": "..."
 }
 ```
+
+---
+
+## 🔐 Permission & Role System
+
+### System Roles
+
+CTH implements a granular permission system with the following roles:
+
+- **Administrator**: Full team control and configuration
+- **Editor**: User permissions + announcement management
+- **User**: Standard access for clocking and queries
+- **Inspector**: Read-only access for auditing
+
+### Key Permissions
+
+- `teams.limits.manage`: Manage team creation limit per member
+- `announcements.create/update/delete`: Announcement management (Admin and Editor)
+- `events.view.team`: View team events
+- `events.create.team`: Create events for other members (Admin)
+
+**Note**: The mobile API automatically validates permissions based on the user's role in the active team context.

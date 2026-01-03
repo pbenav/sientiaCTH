@@ -244,3 +244,25 @@ Obtiene información pública sobre un trabajador mediante su código.
     "photo_url": "..."
 }
 ```
+
+---
+
+## 🔐 Sistema de Permisos y Roles
+
+### Roles del Sistema
+
+CTH implementa un sistema de permisos granular con los siguientes roles:
+
+- **Administrador**: Control total del equipo y configuración
+- **Editor**: Permisos de usuario + gestión de anuncios
+- **Usuario**: Acceso estándar para fichaje y consultas
+- **Inspector**: Solo lectura para auditorías
+
+### Permisos Clave
+
+- `teams.limits.manage`: Gestionar límite de equipos por miembro
+- `announcements.create/update/delete`: Gestión de anuncios (Admin y Editor)
+- `events.view.team`: Ver eventos del equipo
+- `events.create.team`: Crear eventos para otros miembros (Admin)
+
+**Nota**: La API móvil valida permisos automáticamente según el rol del usuario en el contexto del equipo activo.
