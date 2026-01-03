@@ -105,8 +105,36 @@ The mobile application communicates with the backend via a **REST API**.
 ## 8. Artisan Commands
 
 Custom commands have been developed to facilitate maintenance:
-- `php artisan cth:install`: Initial system configuration.
-- `php artisan cth:sync-holidays`: Holiday import from external APIs.
+
+### Installation and Configuration Commands
+- `php artisan cth:install`: Initial system configuration
+- `php artisan cth:sync-holidays`: Holiday import from external APIs
+
+### Database Commands
+- `php artisan db:verify-schema`: Verifies database schema integrity
+  - `--fix`: Automatically adds missing columns
+  - `--table=name`: Verifies only a specific table
+  
+  **Usage examples:**
+  ```bash
+  # Verify complete schema
+  php artisan db:verify-schema
+  
+  # Verify and automatically repair
+  php artisan db:verify-schema --fix
+  
+  # Verify only the users table
+  php artisan db:verify-schema --table=users
+  ```
+
+This command is especially useful when:
+- Updating a production database
+- Missing columns added in recent updates
+- Need to verify schema integrity without running migrations
+
+### Permission Commands
+- `php artisan permissions:sync`: Syncs permission matrix with database
+- `php artisan permissions:update`: Updates system permissions and roles
 
 ---
 

@@ -107,8 +107,36 @@ Se utiliza **Laravel Sanctum** para la gestión de **Tokens** de API. Cada usuar
 ## 8. Comandos Artisan
 
 Se han desarrollado comandos personalizados para facilitar el mantenimiento:
-- `php artisan cth:install`: Configuración inicial del sistema.
-- `php artisan cth:sync-holidays`: Importación de días festivos desde APIs externas.
+
+### Comandos de Instalación y Configuración
+- `php artisan cth:install`: Configuración inicial del sistema
+- `php artisan cth:sync-holidays`: Importación de días festivos desde APIs externas
+
+### Comandos de Base de Datos
+- `php artisan db:verify-schema`: Verifica la integridad del esquema de base de datos
+  - `--fix`: Añade automáticamente las columnas faltantes
+  - `--table=nombre`: Verifica solo una tabla específica
+  
+  **Ejemplo de uso:**
+  ```bash
+  # Verificar el esquema completo
+  php artisan db:verify-schema
+  
+  # Verificar y reparar automáticamente
+  php artisan db:verify-schema --fix
+  
+  # Verificar solo la tabla users
+  php artisan db:verify-schema --table=users
+  ```
+
+Este comando es especialmente útil cuando:
+- Se actualiza una base de datos en producción
+- Faltan columnas añadidas en actualizaciones recientes
+- Se necesita verificar la integridad del esquema sin ejecutar migraciones
+
+### Comandos de Permisos
+- `php artisan permissions:sync`: Sincroniza la matriz de permisos con la base de datos
+- `php artisan permissions:update`: Actualiza permisos y roles del sistema
 
 ---
 
