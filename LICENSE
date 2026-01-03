@@ -1,49 +1,21 @@
-Proprietary License
+MIT License
 
-Copyright (c) 2022-2026 Pablo Benavides (pbenav)
+Copyright (c) 2022-2026 pbenav
 
-All rights reserved.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-TERMS AND CONDITIONS
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. GRANT OF LICENSE
-   The software and associated documentation files (the "Software") are made 
-   available for viewing and educational purposes only. No license is granted 
-   for commercial use, modification, or distribution without explicit written 
-   permission from the copyright holder.
-
-2. PERMITTED USE
-   You are permitted to:
-   - View and study the source code
-   - Use the Software for personal, non-commercial purposes
-   - Fork the repository for personal learning
-   - Submit pull requests for improvements (which may be accepted at the 
-     author's discretion)
-
-3. RESTRICTIONS
-   You may NOT:
-   - Use the Software for commercial purposes without written authorization
-   - Distribute the Software or derivative works
-   - Remove or alter any copyright notices
-   - Claim the Software as your own work
-   - Use the Software in any way that violates applicable laws
-
-4. COMMERCIAL USE
-   For commercial use, enterprise licenses, or custom development, please 
-   contact the copyright holder at: [your-email@example.com]
-
-5. NO WARRANTY
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-
-6. TERMINATION
-   This license is effective until terminated. Your rights under this license 
-   will terminate automatically without notice if you fail to comply with any 
-   of its terms.
-
-For questions about licensing, please contact: [your-email@example.com]
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

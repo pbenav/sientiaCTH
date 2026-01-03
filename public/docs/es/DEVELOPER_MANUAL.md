@@ -4,20 +4,74 @@ Este documento proporciona una guía técnica detallada para desarrolladores que
 
 ## 📋 Tabla de Contenidos
 
-1. [Arquitectura del Sistema](#arquitectura-del-sistema)
-2. [Stack Tecnológico](#stack-tecnológico)
-3. [Estructura del Proyecto](#estructura-del-proyecto)
-4. [Base de Datos y Modelos](#base-de-datos-y-modelos)
-5. [Lógica de Negocio (Services)](#lógica-de-negocio-services)
-6. [Frontend y Livewire](#frontend-y-livewire)
-7. [API y Aplicación Móvil](#api-y-aplicación-móvil)
-8. [Comandos Artisan](#comandos-artisan)
-9. [Despliegue y Configuración](#despliegue-y-configuración)
-10. [Seguridad y Auditoría](#seguridad-y-auditoría)
+1. [Licencia y Términos de Uso](#licencia-y-términos-de-uso)
+2. [Arquitectura del Sistema](#arquitectura-del-sistema)
+3. [Stack Tecnológico](#stack-tecnológico)
+4. [Estructura del Proyecto](#estructura-del-proyecto)
+5. [Base de Datos y Modelos](#base-de-datos-y-modelos)
+6. [Lógica de Negocio (Services)](#lógica-de-negocio-services)
+7. [Frontend y Livewire](#frontend-y-livewire)
+8. [API y Aplicación Móvil](#api-y-aplicación-móvil)
+9. [Comandos Artisan](#comandos-artisan)
+10. [Despliegue y Configuración](#despliegue-y-configuración)
+11. [Seguridad y Auditoría](#seguridad-y-auditoría)
 
 ---
 
-## 1. Arquitectura del Sistema
+## 1. Licencia y Términos de Uso
+
+### Software Libre bajo Licencia MIT
+
+CTH (Control de Tiempo y Horarios) es **software libre y gratuito** distribuido bajo la [Licencia MIT](../../../LICENSE).
+
+**Copyright © 2022-2026 pbenav**
+
+#### Permisos
+
+Bajo esta licencia, tienes permitido:
+- ✅ **Uso comercial**: Usar el software en proyectos comerciales
+- ✅ **Modificación**: Adaptar el código a tus necesidades
+- ✅ **Distribución**: Compartir el software original o modificado
+- ✅ **Uso privado**: Usar el software para proyectos personales
+- ✅ **Sublicenciar**: Incluir el software en proyectos con otras licencias compatibles
+
+#### Condiciones
+
+La única condición es que:
+- 📄 Incluyas el aviso de copyright y la licencia MIT en todas las copias o porciones sustanciales del software
+
+#### Limitaciones
+
+- ⚠️ **Sin garantía**: El software se proporciona "tal cual", sin garantías de ningún tipo
+- ⚠️ **Sin responsabilidad**: Los autores no se hacen responsables de daños derivados del uso del software
+
+#### Encabezado de Licencia para Archivos de Código
+
+Al crear nuevos archivos PHP, utiliza el siguiente encabezado estándar:
+
+```php
+<?php
+
+/**
+ * CTH - Control de Tiempo y Horarios
+ * 
+ * Este archivo es parte de CTH, una plataforma integral de gestión
+ * de tiempo y control horario empresarial.
+ * 
+ * @package     CTH
+ * @author      pbenav
+ * @copyright   2022-2026 pbenav
+ * @license     MIT License
+ * @link        https://github.com/pbenav/cth
+ * @since       Version 1.0.0
+ */
+```
+
+Para más detalles, consulta el archivo [LICENSE](../../../LICENSE) en la raíz del proyecto.
+
+---
+
+## 2. Arquitectura del Sistema
 
 CTH sigue una arquitectura monolítica modular basada en el framework Laravel. El sistema está diseñado para ser escalable y fácil de mantener, utilizando patrones de diseño como **Service Pattern** y **Repository Pattern** (donde aplica).
 

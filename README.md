@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/pbenav/cth/releases)
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com)
-[![License](https://img.shields.io/badge/license-Proprietary-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)](https://php.net)
 
 CTH es una solución integral de código abierto para la gestión del control horario y la productividad empresarial, compuesta por una potente plataforma web (Laravel + Livewire) y una aplicación móvil multiplataforma (Flutter).
@@ -206,8 +206,29 @@ Para ver el historial completo de cambios, consulta el [CHANGELOG](public/docs/e
 
 **⭐ Si este proyecto te resulta útil, considera darle una estrella en GitHub**
 
-- **Seguridad**: Si descubres alguna vulnerabilidad, por favor abre una **incidencia** (issue) o contacta directamente con el equipo de desarrollo.
-- **Licencia**: Este proyecto se distribuye bajo la licencia MIT.
+---
+
+## 📄 Licencia
+
+CTH es **software libre y gratuito** distribuido bajo la [Licencia MIT](LICENSE).
+
+Esto significa que puedes:
+- ✅ **Usar** el software para cualquier propósito (personal o comercial)
+- ✅ **Modificar** el código según tus necesidades
+- ✅ **Distribuir** copias del software
+- ✅ **Sublicenciar** y vender copias del software modificado
+
+La única condición es que incluyas el aviso de copyright y la licencia MIT en todas las copias o porciones sustanciales del software.
+
+**Autor**: pbenav (2022-2026)  
+**Licencia completa**: Ver archivo [LICENSE](LICENSE)
 
 ---
-*© 2026 CTH - Control de Tiempo y Horarios*
+
+## 🔒 Seguridad
+
+Si descubres alguna vulnerabilidad de seguridad, por favor **NO** la publiques en GitHub Issues. En su lugar, contacta directamente con el equipo de desarrollo para que pueda ser atendida de forma responsable.
+
+---
+
+*© 2022-2026 pbenav - CTH es software libre bajo licencia MIT*

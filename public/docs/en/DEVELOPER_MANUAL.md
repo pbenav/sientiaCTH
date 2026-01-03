@@ -4,20 +4,74 @@ This document provides a detailed technical guide for developers who wish to mai
 
 ## 📋 Table of Contents
 
-1. [System Architecture](#system-architecture)
-2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [Database and Models](#database-and-models)
-5. [Business Logic (Services)](#business-logic-services)
-6. [Frontend and Livewire](#frontend-and-livewire)
-7. [API and Mobile Application](#api-and-mobile-application)
-8. [Artisan Commands](#artisan-commands)
-9. [Deployment and Configuration](#deployment-and-configuration)
-10. [Security and Auditing](#security-and-auditing)
+1. [License and Terms of Use](#license-and-terms-of-use)
+2. [System Architecture](#system-architecture)
+3. [Technology Stack](#technology-stack)
+4. [Project Structure](#project-structure)
+5. [Database and Models](#database-and-models)
+6. [Business Logic (Services)](#business-logic-services)
+7. [Frontend and Livewire](#frontend-and-livewire)
+8. [API and Mobile Application](#api-and-mobile-application)
+9. [Artisan Commands](#artisan-commands)
+10. [Deployment and Configuration](#deployment-and-configuration)
+11. [Security and Auditing](#security-and-auditing)
 
 ---
 
-## 1. System Architecture
+## 1. License and Terms of Use
+
+### Free Software under MIT License
+
+CTH (Time and Schedule Control) is **free and open-source software** distributed under the [MIT License](../../../LICENSE).
+
+**Copyright © 2022-2026 pbenav**
+
+#### Permissions
+
+Under this license, you are permitted to:
+- ✅ **Commercial use**: Use the software in commercial projects
+- ✅ **Modification**: Adapt the code to your needs
+- ✅ **Distribution**: Share the original or modified software
+- ✅ **Private use**: Use the software for personal projects
+- ✅ **Sublicensing**: Include the software in projects with other compatible licenses
+
+#### Conditions
+
+The only condition is that:
+- 📄 You include the copyright notice and MIT license in all copies or substantial portions of the software
+
+#### Limitations
+
+- ⚠️ **No warranty**: The software is provided "as is", without warranties of any kind
+- ⚠️ **No liability**: The authors are not liable for damages arising from the use of the software
+
+#### License Header for Code Files
+
+When creating new PHP files, use the following standard header:
+
+```php
+<?php
+
+/**
+ * CTH - Time and Schedule Control
+ * 
+ * This file is part of CTH, a comprehensive time and
+ * work schedule management platform.
+ * 
+ * @package     CTH
+ * @author      pbenav
+ * @copyright   2022-2026 pbenav
+ * @license     MIT License
+ * @link        https://github.com/pbenav/cth
+ * @since       Version 1.0.0
+ */
+```
+
+For more details, see the [LICENSE](../../../LICENSE) file in the project root.
+
+---
+
+## 2. System Architecture
 
 CTH follows a modular monolithic architecture based on the Laravel framework. The system is designed to be scalable and easy to maintain, using design patterns such as the **Service Pattern** and **Repository Pattern** (where applicable).
 
