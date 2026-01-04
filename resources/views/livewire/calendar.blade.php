@@ -1,4 +1,4 @@
-<div>
+<div wire:key="calendar-{{ $refreshKey }}">
     @livewire('add-event')
     @livewire('edit-event')
     @livewire('events.event-details-modal') {{-- Unified modal --}}
@@ -13,9 +13,8 @@
             document.addEventListener('livewire:load', function() {
                 var calendarEl = document.getElementById('calendar');
 
-
-                
-                var calendar = new FullCalendar.Calendar(calendarEl, {
+                // Store calendar instance globally for refresh
+                window.fullCalendarInstance = new FullCalendar.Calendar(calendarEl, {
                     plugins: [
                         FullCalendar.dayGridPlugin,
                         FullCalendar.timeGridPlugin,
@@ -54,16 +53,22 @@
 
                     // Callback for clicking an event
                     eventClick: function(info) {
+                        console.log('[DEBUG] Event clicked:', {
+                            id: info.event.id,
+                            hasPrefix: info.event.id.startsWith('event_'),
+                            extendedProps: info.event.extendedProps
+                        });
+                        
                         // Only allow editing user events, not holidays
                         if (info.event.id.startsWith('event_')) {
-                            const eventId = info.event.id.replace('event_', '');
+                            const eventId = parseInt(info.event.id.replace('event_', ''));
                             // Check if event is closed by looking at the icon
                             const iconHtml = info.event.extendedProps.iconHtml || '';
                             const isClosed = iconHtml.includes('fa-lock') && !iconHtml.includes('fa-lock-open');
                             
                             if (isClosed) {
                                 // Show info modal for closed events using unified modal
-                                Livewire.emit('showEventDetails', parseInt(eventId));
+                                Livewire.emit('showEventDetails', eventId);
                             } else {
                                 // Allow editing open events
                                 @this.call('triggerEditModal', eventId);
@@ -97,7 +102,8 @@
                             cancelButtonText: "{{ __('sweetalert.calendar.event_drop.cancelButtonText') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                @this.emit('eventDrop', info.event.id.replace('event_', ''), info.event.start.toISOString(), info.event.end.toISOString());
+                                const eventId = parseInt(info.event.id.replace('event_', ''));
+                                @this.emit('eventDrop', eventId, info.event.start.toISOString(), info.event.end.toISOString());
                             } else {
                                 info.revert();
                             }
@@ -122,7 +128,8 @@
                             cancelButtonText: "{{ __('sweetalert.calendar.event_resize.cancelButtonText') }}"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                @this.emit('eventResize', info.event.id.replace('event_', ''), info.event.start.toISOString(), info.event.end.toISOString());
+                                const eventId = parseInt(info.event.id.replace('event_', ''));
+                                @this.emit('eventResize', eventId, info.event.start.toISOString(), info.event.end.toISOString());
                             } else {
                                 info.revert();
                             }
@@ -141,7 +148,7 @@
                     }
                 });
 
-                calendar.render();
+                window.fullCalendarInstance.render();
                 
                 // Inject CSS styles after render to override FullCalendar
                 const style = document.createElement('style');
@@ -268,11 +275,31 @@
                     }
                 `;
                 document.head.appendChild(style);
+            });
+        </script>
 
-                window.addEventListener('refresh-calendar', event => {
-                    calendar.removeAllEvents();
-                    calendar.addEventSource(event.detail.events);
-                });
+        <script>
+            // Save scroll position before reload
+            window.addEventListener('beforeunload', () => {
+                sessionStorage.setItem('calendarScrollPosition', window.scrollY);
+            });
+
+            // Restore scroll position after reload
+            document.addEventListener('DOMContentLoaded', () => {
+                const scrollPosition = sessionStorage.getItem('calendarScrollPosition');
+                if (scrollPosition !== null) {
+                    window.scrollTo(0, parseInt(scrollPosition));
+                    sessionStorage.removeItem('calendarScrollPosition');
+                }
+            });
+
+            // Listen for page reload event
+            window.addEventListener('reload-page', () => {
+                console.log('Reloading page to refresh calendar');
+                // Save scroll position before reload
+                sessionStorage.setItem('calendarScrollPosition', window.scrollY);
+                // Force hard reload without cache
+                window.location.href = window.location.href;
             });
         </script>
 

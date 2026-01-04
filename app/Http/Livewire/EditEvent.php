@@ -271,15 +271,12 @@ class EditEvent extends Component
         }
 
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
-            // For all-day events, convert from local timezone to UTC
-            // User enters 2025-03-05, which means 2025-03-05 00:00:00 in Europe/Madrid
-            // This should be stored as 2025-03-04 23:00:00 UTC (CET) or 2025-03-04 22:00:00 UTC (CEST)
-            $this->event->start = Carbon::parse($this->start_date . ' 00:00:00', config('app.timezone'))
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
-            $this->event->end = Carbon::parse($this->end_date . ' 23:59:59', config('app.timezone'))
-                ->setTimezone('UTC')
-                ->format('Y-m-d H:i:s');
+            // For all-day events, store pure dates in UTC without timezone conversion
+            // User enters 2025-03-05, should be stored as 2025-03-05 00:00:00 UTC (not converted)
+            // This ensures the event displays on the correct calendar day regardless of timezone
+            // Parse directly as UTC date without any timezone conversion
+            $this->event->start = Carbon::createFromFormat('Y-m-d', $this->start_date, 'UTC')->startOfDay()->toDateTimeString();
+            $this->event->end = Carbon::createFromFormat('Y-m-d', $this->end_date, 'UTC')->startOfDay()->toDateTimeString();
         } else {
             // Combine separate date and time fields
             $startDateTime = $this->start_date . ' ' . $this->start_time;
@@ -365,8 +362,8 @@ class EditEvent extends Component
         $this->emitTo('get-time-registers', '$refresh'); // Forzar refresco del listado de eventos
         Log::info('Señal emitTo(\'get-time-registers\', \'$refresh\') enviada.');
 
+        // Refresh the entire calendar component to keep Livewire in sync
         $this->emit('refreshCalendar');
-        Log::info("Señal emit('refreshCalendar') enviada.");
 
         $this->showModalEditEvent = false;
         Log::info("Modal de edición cerrado.");

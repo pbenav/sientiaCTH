@@ -189,6 +189,15 @@ class AddEvent extends Component
      */
     public function save($gpsLatitude = null, $gpsLongitude = null)
     {
+        \Log::info('AddEvent::save called', [
+            'gpsLatitude' => $gpsLatitude,
+            'gpsLongitude' => $gpsLongitude,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+            'event_type_id' => $this->event_type_id,
+            'origin' => $this->origin
+        ]);
+        
         // Override latitude/longitude with GPS parameters if provided
         if ($gpsLatitude !== null && $gpsLongitude !== null) {
             $this->latitude = $gpsLatitude;
@@ -277,11 +286,12 @@ class AddEvent extends Component
         ];
 
         if ($this->selectedEventType && $this->selectedEventType->is_all_day) {
-            // For all-day events, convert from local timezone to UTC
-            // User enters 2025-03-05, which means 2025-03-05 00:00:00 in Europe/Madrid
-            // This should be stored as 2025-03-04 23:00:00 UTC (CET) or 2025-03-04 22:00:00 UTC (CEST)
-            $data['start'] = Carbon::parse($this->start_date . ' 00:00:00', $appTimezone)->setTimezone('UTC');
-            $data['end'] = Carbon::parse($this->end_date . ' 23:59:59', $appTimezone)->setTimezone('UTC');
+            // For all-day events, store pure dates in UTC without timezone conversion
+            // User enters 2025-03-05, should be stored as 2025-03-05 00:00:00 UTC (not converted)
+            // This ensures the event displays on the correct calendar day regardless of timezone
+            // Parse directly as UTC date without any timezone conversion
+            $data['start'] = Carbon::createFromFormat('Y-m-d', $this->start_date, 'UTC')->startOfDay()->toDateTimeString();
+            $data['end'] = Carbon::createFromFormat('Y-m-d', $this->end_date, 'UTC')->startOfDay()->toDateTimeString();
         } else {
             $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone)->setTimezone('UTC');
             $data['end'] = null;
@@ -298,6 +308,13 @@ class AddEvent extends Component
         }
 
         $event = Event::create($data);
+        
+        \Log::info('AddEvent::save - Event created', [
+            'event_id' => $event->id,
+            'start' => $event->start,
+            'end' => $event->end,
+            'is_all_day' => $event->eventType ? $event->eventType->is_all_day : false
+        ]);
 
         if ($isExtraHours) {
             session()->flash('info', __('The event has been registered as overtime as it was not found in a defined time slot.'));
@@ -325,8 +342,92 @@ class AddEvent extends Component
             return redirect()->route('events')->with('info', 'E_SUCCESS');
         } else {
             $this->emitTo('get-time-registers', 'render');
+            
+            // Refresh the entire calendar component to keep Livewire in sync
             $this->emit('refreshCalendar');
         }
+    }
+
+    /**
+     * Get all events for the calendar (same logic as Calendar::getEvents)
+     */
+    private function getAllEventsForCalendar()
+    {
+        $user = Auth::user();
+        if (!$user || !$user->currentTeam) {
+            return [];
+        }
+
+        $teamTimezone = $user->currentTeam->timezone ?? config('app.timezone');
+
+        // Get user events from current team
+        $userEvents = \App\Models\Event::with('eventType')
+            ->where('user_id', $user->id)
+            ->where('team_id', $user->currentTeam->id)
+            ->get()
+            ->map(function ($eventModel) use ($teamTimezone, $user) {
+                $iconHtml = $eventModel->is_open
+                    ? '<i class="ml-1 mr-2 fa-solid fa-lock-open" style="color: #28a745;"></i>'
+                    : '<i class="ml-1 mr-2 fa-solid fa-lock" style="color: #dc3545;"></i>';
+
+                $eventColor = '#3788d8';
+                
+                if ($eventModel->is_exceptional) {
+                    $eventColor = $user->currentTeam->special_event_color ?? '#DC2626';
+                } elseif ($eventModel->eventType) {
+                    if ($eventModel->eventType->color) {
+                        $eventColor = $eventModel->eventType->color;
+                    } elseif (!$eventModel->eventType->is_workday_type) {
+                        $eventColor = $user->currentTeam->special_event_color ?? '#EA8000';
+                    }
+                } else {
+                    $eventColor = $user->currentTeam->special_event_color ?? '#EA8000';
+                }
+                
+                // Prepare end date for calendar display
+                $endDate = null;
+                if ($eventModel->end) {
+                    if ($eventModel->eventType && $eventModel->eventType->is_all_day) {
+                        $startDate = \Carbon\Carbon::parse($eventModel->start, 'UTC')->startOfDay();
+                        $endDateCarbon = \Carbon\Carbon::parse($eventModel->end, 'UTC')->startOfDay();
+                        
+                        if (!$startDate->isSameDay($endDateCarbon)) {
+                            $endDate = $endDateCarbon->addDay()->format('Y-m-d');
+                        }
+                    } else {
+                        $endDate = \Carbon\Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String();
+                    }
+                }
+                
+                return [
+                    'id' => 'event_' . $eventModel->id,
+                    'title' => $eventModel->description,
+                    'iconHtml' => $iconHtml,
+                    'start' => $eventModel->eventType && $eventModel->eventType->is_all_day
+                        ? \Carbon\Carbon::parse($eventModel->start, 'UTC')->format('Y-m-d')
+                        : \Carbon\Carbon::parse($eventModel->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
+                    'end' => $endDate,
+                    'color' => $eventColor,
+                    'allDay' => $eventModel->eventType->is_all_day ?? false,
+                    'editable' => $eventModel->is_open && ($user->ownsTeam($user->currentTeam) || $user->hasTeamRole($user->currentTeam, 'admin') || $eventModel->user_id === $user->id),
+                ];
+            });
+
+        // Get team holidays
+        $holidays = \App\Models\Holiday::where('team_id', $user->currentTeam->id)
+            ->get()
+            ->map(function ($holiday) {
+                return [
+                    'id' => 'holiday_' . $holiday->id,
+                    'title' => $holiday->name,
+                    'iconHtml' => '<i class="ml-1 mr-2 fa-solid fa-calendar-day" style="color: #ff6b35;"></i>',
+                    'start' => $holiday->date->format('Y-m-d'),
+                    'color' => '#ff6b35',
+                    'allDay' => true,
+                ];
+            });
+
+        return collect(array_merge($userEvents->all(), $holidays->all()));
     }
 
     /**

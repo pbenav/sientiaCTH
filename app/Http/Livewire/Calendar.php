@@ -20,6 +20,13 @@ class Calendar extends Component
 {
     use HandlesEventAuthorization;
 
+    public $refreshKey;
+
+    public function mount()
+    {
+        $this->refreshKey = now()->timestamp;
+    }
+
     /**
      * The event listeners for the component.
      *
@@ -137,7 +144,9 @@ class Calendar extends Component
      */
     public function refresh(): void
     {
-        $this->dispatchBrowserEvent('refresh-calendar', ['events' => $this->getEvents()]);
+        \Log::info('Calendar::refresh called - forcing full page reload');
+        // Force a full page reload to ensure everything is in sync
+        $this->dispatchBrowserEvent('reload-page');
     }
 
     /**
@@ -156,10 +165,20 @@ class Calendar extends Component
         if ($event) {
             if ($this->canModifyEvent($event)) {
                 if ($event->eventType && $event->eventType->is_all_day) {
-                    // For all-day events, store as pure dates in UTC
+                    // For all-day events, store pure dates in UTC without timezone conversion
+                    $startDate = Carbon::parse($newStart)->format('Y-m-d');
+                    $endDate = $newEnd ? Carbon::parse($newEnd)->format('Y-m-d') : null;
+                    
+                    // For all-day events, FullCalendar sends exclusive end dates
+                    // Check if it's a multi-day event (end is provided and different from start)
+                    if ($endDate && $startDate !== $endDate) {
+                        // Subtract one day to get the actual last day (FullCalendar uses exclusive end)
+                        $endDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+                    }
+                    
                     $event->update([
-                        'start' => Carbon::parse($newStart)->format('Y-m-d') . ' 00:00:00',
-                        'end' => $newEnd ? Carbon::parse($newEnd)->format('Y-m-d') . ' 00:00:00' : null,
+                        'start' => $startDate . ' 00:00:00',
+                        'end' => $endDate ? $endDate . ' 00:00:00' : $startDate . ' 00:00:00',
                     ]);
                 } else {
                     // For timed events, convert from team timezone to UTC
@@ -189,10 +208,20 @@ class Calendar extends Component
         if ($event) {
             if ($this->canModifyEvent($event)) {
                 if ($event->eventType && $event->eventType->is_all_day) {
-                    // For all-day events, store as pure dates in UTC
+                    // For all-day events, store pure dates in UTC without timezone conversion
+                    $startDate = Carbon::parse($newStart)->format('Y-m-d');
+                    $endDate = Carbon::parse($newEnd)->format('Y-m-d');
+                    
+                    // For all-day events, FullCalendar sends exclusive end dates
+                    // Check if it's a multi-day event (end is different from start)
+                    if ($startDate !== $endDate) {
+                        // Subtract one day to get the actual last day (FullCalendar uses exclusive end)
+                        $endDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+                    }
+                    
                     $event->update([
-                        'start' => Carbon::parse($newStart)->format('Y-m-d') . ' 00:00:00',
-                        'end' => Carbon::parse($newEnd)->format('Y-m-d') . ' 00:00:00',
+                        'start' => $startDate . ' 00:00:00',
+                        'end' => $endDate . ' 00:00:00',
                     ]);
                 } else {
                     // For timed events, convert from team timezone to UTC
@@ -206,6 +235,12 @@ class Calendar extends Component
         }
     }
 
+    /**
+     * Add a newly created event to the calendar without full refresh.
+     *
+     * @param int $eventId
+     * @return void
+     */
     /**
      * Trigger the edit event modal.
      *
@@ -307,6 +342,25 @@ class Calendar extends Component
                     $eventColor = $user->currentTeam->special_event_color ?? '#EA8000';
                 }
                 
+                // Prepare end date for calendar display
+                $endDate = null;
+                if ($eventModel->end) {
+                    if ($eventModel->eventType && $eventModel->eventType->is_all_day) {
+                        $startDate = Carbon::parse($eventModel->start, 'UTC')->startOfDay();
+                        $endDateCarbon = Carbon::parse($eventModel->end, 'UTC')->startOfDay();
+                        
+                        // Only set end if it's a multi-day event
+                        // For single-day events, leave end as null
+                        if (!$startDate->isSameDay($endDateCarbon)) {
+                            // For multi-day all-day events, FullCalendar expects exclusive end dates (next day)
+                            $endDate = $endDateCarbon->addDay()->format('Y-m-d');
+                        }
+                    } else {
+                        // For timed events, convert to team timezone
+                        $endDate = Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String();
+                    }
+                }
+                
                 return [
                     'id' => 'event_' . $eventModel->id,
                     'title' => $eventModel->description,
@@ -314,11 +368,7 @@ class Calendar extends Component
                     'start' => $eventModel->eventType && $eventModel->eventType->is_all_day
                         ? Carbon::parse($eventModel->start, 'UTC')->format('Y-m-d')
                         : Carbon::parse($eventModel->start, 'UTC')->setTimezone($teamTimezone)->toIso8601String(),
-                    'end' => $eventModel->end 
-                        ? ($eventModel->eventType && $eventModel->eventType->is_all_day
-                            ? Carbon::parse($eventModel->end, 'UTC')->format('Y-m-d')
-                            : Carbon::parse($eventModel->end, 'UTC')->setTimezone($teamTimezone)->toIso8601String())
-                        : null,
+                    'end' => $endDate,
                     'color' => $eventColor,
                     'allDay' => $eventModel->eventType->is_all_day ?? false,
                     'editable' => $eventModel->is_open && ($user->ownsTeam($user->currentTeam) || $user->hasTeamRole($user->currentTeam, 'admin') || $eventModel->user_id === $user->id),
@@ -334,7 +384,7 @@ class Calendar extends Component
                     'title' => $holiday->name,
                     'iconHtml' => '<i class="ml-1 mr-2 fa-solid fa-calendar-day" style="color: #ff6b35;"></i>',
                     'start' => $holiday->date->format('Y-m-d'),
-                    'end' => $holiday->date->format('Y-m-d'),
+                    // Holidays are single-day events, no end date needed
                     'color' => '#ff6b35',
                     'allDay' => true,
                 ];
