@@ -55,6 +55,51 @@
 
     <x-jet-section-border />
 
+    <x-jet-form-section submit="updateClockInDelaySettings">
+        <x-slot name="title">
+            {{ __('Tiempo Máximo de Jornada') }}
+        </x-slot>
+
+        <x-slot name="description">
+            {{ __('Define un límite máximo de horas para la jornada laboral diaria. Si un trabajador supera este límite al fichar la salida, se le solicitará que realice un ajuste.') }}
+        </x-slot>
+
+        <x-slot name="form">
+            <!-- Max Workday Duration -->
+            <div class="col-span-6 sm:col-span-4">
+                <label for="force_max_workday_duration" class="flex items-center">
+                    @if(\Illuminate\Support\Facades\Gate::check('update', $team))
+                        <x-jet-checkbox id="force_max_workday_duration" wire:model.defer="state.force_max_workday_duration" />
+                    @else
+                        <x-jet-checkbox id="force_max_workday_duration" wire:model.defer="state.force_max_workday_duration" disabled />
+                    @endif
+                    <span class="ml-2 text-sm text-gray-600">{{ __('Forzar Tiempo Máximo de Jornada') }}</span>
+                </label>
+            </div>
+
+            @if (isset($state['force_max_workday_duration']) && $state['force_max_workday_duration'])
+                <div class="col-span-6 sm:col-span-4">
+                    <x-jet-label for="max_workday_duration_minutes" value="{{ __('Tiempo Máximo de Jornada (Minutos)') }}" />
+                    <x-jet-input id="max_workday_duration_minutes" type="number" class="mt-1 block w-full" wire:model.defer="state.max_workday_duration_minutes" />
+                    <x-jet-input-error for="max_workday_duration_minutes" class="mt-2" />
+                    <span class="mt-1 text-xs text-gray-500">
+                        {{ __('Define el número máximo de minutos que un trabajador puede fichar en un día. Si se supera, se le pedirá ajustar el fichaje.') }}
+                    </span>
+                </div>
+            @endif
+        </x-slot>
+
+        @if (Gate::check('update', $team))
+            <x-slot name="actions">
+                <x-jet-button class="bg-indigo-600 hover:bg-indigo-700">
+                    {{ __('Guardar') }}
+                </x-jet-button>
+            </x-slot>
+        @endif
+    </x-jet-form-section>
+
+    <x-jet-section-border />
+
     <x-jet-form-section submit="updateEventExpirationSettings">
         <x-slot name="title">
             {{ __('Cierre Automático de Eventos no Confirmados') }}

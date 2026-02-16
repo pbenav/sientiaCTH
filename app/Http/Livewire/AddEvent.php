@@ -114,7 +114,7 @@ class AddEvent extends Component
         $this->start_date = date('Y-m-d');
         $this->end_date = date('Y-m-d');
         $this->start_time = date('H:i:s');
-        $this->end_time = date('H:i:s');
+        $this->end_time = ''; // Empty by default - events are created OPEN
         $this->description = __('Workday');
         $this->observations = '';
         $this->eventTypes = collect();
@@ -140,12 +140,12 @@ class AddEvent extends Component
             $this->start_date = $date->format('Y-m-d');
             $this->end_date = $date->format('Y-m-d');
             $this->start_time = $date->format('H:i:s');
-            $this->end_time = $date->format('H:i:s');
+            $this->end_time = ''; // Empty - create OPEN events
         } else {
             $this->start_date = date('Y-m-d');
             $this->end_date = date('Y-m-d');
             $this->start_time = date('H:i:s');
-            $this->end_time = date('H:i:s');
+            $this->end_time = ''; // Empty - create OPEN events
         }
         $this->description = __('Workday');
 
@@ -179,6 +179,17 @@ class AddEvent extends Component
             $this->redirect('/events');
         }
     }
+
+    /**
+     * Save the new event.
+     *
+     * @param float|null $gpsLatitude
+     * @param float|null $gpsLongitude
+     * @return \Illuminate\Http\RedirectResponse|void
+     */
+    public $showAdjustmentModal = false;
+    public $maxMinutes = 0;
+    public $currentMinutes = 0;
 
     /**
      * Save the new event.
@@ -294,7 +305,10 @@ class AddEvent extends Component
             $data['end'] = Carbon::createFromFormat('Y-m-d', $this->end_date, 'UTC')->startOfDay()->toDateTimeString();
         } else {
             $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone)->setTimezone('UTC');
+            // AddEvent creates OPEN events by default (Clock In behavior)
+            // The form doesn't show end time fields for regular events
             $data['end'] = null;
+            $data['is_open'] = true;
         }
 
         if (Schema::hasColumn('events', 'is_authorized')) {
@@ -307,7 +321,15 @@ class AddEvent extends Component
             $data['longitude'] = $this->longitude;
         }
 
-        $event = Event::create($data);
+        try {
+            $event = Event::create($data);
+        } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
+            $this->showAdjustmentModal = true;
+            $this->maxMinutes = $e->maxMinutes;
+            $this->currentMinutes = $e->currentMinutes;
+            // Keep the modal open
+            return;
+        }
         
         \Log::info('AddEvent::save - Event created', [
             'event_id' => $event->id,
@@ -335,6 +357,7 @@ class AddEvent extends Component
         }
 
         $this->reset(['showAddEventModal']);
+        $this->showAdjustmentModal = false;
 
         if ($this->origin == 'numpad') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
@@ -346,6 +369,93 @@ class AddEvent extends Component
             // Refresh the entire calendar component to keep Livewire in sync
             $this->emit('refreshCalendar');
         }
+    }
+
+    public function applyAdjustment($type)
+    {
+        $maxMinutes = $this->maxMinutes;
+        
+        // We need to work with the Carbon objects relative to the team timezone to adjust properly
+        $startCarbon = Carbon::parse($this->start_date . ' ' . $this->start_time);
+        
+        // Calculate end based on start for calculations (user input)
+        $endCarbon = Carbon::parse($this->end_date . ' ' . $this->end_time);
+
+        switch ($type) {
+            case 'adjust_start':
+                // Move start forward: newStart = end - maxMinutes
+                $newStart = $endCarbon->copy()->subMinutes($maxMinutes);
+                
+                // Update properties
+                $this->start_date = $newStart->format('Y-m-d');
+                $this->start_time = $newStart->format('H:i');
+                
+                // Add observation about adjustment
+                if (empty($this->observations)) {
+                    $this->observations = '';
+                } else {
+                    $this->observations .= "\n";
+                }
+                $this->observations .= __('Ajuste de hora de inicio para cumplir con el máximo de jornada (:minutes min)', ['minutes' => $maxMinutes]);
+                break;
+
+            case 'adjust_end':
+                // Move end backward: newEnd = start + maxMinutes
+                $newEnd = $startCarbon->copy()->addMinutes($maxMinutes);
+                
+                // Update properties
+                $this->end_date = $newEnd->format('Y-m-d');
+                $this->end_time = $newEnd->format('H:i');
+                
+                // Add observation
+                if (empty($this->observations)) {
+                    $this->observations = '';
+                } else {
+                    $this->observations .= "\n";
+                }
+                $this->observations .= __('Ajuste de hora de salida para cumplir con el máximo de jornada (:minutes min)', ['minutes' => $maxMinutes]);
+                break;
+
+            case 'adjust_schedule':
+                // Let's try to find if there is a slot today and try to align.
+                $user = Auth::user();
+                $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+                $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+                
+                if (!empty($schedule)) {
+                    $dayIso = $startCarbon->isoFormat('E');
+                    $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
+                        return in_array($dayIso, $slot['days']);
+                    })->values();
+                    
+                    if ($slots->isNotEmpty()) {
+                        $slot = $slots[0];
+                        $slotStart = Carbon::parse($this->start_date . ' ' . $slot['start']); 
+                        
+                        // Set new start
+                        $this->start_time = $slotStart->format('H:i:s');
+                        
+                        // Set new end = start + maxMinutes
+                        $newEnd = $slotStart->copy()->addMinutes($maxMinutes);
+                        $this->end_date = $newEnd->format('Y-m-d');
+                        $this->end_time = $newEnd->format('H:i:s');
+                        
+                        if (empty($this->observations)) $this->observations = '';
+                        else $this->observations .= "\n";
+                        $this->observations .= __('Ajuste al horario laboral (:minutes min)', ['minutes' => $maxMinutes]);
+                    } else {
+                        // No slot today, fallback to adjust end
+                        return $this->applyAdjustment('adjust_end');
+                    }
+                } else {
+                     return $this->applyAdjustment('adjust_end');
+                }
+                break;
+        }
+
+        // Hide modal and try to save again
+        $this->showAdjustmentModal = false;
+        $this->save(); 
     }
 
     /**

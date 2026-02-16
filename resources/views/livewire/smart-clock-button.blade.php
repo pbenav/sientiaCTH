@@ -77,7 +77,38 @@
     <!-- Clock Action Button -->
     <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div class="p-4 sm:p-6">
-            @if($showClockOutConfirmation)
+            @if($showAdjustmentModal)
+                <!-- Adjustment Modal -->
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-clock text-blue-600 dark:text-blue-400 mr-2"></i>
+                        <p class="text-blue-800 dark:text-blue-200 font-medium">{{ __('Límite de jornada excedido') }}</p>
+                    </div>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                        {{ __('Has superado el tiempo máximo permitido de jornada (:max min). Actualmente llevas :current min.', ['max' => $maxMinutes, 'current' => $currentMinutes]) }}
+                    </p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mb-4 font-semibold">
+                        {{ __('Elige una opción para ajustar tu fichaje:') }}
+                    </p>
+                    <div class="flex flex-col gap-3">
+                        <button
+                            wire:click="applyAdjustment('adjust_start')"
+                            class="w-full flex justify-start items-center px-4 py-3 text-sm font-medium text-blue-800 dark:text-blue-200 bg-blue-100 dark:bg-blue-800/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-all duration-200 border border-blue-300 dark:border-blue-700">
+                            <i class="fas fa-step-forward mr-3 w-5"></i><span>1.- Ajustar hora de inicio (retrasar entrada)</span>
+                        </button>
+                        <button
+                            wire:click="applyAdjustment('adjust_end')"
+                            class="w-full flex justify-start items-center px-4 py-3 text-sm font-medium text-blue-800 dark:text-blue-200 bg-blue-100 dark:bg-blue-800/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-all duration-200 border border-blue-300 dark:border-blue-700">
+                            <i class="fas fa-step-backward mr-3 w-5"></i><span>2.- Ajustar hora de salida (adelantar salida)</span>
+                        </button>
+                        <button
+                            wire:click="applyAdjustment('adjust_schedule')"
+                            class="w-full flex justify-start items-center px-4 py-3 text-sm font-medium text-blue-800 dark:text-blue-200 bg-blue-100 dark:bg-blue-800/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-all duration-200 border border-blue-300 dark:border-blue-700">
+                            <i class="fas fa-calendar-alt mr-3 w-5"></i><span>3.- Ajustar al tramo horario (proporcional)</span>
+                        </button>
+                    </div>
+                </div>
+            @elseif($showClockOutConfirmation)
                 <!-- Clock Out Confirmation Modal -->
                 <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
                     <div class="flex items-center mb-4">

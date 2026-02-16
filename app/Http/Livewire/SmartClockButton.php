@@ -18,6 +18,9 @@ class SmartClockButton extends Component
     public $currentEvent = null;
     public $errorMessage = '';
     public $statusMessage = '';
+    public $showAdjustmentModal = false;
+    public $maxMinutes = 0;
+    public $currentMinutes = 0;
 
     protected $listeners = ['saved' => 'refreshClockData'];
 
@@ -142,6 +145,16 @@ class SmartClockButton extends Component
             }
             
             $result = $this->getSmartClockService()->clockOut($user, $openEventId);
+            
+            // Check if max duration was exceeded
+            if (isset($result['status_code']) && $result['status_code'] === SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
+                $this->showAdjustmentModal = true;
+                $this->maxMinutes = $result['max_minutes'];
+                $this->currentMinutes = $result['current_minutes'];
+                $this->message = $result['message'];
+                $this->messageType = 'info';
+                return;
+            }
         } elseif ($this->clockData['action'] === 'redirect_to_events') {
             // Redirect to events when outside grace period
             session()->flash('alertFail', $this->clockData['message']);
@@ -271,6 +284,16 @@ class SmartClockButton extends Component
         // Note: clockOut currently doesn't support location update, but we accept params for consistency
         $result = $this->getSmartClockService()->clockOut($user, $openEventId);
         
+        if ($result['status_code'] === SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
+            $this->showAdjustmentModal = true;
+            $this->maxMinutes = $result['max_minutes'];
+            $this->currentMinutes = $result['current_minutes'];
+            $this->message = $result['message'];
+            $this->messageType = 'info';
+            $this->showClockOutConfirmation = false;
+            return;
+        }
+
         $this->message = $result['message'];
         $this->messageType = $result['success'] ? 'success' : 'error';
         $this->showClockOutConfirmation = false;
@@ -287,6 +310,30 @@ class SmartClockButton extends Component
     public function cancelClockOut()
     {
         $this->showClockOutConfirmation = false;
+    }
+
+    public function applyAdjustment($type)
+    {
+        $user = Auth::user();
+        $openEventId = $this->clockData['open_event_id'] ?? null;
+
+        if (!$openEventId) {
+            $this->message = __('No open event found');
+            $this->messageType = 'error';
+            $this->showAdjustmentModal = false;
+            return;
+        }
+
+        $result = $this->getSmartClockService()->clockOutWithAdjustment($user, $openEventId, $type);
+
+        $this->message = $result['message'];
+        $this->messageType = $result['success'] ? 'success' : 'error';
+        $this->showAdjustmentModal = false;
+
+        if ($result['success']) {
+            $this->refreshClockData();
+            $this->emit('eventCreated');
+        }
     }
 
     public function render()

@@ -251,6 +251,18 @@ class EditEvent extends Component
      *
      * @return void
      */
+    /**
+     * @var bool Show adjustment modal
+     */
+    public $showAdjustmentModal = false;
+    public $maxMinutes = 0;
+    public $currentMinutes = 0;
+
+    /**
+     * Update the event.
+     *
+     * @return void
+     */
     public function update(): void
     {
         if (!$this->canModifyEvent($this->event)) {
@@ -272,9 +284,6 @@ class EditEvent extends Component
 
         if ($this->event->eventType && $this->event->eventType->is_all_day) {
             // For all-day events, store pure dates in UTC without timezone conversion
-            // User enters 2025-03-05, should be stored as 2025-03-05 00:00:00 UTC (not converted)
-            // This ensures the event displays on the correct calendar day regardless of timezone
-            // Parse directly as UTC date without any timezone conversion
             $this->event->start = Carbon::createFromFormat('Y-m-d', $this->start_date, 'UTC')->startOfDay()->toDateTimeString();
             $this->event->end = Carbon::createFromFormat('Y-m-d', $this->end_date, 'UTC')->startOfDay()->toDateTimeString();
         } else {
@@ -300,7 +309,36 @@ class EditEvent extends Component
             $this->event->is_extra_hours = !$this->event->eventType->is_workday_type;
         }
 
-        $this->event->save();
+        // REDUNDANT VALIDATION: Explicitly check max duration before saving
+        // This acts as a fallback incase EventObserver is bypassed or fails
+        if ($this->event->end && $this->event->eventType && $this->event->eventType->is_workday_type) {
+            $service = app(\App\Services\SmartClockInService::class);
+            
+            // Ensure we use the correct user (from event or auth)
+            $targetUser = $this->event->user ?? User::find($this->event->user_id);
+            
+            if ($targetUser) {
+                $validation = $service->validateMaxDuration($targetUser, $this->event, $this->event->end);
+                
+                if (!$validation['success'] && isset($validation['status_code']) && $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
+                    \Log::info('EditEvent: Manual validation caught duration exceeded', $validation);
+                    $this->showAdjustmentModal = true;
+                    $this->maxMinutes = $validation['max_minutes'];
+                    $this->currentMinutes = $validation['current_minutes'];
+                    return;
+                }
+            }
+        }
+
+        try {
+            $this->event->save();
+        } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
+            $this->showAdjustmentModal = true;
+            $this->maxMinutes = $e->maxMinutes;
+            $this->currentMinutes = $e->currentMinutes;
+            // Don't close the modal, let user choose adjustment
+            return;
+        }
 
         if (auth()->user()->isTeamAdmin()) {
             // Solo audita si el evento está cerrado (is_open = false)
@@ -308,10 +346,113 @@ class EditEvent extends Component
             unset($this->original_event);
         }
 
-        $this->reset(["showModalEditEvent"]);
+        $this->reset(["showModalEditEvent", "showAdjustmentModal"]);
         $this->emit('alert', __('Event updated!'));
         $this->emitTo('get-time-registers', 'render');
         $this->emit('refreshCalendar');
+    }
+
+    public function applyAdjustment($type)
+    {
+        $maxMinutes = $this->maxMinutes;
+        
+        // We need to work with the Carbon objects relative to the team timezone to adjust properly
+        // Converting from the inputs directly is easier as they are already in local time (or what user sees)
+        $startCarbon = Carbon::parse($this->start_date . ' ' . $this->start_time);
+        
+        // Calculate end based on start for calculations (user input)
+        $endCarbon = Carbon::parse($this->end_date . ' ' . $this->end_time);
+
+        switch ($type) {
+            case 'adjust_start':
+                // Move start forward: newStart = end - maxMinutes
+                $newStart = $endCarbon->copy()->subMinutes($maxMinutes);
+                
+                // Update properties
+                $this->start_date = $newStart->format('Y-m-d');
+                $this->start_time = $newStart->format('H:i');
+                $this->start_datetime = $newStart->format('Y-m-d H:i:s');
+                
+                // Add observation about adjustment
+                if (empty($this->event->observations)) {
+                    $this->event->observations = '';
+                } else {
+                    $this->event->observations .= "\n";
+                }
+                $this->event->observations .= __('Ajuste de hora de inicio para cumplir con el máximo de jornada (:minutes min)', ['minutes' => $maxMinutes]);
+                break;
+
+            case 'adjust_end':
+                // Move end backward: newEnd = start + maxMinutes
+                $newEnd = $startCarbon->copy()->addMinutes($maxMinutes);
+                
+                // Update properties
+                $this->end_date = $newEnd->format('Y-m-d');
+                $this->end_time = $newEnd->format('H:i');
+                $this->end_datetime = $newEnd->format('Y-m-d H:i:s');
+                
+                // Add observation
+                if (empty($this->event->observations)) {
+                    $this->event->observations = '';
+                } else {
+                    $this->event->observations .= "\n";
+                }
+                $this->event->observations .= __('Ajuste de hora de salida para cumplir con el máximo de jornada (:minutes min)', ['minutes' => $maxMinutes]);
+                break;
+
+            case 'adjust_schedule':
+                // For manual events, "adjust proportional" is tricky without context of "other events".
+                // We will reuse the logic from SmartClockInService but we need to pass a fake event 
+                // or replicate logic.
+                // Since this is manual editing, "Adjust to Schedule" usually means "Clamp to the user's schedule".
+                
+                // Let's implement a simpler version here: Find the schedule slot for the day and set start/end to matches (or clamped).
+                // Or better, just tell the user we adjusted the END to match max duration (fallback).
+                // "Adjust to schedule" implies intelligence.
+                
+                // Let's try to find if there is a slot today and try to align.
+                $user = $this->user;
+                $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
+                $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
+                
+                if (!empty($schedule)) {
+                    $dayIso = $startCarbon->isoFormat('E');
+                    $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
+                        return in_array($dayIso, $slot['days']);
+                    })->values();
+                    
+                    if ($slots->isNotEmpty()) {
+                        // Pick the first slot or the one closest to current start?
+                        // Let's align with the first slot found for simplicity in manual edit
+                        $slot = $slots[0];
+                        $slotStart = Carbon::parse($this->start_date . ' ' . $slot['start']); // Keep date, use slot time
+                        
+                        // Set new start
+                        $this->start_time = $slotStart->format('H:i');
+                        $this->start_datetime = $slotStart->format('Y-m-d H:i:s');
+                        
+                        // Set new end = start + maxMinutes
+                        $newEnd = $slotStart->copy()->addMinutes($maxMinutes);
+                        $this->end_date = $newEnd->format('Y-m-d');
+                        $this->end_time = $newEnd->format('H:i');
+                        $this->end_datetime = $newEnd->format('Y-m-d H:i:s');
+                        
+                        if (empty($this->event->observations)) $this->event->observations = '';
+                        else $this->event->observations .= "\n";
+                        $this->event->observations .= __('Ajuste al horario laboral (:minutes min)', ['minutes' => $maxMinutes]);
+                    } else {
+                        // No slot today, fallback to adjust end
+                        return $this->applyAdjustment('adjust_end');
+                    }
+                } else {
+                     return $this->applyAdjustment('adjust_end');
+                }
+                break;
+        }
+
+        // Hide modal and try to save again
+        $this->showAdjustmentModal = false;
+        $this->update(); // Recursive call, but now values are fixed so it should pass validation
     }
 
     /**

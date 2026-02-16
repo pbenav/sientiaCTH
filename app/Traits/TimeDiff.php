@@ -27,12 +27,9 @@ trait TimeDiff
     /**
      * Calculate the difference between two times.
      *
-     * @param string $start The start time.
-     * @param string|null $end The end time.
-     * @param boolean $forHuman Whether to return the difference in a human-readable format.
      * @return string|int
      */
-    public function timeDiff(string $start, ?string $end, bool $forHuman): string|int
+    public function timeDiff($start, $end, bool $forHuman): string|int
     {
         //Set the start date
         $start_date = Carbon::parse($start);

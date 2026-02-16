@@ -232,6 +232,16 @@ class GetTimeRegisters extends Component
             $this->emit('incompleteEventConfirmation');
             return;
         }
+
+        // Validate max workday duration before closing
+        if ($ev->is_open) {
+            $validation = app(\App\Services\SmartClockInService::class)->validateMaxDuration($ev->user, $ev, $ev->end);
+            if (!$validation['success']) {
+                $this->emit('alertFail', $validation['message'] . ' ' . __('Use the smart clock button to finalise with adjustments.'));
+                return;
+            }
+        }
+
         if ($this->isTeamAdmin) {
             $wasOpen = $ev->is_open;
             if ($ev->toggleConfirm()) {

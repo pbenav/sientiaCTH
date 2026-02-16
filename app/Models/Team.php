@@ -115,6 +115,8 @@ class Team extends JetstreamTeam
         'max_report_months' => 'integer',
         'async_report_threshold_months' => 'integer',
         'max_member_teams' => 'integer',
+        'force_max_workday_duration' => 'boolean',
+        'max_workday_duration_minutes' => 'integer',
     ];
 
     /**
@@ -135,6 +137,8 @@ class Team extends JetstreamTeam
         'async_report_threshold_months',
         'event_retention_months',
         'max_member_teams',
+        'force_max_workday_duration',
+        'max_workday_duration_minutes',
     ];
 
     /**

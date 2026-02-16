@@ -30,8 +30,11 @@ trait HandlesTimezoneConversion
      * @param string $timezone Zona horaria destino
      * @return \Carbon\Carbon
      */
-    public function utcToTeamTimezone(string $utcDate, string $timezone): Carbon
+    public function utcToTeamTimezone($utcDate, string $timezone): Carbon
     {
+        if ($utcDate instanceof Carbon) {
+            return $utcDate->copy()->setTimezone($timezone);
+        }
         return Carbon::parse($utcDate, 'UTC')->setTimezone($timezone);
     }
     
@@ -42,8 +45,11 @@ trait HandlesTimezoneConversion
      * @param string $timezone Zona horaria origen
      * @return \Carbon\Carbon
      */
-    public function teamTimezoneToUtc(string $localDate, string $timezone): Carbon
+    public function teamTimezoneToUtc($localDate, string $timezone): Carbon
     {
+        if ($localDate instanceof Carbon) {
+            return $localDate->copy()->setTimezone('UTC');
+        }
         return Carbon::parse($localDate, $timezone)->setTimezone('UTC');
     }
     
@@ -57,7 +63,7 @@ trait HandlesTimezoneConversion
      * @param string $timezone Zona horaria del equipo
      * @return int Número de días (mínimo 1)
      */
-    public function calculateAllDayEventDays(string $startUtc, string $endUtc, string $timezone): int
+    public function calculateAllDayEventDays($startUtc, $endUtc, string $timezone): int
     {
         // Convertir de UTC a zona horaria local
         $start = $this->utcToTeamTimezone($startUtc, $timezone);
@@ -135,7 +141,7 @@ trait HandlesTimezoneConversion
      * @param string $utcDate Fecha en UTC (formato BD)
      * @return \Carbon\Carbon
      */
-    public function utcToCurrentTeam(string $utcDate): Carbon
+    public function utcToCurrentTeam($utcDate): Carbon
     {
         $timezone = $this->getCurrentTeamTimezone();
         return $this->utcToTeamTimezone($utcDate, $timezone);
@@ -148,7 +154,7 @@ trait HandlesTimezoneConversion
      * @param \App\Models\User $user
      * @return \Carbon\Carbon
      */
-    public function utcToUserTimezone(string $utcDate, $user): Carbon
+    public function utcToUserTimezone($utcDate, $user): Carbon
     {
         $timezone = $this->getUserTimezone($user);
         return $this->utcToTeamTimezone($utcDate, $timezone);
@@ -160,7 +166,7 @@ trait HandlesTimezoneConversion
      * @param string $localDate Fecha en zona horaria local
      * @return \Carbon\Carbon
      */
-    public function currentTeamToUtc(string $localDate): Carbon
+    public function currentTeamToUtc($localDate): Carbon
     {
         $timezone = $this->getCurrentTeamTimezone();
         return $this->teamTimezoneToUtc($localDate, $timezone);

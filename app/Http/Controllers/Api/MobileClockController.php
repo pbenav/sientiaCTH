@@ -169,9 +169,23 @@ class MobileClockController extends Controller
                 } else {
                     return response()->json([
                         'message' => $clockAction['message'] ?? 'Cannot clock at this time',
-                        'status_code' => $clockAction['status_code'] ?? 'ERROR'
+                        'status_code' => $clockAction['status_code'] ?? 'ERROR',
+                        'data' => [
+                            'max_minutes' => $clockAction['max_minutes'] ?? null,
+                            'current_minutes' => $clockAction['current_minutes'] ?? null,
+                            'event_id' => $clockAction['event_id'] ?? null,
+                        ]
                     ], 400);
                 }
+            }
+
+            // Handle manual adjustment action if provided in the request
+            if ($request->input('action') === 'adjust_workday') {
+                $clockAction = [
+                    'action' => 'adjust_workday',
+                    'open_event_id' => $request->input('open_event_id'),
+                    'adjustment_type' => $request->input('adjustment_type')
+                ];
             }
 
             // Execute the clock action
@@ -286,6 +300,29 @@ class MobileClockController extends Controller
                 return [
                     'action' => 'clock_out',
                     'message' => $result['message'] ?? 'Clock out successful',
+                    'status_code' => $result['status_code'] ?? 'CLOCK_OUT_SUCCESS'
+                ];
+
+            case 'adjust_workday':
+                $openEventId = $request->input('open_event_id');
+                $adjustmentType = $request->input('adjustment_type');
+
+                if (!$openEventId || !$adjustmentType) {
+                    throw new \Exception('Missing parameters for workday adjustment');
+                }
+
+                $result = $this->smartClockInService->clockOutWithAdjustment($user, (int)$openEventId, $adjustmentType);
+
+                if (empty($result['success'])) {
+                    throw new \Exception(json_encode([
+                        'message' => $result['message'] ?? 'Adjustment failed',
+                        'status_code' => $result['status_code'] ?? 'ERROR'
+                    ]));
+                }
+
+                return [
+                    'action' => 'clock_out',
+                    'message' => $result['message'] ?? 'Adjustment successful',
                     'status_code' => $result['status_code'] ?? 'CLOCK_OUT_SUCCESS'
                 ];
 

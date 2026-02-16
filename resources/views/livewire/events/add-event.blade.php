@@ -164,6 +164,61 @@
         </x-slot>
 
     </x-jet-dialog-modal>
+
+    <!-- Adjustment Modal -->
+    <x-jet-dialog-modal wire:model="showAdjustmentModal" maxWidth="md">
+        <x-slot name="title">
+            <div class="flex items-center text-blue-600">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ __('Límite de jornada excedido') }}
+            </div>
+        </x-slot>
+
+        <x-slot name="content">
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">
+                    {{ __('Has superado el tiempo máximo permitido de jornada (:max min). Actualmente el evento dura :current min.', ['max' => $maxMinutes, 'current' => $currentMinutes]) }}
+                </p>
+                <p class="text-sm font-semibold text-gray-700 mt-2">
+                    {{ __('Elige una opción para ajustar el evento:') }}
+                </p>
+            </div>
+
+            <div class="space-y-3">
+                <button wire:click="applyAdjustment('adjust_start')" class="w-full flex items-center p-3 text-sm font-medium text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors">
+                    <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-200 rounded-full mr-3 text-blue-700 font-bold">1</span>
+                    <span class="text-left">
+                        <span class="block font-bold">{{ __('Ajustar hora de inicio') }}</span>
+                        <span class="block text-xs font-normal text-blue-600">{{ __('Retrasar la entrada para cumplir el límite') }}</span>
+                    </span>
+                </button>
+
+                <button wire:click="applyAdjustment('adjust_end')" class="w-full flex items-center p-3 text-sm font-medium text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors">
+                    <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-200 rounded-full mr-3 text-blue-700 font-bold">2</span>
+                    <span class="text-left">
+                        <span class="block font-bold">{{ __('Ajustar hora de salida') }}</span>
+                        <span class="block text-xs font-normal text-blue-600">{{ __('Adelantar la salida para cumplir el límite') }}</span>
+                    </span>
+                </button>
+
+                <button wire:click="applyAdjustment('adjust_schedule')" class="w-full flex items-center p-3 text-sm font-medium text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors">
+                    <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-200 rounded-full mr-3 text-blue-700 font-bold">3</span>
+                    <span class="text-left">
+                        <span class="block font-bold">{{ __('Ajustar al tramo horario') }}</span>
+                        <span class="block text-xs font-normal text-blue-600">{{ __('Ajustar proporcionalmente al horario laboral') }}</span>
+                    </span>
+                </button>
+            </div>
+        </x-slot>
+
+        <x-slot name="footer">
+            <x-jet-secondary-button wire:click="$set('showAdjustmentModal', false)" wire:loading.attr="disabled">
+                {{ __('Cancel') }}
+            </x-jet-secondary-button>
+        </x-slot>
+    </x-jet-dialog-modal>
 </div>
 
 @push('scripts')

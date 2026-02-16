@@ -63,10 +63,17 @@ class ClockInDelayManager extends Component
             $clockInGracePeriodMinutes = null;
         }
 
+        $maxWorkdayDurationMinutes = $this->state['max_workday_duration_minutes'] ?? null;
+        if ($maxWorkdayDurationMinutes === '') {
+            $maxWorkdayDurationMinutes = null;
+        }
+
         $this->team->forceFill([
             'force_clock_in_delay' => $this->state['force_clock_in_delay'] ?? false,
             'clock_in_delay_minutes' => $clockInDelayMinutes,
             'clock_in_grace_period_minutes' => $clockInGracePeriodMinutes,
+            'force_max_workday_duration' => $this->state['force_max_workday_duration'] ?? false,
+            'max_workday_duration_minutes' => $maxWorkdayDurationMinutes,
         ])->save();
 
         $this->emit('saved');
