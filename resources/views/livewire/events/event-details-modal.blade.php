@@ -60,7 +60,7 @@
                     </div>
 
                     <!-- Authorization -->
-                    @if(isset($eventData['authorized']))
+                    @if(isset($eventData['event_type']['is_authorizable']) && $eventData['event_type']['is_authorizable'])
                     <div>
                         <label class="text-xs text-gray-600 block mb-1">{{ __('Authorization') }}</label>
                         @if($eventData['authorized'])

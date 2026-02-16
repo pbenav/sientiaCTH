@@ -356,6 +356,14 @@ return new class extends Migration
 
                 $table->index('parent_id');
             });
+        } else {
+            // Add missing columns to existing messages table
+            if (!Schema::hasColumn('messages', 'parent_id')) {
+                Schema::table('messages', function (Blueprint $table) {
+                    $table->foreignId('parent_id')->nullable()->after('sender_id')->constrained('messages')->onDelete('cascade');
+                    $table->index('parent_id');
+                });
+            }
         }
 
         // Message recipients pivot

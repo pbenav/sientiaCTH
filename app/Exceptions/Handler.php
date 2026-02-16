@@ -47,15 +47,33 @@ class Handler extends ExceptionHandler
             //
         });
 
+        // Report mail exceptions but don't propagate them
+        $this->reportable(function (\Swift_TransportException $e) {
+            \Log::error('SMTP Error (Swift): ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return false;
+        });
+
+        $this->reportable(function (\Symfony\Component\Mailer\Exception\TransportException $e) {
+            \Log::error('SMTP Error (Symfony Mailer): ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return false;
+        });
+
         // Handle SMTP connection errors for admins
         $this->renderable(function (\Swift_TransportException $e, $request) {
-            if (auth()->check() && auth()->user()->is_admin) {
+            if (auth()->check() && auth()->user()->is_admin && $request->expectsHtml()) {
                 $errorMessage = $e->getMessage();
                 
-                // Check if it's a connection error
+                // Check if it's a connection or authentication error
                 if (str_contains($errorMessage, 'Connection could not be established') ||
                     str_contains($errorMessage, 'stream_socket_client') ||
-                    str_contains($errorMessage, 'Unable to connect')) {
+                    str_contains($errorMessage, 'Unable to connect') ||
+                    str_contains($errorMessage, 'authentication failed')) {
                     
                     session()->flash('alertFail', __('Mail server connection error. Please check your SMTP configuration.'));
                     
@@ -66,17 +84,20 @@ class Handler extends ExceptionHandler
                     ]);
                 }
             }
+            // For non-admins or API requests, silently fail (already logged)
+            return null;
         });
 
         // Handle Symfony Mailer exceptions (Laravel 9+)
         $this->renderable(function (\Symfony\Component\Mailer\Exception\TransportException $e, $request) {
-            if (auth()->check() && auth()->user()->is_admin) {
+            if (auth()->check() && auth()->user()->is_admin && $request->expectsHtml()) {
                 $errorMessage = $e->getMessage();
                 
-                // Check if it's a connection error
+                // Check if it's a connection or authentication error
                 if (str_contains($errorMessage, 'Connection could not be established') ||
                     str_contains($errorMessage, 'stream_socket_client') ||
-                    str_contains($errorMessage, 'Unable to connect')) {
+                    str_contains($errorMessage, 'Unable to connect') ||
+                    str_contains($errorMessage, 'authentication failed')) {
                     
                     session()->flash('alertFail', __('Mail server connection error. Please check your SMTP configuration.'));
                     
@@ -87,6 +108,8 @@ class Handler extends ExceptionHandler
                     ]);
                 }
             }
+            // For non-admins or API requests, silently fail (already logged)
+            return null;
         });
     }
 }

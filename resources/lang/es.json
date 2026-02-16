@@ -603,6 +603,7 @@
   "Configure Schedule": "Configurar Horario",
   "N/A": "No disponible",
   "Pending": "Pendiente",
+  "Authorization": "Autorización",
   "You are outside your work schedule. Do you want to make an exceptional clock-in?": "Está fuera de su horario laboral. ¿Desea realizar un fichaje excepcional?",
   "Exceptional Clock In": "Fichaje Excepcional",
   "Exceptional clock-in request created. Please complete the process.": "Solicitud de fichaje excepcional creada. Complete el proceso.",

@@ -53,6 +53,7 @@ class EventDetailsModal extends Component
                     'event_type' => $event->eventType ? [
                         'name' => $event->eventType->name,
                         'color' => $event->eventType->color ?? '#3788d8',
+                        'is_authorizable' => $event->eventType->is_authorizable ?? false,
                     ] : null,
                     'team' => $event->team ? [
                         'name' => $event->team->name,
@@ -62,7 +63,7 @@ class EventDetailsModal extends Component
                     ] : null,
                     'start' => $event->start ? \Carbon\Carbon::parse($event->start)->format('d/m/Y H:i') : null,
                     'end' => $event->end ? \Carbon\Carbon::parse($event->end)->format('d/m/Y H:i') : null,
-                    'duration' => $event->duration_formatted ?? __('N/A'),
+                    'duration' => $event->getPeriod() ?? __('N/A'),
                     'description' => $event->description,
                     'observations' => $event->observations,
                     'latitude' => $event->latitude ?? (($event->location_start['latitude'] ?? ($event->location_end['latitude'] ?? null))),

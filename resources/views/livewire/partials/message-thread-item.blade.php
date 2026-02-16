@@ -34,22 +34,23 @@
                         @if ($isSent)
                             {{-- Sent Message - Show Recipients --}}
                             <span class="text-xs text-gray-500 font-medium">Para:</span>
-                            @if ($recipientsCount > 0)
-                                <div class="text-sm text-gray-700">
-                                    @if ($recipientsCount <= 3 || showAllRecipients)
+                                @if ($recipientsCount > 0)
+                                    <div class="text-sm text-gray-700">
                                         @foreach ($message->recipients as $recipient)
-                                            <span class="font-medium">{{ $recipient->name }} {{ $recipient->family_name1 }}</span>@if (!$loop->last), @endif
+                                            <span x-show="{{ ($recipientsCount > 3 && $loop->iteration > 2) ? 'showAllRecipients' : 'true' }}" 
+                                                  @if($recipientsCount > 3 && $loop->iteration > 2) style="display: none;" @endif>
+                                                <span class="font-medium">{{ $recipient->name }} {{ $recipient->family_name1 }}</span>@if (!$loop->last), @endif
+                                            </span>
                                         @endforeach
-                                    @else
-                                        @foreach ($message->recipients->take(2) as $recipient)
-                                            <span class="font-medium">{{ $recipient->name }} {{ $recipient->family_name1 }}</span>,
-                                        @endforeach
-                                        <button @click="showAllRecipients = !showAllRecipients" class="text-blue-600 hover:text-blue-800 text-xs font-medium">
-                                            y {{ $recipientsCount - 2 }} más <i class="fas fa-chevron-down text-xs" x-show="!showAllRecipients"></i><i class="fas fa-chevron-up text-xs" x-show="showAllRecipients" style="display: none;"></i>
-                                        </button>
-                                    @endif
-                                </div>
-                            @endif
+                                        
+                                        @if ($recipientsCount > 3)
+                                            <button @click="showAllRecipients = !showAllRecipients" class="text-blue-600 hover:text-blue-800 text-xs font-medium ml-1">
+                                                <span x-show="!showAllRecipients">y {{ $recipientsCount - 2 }} más <i class="fas fa-chevron-down text-xs"></i></span>
+                                                <span x-show="showAllRecipients" style="display: none;">ver menos <i class="fas fa-chevron-up text-xs"></i></span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @endif
                         @else
                             {{-- Received Message - Show Sender --}}
                             <span class="font-semibold text-gray-900">{{ $message->sender->name }} {{ $message->sender->family_name1 }}</span>
