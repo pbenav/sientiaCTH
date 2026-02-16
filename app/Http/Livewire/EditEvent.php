@@ -401,52 +401,111 @@ class EditEvent extends Component
                 break;
 
             case 'adjust_schedule':
-                // For manual events, "adjust proportional" is tricky without context of "other events".
-                // We will reuse the logic from SmartClockInService but we need to pass a fake event 
-                // or replicate logic.
-                // Since this is manual editing, "Adjust to Schedule" usually means "Clamp to the user's schedule".
-                
-                // Let's implement a simpler version here: Find the schedule slot for the day and set start/end to matches (or clamped).
-                // Or better, just tell the user we adjusted the END to match max duration (fallback).
-                // "Adjust to schedule" implies intelligence.
-                
-                // Let's try to find if there is a slot today and try to align.
+                // Distribute time across multiple work schedule slots
                 $user = $this->user;
                 $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
                 $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
                 
-                if (!empty($schedule)) {
-                    $dayIso = $startCarbon->isoFormat('E');
-                    $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
-                        return in_array($dayIso, $slot['days']);
-                    })->values();
-                    
-                    if ($slots->isNotEmpty()) {
-                        // Pick the first slot or the one closest to current start?
-                        // Let's align with the first slot found for simplicity in manual edit
-                        $slot = $slots[0];
-                        $slotStart = Carbon::parse($this->start_date . ' ' . $slot['start']); // Keep date, use slot time
-                        
-                        // Set new start
-                        $this->start_time = $slotStart->format('H:i');
-                        $this->start_datetime = $slotStart->format('Y-m-d H:i:s');
-                        
-                        // Set new end = start + maxMinutes
-                        $newEnd = $slotStart->copy()->addMinutes($maxMinutes);
-                        $this->end_date = $newEnd->format('Y-m-d');
-                        $this->end_time = $newEnd->format('H:i');
-                        $this->end_datetime = $newEnd->format('Y-m-d H:i:s');
-                        
-                        if (empty($this->event->observations)) $this->event->observations = '';
-                        else $this->event->observations .= "\n";
-                        $this->event->observations .= __('Ajuste al horario laboral (:minutes min)', ['minutes' => $maxMinutes]);
-                    } else {
-                        // No slot today, fallback to adjust end
-                        return $this->applyAdjustment('adjust_end');
-                    }
-                } else {
-                     return $this->applyAdjustment('adjust_end');
+                if (empty($schedule)) {
+                    // Fallback to adjust end if no schedule
+                    return $this->applyAdjustment('adjust_end');
                 }
+                
+                // Get slots for the day
+                $dayIso = $startCarbon->isoFormat('E');
+                $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
+                    return in_array($dayIso, $slot['days']);
+                })->values();
+                
+                if ($slots->isEmpty()) {
+                    return $this->applyAdjustment('adjust_end');
+                }
+                
+                // Sort slots by start time
+                $slots = $slots->sortBy('start')->values();
+                
+                // Calculate how much time we need to distribute (limited by maxMinutes)
+                $remainingMinutes = $maxMinutes;
+                $eventsToCreate = [];
+                
+                foreach ($slots as $slot) {
+                    if ($remainingMinutes <= 0) break;
+                    
+                    $slotStart = Carbon::parse($this->start_date . ' ' . $slot['start']);
+                    $slotEnd = Carbon::parse($this->start_date . ' ' . $slot['end']);
+                    
+                    // Handle slots that cross midnight
+                    if ($slotEnd->lt($slotStart)) {
+                        $slotEnd->addDay();
+                    }
+                    
+                    $slotDurationMinutes = $slotEnd->diffInMinutes($slotStart);
+                    
+                    // Determine how much of this slot to fill
+                    $minutesToUse = min($remainingMinutes, $slotDurationMinutes);
+                    
+                    // Calculate actual end time for this slot
+                    $actualEnd = $slotStart->copy()->addMinutes($minutesToUse);
+                    
+                    $eventsToCreate[] = [
+                        'start' => $slotStart,
+                        'end' => $actualEnd,
+                        'minutes' => $minutesToUse
+                    ];
+                    
+                    $remainingMinutes -= $minutesToUse;
+                }
+                
+                if (empty($eventsToCreate)) {
+                    return $this->applyAdjustment('adjust_end');
+                }
+                
+                // Update the current event with the first slot
+                $firstEvent = $eventsToCreate[0];
+                $this->start_date = $firstEvent['start']->format('Y-m-d');
+                $this->start_time = $firstEvent['start']->format('H:i');
+                $this->start_datetime = $firstEvent['start']->format('Y-m-d H:i:s');
+                $this->end_date = $firstEvent['end']->format('Y-m-d');
+                $this->end_time = $firstEvent['end']->format('H:i');
+                $this->end_datetime = $firstEvent['end']->format('Y-m-d H:i:s');
+                
+                if (empty($this->event->observations)) $this->event->observations = '';
+                else $this->event->observations .= "\n";
+                $this->event->observations .= __('Ajuste automático al primer tramo horario (:minutes min)', ['minutes' => $firstEvent['minutes']]);
+                
+                // Create additional events for remaining slots
+                for ($i = 1; $i < count($eventsToCreate); $i++) {
+                    $slotEvent = $eventsToCreate[$i];
+                    
+                    // Convert to UTC for storage
+                    $startUTC = Carbon::parse($slotEvent['start'], config('app.timezone'))
+                        ->setTimezone('UTC')
+                        ->format('Y-m-d H:i:s');
+                    $endUTC = Carbon::parse($slotEvent['end'], config('app.timezone'))
+                        ->setTimezone('UTC')
+                        ->format('Y-m-d H:i:s');
+                    
+                    Event::create([
+                        'user_id' => $this->event->user_id,
+                        'event_type_id' => $this->event->event_type_id,
+                        'team_id' => $this->event->team_id,
+                        'work_center_id' => $this->event->work_center_id,
+                        'start' => $startUTC,
+                        'end' => $endUTC,
+                        'description' => $this->event->description,
+                        'observations' => __('Ajuste automático al tramo horario :number (:minutes min)', [
+                            'number' => $i + 1,
+                            'minutes' => $slotEvent['minutes']
+                        ]),
+                        'is_open' => false,
+                        'is_authorized' => false,
+                        'is_exceptional' => false,
+                        'is_extra_hours' => false,
+                        'is_closed_automatically' => false,
+                        'ip_address' => request()->ip(),
+                    ]);
+                }
+                
                 break;
         }
 

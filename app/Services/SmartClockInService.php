@@ -541,7 +541,7 @@ class SmartClockInService
     }
 
     /**
-     * Adjust event to schedule proportional
+     * Adjust event to schedule proportional - distributes time across multiple slots
      */
     private function adjustEventToScheduleProportional(User $user, Event $event, int $maxMinutes): array
     {
@@ -568,61 +568,94 @@ class SmartClockInService
             return $this->clockOutWithAdjustment($user, $event->id, 'adjust_end');
         }
 
-        // Calculate total scheduled minutes for today
-        $totalScheduledMinutes = 0;
-        $slotsWithMinutes = [];
+        // Sort slots by start time
+        usort($todaySlots, function($a, $b) {
+            return strcmp($a['start'], $b['start']);
+        });
+
+        // Calculate how much time we need to distribute (limited by maxMinutes)
+        $remainingMinutes = $maxMinutes;
+        $eventsToCreate = [];
+        
         foreach ($todaySlots as $slot) {
-            $slotStart = Carbon::parse($slot['start']);
-            $slotEnd = Carbon::parse($slot['end']);
-            if ($slotEnd->lt($slotStart)) $slotEnd->addDay();
-            $diff = $slotEnd->diffInMinutes($slotStart);
-            $totalScheduledMinutes += $diff;
-            $slotsWithMinutes[] = [
-                'slot' => $slot,
-                'minutes' => $diff
+            if ($remainingMinutes <= 0) break;
+            
+            $slotStart = Carbon::parse($nowLocal->format('Y-m-d') . ' ' . $slot['start'], $teamTimezone);
+            $slotEnd = Carbon::parse($nowLocal->format('Y-m-d') . ' ' . $slot['end'], $teamTimezone);
+            
+            // Handle slots that cross midnight
+            if ($slotEnd->lt($slotStart)) {
+                $slotEnd->addDay();
+            }
+            
+            $slotDurationMinutes = $slotEnd->diffInMinutes($slotStart);
+            
+            // Determine how much of this slot to fill
+            $minutesToUse = min($remainingMinutes, $slotDurationMinutes);
+            
+            // Calculate actual end time for this slot
+            $actualEnd = $slotStart->copy()->addMinutes($minutesToUse);
+            
+            $eventsToCreate[] = [
+                'start' => $slotStart,
+                'end' => $actualEnd,
+                'minutes' => $minutesToUse
             ];
+            
+            $remainingMinutes -= $minutesToUse;
         }
 
-        if ($totalScheduledMinutes === 0) {
+        if (empty($eventsToCreate)) {
             return $this->clockOutWithAdjustment($user, $event->id, 'adjust_end');
         }
 
-        // Close current event and maybe create others or just adjust current one?
-        // The requirement says "ajuste el fichaje al tramo horario... se distribuyan proporcionalmente".
-        // Usually, a single clock-in/out represents one continuous block.
-        // If we want to distribute "work time" (maxMinutes) proportionally to slots, 
-        // it might mean creating multiple events or just adjusting the current one to fit "best".
-        // Given the complexity of splitting events, it's probably better to adjust the current event's duration
-        // to maxMinutes and center it or align it to the slots.
-        
-        // HOWEVER, "ajuste el fichaje al tramo horario" usually means "make it start and end when the schedule says".
-        // If there are multiple tranches, we fulfill the maxHours by distributing them.
-        
-        // Let's simplify: Adjust the end time based on maxMinutes and add a note about schedule alignment.
-        // If we want to be fancy, we could set START to first slot start and END so duration = maxMinutes.
-        
-        $firstSlot = null;
-        foreach ($slotsWithMinutes as $swm) {
-            if (!$firstSlot || Carbon::parse($swm['slot']['start'])->lt(Carbon::parse($firstSlot['start']))) {
-                $firstSlot = $swm['slot'];
-            }
-        }
-        
-        $newStartLocal = Carbon::parse($nowLocal->format('Y-m-d') . ' ' . $firstSlot['start'], $teamTimezone);
-        $newEndLocal = $newStartLocal->copy()->addMinutes($maxMinutes);
-        
+        // Update the first event (the current one)
+        $firstEvent = $eventsToCreate[0];
         $event->update([
-            'start' => $this->teamTimeToUtc($newStartLocal->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
-            'end' => $this->teamTimeToUtc($newEndLocal->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
+            'start' => $this->teamTimeToUtc($firstEvent['start']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
+            'end' => $this->teamTimeToUtc($firstEvent['end']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
             'is_open' => false,
-            'observations' => ($event->observations ? $event->observations . "\n" : "") . __('Ajuste proporcional al horario laboral (:minutes min)', ['minutes' => $maxMinutes])
+            'observations' => ($event->observations ? $event->observations . "\n" : "") . 
+                __('Ajuste automático al primer tramo horario (:minutes min)', ['minutes' => $firstEvent['minutes']])
         ]);
+
+        // Create additional events for remaining slots
+        for ($i = 1; $i < count($eventsToCreate); $i++) {
+            $slotEvent = $eventsToCreate[$i];
+            
+            Event::create([
+                'user_id' => $user->id,
+                'event_type_id' => $event->event_type_id,
+                'team_id' => $user->current_team_id,
+                'work_center_id' => $event->work_center_id,
+                'start' => $this->teamTimeToUtc($slotEvent['start']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
+                'end' => $this->teamTimeToUtc($slotEvent['end']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
+                'description' => $event->description,
+                'observations' => __('Ajuste automático al tramo horario :number (:minutes min)', [
+                    'number' => $i + 1,
+                    'minutes' => $slotEvent['minutes']
+                ]),
+                'is_open' => false,
+                'is_authorized' => false,
+                'is_exceptional' => false,
+                'is_extra_hours' => false,
+                'is_closed_automatically' => false,
+                'ip_address' => request()->ip(),
+            ]);
+        }
+
+        $totalEvents = count($eventsToCreate);
+        $totalMinutes = $maxMinutes - $remainingMinutes;
 
         return [
             'success' => true,
             'status_code' => self::STATUS_CLOCK_OUT_SUCCESS,
-            'message' => __('Clock out successful with schedule adjustment'),
-            'event_id' => $event->id
+            'message' => __('Tiempo distribuido en :count tramos (:minutes min total)', [
+                'count' => $totalEvents,
+                'minutes' => $totalMinutes
+            ]),
+            'event_id' => $event->id,
+            'additional_events' => $totalEvents - 1
         ];
     }
 

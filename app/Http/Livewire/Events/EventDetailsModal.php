@@ -71,6 +71,7 @@ class EventDetailsModal extends Component
                     'nfc_tag_id' => $event->nfc_tag_id,
                     'ip_address' => $event->ip_address,
                     'is_open' => $event->is_open,
+                    'is_exceptional' => $event->is_exceptional ?? false,
                     'authorized' => $event->is_authorized ?? false,
                     'created_at' => $event->created_at ? \Carbon\Carbon::parse($event->created_at)->format('d/m/Y H:i') : null,
                     'updated_at' => $event->updated_at ? \Carbon\Carbon::parse($event->updated_at)->format('d/m/Y H:i') : null,

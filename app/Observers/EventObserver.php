@@ -37,11 +37,12 @@ class EventObserver
             $eventType = EventType::find($event->event_type_id);
         }
 
-        if (!$user || !$eventType || !$eventType->is_workday_type) {
+        if (!$user || !$eventType || !$eventType->is_workday_type || $event->is_exceptional) {
             \Log::info('EventObserver: Update skipped - validation conditions not met', [
                 'has_user' => !!$user,
                 'has_event_type' => !!$eventType,
-                'is_workday' => $eventType ? $eventType->is_workday_type : false
+                'is_workday' => $eventType ? $eventType->is_workday_type : false,
+                'is_exceptional' => $event->is_exceptional
             ]);
             return;
         }
