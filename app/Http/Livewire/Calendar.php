@@ -235,13 +235,11 @@ class Calendar extends Component
                     // Revert the event to its original state by refreshing from database
                     $event->refresh();
                     
-                    // Emit error message to user with guidance
-                    $this->dispatchBrowserEvent('show-duration-error', [
-                        'message' => __('Duración máxima excedida (:current de :max min). Ve a Eventos para ajustar a tramos horarios.', [
-                            'current' => $e->currentMinutes,
-                            'max' => $e->maxMinutes
-                        ])
-                    ]);
+                    // Emit error message to user with guidance using Livewire alert system
+                    $this->emit('alertFail', __('Duración máxima excedida (:current de :max min). Ve a Eventos para ajustar a tramos horarios.', [
+                        'current' => $e->currentMinutes,
+                        'max' => $e->maxMinutes
+                    ]));
                     
                     // Refresh calendar to show original event size
                     $this->refresh();
