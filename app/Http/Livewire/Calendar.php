@@ -468,14 +468,22 @@ class Calendar extends Component
         } else {
             // Handle adjust_start and adjust_end
             $maxMinutes = $this->maxMinutes;
+            $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
             
-            $newStart = Carbon::parse($this->pendingData['newStart'], $teamTimezone);
-            $newEnd = Carbon::parse($this->pendingData['newEnd'], $teamTimezone);
+            // IMPORTANT: Use event's original DATE, not pendingData dates
+            // pendingData has the attempted drag/resize position which may have wrong date
+            $eventStart = Carbon::parse($event->start)->setTimezone($teamTimezone);
+            $eventEnd = Carbon::parse($event->end)->setTimezone($teamTimezone);
+            
+            $newStart = $eventStart;
+            $newEnd = $eventEnd;
             
             if ($type === 'adjust_start') {
-                $newStart = $newEnd->copy()->subMinutes($maxMinutes);
+                // Keep end time, adjust start backwards
+                $newStart = $eventEnd->copy()->subMinutes($maxMinutes);
             } elseif ($type === 'adjust_end') {
-                $newEnd = $newStart->copy()->addMinutes($maxMinutes);
+                // Keep start time, adjust end forwards
+                $newEnd = $eventStart->copy()->addMinutes($maxMinutes);
             }
             
             $event->update([
