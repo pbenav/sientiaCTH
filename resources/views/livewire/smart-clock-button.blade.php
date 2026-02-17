@@ -486,14 +486,14 @@
                                 onError,
                                 {
                                     enableHighAccuracy: false, 
-                                    timeout: 4000, 
+                                    timeout: 800, // 800ms - fast fallback to WiFi/IP location
                                     maximumAge: 0
                                 }
                             );
                         },
                         {
                             enableHighAccuracy: true,
-                            timeout: 1000, // Reduced to 1s - if no instant lock, fallback to IP immediately
+                            timeout: 300, // 300ms - very fast, mobile devices get instant lock
                             maximumAge: 0
                         }
                     );
@@ -558,10 +558,10 @@
                         function(err) {
                             console.warn('[GPS Preload] Failed:', err.message);
                         },
-                        { enableHighAccuracy: false, timeout: 4000, maximumAge: 0 }
+                        { enableHighAccuracy: false, timeout: 800, maximumAge: 0 }
                     );
                 },
-                { enableHighAccuracy: true, timeout: 1000, maximumAge: 0 }
+                { enableHighAccuracy: true, timeout: 300, maximumAge: 0 }
             );
         }
 
