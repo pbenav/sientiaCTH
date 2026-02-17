@@ -451,14 +451,12 @@ class EditEvent extends Component
                     return;
                 }
                 
-                // Get slots for the day (filter by day of week)
-                $dayIso = $startCarbon->isoFormat('E');
-                $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
-                    return in_array($dayIso, $slot['days']);
-                })->sortBy('start')->values();
+                // Get ALL slots (ignore day-of-week for manual adjustment)
+                // Sort by start time to distribute chronologically
+                $slots = collect($schedule)->sortBy('start')->values();
                 
                 if ($slots->isEmpty()) {
-                    $this->emit('alertFail', __('No hay tramos horarios definidos para este día.'));
+                    $this->emit('alertFail', __('No hay tramos horarios definidos.'));
                     return;
                 }
                 
@@ -534,7 +532,7 @@ class EditEvent extends Component
                             'number' => $i + 1,
                             'minutes' => $slotEvent['minutes']
                         ]),
-                        'is_open' => false,
+                        'is_open' => true,
                         'is_authorized' => false,
                         'is_exceptional' => false,
                         'is_extra_hours' => false,

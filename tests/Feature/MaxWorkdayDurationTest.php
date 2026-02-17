@@ -269,4 +269,71 @@ class MaxWorkdayDurationTest extends TestCase
             $this->assertTrue(true);
         }
     }
+
+    /** @test */
+    public function it_distributes_across_all_schedule_slots_ignoring_day_of_week()
+    {
+        $this->team->update([
+            'force_max_workday_duration' => true,
+            'max_workday_duration_minutes' => 480 // 8 hours
+        ]);
+
+        // Set up schedule with different days for different slots
+        // Slot 1: 09:00-14:00 (days: [1,3,5]) - Mon, Wed, Fri only
+        // Slot 2: 16:00-20:00 (days: [1,2,3,4,5]) - Mon-Fri
+        $schedule = [
+            ['start' => '09:00', 'end' => '14:00', 'days' => [1, 3, 5]],
+            ['start' => '16:00', 'end' => '20:00', 'days' => [1, 2, 3, 4, 5]],
+        ];
+        
+        $this->user->meta()->updateOrCreate(
+            ['meta_key' => 'work_schedule'],
+            ['meta_value' => json_encode($schedule)]
+        );
+
+        // Create event on TUESDAY (day 2) - Slot 1 doesn't include Tuesday
+        // Event: 09:00-23:00 (14 hours) needs adjustment to 8 hours
+        // Using withoutEvents to create the initial event without triggering validation
+        $event = Event::withoutEvents(function () {
+            return Event::create([
+                'user_id' => $this->user->id,
+                'team_id' => $this->team->id,
+                'start' => Carbon::parse('2026-02-18 08:00:00', 'UTC'), // Tuesday 08:00 UTC = 09:00 Madrid
+                'end' => Carbon::parse('2026-02-18 22:00:00', 'UTC'),   // Tuesday 22:00 UTC = 23:00 Madrid
+                'is_open' => false,
+                'event_type_id' => $this->workdayType->id
+            ]);
+        });
+
+        // Now try to adjust it using the service (simulates the adjust_schedule action)
+        $service = app(SmartClockInService::class);
+        $result = $service->clockOutWithAdjustment($this->user, $event->id, 'adjust_schedule');
+
+        // Verify the adjustment was successful
+        $this->assertTrue($result['success'], 'Adjustment should succeed');
+
+        // Get all events for this day
+        $allEvents = Event::where('user_id', $this->user->id)
+            ->where('team_id', $this->team->id)
+            ->whereDate('start', '2026-02-18')
+            ->orderBy('start')
+            ->get();
+
+        $this->assertGreaterThanOrEqual(2, $allEvents->count(), 'Should create at least 2 events across both slots');
+        
+        // Verify total doesn't exceed limit
+        $totalMinutes = 0;
+        foreach ($allEvents as $evt) {
+            $start = Carbon::parse($evt->start);
+            $end = Carbon::parse($evt->end);
+            $minutes = $end->diffInMinutes($start);
+            $totalMinutes += $minutes;
+            
+            // Log for debugging
+            \Log::info("Event slot: {$start->format('H:i')} - {$end->format('H:i')} ({$minutes} min)");
+        }
+        
+        $this->assertLessThanOrEqual(480, $totalMinutes, 'Total should not exceed 480 minutes');
+        $this->assertGreaterThan(0, $totalMinutes, 'Total should be greater than 0');
+    }
 }

@@ -601,25 +601,21 @@ class SmartClockInService
             ];
         }
         
-        // Get slots for today (filter by day of week)
-        $dayIso = (int) $nowLocal->format('N');
-        $todaySlots = array_filter($schedule, function($slot) use ($dayIso) {
-            return in_array($dayIso, $slot['days']) || in_array((string)$dayIso, $slot['days']);
-        });
-
-        if (empty($todaySlots)) {
-            return $this->clockOutWithAdjustment($user, $event->id, 'adjust_end');
-        }
-
-        // Sort slots by start time
-        usort($todaySlots, function($a, $b) {
+        // Get ALL slots (ignore day-of-week for clock-out adjustment)
+        // Sort by start time to distribute chronologically
+        $allSlots = $schedule;
+        usort($allSlots, function($a, $b) {
             return strcmp($a['start'], $b['start']);
         });
+
+        if (empty($allSlots)) {
+            return $this->clockOutWithAdjustment($user, $event->id, 'adjust_end');
+        }
 
         // Calculate how much time we need to distribute
         $eventsToCreate = [];
         
-        foreach ($todaySlots as $slot) {
+        foreach ($allSlots as $slot) {
             if ($remainingMinutes <= 0) break;
             
             $slotStart = Carbon::parse($nowLocal->format('Y-m-d') . ' ' . $slot['start'], $teamTimezone);
@@ -656,7 +652,7 @@ class SmartClockInService
         $event->update([
             'start' => $this->teamTimeToUtc($firstEvent['start']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
             'end' => $this->teamTimeToUtc($firstEvent['end']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
-            'is_open' => false,
+            'is_open' => true,
             'observations' => ($event->observations ? $event->observations . "\n" : "") . 
                 __('Ajuste automático al primer tramo horario (:minutes min)', ['minutes' => $firstEvent['minutes']])
         ]);
@@ -677,7 +673,7 @@ class SmartClockInService
                     'number' => $i + 1,
                     'minutes' => $slotEvent['minutes']
                 ]),
-                'is_open' => false,
+                'is_open' => true,
                 'is_authorized' => false,
                 'is_exceptional' => false,
                 'is_extra_hours' => false,

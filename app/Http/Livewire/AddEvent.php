@@ -423,10 +423,9 @@ class AddEvent extends Component
                 $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];
                 
                 if (!empty($schedule)) {
-                    $dayIso = $startCarbon->isoFormat('E');
-                    $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
-                        return in_array($dayIso, $slot['days']);
-                    })->values();
+                    // Get ALL slots (ignore day-of-week for manual adjustment)
+                    // Sort by start time to use earliest slot
+                    $slots = collect($schedule)->sortBy('start')->values();
                     
                     if ($slots->isNotEmpty()) {
                         $slot = $slots[0];
