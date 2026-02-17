@@ -21,6 +21,14 @@ class Calendar extends Component
     use HandlesEventAuthorization;
 
     public $refreshKey;
+    
+    // Adjustment modal properties
+    public bool $showAdjustmentModal = false;
+    public int $maxMinutes = 0;
+    public int $currentMinutes = 0;
+    public ?int $pendingEventId = null;
+    public ?string $pendingAction = null; // 'drop' or 'resize'
+    public array $pendingData = [];
 
     public function mount()
     {
@@ -164,31 +172,44 @@ class Calendar extends Component
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
-                if ($event->eventType && $event->eventType->is_all_day) {
-                    // For all-day events, store pure dates in UTC without timezone conversion
-                    $startDate = Carbon::parse($newStart)->format('Y-m-d');
-                    $endDate = $newEnd ? Carbon::parse($newEnd)->format('Y-m-d') : null;
-                    
-                    // For all-day events, FullCalendar sends exclusive end dates
-                    // Check if it's a multi-day event (end is provided and different from start)
-                    if ($endDate && $startDate !== $endDate) {
-                        // Subtract one day to get the actual last day (FullCalendar uses exclusive end)
-                        $endDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+                try {
+                    if ($event->eventType && $event->eventType->is_all_day) {
+                        // For all-day events, store pure dates in UTC without timezone conversion
+                        $startDate = Carbon::parse($newStart)->format('Y-m-d');
+                        $endDate = $newEnd ? Carbon::parse($newEnd)->format('Y-m-d') : null;
+                        
+                        // For all-day events, FullCalendar sends exclusive end dates
+                        // Check if it's a multi-day event (end is provided and different from start)
+                        if ($endDate && $startDate !== $endDate) {
+                            // Subtract one day to get the actual last day (FullCalendar uses exclusive end)
+                            $endDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+                        }
+                        
+                        $event->update([
+                            'start' => $startDate . ' 00:00:00',
+                            'end' => $endDate ? $endDate . ' 00:00:00' : $startDate . ' 00:00:00',
+                        ]);
+                    } else {
+                        // For timed events, convert from team timezone to UTC
+                        $event->update([
+                            'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
+                            'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
+                        ]);
                     }
-                    
-                    $event->update([
-                        'start' => $startDate . ' 00:00:00',
-                        'end' => $endDate ? $endDate . ' 00:00:00' : $startDate . ' 00:00:00',
-                    ]);
-                } else {
-                    // For timed events, convert from team timezone to UTC
-                    $event->update([
-                        'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
-                        'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
-                    ]);
+                    $this->refresh();
+                } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
+                    // Store pending data for adjustment modal
+                    $this->pendingEventId = $eventId;
+                    $this->pendingAction = 'drop';
+                    $this->pendingData = [
+                        'newStart' => $newStart,
+                        'newEnd' => $newEnd,
+                    ];
+                    $this->maxMinutes = $e->maxMinutes;
+                    $this->currentMinutes = $e->currentMinutes;
+                    $this->showAdjustmentModal = true;
                 }
             }
-            $this->refresh();
         }
     }
 
@@ -232,19 +253,17 @@ class Calendar extends Component
                         ]);
                     }
                 } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
-                    // Revert the event to its original state by refreshing from database
-                    $event->refresh();
-                    
-                    // Store error message in session to persist across page reload
-                    session()->flash('alert-fail', __('Duración máxima excedida (:current de :max min). Ve a Eventos para ajustar a tramos horarios.', [
-                        'current' => $e->currentMinutes,
-                        'max' => $e->maxMinutes
-                    ]));
-                    
-                    // Refresh calendar to show original event size
-                    $this->refresh();
-                    return;
-                }
+                // Store pending data for adjustment modal
+                $this->pendingEventId = $eventId;
+                $this->pendingAction = 'resize';
+                $this->pendingData = [
+                    'newStart' => $newStart,
+                    'newEnd' => $newEnd,
+                ];
+                $this->maxMinutes = $e->maxMinutes;
+                $this->currentMinutes = $e->currentMinutes;
+                $this->showAdjustmentModal = true;
+            }
             }
             $this->refresh();
         }
@@ -406,5 +425,78 @@ class Calendar extends Component
             });
 
         return collect(array_merge($userEvents->all(), $holidays->all()));
+    }
+
+    /**
+     * Apply adjustment to pending event
+     */
+    public function applyAdjustment($type)
+    {
+        if (!$this->pendingEventId || !$this->pendingAction) {
+            return;
+        }
+
+        $event = Event::find($this->pendingEventId);
+        if (!$event) {
+            $this->showAdjustmentModal = false;
+            return;
+        }
+
+        $service = app(\App\Services\SmartClockInService::class);
+        $teamTimezone = Auth::user()->currentTeam->timezone ?? config('app.timezone');
+        
+        if ($type === 'adjust_schedule') {
+            // Use SmartClockInService for schedule distribution
+            $result = $service->clockOutWithAdjustment(
+                $event->user,
+                $event->id,
+                'adjust_schedule'
+            );
+            
+            if ($result['success']) {
+                $this->showAdjustmentModal = false;
+                $this->reset(['pendingEventId', 'pendingAction', 'pendingData']);
+                $this->refresh();
+                $this->dispatchBrowserEvent('alert-success', [
+                    'message' => $result['message']
+                ]);
+            }
+        } else {
+            // Handle adjust_start and adjust_end
+            $maxMinutes = $this->maxMinutes;
+            
+            $newStart = Carbon::parse($this->pendingData['newStart'], $teamTimezone);
+            $newEnd = Carbon::parse($this->pendingData['newEnd'], $teamTimezone);
+            
+            if ($type === 'adjust_start') {
+                $newStart = $newEnd->copy()->subMinutes($maxMinutes);
+            } elseif ($type === 'adjust_end') {
+                $newEnd = $newStart->copy()->addMinutes($maxMinutes);
+            }
+            
+            $event->update([
+                'start' => $newStart->setTimezone('UTC'),
+                'end' => $newEnd->setTimezone('UTC'),
+                'observations' => ($event->observations ? $event->observations . "\n" : "") .
+                    __('Ajuste automático desde calendario (:type, :minutes min)', [
+                        'type' => $type,
+                        'minutes' => $maxMinutes
+                    ])
+            ]);
+            
+            $this->showAdjustmentModal = false;
+            $this->reset(['pendingEventId', 'pendingAction', 'pendingData']);
+            $this->refresh();
+        }
+    }
+
+    /**
+     * Cancel adjustment and revert changes
+     */
+    public function cancelAdjustment()
+    {
+        $this->showAdjustmentModal = false;
+        $this->reset(['pendingEventId', 'pendingAction', 'pendingData', 'maxMinutes', 'currentMinutes']);
+        $this->refresh(); // Refresh calendar to revert visual change
     }
 }
