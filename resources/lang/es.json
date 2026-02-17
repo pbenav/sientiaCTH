@@ -614,7 +614,7 @@
   "Exceptional Event": "Evento Excepcional",
   "No hay tiempo disponible. Ya se ha alcanzado el máximo de jornada diaria.": "No hay tiempo disponible. Ya se ha alcanzado el máximo de jornada diaria.",
   "No hay tramos horarios definidos para este día.": "No hay tramos horarios definidos para este día.",
-  "No se puede redimensionar: se excede la duración máxima de jornada (:max min)": "No se puede redimensionar: se excede la duración máxima de jornada (:max min)",
+  "Duración máxima excedida (:current de :max min). Ve a Eventos para ajustar a tramos horarios.": "Duración máxima excedida (:current de :max min). Ve a Eventos para ajustar a tramos horarios.",
   "Import All": "Importar Todo",
   "Select All": "Seleccionar Todo",
   "No holidays available to import.": "No hay días festivos disponibles para importar.",
