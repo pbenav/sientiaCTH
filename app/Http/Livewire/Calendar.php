@@ -196,8 +196,36 @@ class Calendar extends Component
                             'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
                             'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
                         ]);
-                        $this->refresh(); // Only refresh on success
                     }
+                    
+                    // CRITICAL: Validate daily total after moving event
+                    // The observer only validates individual event, not daily sum
+                    if ($event->end && $event->user && $event->eventType && $event->eventType->is_workday_type && !$event->is_exceptional) {
+                        $service = app(\App\Services\SmartClockInService::class);
+                        $validation = $service->validateMaxDuration($event->user, $event, $event->end);
+                        
+                        if (!$validation['success'] && 
+                            isset($validation['status_code']) && 
+                            $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
+                            
+                            // Revert the event to original state
+                            $event->refresh();
+                            
+                            // Show error message
+                            session()->flash('alert-fail', __(
+                                'No se puede mover el evento. El total del día excedería el límite (:max min). Total resultante: :current min.',
+                                [
+                                    'max' => $validation['max_minutes'],
+                                    'current' => $validation['current_minutes']
+                                ]
+                            ));
+                            
+                            $this->refresh();
+                            return;
+                        }
+                    }
+                    
+                    $this->refresh(); // Only refresh on success
                 } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
                     // Store pending data for adjustment modal
                     $this->pendingEventId = $eventId;
@@ -254,8 +282,36 @@ class Calendar extends Component
                             'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
                             'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
                         ]);
-                        $this->refresh(); // Only refresh on success
                     }
+                    
+                    // CRITICAL: Validate daily total after resizing event
+                    // The observer only validates individual event, not daily sum
+                    if ($event->end && $event->user && $event->eventType && $event->eventType->is_workday_type && !$event->is_exceptional) {
+                        $service = app(\App\Services\SmartClockInService::class);
+                        $validation = $service->validateMaxDuration($event->user, $event, $event->end);
+                        
+                        if (!$validation['success'] && 
+                            isset($validation['status_code']) && 
+                            $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
+                            
+                            // Revert the event to original state
+                            $event->refresh();
+                            
+                            // Show error message
+                            session()->flash('alert-fail', __(
+                                'No se puede redimensionar el evento. El total del día excedería el límite (:max min). Total resultante: :current min.',
+                                [
+                                    'max' => $validation['max_minutes'],
+                                    'current' => $validation['current_minutes']
+                                ]
+                            ));
+                            
+                            $this->refresh();
+                            return;
+                        }
+                    }
+                    
+                    $this->refresh(); // Only refresh on success
                 } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
                 // Store pending data for adjustment modal
                 $this->pendingEventId = $eventId;
