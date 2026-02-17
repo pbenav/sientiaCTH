@@ -207,28 +207,44 @@ class Calendar extends Component
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
-                if ($event->eventType && $event->eventType->is_all_day) {
-                    // For all-day events, store pure dates in UTC without timezone conversion
-                    $startDate = Carbon::parse($newStart)->format('Y-m-d');
-                    $endDate = Carbon::parse($newEnd)->format('Y-m-d');
-                    
-                    // For all-day events, FullCalendar sends exclusive end dates
-                    // Check if it's a multi-day event (end is different from start)
-                    if ($startDate !== $endDate) {
-                        // Subtract one day to get the actual last day (FullCalendar uses exclusive end)
-                        $endDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+                try {
+                    if ($event->eventType && $event->eventType->is_all_day) {
+                        // For all-day events, store pure dates in UTC without timezone conversion
+                        $startDate = Carbon::parse($newStart)->format('Y-m-d');
+                        $endDate = Carbon::parse($newEnd)->format('Y-m-d');
+                        
+                        // For all-day events, FullCalendar sends exclusive end dates
+                        // Check if it's a multi-day event (end is different from start)
+                        if ($startDate !== $endDate) {
+                            // Subtract one day to get the actual last day (FullCalendar uses exclusive end)
+                            $endDate = Carbon::parse($endDate)->subDay()->format('Y-m-d');
+                        }
+                        
+                        $event->update([
+                            'start' => $startDate . ' 00:00:00',
+                            'end' => $endDate . ' 00:00:00',
+                        ]);
+                    } else {
+                        // For timed events, convert from team timezone to UTC
+                        $event->update([
+                            'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
+                            'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
+                        ]);
                     }
+                } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
+                    // Revert the event to its original state by refreshing from database
+                    $event->refresh();
                     
-                    $event->update([
-                        'start' => $startDate . ' 00:00:00',
-                        'end' => $endDate . ' 00:00:00',
+                    // Emit error message to user
+                    $this->dispatchBrowserEvent('show-duration-error', [
+                        'message' => __('No se puede redimensionar: se excede la duración máxima de jornada (:max min)', [
+                            'max' => $e->maxMinutes
+                        ])
                     ]);
-                } else {
-                    // For timed events, convert from team timezone to UTC
-                    $event->update([
-                        'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
-                        'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
-                    ]);
+                    
+                    // Refresh calendar to show original event size
+                    $this->refresh();
+                    return;
                 }
             }
             $this->refresh();
