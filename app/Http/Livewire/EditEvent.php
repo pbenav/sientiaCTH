@@ -411,21 +411,58 @@ class EditEvent extends Component
                     return $this->applyAdjustment('adjust_end');
                 }
                 
-                // Get slots for the day
+                // Calculate time already used today by other events
+                $team = $user->currentTeam;
+                $eventDate = Carbon::parse($this->start_date)->startOfDay();
+                $dayStartUTC = $eventDate->copy()->setTimezone('UTC');
+                $dayEndUTC = $eventDate->copy()->endOfDay()->setTimezone('UTC');
+                
+                // Get all other workday events from the same day (excluding current event)
+                $dayEvents = Event::where('user_id', $user->id)
+                    ->where('team_id', $team->id)
+                    ->where('id', '!=', $this->event->id)
+                    ->whereHas('eventType', function($q) {
+                        $q->where('is_workday_type', true);
+                    })
+                    ->where('is_open', false)
+                    ->where('start', '>=', $dayStartUTC)
+                    ->where('start', '<=', $dayEndUTC)
+                    ->get();
+                
+                // Calculate total minutes already used today
+                $usedMinutes = 0;
+                foreach ($dayEvents as $dayEvent) {
+                    if ($dayEvent->end) {
+                        $eventStart = Carbon::parse($dayEvent->start, 'UTC');
+                        $eventEnd = Carbon::parse($dayEvent->end, 'UTC');
+                        $usedMinutes += $eventEnd->diffInMinutes($eventStart);
+                    }
+                }
+                
+                // Calculate available minutes (max duration - already used)
+                $maxDuration = $team->max_workday_duration_minutes ?? 480; // Default 8 hours
+                $availableMinutes = max(0, $maxDuration - $usedMinutes);
+                
+                // Limit to available minutes
+                $remainingMinutes = min($maxMinutes, $availableMinutes);
+                
+                if ($remainingMinutes <= 0) {
+                    $this->emit('alertFail', __('No hay tiempo disponible. Ya se ha alcanzado el máximo de jornada diaria.'));
+                    return;
+                }
+                
+                // Get slots for the day (filter by day of week)
                 $dayIso = $startCarbon->isoFormat('E');
                 $slots = collect($schedule)->filter(function($slot) use ($dayIso) {
                     return in_array($dayIso, $slot['days']);
-                })->values();
+                })->sortBy('start')->values();
                 
                 if ($slots->isEmpty()) {
-                    return $this->applyAdjustment('adjust_end');
+                    $this->emit('alertFail', __('No hay tramos horarios definidos para este día.'));
+                    return;
                 }
                 
-                // Sort slots by start time
-                $slots = $slots->sortBy('start')->values();
-                
-                // Calculate how much time we need to distribute (limited by maxMinutes)
-                $remainingMinutes = $maxMinutes;
+                // Calculate how much time we need to distribute
                 $eventsToCreate = [];
                 
                 foreach ($slots as $slot) {

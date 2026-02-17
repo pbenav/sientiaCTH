@@ -612,6 +612,8 @@
   "Tiempo distribuido en :count tramos (:minutes min total)": "Tiempo distribuido en :count tramos (:minutes min total)",
   "Schedule": "Horario",
   "Exceptional Event": "Evento Excepcional",
+  "No hay tiempo disponible. Ya se ha alcanzado el máximo de jornada diaria.": "No hay tiempo disponible. Ya se ha alcanzado el máximo de jornada diaria.",
+  "No hay tramos horarios definidos para este día.": "No hay tramos horarios definidos para este día.",
   "Import All": "Importar Todo",
   "Select All": "Seleccionar Todo",
   "No holidays available to import.": "No hay días festivos disponibles para importar.",

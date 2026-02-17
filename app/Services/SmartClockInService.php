@@ -558,7 +558,50 @@ class SmartClockInService
         $teamTimezone = $this->getUserTimezone($user);
         $nowLocal = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
         
-        // Find slots for today
+        // Calculate time already used today by other events
+        $team = $user->currentTeam;
+        $eventDate = $nowLocal->copy()->startOfDay();
+        $dayStartUTC = $eventDate->copy()->setTimezone('UTC');
+        $dayEndUTC = $eventDate->copy()->endOfDay()->setTimezone('UTC');
+        
+        // Get all other workday events from the same day (excluding current event)
+        $dayEvents = Event::where('user_id', $user->id)
+            ->where('team_id', $team->id)
+            ->where('id', '!=', $event->id)
+            ->whereHas('eventType', function($q) {
+                $q->where('is_workday_type', true);
+            })
+            ->where('is_open', false)
+            ->where('start', '>=', $dayStartUTC)
+            ->where('start', '<=', $dayEndUTC)
+            ->get();
+        
+        // Calculate total minutes already used today
+        $usedMinutes = 0;
+        foreach ($dayEvents as $dayEvent) {
+            if ($dayEvent->end) {
+                $eventStart = Carbon::parse($dayEvent->start, 'UTC');
+                $eventEnd = Carbon::parse($dayEvent->end, 'UTC');
+                $usedMinutes += $eventEnd->diffInMinutes($eventStart);
+            }
+        }
+        
+        // Calculate available minutes (max duration - already used)
+        $maxDuration = $team->max_workday_duration_minutes ?? 480; // Default 8 hours
+        $availableMinutes = max(0, $maxDuration - $usedMinutes);
+        
+        // Limit to available minutes
+        $remainingMinutes = min($maxMinutes, $availableMinutes);
+        
+        if ($remainingMinutes <= 0) {
+            return [
+                'success' => false,
+                'status_code' => self::STATUS_ERROR,
+                'message' => __('No hay tiempo disponible. Ya se ha alcanzado el máximo de jornada diaria.')
+            ];
+        }
+        
+        // Get slots for today (filter by day of week)
         $dayIso = (int) $nowLocal->format('N');
         $todaySlots = array_filter($schedule, function($slot) use ($dayIso) {
             return in_array($dayIso, $slot['days']) || in_array((string)$dayIso, $slot['days']);
@@ -573,8 +616,7 @@ class SmartClockInService
             return strcmp($a['start'], $b['start']);
         });
 
-        // Calculate how much time we need to distribute (limited by maxMinutes)
-        $remainingMinutes = $maxMinutes;
+        // Calculate how much time we need to distribute
         $eventsToCreate = [];
         
         foreach ($todaySlots as $slot) {
