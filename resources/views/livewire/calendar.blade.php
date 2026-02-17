@@ -9,49 +9,35 @@
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg" @click.stop>
-                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 sm:mx-0 sm:h-10 sm:w-10">
-                            <i class="fas fa-clock text-blue-600 dark:text-blue-400"></i>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-white">
-                                {{ __('Duración Máxima Excedida') }}
-                            </h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ __('Has superado el tiempo máximo permitido de jornada (:max min). Actualmente llevas :current min.', [
-                                        'max' => $maxMinutes,
-                                        'current' => $currentMinutes
-                                    ]) }}
-                                </p>
-                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mt-4">
-                                    {{ __('Elige una opción para ajustar:') }}
-                                </p>
-                            </div>
-                        </div>
+                {{-- Modal Content --}}
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-clock text-blue-600 dark:text-blue-400 mr-2"></i>
+                        <p class="text-blue-800 dark:text-blue-200 font-medium">{{ __('Límite de jornada excedido') }}</p>
                     </div>
-                </div>
-                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:flex sm:flex-col sm:gap-2 sm:px-6">
-                    <button wire:click="applyAdjustment('adjust_start')" 
-                        class="inline-flex w-full justify-start rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-sm">
-                        <i class="fas fa-step-forward mr-2"></i>
-                        {{ __('1. Ajustar hora de inicio (retrasar entrada)') }}
-                    </button>
-                    <button wire:click="applyAdjustment('adjust_end')" 
-                        class="mt-2 inline-flex w-full justify-start rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-sm">
-                        <i class="fas fa-step-backward mr-2"></i>
-                        {{ __('2. Ajustar hora de salida (adelantar salida)') }}
-                    </button>
-                    <button wire:click="applyAdjustment('adjust_schedule')" 
-                        class="mt-2 inline-flex w-full justify-start rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:text-sm">
-                        <i class="fas fa-calendar-alt mr-2"></i>
-                        {{ __('3. Distribuir en tramos horarios') }}
-                    </button>
-                    <button wire:click="cancelAdjustment" 
-                        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm">
-                        {{ __('Cancelar') }}
-                    </button>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                        {{ __('Has superado el tiempo máximo permitido de jornada (:max min). Actualmente llevas :current min.', ['max' => $maxMinutes, 'current' => $currentMinutes]) }}
+                    </p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mb-4 font-semibold">
+                        {{ __('Elige una opción para ajustar tu fichaje:') }}
+                    </p>
+                    <div class="flex flex-col gap-3">
+                        <button
+                            wire:click="applyAdjustment('adjust_start')"
+                            class="w-full flex justify-start items-center px-4 py-3 text-sm font-medium text-blue-800 dark:text-blue-200 bg-blue-100 dark:bg-blue-800/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-all duration-200 border border-blue-300 dark:border-blue-700">
+                            <i class="fas fa-step-forward mr-3 w-5"></i><span>1.- Ajustar hora de inicio (retrasar entrada)</span>
+                        </button>
+                        <button
+                            wire:click="applyAdjustment('adjust_end')"
+                            class="w-full flex justify-start items-center px-4 py-3 text-sm font-medium text-blue-800 dark:text-blue-200 bg-blue-100 dark:bg-blue-800/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-all duration-200 border border-blue-300 dark:border-blue-700">
+                            <i class="fas fa-step-backward mr-3 w-5"></i><span>2.- Ajustar hora de salida (adelantar salida)</span>
+                        </button>
+                        <button
+                            wire:click="applyAdjustment('adjust_schedule')"
+                            class="w-full flex justify-start items-center px-4 py-3 text-sm font-medium text-blue-800 dark:text-blue-200 bg-blue-100 dark:bg-blue-800/40 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-all duration-200 border border-blue-300 dark:border-blue-700">
+                            <i class="fas fa-calendar-alt mr-3 w-5"></i><span>3.- Ajustar al tramo horario (proporcional)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

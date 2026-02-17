@@ -650,8 +650,8 @@ class SmartClockInService
         // Update the first event (the current one)
         $firstEvent = $eventsToCreate[0];
         $event->update([
-            'start' => $this->teamTimeToUtc($firstEvent['start']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
-            'end' => $this->teamTimeToUtc($firstEvent['end']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
+            'start' => Carbon::parse($firstEvent['start']->toDateTimeString(), $teamTimezone)->setTimezone('UTC')->format('Y-m-d H:i:s'),
+            'end' => Carbon::parse($firstEvent['end']->toDateTimeString(), $teamTimezone)->setTimezone('UTC')->format('Y-m-d H:i:s'),
             'is_open' => true,
             'observations' => ($event->observations ? $event->observations . "\n" : "") . 
                 __('Ajuste automático al primer tramo horario (:minutes min)', ['minutes' => $firstEvent['minutes']])
@@ -666,8 +666,8 @@ class SmartClockInService
                 'event_type_id' => $event->event_type_id,
                 'team_id' => $user->current_team_id,
                 'work_center_id' => $event->work_center_id,
-                'start' => $this->teamTimeToUtc($slotEvent['start']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
-                'end' => $this->teamTimeToUtc($slotEvent['end']->toDateTimeString(), $teamTimezone)->format('Y-m-d H:i:s'),
+                'start' => Carbon::parse($slotEvent['start']->toDateTimeString(), $teamTimezone)->setTimezone('UTC')->format('Y-m-d H:i:s'),
+                'end' => Carbon::parse($slotEvent['end']->toDateTimeString(), $teamTimezone)->setTimezone('UTC')->format('Y-m-d H:i:s'),
                 'description' => $event->description,
                 'observations' => __('Ajuste automático al tramo horario :number (:minutes min)', [
                     'number' => $i + 1,
