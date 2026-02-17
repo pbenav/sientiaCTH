@@ -174,7 +174,7 @@ class Calendar extends Component
             if ($this->canModifyEvent($event)) {
                 try {
                     if ($event->eventType && $event->eventType->is_all_day) {
-                        // For all-day events, store pure dates in UTC without timezone conversion
+                        // For all-day events, ALWAYS keep them as all-day, ignore time components
                         $startDate = Carbon::parse($newStart)->format('Y-m-d');
                         $endDate = $newEnd ? Carbon::parse($newEnd)->format('Y-m-d') : null;
                         
@@ -189,14 +189,15 @@ class Calendar extends Component
                             'start' => $startDate . ' 00:00:00',
                             'end' => $endDate ? $endDate . ' 00:00:00' : $startDate . ' 00:00:00',
                         ]);
+                        $this->refresh(); // Only refresh on success
                     } else {
                         // For timed events, convert from team timezone to UTC
                         $event->update([
                             'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
                             'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
                         ]);
+                        $this->refresh(); // Only refresh on success
                     }
-                    $this->refresh();
                 } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
                     // Store pending data for adjustment modal
                     $this->pendingEventId = $eventId;
@@ -208,6 +209,7 @@ class Calendar extends Component
                     $this->maxMinutes = $e->maxMinutes;
                     $this->currentMinutes = $e->currentMinutes;
                     $this->showAdjustmentModal = true;
+                    // DO NOT refresh - let user choose adjustment option
                 }
             }
         }
@@ -245,12 +247,14 @@ class Calendar extends Component
                             'start' => $startDate . ' 00:00:00',
                             'end' => $endDate . ' 00:00:00',
                         ]);
+                        $this->refresh(); // Only refresh on success
                     } else {
                         // For timed events, convert from team timezone to UTC
                         $event->update([
                             'start' => Carbon::parse($newStart, $teamTimezone)->setTimezone('UTC'),
                             'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
                         ]);
+                        $this->refresh(); // Only refresh on success
                     }
                 } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
                 // Store pending data for adjustment modal
@@ -263,9 +267,9 @@ class Calendar extends Component
                 $this->maxMinutes = $e->maxMinutes;
                 $this->currentMinutes = $e->currentMinutes;
                 $this->showAdjustmentModal = true;
+                // DO NOT refresh - let user choose adjustment option
             }
             }
-            $this->refresh();
         }
     }
 
