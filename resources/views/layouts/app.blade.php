@@ -158,6 +158,28 @@
                     timerProgressBar: true,
                 });
             @endif
+
+            @if (session()->has('alert-success'))
+                Swal.fire({
+                    title: "{{ session('alert-success') }}",
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+            @endif
+
+            @if (session()->has('alert-fail'))
+                Swal.fire({
+                    icon: 'error',
+                    title: "{{ __('Error') }}",
+                    text: "{{ session('alert-fail') }}",
+                    showConfirmButton: true,
+                    confirmButtonText: "{{ __('sweetalert.ok_button') }}",
+                });
+            @endif
         </script>
         
         {{-- Geolocation capture for web events (global) --}}

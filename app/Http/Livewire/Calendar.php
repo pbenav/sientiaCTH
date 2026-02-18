@@ -559,9 +559,7 @@ class Calendar extends Component
                 $this->showAdjustmentModal = false;
                 $this->reset(['pendingEventId', 'pendingAction', 'pendingData']);
                 $this->refresh();
-                $this->dispatchBrowserEvent('alert-success', [
-                    'message' => $result['message']
-                ]);
+                session()->flash('alert-success', $result['message']);
             }
         } else {
             // Handle adjust_start and adjust_end
