@@ -15,8 +15,6 @@ Este documento recoge los hitos más importantes en la evolución de **CTH (Cont
 - **Modal de Ajuste Automático**: Asistente para corregir fichajes que exceden el límite.
 - **Alertas Persistentes**: Mensajes de estado que sobreviven a recargas de página.
 
-### UX
-- **Modal Unificado**: Simplificación de creación y edición de eventos en una sola interfaz.
 
 ---
 

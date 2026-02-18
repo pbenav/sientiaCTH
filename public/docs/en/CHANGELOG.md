@@ -15,8 +15,6 @@ This document collects the most important milestones in the evolution of **CTH (
 - **Automatic Adjustment Modal**: Assistant to correct clock-ins that exceed the limit.
 - **Persistent Alerts**: Status messages that survive page reloads.
 
-### UX
-- **Unified Modal**: Simplification of event creation and editing in a single interface.
 
 ---
 
