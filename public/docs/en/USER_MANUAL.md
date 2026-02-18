@@ -8,12 +8,13 @@ Welcome to the CTH user manual, your comprehensive time and schedule control sys
 2. [Dashboard (Main Panel)](#2-dashboard-main-panel)
 3. [Clock-In System and SmartClockIn](#3-clock-in-system-and-smartclockin)
 4. [Event Management](#4-event-management)
-5. [Calendar and Schedules](#5-calendar-and-schedules)
-6. [Reports and Statistics](#6-reports-and-statistics)
-7. [Personal Settings](#7-personal-settings)
-8. [Team Functions](#8-team-functions)
-9. [Frequently Asked Questions](#9-frequently-asked-questions)
-10. [Troubleshooting](#10-troubleshooting)
+5. [Workday Duration Control](#5-workday-duration-control)
+6. [Calendar and Schedules](#6-calendar-and-schedules)
+7. [Reports and Statistics](#7-reports-and-statistics)
+8. [Personal Settings](#8-personal-settings)
+9. [Team Functions](#9-team-functions)
+10. [Frequently Asked Questions](#10-frequently-asked-questions)
+11. [Troubleshooting](#11-troubleshooting)
 
 ---
 
@@ -150,7 +151,23 @@ You can check all your records in the History section. Here you will see details
 
 ---
 
-## 5. Calendar and Schedules
+## 5. Workday Duration Control
+
+### Automatic Validation
+CTH continuously monitors the total duration of your daily workday. The system:
+1. **Calculates** total minutes worked in the day.
+2. **Compares** with the maximum limit established for your shift.
+3. **Blocks** workday extensions that exceed the legal or configured limit.
+
+### Adjustment Assistant
+If an action (such as move an event on the calendar) causes the maximum time to be exceeded, an **Adjustment Assistant** will appear allowing you to:
+- **Adjust start time**: Delay entry to maintain duration.
+- **Adjust end time**: Advance exit to comply with the limit.
+- **Adjust proportionally**: Redistribute time.
+
+---
+
+## 6. Calendar and Schedules
 
 ### Calendar View
 The calendar allows you to graphically visualize your workday. You can switch between monthly, weekly, and daily views.
@@ -163,7 +180,7 @@ Your administrator assigns a base schedule, but you can check your shifts and ho
 
 ---
 
-## 6. Reports and Statistics
+## 7. Reports and Statistics
 
 ### Report Generation
 You can export your clock-in data in several formats:
@@ -175,7 +192,7 @@ You can export your clock-in data in several formats:
 
 ---
 
-## 7. Personal Settings
+## 8. Personal Settings
 
 ### Profile and Preferences
 From your profile, you can:
@@ -189,7 +206,7 @@ From your profile, you can:
 
 ---
 
-## 8. Team Functions
+## 9. Team Functions
 
 If you have the **Administrator** or **Supervisor** role, you will have access to additional functions:
 - View real-time status of team members.
@@ -198,7 +215,7 @@ If you have the **Administrator** or **Supervisor** role, you will have access t
 
 ---
 
-## 9. Frequently Asked Questions
+## 10. Frequently Asked Questions
 
 **What is a Token?**
 A **Token** is a unique alphanumeric key that allows the mobile application to identify you securely without needing to enter your password constantly.
@@ -208,10 +225,11 @@ Make sure you are within the allowed time range or request an exceptional clock-
 
 ---
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 If you experience issues with the **Dashboard** or the **SmartClockIn** system, try reloading the page (F5) or clearing your browser cache. For persistent issues, contact technical support providing your user ID.
 
 ---
-*Manual updated: November 2025*
+*Manual updated: February 2026*
+*Version: 1.0.1*
 *© 2025 CTH - Time and Schedule Control*

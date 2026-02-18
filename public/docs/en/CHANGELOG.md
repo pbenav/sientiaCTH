@@ -6,6 +6,20 @@ This document collects the most important milestones in the evolution of **CTH (
 
 ---
 
+---
+
+## 🛡️ February 2026 - Workday Control and UX Improvements
+
+### Duration Control
+- **Daily Validation**: Prevention of excesses in total workday.
+- **Automatic Adjustment Modal**: Assistant to correct clock-ins that exceed the limit.
+- **Persistent Alerts**: Status messages that survive page reloads.
+
+### UX
+- **Unified Modal**: Simplification of event creation and editing in a single interface.
+
+---
+
 ## 🎓 January 2026 - Permission System v1.0 and Comprehensive Documentation
 
 ### Granular Permission System

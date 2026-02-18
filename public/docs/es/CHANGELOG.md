@@ -6,6 +6,20 @@ Este documento recoge los hitos más importantes en la evolución de **CTH (Cont
 
 ---
 
+---
+
+## 🛡️ Febrero 2026 - Control de Jornada y Mejoras de UX
+
+### Control de Duración
+- **Validación Diaria**: Prevención de excesos en la jornada laboral total.
+- **Modal de Ajuste Automático**: Asistente para corregir fichajes que exceden el límite.
+- **Alertas Persistentes**: Mensajes de estado que sobreviven a recargas de página.
+
+### UX
+- **Modal Unificado**: Simplificación de creación y edición de eventos en una sola interfaz.
+
+---
+
 ## 🎓 Enero 2026 - Sistema de Permisos v1.0 y Documentación Integral
 
 ### Sistema de Permisos Granular

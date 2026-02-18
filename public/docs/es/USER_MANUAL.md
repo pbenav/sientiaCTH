@@ -8,12 +8,13 @@ Bienvenido al manual de usuario de CTH, tu sistema integral de control de tiempo
 2. [Dashboard (Panel Principal)](#2-dashboard-panel-principal)
 3. [Sistema de Fichajes y SmartClockIn](#3-sistema-de-fichajes-y-smartclockin)
 4. [Gestión de Eventos](#4-gestión-de-eventos)
-5. [Calendario y Horarios](#5-calendario-y-horarios)
-6. [Informes y Estadísticas](#6-informes-y-estadísticas)
-7. [Configuración Personal](#7-configuración-personal)
-8. [Funciones de Equipo](#8-funciones-de-equipo)
-9. [Preguntas Frecuentes](#9-preguntas-frecuentes)
-10. [Solución de Problemas](#10-solución-de-problemas)
+5. [Control de Duración de Jornada](#5-control-de-duración-de-jornada)
+6. [Calendario y Horarios](#6-calendario-y-horarios)
+7. [Informes y Estadísticas](#7-informes-y-estadísticas)
+8. [Configuración Personal](#8-configuración-personal)
+9. [Funciones de Equipo](#9-funciones-de-equipo)
+10. [Preguntas Frecuentes](#10-preguntas-frecuentes)
+11. [Solución de Problemas](#11-solución-de-problemas)
 
 ---
 
@@ -150,7 +151,23 @@ Puedes consultar todos tus registros en la sección de Historial. Aquí verás d
 
 ---
 
-## 5. Calendario y Horarios
+## 5. Control de Duración de Jornada
+
+### Validación Automática
+CTH monitoriza continuamente la duración total de tu jornada laboral diaria. El sistema:
+1. **Calcula** el total de minutos trabajados en el día.
+2. **Compara** con el límite máximo establecido para tu turno.
+3. **Bloquea** extensiones de jornada que excedan el límite legal o configurado.
+
+### Asistente de Ajuste
+Si una acción (como mover un evento en el calendario) provoca que se exceda el tiempo máximo, aparecerá un **Asistente de Ajuste** que te permitirá:
+- **Ajustar hora de inicio**: Retrasar la entrada para mantener la duración.
+- **Ajustar hora de salida**: Adelantar la salida para cumplir con el límite.
+- **Ajustar proporcionalmente**: Redistribuir el tiempo.
+
+---
+
+## 6. Calendario y Horarios
 
 ### Vista de Calendario
 El calendario te permite visualizar de forma gráfica tu jornada laboral. Puedes cambiar entre vistas mensual, semanal y diaria.
@@ -163,7 +180,7 @@ Tu administrador asigna un horario base, pero puedes consultar tus turnos y día
 
 ---
 
-## 6. Informes y Estadísticas
+## 7. Informes y Estadísticas
 
 ### Generación de Informes
 Puedes exportar tus datos de fichaje en varios formatos:
@@ -175,7 +192,7 @@ Puedes exportar tus datos de fichaje en varios formatos:
 
 ---
 
-## 7. Configuración Personal
+## 8. Configuración Personal
 
 ### Perfil y Preferencias
 Desde tu perfil puedes:
@@ -189,7 +206,7 @@ Desde tu perfil puedes:
 
 ---
 
-## 8. Funciones de Equipo
+## 9. Funciones de Equipo
 
 Si tienes el rol de **Administrador** o **Supervisor**, tendrás acceso a funciones adicionales:
 - Ver el estado en tiempo real de los miembros del equipo.
@@ -198,7 +215,7 @@ Si tienes el rol de **Administrador** o **Supervisor**, tendrás acceso a funcio
 
 ---
 
-## 9. Preguntas Frecuentes
+## 10. Preguntas Frecuentes
 
 **¿Qué es un Token?**
 Un **Token** es una clave alfanumérica única que permite a la aplicación móvil identificarte de forma segura sin necesidad de introducir tu contraseña constantemente.
@@ -208,10 +225,11 @@ Asegúrate de estar dentro del rango horario permitido o solicita un enlace de f
 
 ---
 
-## 10. Solución de Problemas
+## 11. Solución de Problemas
 
 Si experimentas problemas con el **Dashboard** o el sistema **SmartClockIn**, intenta recargar la página (F5) o limpiar la caché de tu navegador. Para problemas persistentes, contacta con el soporte técnico proporcionando tu ID de usuario.
 
 ---
-*Manual actualizado: Noviembre 2025*
+*Manual actualizado: Febrero 2026*
+*Versión: 1.0.1*
 *© 2025 CTH - Control de Tiempo y Horarios*
