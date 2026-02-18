@@ -554,13 +554,13 @@ class SmartClockInService
             return $this->clockOutWithAdjustment($user, $event->id, 'adjust_end');
         }
 
-        $nowUTC = Carbon::now('UTC');
         $teamTimezone = $this->getUserTimezone($user);
-        $nowLocal = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
+        // Get the local date of the event's start time
+        $eventStartDateLocal = $this->utcToTeamTimezone($event->start, $teamTimezone);
         
         // Calculate time already used today by other events
         $team = $user->currentTeam;
-        $eventDate = $nowLocal->copy()->startOfDay();
+        $eventDate = $eventStartDateLocal->copy()->startOfDay(); // Use event's date, not current date
         $dayStartUTC = $eventDate->copy()->setTimezone('UTC');
         $dayEndUTC = $eventDate->copy()->endOfDay()->setTimezone('UTC');
         
@@ -618,8 +618,8 @@ class SmartClockInService
         foreach ($allSlots as $slot) {
             if ($remainingMinutes <= 0) break;
             
-            $slotStart = Carbon::parse($nowLocal->format('Y-m-d') . ' ' . $slot['start'], $teamTimezone);
-            $slotEnd = Carbon::parse($nowLocal->format('Y-m-d') . ' ' . $slot['end'], $teamTimezone);
+            $slotStart = Carbon::parse($eventStartDateLocal->format('Y-m-d') . ' ' . $slot['start'], $teamTimezone); // Use event's date
+            $slotEnd = Carbon::parse($eventStartDateLocal->format('Y-m-d') . ' ' . $slot['end'], $teamTimezone); // Use event's date
             
             // Handle slots that cross midnight
             if ($slotEnd->lt($slotStart)) {

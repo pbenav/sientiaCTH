@@ -172,6 +172,10 @@ class Calendar extends Component
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
+                // CRITICAL: Save original values BEFORE update for potential rollback
+                $originalStart = $event->start;
+                $originalEnd = $event->end;
+                
                 try {
                     if ($event->eventType && $event->eventType->is_all_day) {
                         // For all-day events, ALWAYS keep them as all-day, ignore time components
@@ -197,8 +201,22 @@ class Calendar extends Component
                             'end' => $newEnd ? Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC') : null,
                         ]);
                     }
-                    
-                    // CRITICAL: Validate daily total after moving event
+
+                    // Block workday events from being moved to future dates
+                    if ($event->eventType && $event->eventType->is_workday_type) {
+                        $newStartInTeamTz = Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);
+                        if ($newStartInTeamTz->isFuture() && $newStartInTeamTz->isAfter(Carbon::now($teamTimezone)->addMinutes(5))) {
+                            $event->update([
+                                'start' => $originalStart,
+                                'end'   => $originalEnd,
+                            ]);
+                            session()->flash('alert-fail', __('No se pueden mover eventos de jornada laboral a fechas futuras.'));
+                            $this->refresh();
+                            return;
+                        }
+                    }
+
+                    // CRITICAL: Validate daily total AFTER moving event
                     // The observer only validates individual event, not daily sum
                     if ($event->end && $event->user && $event->eventType && $event->eventType->is_workday_type && !$event->is_exceptional) {
                         $service = app(\App\Services\SmartClockInService::class);
@@ -208,8 +226,11 @@ class Calendar extends Component
                             isset($validation['status_code']) && 
                             $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
                             
-                            // Revert the event to original state
-                            $event->refresh();
+                            // MANUAL ROLLBACK: Restore original values
+                            $event->update([
+                                'start' => $originalStart,
+                                'end' => $originalEnd,
+                            ]);
                             
                             // Show error message
                             session()->flash('alert-fail', __(
@@ -258,6 +279,10 @@ class Calendar extends Component
 
         if ($event) {
             if ($this->canModifyEvent($event)) {
+                // CRITICAL: Save original values BEFORE update for potential rollback
+                $originalStart = $event->start;
+                $originalEnd = $event->end;
+                
                 try {
                     if ($event->eventType && $event->eventType->is_all_day) {
                         // For all-day events, store pure dates in UTC without timezone conversion
@@ -283,8 +308,22 @@ class Calendar extends Component
                             'end' => Carbon::parse($newEnd, $teamTimezone)->setTimezone('UTC'),
                         ]);
                     }
-                    
-                    // CRITICAL: Validate daily total after resizing event
+
+                    // Block workday events from being resized into future dates
+                    if ($event->eventType && $event->eventType->is_workday_type) {
+                        $newEndInTeamTz = Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone);
+                        if ($newEndInTeamTz->isFuture() && $newEndInTeamTz->isAfter(Carbon::now($teamTimezone)->addMinutes(5))) {
+                            $event->update([
+                                'start' => $originalStart,
+                                'end'   => $originalEnd,
+                            ]);
+                            session()->flash('alert-fail', __('No se puede extender un evento de jornada laboral a fechas futuras.'));
+                            $this->refresh();
+                            return;
+                        }
+                    }
+
+                    // CRITICAL: Validate daily total AFTER resizing event
                     // The observer only validates individual event, not daily sum
                     if ($event->end && $event->user && $event->eventType && $event->eventType->is_workday_type && !$event->is_exceptional) {
                         $service = app(\App\Services\SmartClockInService::class);
@@ -294,8 +333,11 @@ class Calendar extends Component
                             isset($validation['status_code']) && 
                             $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
                             
-                            // Revert the event to original state
-                            $event->refresh();
+                            // MANUAL ROLLBACK: Restore original values
+                            $event->update([
+                                'start' => $originalStart,
+                                'end' => $originalEnd,
+                            ]);
                             
                             // Show error message
                             session()->flash('alert-fail', __(

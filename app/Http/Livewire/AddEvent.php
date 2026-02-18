@@ -190,6 +190,7 @@ class AddEvent extends Component
     public $showAdjustmentModal = false;
     public $maxMinutes = 0;
     public $currentMinutes = 0;
+    public bool $isExceptionalOverride = false; // Set to true when a past event exceeds daily limit
 
     /**
      * Save the new event.
@@ -221,7 +222,27 @@ class AddEvent extends Component
         $team = $user->currentTeam;
         $appTimezone = config('app.timezone');
 
-        $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone);
+        // Block future events for WORKDAY types only:
+        // Holidays, sick leave, etc. can legitimately be registered in the future.
+        $isWorkdayType = $this->selectedEventType && $this->selectedEventType->is_workday_type;
+
+        // IMPORTANT: The user enters times in the team's local timezone, not the server timezone.
+        // We must parse and compare using the team timezone to avoid false "future" detections.
+        $teamTimezone = $team->timezone ?? $appTimezone;
+        $eventStartTime = Carbon::parse($this->start_date . ' ' . $this->start_time, $teamTimezone);
+        $nowInTeamTz = Carbon::now($teamTimezone);
+
+        if ($isWorkdayType && $eventStartTime->isAfter($nowInTeamTz->copy()->addMinutes(5))) {
+            $this->showAddEventModal = false;
+            $this->dispatchBrowserEvent('alertFail', [
+                'message' => __('No se pueden registrar fichajes de jornada laboral en fechas futuras.')
+            ]);
+            if ($this->origin === 'calendar') {
+                $this->emit('refreshCalendar');
+            }
+            return;
+        }
+
 
     // IMPORTANT: Check if the user is CURRENTLY within their work schedule
     // We use the current time (now) to determine if this is an exceptional registration.
@@ -278,7 +299,8 @@ class AddEvent extends Component
         $isExtraHours = !($this->selectedEventType && $this->selectedEventType->is_workday_type);
         
         // If force_clock_in_delay is disabled, we treat all allowed registrations as normal (not exceptional)
-        $isExceptional = false;
+        // But respect the override flag set when a past event is marked exceptional due to exceeding daily limit
+        $isExceptional = $this->isExceptionalOverride;
 
         $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
@@ -358,6 +380,7 @@ class AddEvent extends Component
 
         $this->reset(['showAddEventModal']);
         $this->showAdjustmentModal = false;
+        $this->isExceptionalOverride = false;
 
         if ($this->origin == 'numpad') {
             return redirect()->route('events')->with('info', 'E_SUCCESS');
@@ -417,7 +440,21 @@ class AddEvent extends Component
                 break;
 
             case 'adjust_schedule':
-                // Let's try to find if there is a slot today and try to align.
+                // For PAST events that exceed the daily limit:
+                // Instead of truncating the event, mark it as exceptional so the admin can review it.
+                // The event keeps its original start/end times on the correct date.
+                $eventDate = Carbon::parse($this->start_date);
+                if ($eventDate->isPast() || $eventDate->isToday()) {
+                    // Mark as exceptional — keeps original times, just flags it for admin review
+                    $this->isExceptionalOverride = true;
+                    if (empty($this->observations)) $this->observations = '';
+                    else $this->observations .= "\n";
+                    $this->observations .= __('Evento excepcional: la duración supera el límite diario (:max min). Requiere revisión del administrador.', ['max' => $maxMinutes]);
+                    // Do NOT modify start/end times — keep the original registration
+                    break;
+                }
+
+                // For today's events (real-time clock-out scenario), align to schedule slots
                 $user = Auth::user();
                 $scheduleMeta = $user->meta->where('meta_key', 'work_schedule')->first();
                 $schedule = $scheduleMeta ? json_decode($scheduleMeta->meta_value, true) : [];

@@ -203,11 +203,19 @@
                     </span>
                 </button>
 
-                <button wire:click="applyAdjustment('adjust_schedule')" class="w-full flex items-center p-3 text-sm font-medium text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors">
-                    <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-blue-200 rounded-full mr-3 text-blue-700 font-bold">3</span>
+                @php
+                    $isPastOrToday = \Carbon\Carbon::parse($start_date)->isPast() || \Carbon\Carbon::parse($start_date)->isToday();
+                @endphp
+                <button wire:click="applyAdjustment('adjust_schedule')" class="w-full flex items-center p-3 text-sm font-medium {{ $isPastOrToday ? 'text-orange-800 bg-orange-50 hover:bg-orange-100 border-orange-200' : 'text-blue-800 bg-blue-50 hover:bg-blue-100 border-blue-200' }} rounded-lg border transition-colors">
+                    <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center {{ $isPastOrToday ? 'bg-orange-200 text-orange-700' : 'bg-blue-200 text-blue-700' }} rounded-full mr-3 font-bold">3</span>
                     <span class="text-left">
-                        <span class="block font-bold">{{ __('Ajustar al tramo horario') }}</span>
-                        <span class="block text-xs font-normal text-blue-600">{{ __('Ajustar proporcionalmente al horario laboral') }}</span>
+                        @if($isPastOrToday)
+                            <span class="block font-bold">{{ __('Registrar como excepcional') }}</span>
+                            <span class="block text-xs font-normal {{ $isPastOrToday ? 'text-orange-600' : 'text-blue-600' }}">{{ __('Guardar con la duración real y marcar para revisión del administrador') }}</span>
+                        @else
+                            <span class="block font-bold">{{ __('Ajustar al tramo horario') }}</span>
+                            <span class="block text-xs font-normal text-blue-600">{{ __('Ajustar proporcionalmente al horario laboral') }}</span>
+                        @endif
                     </span>
                 </button>
             </div>

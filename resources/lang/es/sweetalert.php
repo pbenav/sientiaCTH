@@ -65,5 +65,10 @@ return [
             'cancelButtonText' => 'Cancelar',
         ],
         'confirm_change' => '¿Estás seguro de este cambio?',
+        'future_date_blocked' => [
+            'title' => 'Fecha no permitida',
+            'text' => 'No se pueden registrar fichajes en fechas futuras.',
+            'confirmButtonText' => 'Entendido',
+        ],
     ],
 ];
