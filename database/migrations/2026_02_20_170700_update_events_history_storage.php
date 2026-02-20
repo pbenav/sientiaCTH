@@ -11,10 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('events_history', function (Blueprint $table) {
-            $table->longText('original_event')->change();
-            $table->longText('modified_event')->change();
-        });
+        if (Schema::hasTable('events_history')) {
+            Schema::table('events_history', function (Blueprint $table) {
+                if (Schema::hasColumn('events_history', 'original_event')) {
+                    $table->longText('original_event')->change();
+                }
+                if (Schema::hasColumn('events_history', 'modified_event')) {
+                    $table->longText('modified_event')->change();
+                }
+            });
+        }
     }
 
     /**
