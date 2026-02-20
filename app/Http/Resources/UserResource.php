@@ -47,6 +47,7 @@ class UserResource extends JsonResource
             'family_name2' => $this->family_name2,
             'email' => $this->email,
             'user_code' => $this->user_code,
+            'dni' => $this->dni,
             'profile_photo_url' => $this->profile_photo_url,
             'current_team_id' => $this->current_team_id,
             // Include other relevant fields, but avoid sensitive ones like password

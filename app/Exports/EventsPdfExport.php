@@ -57,6 +57,8 @@ class EventsPdfExport
                 return $this->clipEventToDateRange($event);
             });
         }
+        
+        $equivalentDaysStr = $this->calculateEquivalentDaysString($eventsForView);
 
         // Apply sorting based on orderBy
         if ($this->orderBy === 'user_name') {
@@ -65,7 +67,7 @@ class EventsPdfExport
                 $name = $event->user->name ?? '';
                 $family1 = $event->user->family_name1 ?? '';
                 $family2 = $event->user->family_name2 ?? '';
-                return strtolower(trim($name . ' ' . $family1 . ' ' . $family2));
+                return strtolower(trim($family1 . ' ' . $family2 . ', ' . $name));
             })->values();
         } else {
             // Sort by date only
@@ -75,15 +77,23 @@ class EventsPdfExport
         // Grouping logic
         if ($this->groupBy === 'user') {
             $eventsForView = $eventsForView->groupBy(function($event) {
+                $dni = $event->user->dni ? $event->user->dni . ' - ' : '';
                 $name = $event->user->name ?? '';
                 $family1 = $event->user->family_name1 ?? '';
                 $family2 = $event->user->family_name2 ?? '';
-                return trim($name . ' ' . $family1 . ' ' . $family2);
+                return trim($dni . $family1 . ($family2 ? ' ' . $family2 : '') . ', ' . $name);
             });
         } elseif ($this->groupBy === 'date') {
             $eventsForView = $eventsForView->groupBy(function($event) {
                 return \Carbon\Carbon::parse($event->start)->format('d/m/Y');
             });
+        }
+
+        $groupEquivalentDays = [];
+        if ($this->groupBy === 'user') {
+            foreach ($eventsForView as $groupName => $groupEvents) {
+                $groupEquivalentDays[$groupName] = $this->calculateEquivalentDaysString($groupEvents);
+            }
         }
 
         $html = view('exports.events_mpdf', [
@@ -95,6 +105,8 @@ class EventsPdfExport
             'totalDuration' => $totalDuration,
             'groupBy' => $this->groupBy,
             'totalRecords' => $totalRecords,
+            'equivalentDaysStr' => $equivalentDaysStr,
+            'groupEquivalentDays' => $groupEquivalentDays,
         ])->render();
 
         // Ensure temp directory exists and is writable
@@ -154,6 +166,8 @@ class EventsPdfExport
                 return $this->clipEventToDateRange($event);
             });
         }
+        
+        $equivalentDaysStr = $this->calculateEquivalentDaysString($eventsForView);
 
         // Apply sorting based on orderBy
         if ($this->orderBy === 'user_name') {
@@ -162,7 +176,7 @@ class EventsPdfExport
                 $name = $event->user->name ?? '';
                 $family1 = $event->user->family_name1 ?? '';
                 $family2 = $event->user->family_name2 ?? '';
-                return strtolower(trim($name . ' ' . $family1 . ' ' . $family2));
+                return strtolower(trim($family1 . ' ' . $family2 . ', ' . $name));
             })->values();
         } else {
             // Sort by date only
@@ -172,15 +186,23 @@ class EventsPdfExport
         // Grouping logic
         if ($this->groupBy === 'user') {
             $eventsForView = $eventsForView->groupBy(function($event) {
+                $dni = $event->user->dni ? $event->user->dni . ' - ' : '';
                 $name = $event->user->name ?? '';
                 $family1 = $event->user->family_name1 ?? '';
                 $family2 = $event->user->family_name2 ?? '';
-                return trim($name . ' ' . $family1 . ' ' . $family2);
+                return trim($dni . $family1 . ($family2 ? ' ' . $family2 : '') . ', ' . $name);
             });
         } elseif ($this->groupBy === 'date') {
             $eventsForView = $eventsForView->groupBy(function($event) {
                 return \Carbon\Carbon::parse($event->start)->format('d/m/Y');
             });
+        }
+
+        $groupEquivalentDays = [];
+        if ($this->groupBy === 'user') {
+            foreach ($eventsForView as $groupName => $groupEvents) {
+                $groupEquivalentDays[$groupName] = $this->calculateEquivalentDaysString($groupEvents);
+            }
         }
 
         $html = view('exports.events_pdf', [
@@ -192,6 +214,8 @@ class EventsPdfExport
             'totalDuration' => $totalDuration,
             'groupBy' => $this->groupBy,
             'totalRecords' => $totalRecords,
+            'equivalentDaysStr' => $equivalentDaysStr,
+            'groupEquivalentDays' => $groupEquivalentDays,
         ])->render();
 
         $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
@@ -363,6 +387,9 @@ class EventsPdfExport
             @mkdir($tempDir, 0777, true);
         }
 
+        $generationDate = now()->format('d/m/Y H:i');
+        $headerText = trans('reports.Generated on') . ': ' . $generationDate;
+
         return Browsershot::html($html)
             ->setNodeBinary($nodePath)
             ->setNpmBinary($npmPath)
@@ -377,10 +404,13 @@ class EventsPdfExport
             ->setOption('args', $puppeteerArgs) // Añadir argumentos adicionales
             ->format('A4')
             ->landscape()
-            ->margins(10, 10, 20, 10) // Increased bottom margin for footer
+            ->margins(15, 10, 20, 10) // Increased top margin for header
             ->showBackground()
             ->setOption('displayHeaderFooter', true)
-            ->setOption('headerTemplate', '<div></div>') // Empty header
+            ->setOption('headerTemplate', '
+                <div style="font-size: 7pt; text-align: right; width: 100%; color: #9CA3AF; padding-right: 20px; padding-top: 5px; font-family: sans-serif;">
+                    ' . $headerText . '
+                </div>')
             ->setOption('footerTemplate', '<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF; padding-top: 5px;">' . 
                 $footerText . ' <span class="pageNumber"></span> ' . trans('reports.of') . ' <span class="totalPages"></span>' .
                 '</div>')
@@ -426,11 +456,82 @@ class EventsPdfExport
             
             $totalDays += $days;
             
-            return $this->formatDuration($totalDays * 1440 + $hours * 60 + $minutes);
+            $totalAllMins = $totalDays * 1440 + $hours * 60 + $minutes;
+            $str = '';
+            $totalHoursCalc = round($totalAllMins / 60, 2);
+            // Determine translation for hours
+            $hoursTrans = __("hours");
+            if ($hoursTrans === "hours") { $hoursTrans = "horas"; } // Fallback if missing
+            $str .= $totalHoursCalc . ' ' . $hoursTrans;
+            return $str;
         }
 
-        // If only all-day events, return just days
-        return $totalDays . ' ' . ($totalDays == 1 ? __('day') : __('days'));
+        // If only all-day events, return just hours
+        $str = '';
+        if ($totalDays > 0) {
+            $totalHours = $totalDays * 24;
+            $hoursTrans = __("hours");
+            if ($hoursTrans === "hours") { $hoursTrans = "horas"; }
+            $str .= $totalHours . ' ' . $hoursTrans;
+        } else {
+             $str = '0 ' . (__("hours") === "hours" ? "horas" : __("hours"));
+        }
+        return $str;
+    }
+
+    protected function calculateEquivalentDaysString($eventsForView): string
+    {
+        $equivalentDaysStr = '';
+        if ($eventsForView->count() > 0 && $eventsForView->first()->user) {
+            $userForSchedule = $eventsForView->first()->user;
+            $scheduledHours = 8;
+            $scheduleMeta = $userForSchedule->meta->where('meta_key', 'work_schedule')->first();
+            if ($scheduleMeta && $scheduleMeta->meta_value) {
+                $schedule = json_decode($scheduleMeta->meta_value, true);
+                if (!empty($schedule)) {
+                    $totalWeekHours = 0;
+                    $daysArray = [];
+                    foreach ($schedule as $slot) {
+                        if (!empty($slot['days'])) {
+                             $startTime = $slot['start_time'] ?? $slot['start'] ?? null;
+                             $endTime = $slot['end_time'] ?? $slot['end'] ?? null;
+                             if ($startTime && $endTime) {
+                                 $st = \Carbon\Carbon::parse($startTime);
+                                 $en = \Carbon\Carbon::parse($endTime);
+                                 $hours = $st->diffInSeconds($en) / 3600;
+                                 $daysNum = count($slot['days']);
+                                 $totalWeekHours += $hours * $daysNum;
+                                 foreach ($slot['days'] as $d) $daysArray[] = $d;
+                             }
+                        }
+                    }
+                    $daysArray = array_unique($daysArray);
+                    if (count($daysArray) > 0 && $totalWeekHours > 0) {
+                        $scheduledHours = $totalWeekHours / count($daysArray);
+                    }
+                }
+            }
+            if ($scheduledHours > 0) {
+                 $totalMins = 0;
+                 foreach ($eventsForView as $e) {
+                      if ($e->eventType && $e->eventType->is_all_day) {
+                          if (preg_match('/(\d+)/', $e->getPeriodForUser($e->user), $m)) {
+                               $totalMins += (int)$m[1] * $scheduledHours * 60;
+                          }
+                      } elseif ($e->start && $e->end) {
+                          $st = \Carbon\Carbon::parse($e->start);
+                          $en = \Carbon\Carbon::parse($e->end);
+                          $totalMins += $st->diffInMinutes($en);
+                      }
+                 }
+                 $totalEqDays = round(($totalMins / 60) / $scheduledHours, 2);
+                 if ($totalEqDays > 0) {
+                     // Get 'days' translation properly from reports language file if possible, or fallback to global
+                     $equivalentDaysStr = ' (~' . $totalEqDays . ' ' . __('days') . ')';
+                 }
+            }
+        }
+        return $equivalentDaysStr;
     }
 
 
@@ -446,7 +547,7 @@ class EventsPdfExport
             return $clonedEvent;
         }
         
-        $teamTimezone = $this->team->timezone ?? 'UTC';
+        $teamTimezone = $this->team->timezone ?: config('app.timezone');
         
         // Parse event dates in team timezone
         $eventStart = \Carbon\Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);

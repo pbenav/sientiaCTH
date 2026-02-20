@@ -77,6 +77,9 @@ class StatsPdfExport
         $totalNetHoursFmt = $formatHours($totalNetHours);
         $scheduledHoursFmt = $formatHours($scheduledHours);
 
+        $avgDailyScheduledHours = $scheduledDays > 0 ? ($scheduledHours / $scheduledDays) : 8;
+        $equivalentDays = $totalNetHours > 0 ? round($totalNetHours / $avgDailyScheduledHours, 2) : 0;
+
         $html = view('exports.stats_mpdf', [
             'chartData' => $chartData,
             'dashboardData' => $dashboardData,
@@ -88,6 +91,7 @@ class StatsPdfExport
             'totalPauseHours' => $this->totalPauseHours ?? 0,
             'totalNetHours' => $totalNetHours,
             'totalNetHoursFmt' => $totalNetHoursFmt,
+            'equivalentDays' => $equivalentDays,
             'totalDays' => $this->totalDays ?? 0,
             'browsedUser' => $browsedUserModel,
             'team' => $this->team,
@@ -135,6 +139,13 @@ class StatsPdfExport
                 'line' => 0,
             ]
         ]);
+
+        $mpdf->WriteHTML('<htmlpageheader name="otherPagesHeader">
+            <div style="text-align: right; font-size: 8pt; color: #9CA3AF; padding-top: 5px;">
+                ' . trans('reports.Generated on') . ': ' . now()->format('d/m/Y H:i') . '
+            </div>
+        </htmlpageheader>
+        <sethtmlpageheader name="otherPagesHeader" value="on" show-this-page="0" />');
         
         $mpdf->WriteHTML($html);
         
@@ -163,6 +174,9 @@ class StatsPdfExport
         // Format scheduled hours
         $scheduledHoursFmt = $formatHours($scheduledHours);
 
+        $avgDailyScheduledHours = $scheduledDays > 0 ? ($scheduledHours / $scheduledDays) : 8;
+        $equivalentDays = $totalNetHours > 0 ? round($totalNetHours / $avgDailyScheduledHours, 2) : 0;
+
         $html = view('exports.stats_pdf', [
             'chartData' => $chartData,
             'dashboardData' => $dashboardData,
@@ -174,6 +188,7 @@ class StatsPdfExport
             'totalPauseHours' => $this->totalPauseHours ?? 0,
             'totalNetHours' => $totalNetHours,
             'totalNetHoursFmt' => $totalNetHoursFmt,
+            'equivalentDays' => $equivalentDays,
             'totalDays' => $this->totalDays ?? 0,
             'browsedUser' => $browsedUserModel,
             'team' => $this->team,
@@ -241,8 +256,9 @@ class StatsPdfExport
             ->margins(10, 10, 20, 10)
             ->showBackground()
             ->setOption('displayHeaderFooter', true)
-            ->setOption('headerTemplate', '<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF; padding-bottom: 5px; border-bottom: 1px solid #E5E7EB; margin-left: 10px; margin-right: 10px;">' . 
-                trans('stats.Statistics Report') . ' - ' . $this->team->name . ' - ' . $browsedUserModel->name . ' ' . $browsedUserModel->family_name1 .
+            ->setOption('headerTemplate', '<div style="font-size: 7pt; width: 100%; color: #9CA3AF; padding-bottom: 5px; border-bottom: 1px solid #E5E7EB; margin-left: 20px; margin-right: 20px; font-family: sans-serif; display: flex; justify-content: space-between;">' . 
+                '<span>' . trans('stats.Statistics Report') . ' - ' . $this->team->name . ' - ' . $browsedUserModel->name . ' ' . $browsedUserModel->family_name1 . '</span>' .
+                '<span style="text-align: right;">' . trans('reports.Generated on') . ': ' . now()->format('d/m/Y H:i') . '</span>' .
                 '</div>')
             ->setOption('footerTemplate', '<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF; padding-top: 5px;">' . 
                 $footerText . ' <span class="pageNumber"></span> ' . trans('reports.of') . ' <span class="totalPages"></span>' .
@@ -366,6 +382,7 @@ class StatsPdfExport
 
         $query = Event::with('eventType')
             ->where('user_id', $this->browsedUser)
+            ->where('team_id', $this->team->id)
             ->whereDate('start', '>=', $this->fromDate)
             ->whereDate('end', '<=', $this->toDate);
 
@@ -410,8 +427,8 @@ class StatsPdfExport
 
             $eventTypesInUse[$event->eventType->name] = $event->eventType;
 
-            $start_date = Carbon::parse($event->start, 'UTC');
-            $end_date = Carbon::parse($event->end, 'UTC');
+            $start_date = Carbon::parse($event->start, 'UTC')->setTimezone($teamTimezone);
+            $end_date = Carbon::parse($event->end, 'UTC')->setTimezone($teamTimezone);
 
             for ($date = $start_date->copy(); $date->lte($end_date); $date->addDay()) {
                 $dayKey = $date->format('d/m');

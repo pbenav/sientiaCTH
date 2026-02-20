@@ -41,12 +41,48 @@ trait InsertHistory
         if (!$shouldAudit) {
             return;
         }
+
+        // Optimización: Extraer solo los atributos básicos si son modelos Eloquent
+        // Esto evita que el JSON incluya todas las relaciones cargadas (eager loading) que inflan el tamaño
+        $originalData = $original_event instanceof \Illuminate\Database\Eloquent\Model 
+            ? $original_event->getAttributes() 
+            : (is_array($original_event) ? $original_event : json_decode(json_encode($original_event), true));
+
+        $modifiedData = $modified_event instanceof \Illuminate\Database\Eloquent\Model 
+            ? $modified_event->getAttributes() 
+            : (is_array($modified_event) ? $modified_event : json_decode(json_encode($modified_event), true));
+
+        // Calcular la diferencia: solo almacenar lo que ha cambiado
+        $finalOriginal = [];
+        $finalModified = [];
+
+        if (is_array($originalData) && is_array($modifiedData)) {
+            foreach ($modifiedData as $key => $value) {
+                // Si el campo no existía o ha cambiado, lo registramos
+                if (!array_key_exists($key, $originalData) || $originalData[$key] != $value) {
+                    $finalOriginal[$key] = $originalData[$key] ?? null;
+                    $finalModified[$key] = $value;
+                }
+            }
+            // También comprobamos si se han eliminado campos (aunque en este contexto es raro)
+            foreach ($originalData as $key => $value) {
+                if (!array_key_exists($key, $modifiedData)) {
+                    $finalOriginal[$key] = $value;
+                    $finalModified[$key] = null;
+                }
+            }
+        }
+
+        // Si no hay cambios reales, no insertamos nada
+        if (empty($finalModified) && !$isAuthorizationChange) {
+            return;
+        }
         
         DB::table('events_history')->insert([
             'user_id' => auth()->user()->id,
             'tablename' => $tablename,
-            'original_event' => $original_event->toJson(),
-            'modified_event' => $modified_event->toJson(),
+            'original_event' => json_encode($finalOriginal),
+            'modified_event' => json_encode($finalModified),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

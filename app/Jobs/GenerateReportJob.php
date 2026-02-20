@@ -103,7 +103,7 @@ class GenerateReportJob implements ShouldQueue
             }
 
             // Get team timezone for accurate date filtering
-            $teamTimezone = $team->timezone ?? 'UTC';
+            $teamTimezone = $team->timezone ?: config('app.timezone');
             
             // Convert user-selected dates to team timezone boundaries
             $fromDateTime = \Carbon\Carbon::parse($this->fromdate, $teamTimezone)->startOfDay();
@@ -116,6 +116,7 @@ class GenerateReportJob implements ShouldQueue
             // Query events for regular reports
             $query = Event::query()
                 ->with(['user', 'eventType'])
+                ->where('team_id', $team->id)
                 // Use timestamp comparison instead of whereDate to account for timezone
                 ->where(function($q) use ($fromDateTimeUTC, $toDateTimeUTC) {
                     $q->where('start', '<=', $toDateTimeUTC)
@@ -146,7 +147,7 @@ class GenerateReportJob implements ShouldQueue
                 if ($this->worker && $this->worker !== '%') {
                     $workerUser = User::find($this->worker);
                     if ($workerUser) {
-                        $defaultWorkCenterId = $workerUser->meta->where('meta_key', 'default_work_center_id')->first();
+                        $defaultWorkCenterId = $workerUser->meta->where('meta_key', 'default_work_center_id_team_' . $this->teamId)->first();
                         if ($defaultWorkCenterId) {
                             $workCenter = \App\Models\WorkCenter::find($defaultWorkCenterId->meta_value);
                         }
@@ -168,7 +169,7 @@ class GenerateReportJob implements ShouldQueue
                 Storage::put($filePath, $pdf);
             } else {
                 // Get team timezone for event clipping
-                $teamTimezone = $team->timezone ?? 'UTC';
+                $teamTimezone = $team->timezone ?: config('app.timezone');
                 
                 // Store other formats
                 Excel::store(

@@ -100,6 +100,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'user_code',
+        'dni',
         'name',
         'family_name1',
         'family_name2',
@@ -145,6 +146,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'full_name',
     ];
 
     /**
@@ -194,6 +196,24 @@ class User extends Authenticatable
         return Attribute::make(
             get: fn ($value) => $value ? ucwords($value) : null,
             set: fn ($value) => $value ? ucwords(strtolower($value)) : null,
+        );
+    }
+
+    /**
+     * Get the user's full name formatted as "FamilyName1 FamilyName2, Name"
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $familyNames = trim($this->family_name1 . ' ' . $this->family_name2);
+                if (empty($familyNames)) {
+                    return $this->name;
+                }
+                return $familyNames . ', ' . $this->name;
+            }
         );
     }
 

@@ -33,7 +33,8 @@ class UpdateDefaultWorkCenterForm extends Component
     public function mount(): void
     {
         $this->workCenters = auth()->user()->currentTeam->workCenters;
-        $defaultWorkCenter = auth()->user()->meta->where('meta_key', 'default_work_center_id')->first();
+        $teamId = auth()->user()->currentTeam->id;
+        $defaultWorkCenter = auth()->user()->meta->where('meta_key', 'default_work_center_id_team_' . $teamId)->first();
         $this->defaultWorkCenterId = $defaultWorkCenter ? (int) $defaultWorkCenter->meta_value : null;
     }
 
@@ -44,8 +45,9 @@ class UpdateDefaultWorkCenterForm extends Component
      */
     public function updateDefaultWorkCenter(): void
     {
+        $teamId = auth()->user()->currentTeam->id;
         auth()->user()->meta()->updateOrCreate(
-            ['meta_key' => 'default_work_center_id'],
+            ['meta_key' => 'default_work_center_id_team_' . $teamId],
             ['meta_value' => $this->defaultWorkCenterId]
         );
 

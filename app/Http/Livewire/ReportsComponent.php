@@ -74,7 +74,7 @@ class ReportsComponent extends Component
         $this->isInspector = $this->user ? $this->user->isInspector() : false;
         if (($this->isTeamAdmin || $this->isInspector) && $this->team) {
             $this->workers = $this->team->allUsers()->sortBy(function ($worker) {
-                return strtolower(($worker->name ?? '') . ' ' . ($worker->family_name ?? '') . ' ' . ($worker->family_name2 ?? ''));
+                return strtolower(trim($worker->family_name1 . ' ' . $worker->family_name2 . ', ' . $worker->name));
             })->values();
         } else {
             $this->workers = collect();
@@ -232,7 +232,11 @@ class ReportsComponent extends Component
         if ($this->report_source === 'history') {
             $query = \Illuminate\Support\Facades\DB::table('events_history')
                 ->whereDate('created_at', '>=', $this->fromdate)
-                ->whereDate('created_at', '<=', $this->todate);
+                ->whereDate('created_at', '<=', $this->todate)
+                ->where(function($q) {
+                    $q->whereRaw("JSON_EXTRACT(original_event, '$.team_id') = ?", [$this->team->id])
+                      ->orWhereRaw("JSON_EXTRACT(modified_event, '$.team_id') = ?", [$this->team->id]);
+                });
 
             if ($this->worker && $this->worker !== '%') {
                 $query->where('user_id', $this->worker);
@@ -290,6 +294,7 @@ class ReportsComponent extends Component
         
         $query = Event::query()
             ->with(['user', 'eventType'])
+            ->where('team_id', $this->team->id) // Sólo eventos de este equipo
             // Use timestamp comparison instead of whereDate to account for timezone
             // An event is included if it overlaps with the selected date range in team timezone
             ->where(function($q) use ($fromDateTimeUTC, $toDateTimeUTC) {
@@ -320,7 +325,7 @@ class ReportsComponent extends Component
             if ($this->worker && $this->worker !== '%') {
                 $user = User::find($this->worker);
                 if ($user) {
-                    $defaultWorkCenterId = $user->meta->where('meta_key', 'default_work_center_id')->first();
+                    $defaultWorkCenterId = $user->meta->where('meta_key', 'default_work_center_id_team_' . $this->team->id)->first();
                     if ($defaultWorkCenterId) {
                         $workCenter = \App\Models\WorkCenter::find($defaultWorkCenterId->meta_value);
                     }

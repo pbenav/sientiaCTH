@@ -302,7 +302,7 @@ class AddEvent extends Component
         // But respect the override flag set when a past event is marked exceptional due to exceeding daily limit
         $isExceptional = $this->isExceptionalOverride;
 
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
+        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id_team_' . $team->id)->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
 
         $data = [

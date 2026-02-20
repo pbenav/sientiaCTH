@@ -24,7 +24,13 @@
             <div class="mt-4">
                 <x-jet-label for="family_name2" value="{{ __('Family Name 2') }}" />
                 <x-jet-input id="family_name2" class="block mt-1 w-full" type="text" name="family_name2"
-                    :value="old('family_name2')" autofocus autocomplete="familyname2" />
+                    :value="old('family_name2')" autocomplete="familyname2" />
+            </div>
+
+            <div class="mt-4">
+                <x-jet-label for="dni" value="{{ __('DNI/NIE') }}" />
+                <x-jet-input id="dni" class="block mt-1 w-full" type="text" name="dni"
+                    :value="old('dni')" autocomplete="dni" />
             </div>
 
             <div class="mt-4">

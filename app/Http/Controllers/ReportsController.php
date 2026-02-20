@@ -173,6 +173,7 @@ class ReportsController extends Controller
         
         $query = Event::query()
             ->with(['user', 'eventType'])
+            ->where('team_id', $team->id)
             // Use timestamp comparison instead of whereDate to account for timezone
             ->where(function($q) use ($fromDateTimeUTC, $toDateTimeUTC) {
                 $q->where('start', '<=', $toDateTimeUTC)
@@ -226,7 +227,7 @@ class ReportsController extends Controller
         if ($workerId && $workerId !== '%') {
             $workerUser = User::find($workerId);
             if ($workerUser) {
-                $defaultWorkCenterId = $workerUser->meta->where('meta_key', 'default_work_center_id')->first();
+                $defaultWorkCenterId = $workerUser->meta->where('meta_key', 'default_work_center_id_team_' . $team->id)->first();
                 if ($defaultWorkCenterId) {
                     $workCenter = \App\Models\WorkCenter::find($defaultWorkCenterId->meta_value);
                 }
@@ -295,6 +296,7 @@ class ReportsController extends Controller
         
         $query = Event::query()
             ->with(['user', 'eventType'])
+            ->where('team_id', $team->id)
             // Use timestamp comparison instead of whereDate to account for timezone
             ->where(function($q) use ($fromDateTimeUTC, $toDateTimeUTC) {
                 $q->where('start', '<=', $toDateTimeUTC)

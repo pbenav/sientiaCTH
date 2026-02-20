@@ -69,7 +69,7 @@ class SmartClockButton extends Component
         // Get default work center
         $defaultWorkCenter = null;
         if ($user->currentTeam) {
-            $defaultWorkCenterMeta = $user->meta->where('meta_key', 'default_work_center_id')->first();
+            $defaultWorkCenterMeta = $user->meta->where('meta_key', 'default_work_center_id_team_' . $user->currentTeam->id)->first();
             if ($defaultWorkCenterMeta) {
                 $defaultWorkCenter = $user->currentTeam->workCenters()->find($defaultWorkCenterMeta->meta_value);
             }

@@ -117,7 +117,7 @@ class GetTimeRegisters extends Component
         $this->user = Auth::user();
         $this->team = $this->user ? $this->user->currentTeam : null;
         $this->teamUserList = $this->team ? $this->team->allUsers()->sortBy(function ($user) {
-            return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
+            return strtolower($user->full_name);
         })->values() : collect();
         $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
         $this->isTeamAdmin = $this->user->isTeamAdmin() || $this->user->is_admin;
@@ -437,8 +437,8 @@ class GetTimeRegisters extends Component
         if ($this->sort === 'name') {
             $query->join('users', 'events.user_id', '=', 'users.id')
                 ->select('events.*')
-                ->orderBy('users.name', $this->direction)
-                ->orderBy('users.family_name1', $this->direction);
+                ->orderBy('users.family_name1', $this->direction)
+                ->orderBy('users.name', $this->direction);
         } else {
             // Default sort or specific column sort
             $query->orderBy($this->sort, $this->direction);
@@ -467,7 +467,7 @@ class GetTimeRegisters extends Component
         if ($currentTeam && (!$this->team || $this->team->id !== $currentTeam->id)) {
             $this->team = $currentTeam;
             $this->teamUserList = $this->team ? $this->team->allUsers()->sortBy(function ($user) {
-                return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
+                return strtolower($user->full_name);
             })->values() : collect();
             $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
             $this->isTeamAdmin = $this->user ? ($this->user->isTeamAdmin() || $this->user->is_admin) : false;
@@ -499,7 +499,7 @@ class GetTimeRegisters extends Component
             
             $this->team = $currentTeam;
             $this->teamUserList = $this->team ? $this->team->allUsers()->sortBy(function ($user) {
-                return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
+                return strtolower($user->full_name);
             })->values() : collect();
             $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
             $this->isTeamAdmin = $this->user ? ($this->user->isTeamAdmin() || $this->user->is_admin) : false;

@@ -80,7 +80,7 @@ class StatsComponent extends Component
         $this->workers = collect($this->workers)->map(function ($w) {
             return is_array($w) ? (object) $w : $w;
         })->sortBy(function ($worker) {
-            return strtolower(($worker->name ?? '') . ' ' . ($worker->family_name ?? '') . ' ' . ($worker->family_name2 ?? ''));
+            return strtolower($worker->full_name);
         })->values()->all();
 
         $this->eventTypeId = null;

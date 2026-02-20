@@ -140,7 +140,7 @@ class ExceptionalClockIn extends Component
              return;
         }
 
-        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id')->first();
+        $defaultWorkCenter = $user->meta->where('meta_key', 'default_work_center_id_team_' . $team->id)->first();
         $defaultWorkCenterId = ($defaultWorkCenter && !empty($defaultWorkCenter->meta_value)) ? $defaultWorkCenter->meta_value : null;
 
         Event::create([
