@@ -118,7 +118,9 @@ Para mantener la coherencia técnica, se utilizan términos que habitualmente no
 - **WorkCenter**: Define las ubicaciones físicas y sus etiquetas NFC.
 
 ### Migrations y Schema
-El **Schema** se mantiene mediante **Migrations** para asegurar la consistencia entre entornos de **Development** y **Production**.
+El **Schema** se mantiene mediante **Migrations** para asegurar la consistencia entre entornos.
+
+**Idempotencia**: Todas las migraciones deben ser diseñadas para ser ejecutadas múltiples veces sin fallar. Se recomienda el uso de `Schema::hasColumn()` y `Schema::hasTable()` para asegurar la compatibilidad con bases de datos que ya han sido modificadas manualmente o por actualizaciones parciales.
 
 ![Diagrama de Base de Datos](images/db-schema.png)
 *Caption: Diagrama entidad-relación simplificado del sistema CTH.*
@@ -132,6 +134,13 @@ Este es el corazón del sistema de fichaje. Gestiona:
 - Validación de márgenes de tiempo.
 - Generación de **Tokens** para fichajes excepcionales.
 - Cálculo de duraciones y solapamientos.
+- **Cálculo de Jornadas**: Conversión de minutos netos a días equivalentes según metadatos del usuario.
+
+### Audit Log & History (InsertHistory Trait)
+El sistema de auditoría ha sido optimizado para la eficiencia:
+- **Diff Storage**: Solo se almacenan los campos que han cambiado mediante una comparación de atributos.
+- **Memory Optimization**: Se eliminan las relaciones cargadas (eager relations) antes de convertir el modelo a JSON para evitar el inflado del registro.
+- **LongText Support**: Las columnas en base de datos están optimizadas para manejar grandes volúmenes de datos.
 
 ---
 

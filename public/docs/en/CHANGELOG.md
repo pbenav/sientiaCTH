@@ -8,12 +8,28 @@ This document collects the most important milestones in the evolution of **CTH (
 
 ---
 
-## 🛡️ February 2026 - Workday Control and UX Improvements
+## 🎖️ February 2026 (v1.1.0) - Professional Reports and Audit Optimization
 
-### Duration Control
-- **Daily Validation**: Prevention of excesses in total workday.
-- **Automatic Adjustment Modal**: Assistant to correct clock-ins that exceed the limit.
-- **Persistent Alerts**: Status messages that survive page reloads.
+### Professional Reporting System
+- **Local Timezone**: Comprehensive fix for time discrepancies; reports now reflect the actual timezone of the team/user (`config('app.timezone')` as fallback).
+- **Equivalent Days**: Implementation of worked workday calculation based on the `work_schedule` configuration (theoretical workday).
+- **Names and ID (DNI)**: Unification of the format to `DNI - Surnames, Name` in all listings and PDF headers.
+- **Dynamic Headers**: Inclusion of the report issuance date and time, and page breaks per worker.
+- **Metric Simplification**: Redesign of totals to show clean durations (e.g., `139H (~15 days)`) eliminating redundancies.
+
+### Users and Management
+- **DNI/NIE Field**: Integration of official identification in the `User` model and the **Filament** management interface.
+- **Alphabetical Sorting**: Selectors and tables now order consistently by the worker's first surname.
+- **Work Center Persistence**: Favorite work centers are now saved associated with the team ID, avoiding resets when changing profiles.
+
+### Engineering and Performance
+- **Optimized Auditing**: Refactoring of the `InsertHistory` trait to store only differences (diffs) of models, drastically reducing database size.
+- **Secure Storage**: Migration of history columns to `LONGTEXT` and removal of unnecessary Eloquent relationships in the audit log.
+- **Idempotent Migrations**: All new database updates are now safe to re-run.
+
+---
+
+## 🛡️ February 2026 - Workday Control and UX Improvements (v1.0.1)
 
 
 ---

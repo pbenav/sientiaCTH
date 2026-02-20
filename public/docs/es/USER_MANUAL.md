@@ -163,7 +163,11 @@ CTH monitoriza continuamente la duración total de tu jornada laboral diaria. El
 Si una acción (como mover un evento en el calendario) provoca que se exceda el tiempo máximo, aparecerá un **Asistente de Ajuste** que te permitirá:
 - **Ajustar hora de inicio**: Retrasar la entrada para mantener la duración.
 - **Ajustar hora de salida**: Adelantar la salida para cumplir con el límite.
-- **Ajustar proporcionalmente**: Redistribuir el tiempo.
+- **Ajustar proporcionalmente**: Redistribuir el tiempo entre tramos horarios.
+
+### Cálculo de Jornadas (Días Equivalentes)
+El sistema calcula automáticamente cuántos días de trabajo representan tus horas acumuladas basándose en tu **Jornada Laboral** configurada. 
+*Por ejemplo: Si has trabajado 16 horas y tu jornada estándar es de 8h, el sistema informará "2 días equivalentes", facilitando la lectura de totales mensuales.*
 
 ---
 
@@ -184,10 +188,14 @@ Tu administrador asigna un horario base, pero puedes consultar tus turnos y día
 
 ### Generación de Informes
 Puedes exportar tus datos de fichaje en varios formatos:
-- **PDF**: Ideal para impresión o envío oficial.
+- **PDF**: Ideal para impresión o envío oficial. Incluye saltos de página por trabajador, fecha de emisión y nombres en formato profesional.
 - **Excel/CSV**: Para análisis detallado de datos.
 
-![Generador de Informes](images/generador-informes.png)
+#### Formato Profesional de Nombres
+En todos los informes y listados, los trabajadores aparecen identificados bajo el estándar: `DNI - Apellidos, Nombre`. Este formato garantiza una ordenación alfabética perfecta y una identificación administrativa inequívoca.
+
+#### Trazabilidad de Impresión
+Cada página de los informes PDF generados contiene en la esquina superior derecha la **fecha y hora exacta de emisión**, asegurando que siempre sepas si estás consultando la versión más reciente de los datos.
 *Caption: Herramienta para filtrar y exportar informes de tiempo.*
 
 ---

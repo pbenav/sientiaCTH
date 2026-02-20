@@ -116,7 +116,9 @@ The typical flow of a **Request** in CTH is:
 - **WorkCenter**: Defines physical locations and their NFC tags.
 
 ### Migrations and Schema
-The **Schema** is maintained through **Migrations** to ensure consistency between **Development** and **Production** environments.
+The **Schema** is maintained through **Migrations** to ensure consistency between environments.
+
+**Idempotency**: All migrations must be designed to be run multiple times without failing. Using `Schema::hasColumn()` and `Schema::hasTable()` is recommended to ensure compatibility with databases that have already been manually modified or through partial updates.
 
 ![Database Diagram](images/db-schema.png)
 *Caption: Simplified entity-relationship diagram of the CTH system.*
@@ -130,6 +132,13 @@ This is the heart of the clock-in system. It manages:
 - Time margin validation.
 - **Token** generation for exceptional clock-ins.
 - Duration and overlap calculation.
+- **Workday Calculation**: Conversion of net minutes to equivalent days based on user metadata.
+
+### Audit Log & History (InsertHistory Trait)
+The auditing system has been optimized for efficiency:
+- **Diff Storage**: Only changed fields are stored via attribute comparison.
+- **Memory Optimization**: Eagerly loaded relations are removed before model-to-JSON conversion to prevent record bloating.
+- **LongText Support**: Database columns are optimized to handle large data volumes.
 
 ---
 

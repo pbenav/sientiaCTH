@@ -42,6 +42,7 @@ CTH (Time and Schedule Control) is a web application designed to manage work tim
    - Full name
    - First surname
    - Second surname
+   - **DNI / NIE** (Mandatory identification)
    - Email address
    - Secure password
    - User code (provided by your administrator)
@@ -163,7 +164,11 @@ CTH continuously monitors the total duration of your daily workday. The system:
 If an action (such as move an event on the calendar) causes the maximum time to be exceeded, an **Adjustment Assistant** will appear allowing you to:
 - **Adjust start time**: Delay entry to maintain duration.
 - **Adjust end time**: Advance exit to comply with the limit.
-- **Adjust proportionally**: Redistribute time.
+- **Adjust proportionally**: Redistribute time between time slots.
+
+### Workday Calculation (Equivalent Days)
+The system automatically calculates how many working days your accumulated hours represent based on your configured **Work Schedule**. 
+*For example: If you have worked 16 hours and your standard workday is 8h, the system will report "2 equivalent days", making it easier to read monthly totals.*
 
 ---
 
@@ -184,10 +189,14 @@ Your administrator assigns a base schedule, but you can check your shifts and ho
 
 ### Report Generation
 You can export your clock-in data in several formats:
-- **PDF**: Ideal for printing or official submission.
+- **PDF**: Ideal for printing or official submission. Includes page breaks per worker, issuance date, and professional name formatting.
 - **Excel/CSV**: For detailed data analysis.
 
-![Report Generator](images/generador-informes.png)
+#### Professional Name Format
+In all reports and listings, workers appear identified under the standard: `DNI - Surnames, Name`. This format ensures perfect alphabetical sorting and unequivocal administrative identification.
+
+#### Printing Traceability
+Each page of the generated PDF reports contains the **exact date and time of issuance** in the upper right corner, ensuring you always know if you are consulting the latest version of the data.
 *Caption: Tool to filter and export time reports.*
 
 ---

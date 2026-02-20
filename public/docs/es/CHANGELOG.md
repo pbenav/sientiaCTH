@@ -8,12 +8,28 @@ Este documento recoge los hitos más importantes en la evolución de **CTH (Cont
 
 ---
 
-## 🛡️ Febrero 2026 - Control de Jornada y Mejoras de UX
+## 🎖️ Febrero 2026 (v1.1.0) - Informes Profesionales y Optimización de Auditoría
 
-### Control de Duración
-- **Validación Diaria**: Prevención de excesos en la jornada laboral total.
-- **Modal de Ajuste Automático**: Asistente para corregir fichajes que exceden el límite.
-- **Alertas Persistentes**: Mensajes de estado que sobreviven a recargas de página.
+### Sistema de Informes Profesional
+- **Huso Horario Local**: Corrección integral del desfase de horas; los informes reflejan ahora la zona horaria real del equipo/usuario (`config('app.timezone')` como fallback).
+- **Días Equivalentes**: Implementación del cálculo de jornadas trabajadas en base a la configuración de `work_schedule` (jornada laboral teórica).
+- **Nombres y DNI**: Unificación del formato a `DNI - Apellidos, Nombre` en todos los listados y cabeceras de PDF.
+- **Cabeceras Dinámicas**: Inclusión de la fecha y hora de emisión del informe y saltos de página por trabajador.
+- **Simplificación de Métricas**: Rediseño de los totales para mostrar duraciones limpias (ej. `139H (~15 días)`) eliminando redundancias.
+
+### Usuarios y Gestión
+- **Campo DNI/NIE**: Integración de identificación oficial en el modelo `User` y en la interfaz de gestión de **Filament**.
+- **Ordenación Alfabética**: Los selectores y tablas ahora ordenan consistentemente por el primer apellido del trabajador.
+- **Persistencia de Centro de Trabajo**: Los centros de trabajo favoritos ahora se guardan asociados al ID del equipo, evitando reseteos al cambiar de perfil.
+
+### Ingeniería y Rendimiento
+- **Auditoría Optimizada**: Refactorización del trait `InsertHistory` para almacenar únicamente las diferencias (diffs) de los modelos, reduciendo drásticamente el tamaño en base de datos.
+- **Seguridad en Almacenamiento**: Migración de columnas de historial a `LONGTEXT` y eliminación de relaciones Eloquent innecesarias en el log de auditoría.
+- **Migraciones Idempotentes**: Todas las nuevas actualizaciones de base de datos son ahora seguras de re-ejecutar.
+
+---
+
+## 🛡️ Febrero 2026 - Mejoras de UX y Control de Jornada (v1.0.1)
 
 
 ---
