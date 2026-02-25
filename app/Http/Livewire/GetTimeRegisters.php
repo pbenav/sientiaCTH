@@ -63,7 +63,6 @@ class GetTimeRegisters extends Component
      */
     public function refreshComponent(): void
     {
-        \Log::debug('refreshComponent ejecutado'); // Registro de depuración
         $this->readyonload = true; // Ensure events can be loaded
         $this->resetPage();
         // No need to call getEvents() - render() will do it
@@ -117,7 +116,7 @@ class GetTimeRegisters extends Component
         $this->user = Auth::user();
         $this->team = $this->user ? $this->user->currentTeam : null;
         $this->teamUserList = $this->team ? $this->team->allUsers()->sortBy(function ($user) {
-            return strtolower($user->full_name);
+            return strtolower($user->full_name_with_dni);
         })->values() : collect();
         $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
         $this->isTeamAdmin = $this->user->isTeamAdmin() || $this->user->is_admin;
@@ -193,13 +192,10 @@ class GetTimeRegisters extends Component
      */
     public function edit($eventId): void
     {
-        \Log::info('GetTimeRegisters::edit called', ['eventId' => $eventId]);
         $ev = Event::with('eventType')->find($eventId);
         if (!$ev) {
-            \Log::info('GetTimeRegisters::edit - Event not found', ['eventId' => $eventId]);
             return;
         }
-        \Log::info('GetTimeRegisters::edit - Emitting to edit-event', ['eventId' => $ev->id]);
         $this->emitTo('edit-event', 'edit', $ev->id);
     }
 
@@ -211,7 +207,6 @@ class GetTimeRegisters extends Component
      */
     public function showEvent($eventId): void
     {
-        \Log::info('GetTimeRegisters::showEvent called', ['eventId' => $eventId]);
         $ev = Event::with(['user', 'eventType', 'workCenter'])->find($eventId);
         if (!$ev) return;
         
@@ -310,14 +305,10 @@ class GetTimeRegisters extends Component
     {
         $ev = Event::find($eventId);
         if (!$ev) return;
-        \Log::debug('Intentando eliminar evento', ['event_id' => $eventId]);
         if ($this->isTeamAdmin || $ev->is_open) {
             $ev->delete();
-            \Log::debug('Evento eliminado', ['event_id' => $eventId]);
             $this->emit('alert', __('Event has been removed!'));
             $this->refreshComponent(); // Ensure the component refreshes after deletion
-        } else {
-            \Log::debug('No se pudo eliminar el evento', ['event_id' => $eventId]);
         }
     }
 
@@ -480,26 +471,12 @@ class GetTimeRegisters extends Component
             }
         }
         
-        \Log::info('GetTimeRegisters - render()', [
-            'user_id' => $this->user ? $this->user->id : null,
-            'user_name' => $this->user ? $this->user->name : null,
-            'current_team_id' => $currentTeam ? $currentTeam->id : null,
-            'current_team_name' => $currentTeam ? $currentTeam->name : null,
-            'component_team_id' => $this->team ? $this->team->id : null,
-            'component_team_name' => $this->team ? $this->team->name : null,
-            'team_changed' => (!$this->team || ($currentTeam && $this->team->id !== $currentTeam->id) || (!$currentTeam && $this->team)),
-        ]);
         
         // Si el equipo cambió, actualizar todo el contexto
         if (!$this->team || ($currentTeam && $this->team->id !== $currentTeam->id) || (!$currentTeam && $this->team)) {
-            \Log::info('GetTimeRegisters - Actualizando contexto de equipo', [
-                'old_team_id' => $this->team ? $this->team->id : null,
-                'new_team_id' => $currentTeam ? $currentTeam->id : null,
-            ]);
-            
             $this->team = $currentTeam;
             $this->teamUserList = $this->team ? $this->team->allUsers()->sortBy(function ($user) {
-                return strtolower($user->full_name);
+                return strtolower($user->full_name_with_dni);
             })->values() : collect();
             $this->eventTypes = $this->team ? $this->team->eventTypes : collect();
             $this->isTeamAdmin = $this->user ? ($this->user->isTeamAdmin() || $this->user->is_admin) : false;
@@ -510,13 +487,6 @@ class GetTimeRegisters extends Component
             } else {
                 $this->teamUsers = $this->user ? [$this->user->id] : [];
             }
-            
-            \Log::info('GetTimeRegisters - Contexto actualizado', [
-                'teamUsers_count' => count($this->teamUsers),
-                'teamUsers' => $this->teamUsers,
-                'isTeamAdmin' => $this->isTeamAdmin,
-                'isInspector' => $this->isInspector,
-            ]);
         }
         
         

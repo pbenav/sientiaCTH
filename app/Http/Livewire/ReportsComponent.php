@@ -74,7 +74,7 @@ class ReportsComponent extends Component
         $this->isInspector = $this->user ? $this->user->isInspector() : false;
         if (($this->isTeamAdmin || $this->isInspector) && $this->team) {
             $this->workers = $this->team->allUsers()->sortBy(function ($worker) {
-                return strtolower(trim($worker->family_name1 . ' ' . $worker->family_name2 . ', ' . $worker->name));
+                return strtolower($worker->full_name_with_dni);
             })->values();
         } else {
             $this->workers = collect();

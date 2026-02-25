@@ -226,7 +226,7 @@ class VerifyAndFixEventData extends Command
 
         // Check for workday event types count
         $workdayTypes = EventType::where('is_workday_type', true)->count();
-        $totalTeams = EventType::select('team_id')->distinct()->count();
+        $totalTeams = EventType::distinct('team_id')->count('team_id');
         
         if ($workdayTypes < $totalTeams) {
             $this->warn("   ⚠️  Only {$workdayTypes} workday event types for {$totalTeams} teams");

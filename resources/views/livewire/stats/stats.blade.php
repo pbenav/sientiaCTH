@@ -26,7 +26,7 @@
                     <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="browsedUser">
                         @foreach ($workers as $w)
                             <option value="{{ data_get($w, 'id', '') }}">
-                                {{ trim(data_get($w, 'name', '') . ' ' . data_get($w, 'family_name1', '')) }}
+                                {{ data_get($w, 'full_name_with_dni', '') }}
                             </option>
                         @endforeach
                     </select>
@@ -81,7 +81,7 @@
                 <div>
                     <x-jet-label value="{{ __('Year') }}" />
                     <select class="pt-1 h-8 whitespace-nowrap form-control" wire:model="selectedYear">
-                        @foreach (range(2022, date('Y')+1) as $year)
+                        @foreach (range(2022, date('Y') + 1) as $year)
                             <option value="{{ $year }}">{{ $year }}</option>
                         @endforeach
                     </select>
@@ -115,7 +115,7 @@
             </div>
 
             <!-- KPIs Section -->
-            
+
             <!-- Cumplimiento de Jornada -->
             <div class="mt-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.workday_compliance') }}</h3>
@@ -133,8 +133,10 @@
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('Punctuality') }}</h3>
                                 <div class="flex items-baseline gap-2">
-                                    <span class="text-2xl font-bold text-gray-800" title="Apariencia">{{ $dashboardData['punctuality'] ?? '0' }}%</span>
-                                    <span class="text-lg font-semibold text-gray-500" title="Real (Verificado)">{{ $dashboardData['real_punctuality'] ?? '0' }}%</span>
+                                    <span class="text-2xl font-bold text-gray-800"
+                                        title="Apariencia">{{ $dashboardData['punctuality'] ?? '0' }}%</span>
+                                    <span class="text-lg font-semibold text-gray-500"
+                                        title="Real (Verificado)">{{ $dashboardData['real_punctuality'] ?? '0' }}%</span>
                                 </div>
                                 <p class="text-xs text-gray-400">Cumplimiento general de horario</p>
                             </div>
@@ -148,16 +150,22 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
+                                    </path>
                                 </svg>
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('stats.entry') }}</h3>
                                 <div class="flex items-baseline gap-2">
-                                    <span class="text-2xl font-bold text-gray-800" title="Apariencia">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</span>
-                                    <span class="text-lg font-semibold text-gray-500" title="Real (Verificado)">{{ $dashboardData['punctuality_entry_real_pct'] ?? '0' }}%</span>
+                                    <span class="text-2xl font-bold text-gray-800"
+                                        title="Apariencia">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</span>
+                                    <span class="text-lg font-semibold text-gray-500"
+                                        title="Real (Verificado)">{{ $dashboardData['punctuality_entry_real_pct'] ?? '0' }}%</span>
                                 </div>
-                                <p class="text-xs text-gray-400" title="Diferencia entre hora declarada y real">Retraso medio: {{ $dashboardData['punctuality_entry_minutes'] ?? '0m 0s' }} <span class="text-gray-300">|</span> Verif: {{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0m 0s' }}</p>
+                                <p class="text-xs text-gray-400" title="Diferencia entre hora declarada y real">Retraso
+                                    medio: {{ $dashboardData['punctuality_entry_minutes'] ?? '0m 0s' }} <span
+                                        class="text-gray-300">|</span> Verif:
+                                    {{ $dashboardData['punctuality_entry_backdate_minutes'] ?? '0m 0s' }}</p>
                             </div>
                         </div>
                     </div>
@@ -169,16 +177,22 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16l4-4m0 0l-4-4m4 4H3m4 0V7a3 3 0 013-3h7a3 3 0 013 3v10a3 3 0 01-3 3h-7a3 3 0 01-3-3v-1"></path>
+                                        d="M13 16l4-4m0 0l-4-4m4 4H3m4 0V7a3 3 0 013-3h7a3 3 0 013 3v10a3 3 0 01-3 3h-7a3 3 0 01-3-3v-1">
+                                    </path>
                                 </svg>
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('stats.exit') }}</h3>
                                 <div class="flex items-baseline gap-2">
-                                    <span class="text-2xl font-bold text-gray-800" title="Apariencia">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</span>
-                                    <span class="text-lg font-semibold text-gray-500" title="Real (Verificado)">{{ $dashboardData['punctuality_exit_real_pct'] ?? '0' }}%</span>
+                                    <span class="text-2xl font-bold text-gray-800"
+                                        title="Apariencia">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</span>
+                                    <span class="text-lg font-semibold text-gray-500"
+                                        title="Real (Verificado)">{{ $dashboardData['punctuality_exit_real_pct'] ?? '0' }}%</span>
                                 </div>
-                                <p class="text-xs text-gray-400" title="Diferencia entre hora declarada y real">Adelanto medio: {{ $dashboardData['punctuality_exit_minutes'] ?? '0m 0s' }} <span class="text-gray-300">|</span> Verif: {{ $dashboardData['punctuality_exit_backdate_minutes'] ?? '0m 0s' }}</p>
+                                <p class="text-xs text-gray-400" title="Diferencia entre hora declarada y real">
+                                    Adelanto medio: {{ $dashboardData['punctuality_exit_minutes'] ?? '0m 0s' }} <span
+                                        class="text-gray-300">|</span> Verif:
+                                    {{ $dashboardData['punctuality_exit_backdate_minutes'] ?? '0m 0s' }}</p>
                             </div>
                         </div>
                     </div>
@@ -190,12 +204,14 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                    </path>
                                 </svg>
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('stats.combined') }}</h3>
-                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</p>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</p>
                                 <p class="text-xs text-gray-400">Puntualidad entrada y salida</p>
                             </div>
                         </div>
@@ -231,8 +247,10 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }} ({{ __('Balance') }})</h3>
-                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['extra_hours_fmt'] ?? '0h 00m' }}</p>
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Extra Hours') }}
+                                    ({{ __('Balance') }})</h3>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ $dashboardData['extra_hours_fmt'] ?? '0h 00m' }}</p>
                                 <p class="text-xs text-gray-400">Exceso sobre horas programadas</p>
                             </div>
                         </div>
@@ -250,7 +268,8 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('Daily Overtime') }}</h3>
-                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['daily_overtime_fmt'] ?? '0h 00m' }}</p>
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ $dashboardData['daily_overtime_fmt'] ?? '0h 00m' }}</p>
                                 <p class="text-xs text-gray-400">Horas fuera de tramos horarios</p>
                             </div>
                         </div>
@@ -269,7 +288,8 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('Absenteeism (days)') }}</h3>
-                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}</p>
+                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['absenteeism'] ?? '0' }}
+                                </p>
                                 <p class="text-xs text-gray-400">Días sin registros de trabajo</p>
                             </div>
                         </div>
@@ -329,7 +349,8 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">{{ __('Records Confidence') }}</h3>
-                                <p class="text-2xl font-bold text-gray-800">{{ $dashboardData['avg_confidence'] ?? '0' }}%
+                                <p class="text-2xl font-bold text-gray-800">
+                                    {{ $dashboardData['avg_confidence'] ?? '0' }}%
                                 </p>
                                 <p class="text-xs text-gray-500">{{ __('Min') }}:
                                     {{ $dashboardData['min_confidence'] ?? '0' }}% / {{ __('Max') }}:
@@ -378,22 +399,26 @@
             <!-- Authorizable Events Section -->
             @if (!empty($dashboardData['authorizable_events']) && count($dashboardData['authorizable_events']) > 0)
                 <div class="mt-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.authorizable_events') }} ({{ now()->year }})</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.authorizable_events') }}
+                        ({{ now()->year }})</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         @foreach ($dashboardData['authorizable_events'] as $authEvent)
                             <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
                                 <div class="flex items-center">
-                                    <div class="p-3 rounded-full text-white" style="background-color: {{ $authEvent['color'] ?? '#9333ea' }}">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg">
+                                    <div class="p-3 rounded-full text-white"
+                                        style="background-color: {{ $authEvent['color'] ?? '#9333ea' }}">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                     </div>
                                     <div class="ml-4">
-                                        <h3 class="text-sm font-medium text-gray-500">{{ $authEvent['description'] }}</h3>
+                                        <h3 class="text-sm font-medium text-gray-500">{{ $authEvent['description'] }}
+                                        </h3>
                                         <p class="text-2xl font-bold text-gray-800">{{ $authEvent['days'] }}</p>
-                                        <p class="text-xs text-gray-400">{{ __('stats.days_in') }} {{ now()->year }}</p>
+                                        <p class="text-xs text-gray-400">{{ __('stats.days_in') }}
+                                            {{ now()->year }}</p>
                                     </div>
                                 </div>
                             </div>

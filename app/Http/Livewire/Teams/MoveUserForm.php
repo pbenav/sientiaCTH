@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Teams;
 use App\Models\EventType;
 use App\Models\Team;
 use App\Models\User;
+use App\Exceptions\MaxWorkdayDurationExceededException;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -38,6 +39,9 @@ class MoveUserForm extends Component
     public function moveUser()
     {
         $destinationTeam = Team::find($this->destinationTeamId);
+        
+        $successCount = 0;
+        $failCount = 0;
 
         if ($this->transferEvents) {
             // Get all unique event types for the user across ALL teams (not just current one)
@@ -66,10 +70,18 @@ class MoveUserForm extends Component
 
                 // Update all these events to the new team and new event type
                 foreach ($events as $event) {
-                    $event->update([
-                        'team_id' => $destinationTeam->id,
-                        'event_type_id' => $newEventType->id,
-                    ]);
+                    try {
+                        // Desactivar temporalmente el observer para evitar la validación de MaxWorkdayDuration
+                        // ya que solo estamos moviendo de equipo, no cambiando la duración real.
+                        $event->updateQuietly([
+                            'team_id' => $destinationTeam->id,
+                            'event_type_id' => $newEventType->id,
+                        ]);
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        \Log::error('Error moving event in MoveUserForm', ['event_id' => $event->id, 'error' => $e->getMessage()]);
+                        $failCount++;
+                    }
                 }
             }
         }
@@ -90,6 +102,26 @@ class MoveUserForm extends Component
 
         $this->emit('userMoved');
         $this->showModal = false;
+        
+        if ($this->transferEvents) {
+            $message = __('User moved successfully.') . ' ' . __('Events transferred: :success.', ['success' => $successCount]);
+            if ($failCount > 0) {
+                $message .= ' ' . __(':fail events could not be transferred.', ['fail' => $failCount]);
+                $this->dispatchBrowserEvent('swal:modal-reload', [
+                    'type' => 'warning',
+                    'title' => __('Movement Summary'),
+                    'text' => $message,
+                ]);
+            } else {
+                $this->dispatchBrowserEvent('swal:modal-reload', [
+                    'type' => 'success',
+                    'title' => __('Movement Summary'),
+                    'text' => $message,
+                ]);
+            }
+        } else {
+             $this->emit('alert', __('User moved successfully.'));
+        }
     }
 
     public function render()

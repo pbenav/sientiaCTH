@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ mix('css/app.css') }}">
 
     @livewireStyles
-    
+
     @stack('styles')
 
     <!-- Scripts -->
@@ -23,12 +23,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <script src=" https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js "></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js" charset="utf-8" defer></script>
-    
+
     <!-- Alpine.js x-cloak style -->
     <style>
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
-    
+
     <!-- Alpine.js for dashboard customization -->
     @stack('alpine-stores')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -38,7 +40,7 @@
     <x-jet-banner />
 
     {{-- Impersonation Banner --}}
-    @if(session()->has('impersonator_id'))
+    @if (session()->has('impersonator_id'))
         <div class="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white shadow-lg sticky top-0 z-50">
             <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between py-3">
@@ -55,7 +57,8 @@
                     </div>
                     <form method="POST" action="{{ route('impersonate.leave') }}">
                         @csrf
-                        <button type="submit" class="flex items-center space-x-2 bg-white text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium text-sm transition shadow-md hover:shadow-lg">
+                        <button type="submit"
+                            class="flex items-center space-x-2 bg-white text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium text-sm transition shadow-md hover:shadow-lg">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>{{ __('Exit Impersonation') }}</span>
                         </button>
@@ -70,11 +73,11 @@
 
         <!-- Page Heading -->
         @if (isset($header))
-        <header class="bg-white shadow">
-            <div class="px-4 py-6 mx-auto max-w-[90rem] sm:px-6 lg:px-8">
-                {{ $header }}
-            </div>
-        </header>
+            <header class="bg-white shadow">
+                <div class="px-4 py-6 mx-auto max-w-[90rem] sm:px-6 lg:px-8">
+                    {{ $header }}
+                </div>
+            </header>
         @endif
 
         <!-- Page Content -->
@@ -87,11 +90,11 @@
 
     <!-- Page Footer -->
     @if (isset($footer))
-    <footer class="fixed bottom-0 w-full text-xs bg-white h-min border-grey">
-        <div class="px-4 py-2 max-w-7xl py-1mx-auto sm:px-6 lg:px-8">
-            {{ $footer }}
-        </div>
-    </footer>
+        <footer class="fixed bottom-0 w-full text-xs bg-white h-min border-grey">
+            <div class="px-4 py-2 max-w-7xl py-1mx-auto sm:px-6 lg:px-8">
+                {{ $footer }}
+            </div>
+        </footer>
     @endif
 
     @stack('modals')
@@ -146,6 +149,19 @@
                 });
             });
 
+            // Listener for modals that require a page reload on close
+            window.addEventListener('swal:modal-reload', event => {
+                Swal.fire({
+                    icon: event.detail.type || 'info',
+                    title: event.detail.title,
+                    text: event.detail.text,
+                    showConfirmButton: true,
+                    confirmButtonText: "{{ __('sweetalert.ok_button') }}",
+                }).then((result) => {
+                    window.location.reload();
+                });
+            });
+
             // Listener for session-flashed alerts
             @if (session()->has('alert'))
                 Swal.fire({
@@ -181,39 +197,39 @@
                 });
             @endif
         </script>
-        
+
         {{-- Geolocation capture for web events (global) --}}
-        @if(Auth::user()->geolocation_enabled)
-        <script>
-            // Global variable to cache geolocation
-            window.cachedGeoPosition = null;
-            
-            // Capture geolocation on page load
-            document.addEventListener('DOMContentLoaded', function() {
-                if (navigator.geolocation) {
-                    console.log('[GPS] Requesting location on page load...');
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            window.cachedGeoPosition = {
-                                latitude: position.coords.latitude,
-                                longitude: position.coords.longitude
-                            };
-                            console.log('[GPS] Location cached globally:', window.cachedGeoPosition.latitude, window.cachedGeoPosition.longitude);
-                        },
-                        function(error) {
-                            console.warn('[GPS] Initial capture failed:', error.message);
-                        },
-                        {
-                            enableHighAccuracy: true,
-                            timeout: 10000,
-                            maximumAge: 60000
-                        }
-                    );
-                } else {
-                    console.warn('[GPS] Geolocation not supported by this browser');
-                }
-            });
-        </script>
+        @if (Auth::user()->geolocation_enabled)
+            <script>
+                // Global variable to cache geolocation
+                window.cachedGeoPosition = null;
+
+                // Capture geolocation on page load
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (navigator.geolocation) {
+                        console.log('[GPS] Requesting location on page load...');
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                window.cachedGeoPosition = {
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude
+                                };
+                                console.log('[GPS] Location cached globally:', window.cachedGeoPosition.latitude, window
+                                    .cachedGeoPosition.longitude);
+                            },
+                            function(error) {
+                                console.warn('[GPS] Initial capture failed:', error.message);
+                            }, {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 60000
+                            }
+                        );
+                    } else {
+                        console.warn('[GPS] Geolocation not supported by this browser');
+                    }
+                });
+            </script>
         @endif
     @endauth
 </body>

@@ -20,18 +20,8 @@ class TeamAnnouncements extends Component
                 ->with('creator')
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
-            \Log::info('TeamAnnouncements::mount', [
-                'user_id' => Auth::id(),
-                'team_id' => $this->team->id,
-                'team_name' => $this->team->name,
-                'announcements_count' => $this->announcements->count(),
-                'announcement_ids' => $this->announcements->pluck('id')->toArray(),
-                'announcement_team_ids' => $this->announcements->pluck('team_id')->toArray(),
-            ]);
         } else {
             $this->announcements = collect();
-            \Log::info('TeamAnnouncements::mount - No team');
         }
     }
 

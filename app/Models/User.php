@@ -147,6 +147,7 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
         'full_name',
+        'full_name_with_dni',
     ];
 
     /**
@@ -213,6 +214,24 @@ class User extends Authenticatable
                     return $this->name;
                 }
                 return $familyNames . ', ' . $this->name;
+            }
+        );
+    }
+
+    /**
+     * Get the user's full name formatted as "DNI - FamilyName1 FamilyName2, Name"
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function fullNameWithDni(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $fullName = $this->full_name;
+                if (!empty($this->dni)) {
+                    return $this->dni . ' - ' . $fullName;
+                }
+                return $fullName;
             }
         );
     }

@@ -42,7 +42,7 @@ class MessagesComponent extends Component
         $team = Auth::user()->currentTeam;
         if ($team) {
             $this->users = $team->allUsers()->where('id', '!=', Auth::id())->sortBy(function ($user) {
-                return strtolower(($user->name ?? '') . ' ' . ($user->family_name ?? '') . ' ' . ($user->family_name2 ?? ''));
+                return strtolower($user->full_name_with_dni);
             })->values();
         } else {
             $this->users = collect();

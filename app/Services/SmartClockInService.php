@@ -91,14 +91,6 @@ class SmartClockInService
 
         $dayEvents = $query->get();
 
-        \Log::info('SmartClockInService: Validating daily duration', [
-            'event_id' => $event->id,
-            'day_start_utc' => $dayStartUTC->toDateTimeString(),
-            'day_end_utc' => $dayEndUTC->toDateTimeString(),
-            'found_prior_events_count' => $dayEvents->count(),
-            'current_event_minutes' => $currentEventMinutes
-        ]);
-
         // 4. Sum durations of all events from the day
         $totalDayMinutes = $currentEventMinutes;
         
@@ -108,14 +100,8 @@ class SmartClockInService
                 $eventEnd = Carbon::parse($dayEvent->end, 'UTC');
                 $minutes = $eventEnd->diffInMinutes($eventStart);
                 $totalDayMinutes += $minutes;
-                \Log::info('SmartClockInService: Adding event duration', ['event_id' => $dayEvent->id, 'minutes' => $minutes]);
             }
         }
-
-        \Log::info('SmartClockInService: Total calculation', [
-            'total_minutes' => $totalDayMinutes,
-            'max_allowed' => $team->max_workday_duration_minutes
-        ]);
 
         // 5. Validate against the limit
         if ($totalDayMinutes > $team->max_workday_duration_minutes) {
@@ -334,13 +320,6 @@ class SmartClockInService
         $nowUTC = Carbon::now('UTC');
         $nowTeamTz = $this->utcToTeamTimezone($nowUTC->toDateTimeString(), $teamTimezone);
 
-        Log::debug('[SmartClockInService][clockIn] Timezone conversion:', [
-            'team_timezone' => $teamTimezone,
-            'now_utc' => $nowUTC->toDateTimeString() . ' UTC',
-            'now_in_team_tz' => $nowTeamTz->toDateTimeString() . ' ' . $teamTimezone,
-            'timestamp' => $nowUTC->timestamp,
-        ]);
-
         try {
             // Get event type to use its name as default description
             $eventType = EventType::find($eventTypeId);
@@ -376,11 +355,6 @@ class SmartClockInService
             $eventData['ip_address'] = request()->ip();
             
             $event = Event::create($eventData);
-            
-            Log::debug('[SmartClockInService][clockIn] Event created:', [
-                'event_id' => $event->id,
-                'start_in_db' => $event->start,
-            ]);
 
             $message = $overtime 
                 ? __('Clocked in successfully at :time (outside schedule)', ['time' => $nowTeamTz->format('H:i')])

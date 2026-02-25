@@ -50,14 +50,16 @@ class AutoCloseEvents extends Command
                 Log::info("Closing event {$event->id} for user {$event->user->id} in team {$team->id}.");
                 
                 if ($event->end === null) {
-                    $event->end = Carbon::parse($event->start)->addHours(1);
+                    // Set duration to 1 minute to avoid MaxWorkdayDurationExceededException
+                    // and correctly reflect that the worker forgot to clock out.
+                    $event->end = Carbon::parse($event->start)->addMinute();
                 } 
 
-                $event->update([
+                $event->updateQuietly([
                     'end' => $event->end,
                     'is_open' => false,
                     'is_closed_automatically' => true,
-                    'observations' => ($event->observations ? $event->observations . ' ' : '') . __('Closed automatically due to expiration.'),
+                    'observations' => ($event->observations ? $event->observations . ' ' : '') . __('Closed automatically due to expiration. Duration set to 1 minute.'),
                 ]);
             }
         }

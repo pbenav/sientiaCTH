@@ -76,11 +76,10 @@ class StatsComponent extends Component
         // Normalizar eventTypes (collection/array)
         $this->eventTypes = $this->actualUser?->currentTeam?->eventTypes ?? collect();
 
-        // Normalizar workers: convertir arrays a objetos para la vista y ordenar alfabéticamente
         $this->workers = collect($this->workers)->map(function ($w) {
             return is_array($w) ? (object) $w : $w;
         })->sortBy(function ($worker) {
-            return strtolower($worker->full_name);
+            return strtolower(data_get($worker, 'full_name_with_dni'));
         })->values()->all();
 
         $this->eventTypeId = null;
@@ -248,9 +247,6 @@ class StatsComponent extends Component
         }
 
         $this->totalHours = round($totalHours, 2);
-        // Log KPI values for verification
-        Log::info('KPI calculated', ['totalHours' => $this->totalHours, 'totalDays' => $this->totalDays]);
-
         if ($this->eventTypeId) {
             $this->totalDays = count($dailyTypeHours);
         } else {

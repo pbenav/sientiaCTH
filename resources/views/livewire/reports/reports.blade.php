@@ -206,7 +206,32 @@
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = blobUrl;
-                            a.download = 'cth_informe_' + new Date().getTime() + '.pdf';
+
+                            // Extract filename from Content-Disposition header if available
+                            let filename = 'cth_informe_' + new Date().getTime() + '.pdf';
+                            const disposition = response.headers.get('content-disposition');
+                            if (disposition && disposition.indexOf('filename=') !== -1) {
+                                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                                if (matches != null && matches[1]) {
+                                    filename = matches[1].replace(/['"]/g, '');
+                                }
+                            } else {
+                                // Try to extract extension from URL if possible
+                                const urlObj = new URL(url, window.location.origin);
+                                const format = urlObj.searchParams.get('rtype');
+                                if (format) {
+                                    const exts = {
+                                        'XLSX': 'xlsx',
+                                        'XLS': 'xlsx',
+                                        'CSV': 'csv',
+                                        'ODS': 'ods',
+                                        'HTML': 'html'
+                                    };
+                                    const ext = exts[format] || 'pdf';
+                                    filename = 'cth_informe_' + new Date().getTime() + '.' + ext;
+                                }
+                            }
+                            a.download = filename;
                             document.body.appendChild(a);
 
                             try {
