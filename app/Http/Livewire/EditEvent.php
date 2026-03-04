@@ -259,6 +259,11 @@ class EditEvent extends Component
     public $currentMinutes = 0;
 
     /**
+     * @var bool Flag to skip duration validation when called from applyAdjustment.
+     */
+    protected bool $isApplyingAdjustment = false;
+
+    /**
      * Update the event.
      *
      * @return void
@@ -312,29 +317,38 @@ class EditEvent extends Component
             $this->event->is_extra_hours = !$this->event->eventType->is_workday_type;
         }
 
-        // REDUNDANT VALIDATION: Explicitly check max duration before saving
-        // This acts as a fallback incase EventObserver is bypassed or fails
-        if ($this->event->end && $this->event->eventType && $this->event->eventType->is_workday_type) {
-            $service = app(\App\Services\SmartClockInService::class);
-            
-            // Ensure we use the correct user (from event or auth)
-            $targetUser = $this->event->user ?? User::find($this->event->user_id);
-            
-            if ($targetUser) {
-                $validation = $service->validateMaxDuration($targetUser, $this->event, $this->event->end);
+        // Skip duration validation if we are in the process of applying an adjustment.
+        // The adjustment itself has already determined the correct time limits.
+        if (!$this->isApplyingAdjustment) {
+            // REDUNDANT VALIDATION: Explicitly check max duration before saving
+            // This acts as a fallback in case EventObserver is bypassed or fails
+            if ($this->event->end && $this->event->eventType && $this->event->eventType->is_workday_type) {
+                $service = app(\App\Services\SmartClockInService::class);
                 
-                if (!$validation['success'] && isset($validation['status_code']) && $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
-                    \Log::info('EditEvent: Manual validation caught duration exceeded', $validation);
-                    $this->showAdjustmentModal = true;
-                    $this->maxMinutes = $validation['max_minutes'];
-                    $this->currentMinutes = $validation['current_minutes'];
-                    return;
+                // Ensure we use the correct user (from event or auth)
+                $targetUser = $this->event->user ?? User::find($this->event->user_id);
+                
+                if ($targetUser) {
+                    $validation = $service->validateMaxDuration($targetUser, $this->event, $this->event->end);
+                    
+                    if (!$validation['success'] && isset($validation['status_code']) && $validation['status_code'] === \App\Services\SmartClockInService::STATUS_MAX_DURATION_EXCEEDED) {
+                        \Log::info('EditEvent: Manual validation caught duration exceeded', $validation);
+                        $this->showAdjustmentModal = true;
+                        $this->maxMinutes = $validation['max_minutes'];
+                        $this->currentMinutes = $validation['current_minutes'];
+                        return;
+                    }
                 }
             }
         }
 
         try {
-            $this->event->save();
+            if ($this->isApplyingAdjustment) {
+                // Save without firing the observer to avoid double-validation loop
+                Event::withoutObservers(fn () => $this->event->save());
+            } else {
+                $this->event->save();
+            }
         } catch (\App\Exceptions\MaxWorkdayDurationExceededException $e) {
             $this->showAdjustmentModal = true;
             $this->maxMinutes = $e->maxMinutes;
@@ -511,19 +525,22 @@ class EditEvent extends Component
                 else $this->event->observations .= "\n";
                 $this->event->observations .= __('Ajuste automático al primer tramo horario (:minutes min)', ['minutes' => $firstEvent['minutes']]);
                 
-                // Create additional events for remaining slots
+                // Create additional events for remaining slots.
+                // Use withoutObservers() to avoid triggering duration validation
+                // for each partial slot (the total adjustment is already validated above).
+                $teamTimezone = $this->getEventTimezone($this->event);
                 for ($i = 1; $i < count($eventsToCreate); $i++) {
                     $slotEvent = $eventsToCreate[$i];
                     
-                    // Convert to UTC for storage
-                    $startUTC = Carbon::parse($slotEvent['start'], config('app.timezone'))
+                    // Convert to UTC for storage using team timezone
+                    $startUTC = Carbon::parse($slotEvent['start'], $teamTimezone)
                         ->setTimezone('UTC')
                         ->format('Y-m-d H:i:s');
-                    $endUTC = Carbon::parse($slotEvent['end'], config('app.timezone'))
+                    $endUTC = Carbon::parse($slotEvent['end'], $teamTimezone)
                         ->setTimezone('UTC')
                         ->format('Y-m-d H:i:s');
                     
-                    Event::create([
+                    Event::withoutObservers(fn () => Event::create([
                         'user_id' => $this->event->user_id,
                         'event_type_id' => $this->event->event_type_id,
                         'team_id' => $this->event->team_id,
@@ -541,15 +558,17 @@ class EditEvent extends Component
                         'is_extra_hours' => false,
                         'is_closed_automatically' => false,
                         'ip_address' => request()->ip(),
-                    ]);
+                    ]));
                 }
                 
                 break;
         }
 
-        // Hide modal and try to save again
+        // Hide modal and save with the adjustment flag set to skip re-validation
         $this->showAdjustmentModal = false;
-        $this->update(); // Recursive call, but now values are fixed so it should pass validation
+        $this->isApplyingAdjustment = true;
+        $this->update();
+        $this->isApplyingAdjustment = false;
     }
 
     /**
