@@ -11,6 +11,8 @@ use Livewire\Component;
  */
 class EventDetailsModal extends Component
 {
+    use \App\Traits\HandlesTimezoneConversion;
+
     public $showModal = false;
     public $eventData = null;
     public $eventId = null;
@@ -43,6 +45,8 @@ class EventDetailsModal extends Component
             $event = Event::with(['user', 'eventType', 'workCenter', 'team'])->find($data);
             
             if ($event) {
+                $timezone = $this->getTeamTimezone($event->team);
+
                 $this->eventData = [
                     'id' => $event->id,
                     'user_id' => $event->user_id,
@@ -61,8 +65,8 @@ class EventDetailsModal extends Component
                     'work_center' => $event->workCenter ? [
                         'name' => $event->workCenter->name,
                     ] : null,
-                    'start' => $event->start ? \Carbon\Carbon::parse($event->start)->format('d/m/Y H:i') : null,
-                    'end' => $event->end ? \Carbon\Carbon::parse($event->end)->format('d/m/Y H:i') : null,
+                    'start' => $event->start ? $this->utcToTeamTimezone($event->start, $timezone)->format('d/m/Y H:i') : null,
+                    'end' => $event->end ? $this->utcToTeamTimezone($event->end, $timezone)->format('d/m/Y H:i') : null,
                     'duration' => $event->getPeriod() ?? __('N/A'),
                     'description' => $event->description,
                     'observations' => $event->observations,
@@ -73,8 +77,8 @@ class EventDetailsModal extends Component
                     'is_open' => $event->is_open,
                     'is_exceptional' => $event->is_exceptional ?? false,
                     'authorized' => $event->is_authorized ?? false,
-                    'created_at' => $event->created_at ? \Carbon\Carbon::parse($event->created_at)->format('d/m/Y H:i') : null,
-                    'updated_at' => $event->updated_at ? \Carbon\Carbon::parse($event->updated_at)->format('d/m/Y H:i') : null,
+                    'created_at' => $event->created_at ? $this->utcToTeamTimezone($event->created_at, $timezone)->format('d/m/Y H:i') : null,
+                    'updated_at' => $event->updated_at ? $this->utcToTeamTimezone($event->updated_at, $timezone)->format('d/m/Y H:i') : null,
                 ];
             }
         }

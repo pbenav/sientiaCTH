@@ -291,10 +291,13 @@ class EditEvent extends Component
             $startDateTime = $this->start_date . ' ' . $this->start_time;
             $endDateTime = $this->end_date . ' ' . $this->end_time;
             
-            $this->event->start = Carbon::parse($startDateTime, config('app.timezone'))
+            // Use team timezone (same as used when populating the edit form)
+            $teamTimezone = $this->getEventTimezone($this->event);
+            
+            $this->event->start = Carbon::parse($startDateTime, $teamTimezone)
                 ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
-            $this->event->end = Carbon::parse($endDateTime, config('app.timezone'))
+            $this->event->end = Carbon::parse($endDateTime, $teamTimezone)
                 ->setTimezone('UTC')
                 ->format('Y-m-d H:i:s');
         }

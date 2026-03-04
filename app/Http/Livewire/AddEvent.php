@@ -326,7 +326,7 @@ class AddEvent extends Component
             $data['start'] = Carbon::createFromFormat('Y-m-d', $this->start_date, 'UTC')->startOfDay()->toDateTimeString();
             $data['end'] = Carbon::createFromFormat('Y-m-d', $this->end_date, 'UTC')->startOfDay()->toDateTimeString();
         } else {
-            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $appTimezone)->setTimezone('UTC');
+            $data['start'] = Carbon::parse($this->start_date . ' ' . $this->start_time, $teamTimezone)->setTimezone('UTC');
             // AddEvent creates OPEN events by default (Clock In behavior)
             // The form doesn't show end time fields for regular events
             $data['end'] = null;

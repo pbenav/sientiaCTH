@@ -76,8 +76,8 @@ class SmartClockInService
         $dayStartUTC = $eventDateStart->copy()->setTimezone('UTC');
         $dayEndUTC = $eventDateEnd->copy()->setTimezone('UTC');
 
-        // 3. Find all closed workday events from the same day (excluding current event)
-        $query = Event::where('user_id', $user->id)
+        // 3. Find all closed workday events from the same day
+        $workdayEvents = Event::where('user_id', $user->id)
             ->where('team_id', $team->id)
             ->when($event->exists, function($q) use ($event) {
                 $q->where('id', '!=', $event->id);
@@ -85,22 +85,69 @@ class SmartClockInService
             ->whereHas('eventType', function($q) {
                 $q->where('is_workday_type', true);
             })
-            ->where('is_open', false) // Only closed events
+            ->where('is_open', false)
             ->where('start', '>=', $dayStartUTC)
-            ->where('start', '<=', $dayEndUTC);
+            ->where('start', '<=', $dayEndUTC)
+            ->get();
 
-        $dayEvents = $query->get();
+        // 4. Find all pause events from the same day
+        $pauseEvents = Event::where('user_id', $user->id)
+            ->where('team_id', $team->id)
+            ->whereHas('eventType', function($q) {
+                $q->where('is_pause_type', true);
+            })
+            ->where('start', '>=', $dayStartUTC)
+            ->where('start', '<=', $dayEndUTC)
+            ->get();
 
-        // 4. Sum durations of all events from the day
-        $totalDayMinutes = $currentEventMinutes;
+        // Collect all workday segments
+        $segments = [];
         
-        foreach ($dayEvents as $dayEvent) {
-            if ($dayEvent->end) {
-                $eventStart = Carbon::parse($dayEvent->start, 'UTC');
-                $eventEnd = Carbon::parse($dayEvent->end, 'UTC');
-                $minutes = $eventEnd->diffInMinutes($eventStart);
-                $totalDayMinutes += $minutes;
+        // Add current event
+        $segments[] = ['start' => $start, 'end' => $end];
+
+        // Add other workday events
+        foreach ($workdayEvents as $we) {
+            $segments[] = [
+                'start' => Carbon::parse($we->start, 'UTC'),
+                'end' => Carbon::parse($we->end, 'UTC')
+            ];
+        }
+
+        // Add pause segments
+        $pauses = [];
+        foreach ($pauseEvents as $pe) {
+            $pauses[] = [
+                'start' => Carbon::parse($pe->start, 'UTC'),
+                'end' => $pe->is_open ? Carbon::now('UTC') : Carbon::parse($pe->end, 'UTC')
+            ];
+        }
+
+        // Calculate total net minutes: (Sum of workday segments) - (Sum of intersections with pauses)
+        // Note: This logic assumes workday events itself don't overlap significantly, 
+        // but it handles the specific case of a pause inside a workday event perfectly.
+        $totalDayMinutes = 0;
+
+        foreach ($segments as $segment) {
+            $segStart = $segment['start'];
+            $segEnd = $segment['end'];
+            $duration = $segEnd->diffInMinutes($segStart);
+            
+            // Subtract any portion of this segment that is covered by a pause
+            foreach ($pauses as $pause) {
+                $pStart = $pause['start'];
+                $pEnd = $pause['end'];
+                
+                // Calculate intersection
+                $overlapStart = $segStart->gt($pStart) ? $segStart : $pStart;
+                $overlapEnd = $segEnd->lt($pEnd) ? $segEnd : $pEnd;
+                
+                if ($overlapStart->lt($overlapEnd)) {
+                    $duration -= $overlapEnd->diffInMinutes($overlapStart);
+                }
             }
+            
+            $totalDayMinutes += $duration;
         }
 
         // 5. Validate against the limit
