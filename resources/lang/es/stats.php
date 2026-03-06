@@ -30,6 +30,6 @@ return [
     'Statistics reports are only available in PDF format.' => 'Los informes de estadísticas solo están disponibles en formato PDF.',
     'select_specific_worker' => 'Por favor, seleccione un trabajador específico para los informes de estadísticas.',
     'all_day_events_note' => 'representan eventos de día completo. Su altura en la gráfica es simbólica (equivale a 1 jornada) y no refleja horas trabajadas reales.',
-    'The bars for' => 'Las barras de',
-    'Note' => 'Nota',
+    'bars_for' => 'Las barras de',
+    'note' => 'Nota',
 ];

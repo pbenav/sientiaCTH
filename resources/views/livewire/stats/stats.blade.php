@@ -124,8 +124,8 @@
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>
-                        <strong>{{ __('Note') }}:</strong>
-                        {{ __('The bars for') }}
+                        <strong>{{ __('stats.note') }}:</strong>
+                        {{ __('stats.bars_for') }}
                         <strong>{{ implode(', ', $allDayEventTypes) }}</strong>
                         {{ __('stats.all_day_events_note') }}
                     </span>
