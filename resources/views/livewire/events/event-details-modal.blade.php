@@ -130,7 +130,7 @@
                                 </svg>
                                 <span class="font-medium text-gray-950">
                                     @if ($eventData['is_open'])
-                                        <span class="text-indigo-600 italic text-xs">{{ __('In progress...') }}</span>
+                                        <span class="text-indigo-600 italic text-xs">{{ __('En curso...') }}</span>
                                     @else
                                         {{ $eventData['end'] ?? __('N/A') }}
                                     @endif
