@@ -192,6 +192,41 @@ class StatsComponent extends Component
             $start_date = $this->utcToTeamTimezone($event->start, $teamTimezone);
             $end_date = $this->utcToTeamTimezone($event->end, $teamTimezone);
 
+            // ALL-DAY EVENTS: handle separately because start == end for single-day events,
+            // which means the normal $date->lt($end_date) loop never runs.
+            if ($event->eventType->is_all_day) {
+                // Determine the last day to include:
+                // - multi-day: end is next-day midnight → last day = end->startOfDay()->subDay()
+                // - single-day: start == end → last day = start day itself
+                $lastDay = $end_date->copy()->startOfDay();
+                if ($lastDay->lte($start_date->copy()->startOfDay())) {
+                    // start == end or end <= start → event covers exactly start day
+                    $lastDay = $start_date->copy()->startOfDay();
+                } else {
+                    // end is at midnight of the *next* day, so the last included day is end - 1 day
+                    $lastDay = $lastDay->subDay();
+                }
+
+                for ($date = $start_date->copy()->startOfDay(); $date->lte($lastDay); $date->addDay()) {
+                    if ($date->month != $this->selectedMonth) continue;
+
+                    $dayKey = $date->format('d/m');
+
+                    // Skip holidays and non-working days for non-workday types
+                    if (!$event->eventType->is_workday_type) {
+                        if ($holidays->contains($date->format('Y-m-d'))) continue;
+                        if (!in_array($date->format('N'), $workingDays)) continue;
+                    }
+
+                    $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $scheduledHoursPerDay;
+                    $daysWithEvents[$dayKey] = $date->copy();
+
+                    $this->hasAllDayEvents = true;
+                    $this->allDayEventTypes[$event->eventType->name] = $event->eventType->name;
+                }
+                continue; // Skip the timed-event loop below
+            }
+
             for ($date = $start_date->copy(); $date->lt($end_date); $date->addDay()) {
                 if ($date->month != $this->selectedMonth) continue;
 
@@ -208,25 +243,6 @@ class StatsComponent extends Component
                      }
                 }
 
-                // Special handling for all-day events
-                if ($event->eventType->is_all_day) {
-                     // If the current day starts at or after the end time, skip it.
-                     if ($date->gte($end_date)) {
-                         continue;
-                     }
-
-                     // Use a symbolic height equal to one scheduled workday (not 24h)
-                     // so bars remain proportional to timed events on the same chart.
-                     $hours_for_day = $scheduledHoursPerDay;
-                     $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
-                     $daysWithEvents[$dayKey] = $date;
-
-                     // Track that at least one all-day event is present
-                     $this->hasAllDayEvents = true;
-                     $this->allDayEventTypes[$event->eventType->name] = $event->eventType->name;
-                     continue;
-                }
-                
                 $day_start = $date->copy()->startOfDay();
                 $day_end = $date->copy()->endOfDay();
                 $effective_start = $start_date->max($day_start);
