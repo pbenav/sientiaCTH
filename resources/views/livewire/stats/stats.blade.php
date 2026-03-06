@@ -124,10 +124,10 @@
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>
-                        <strong>{{ __('stats.note') }}:</strong>
-                        {{ __('stats.bars_for') }}
+                        <strong>{{ __('Note') }}:</strong>
+                        {{ __('The bars for') }}
                         <strong>{{ implode(', ', $allDayEventTypes) }}</strong>
-                        {{ __('stats.all_day_events_note') }}
+                        {{ __('represent full-day events. Their bar height is symbolic (equivalent to 1 workday) and does not reflect actual hours worked.') }}
                     </span>
                 </div>
             @endif

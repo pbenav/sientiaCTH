@@ -1044,9 +1044,12 @@
   "Save Permission": "Guardar Permiso",
   "Permission saved successfully": "Permiso guardado exitosamente",
   "Cannot edit system permissions": "No se pueden editar permisos del sistema",
-  "Cannot delete system permissions": "No se pueden eliminar permisos del sistema",
+  "Cannot delete system permissions": "No se pueden eliminar roles del sistema",
   "Permission deleted successfully": "Permiso eliminado exitosamente",
   "Select All / None": "Seleccionar Todos / Ninguno",
   "Cannot impersonate yourself": "No puedes suplantarte a ti mismo",
-  "Language": "Idioma"
+  "Language": "Idioma",
+  "Note": "Nota",
+  "The bars for": "Las barras de",
+  "represent full-day events. Their bar height is symbolic (equivalent to 1 workday) and does not reflect actual hours worked.": "representan eventos de día completo. Su altura en la gráfica es simbólica (equivale a 1 jornada) y no refleja horas trabajadas reales."
 }
