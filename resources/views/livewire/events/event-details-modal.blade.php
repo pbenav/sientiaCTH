@@ -1,8 +1,9 @@
 <div>
     <!-- Event Info Modal -->
-    @if ($showModal && $eventData)
-        <x-jet-dialog-modal wire:model="showModal" maxWidth="2xl">
-            <x-slot name="title">
+    <!-- Event Info Modal -->
+    <x-jet-dialog-modal wire:model="showModal" maxWidth="2xl">
+        <x-slot name="title">
+            @if ($eventData)
                 <div class="flex items-center justify-between pb-3 border-b border-gray-200">
                     <div class="flex items-center gap-3">
                         <div class="bg-indigo-100 p-2 rounded-full">
@@ -32,9 +33,11 @@
                         </span>
                     @endif
                 </div>
-            </x-slot>
+            @endif
+        </x-slot>
 
-            <x-slot name="content">
+        <x-slot name="content">
+            @if ($eventData)
                 <!-- Main Info Grid (2 columns, compact) -->
                 <div class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                     <!-- Event Type -->
@@ -246,9 +249,11 @@
                         </div>
                     </div>
                 @endif
-            </x-slot>
+            @endif
+        </x-slot>
 
-            <x-slot name="footer">
+        <x-slot name="footer">
+            @if ($eventData)
                 <div class="flex items-center justify-between w-full">
                     <div>
                         @if (!$eventData['is_open'] && $eventData['user_id'] == auth()->id())
@@ -262,9 +267,9 @@
                         {{ __('Close') }}
                     </x-jet-secondary-button>
                 </div>
-            </x-slot>
-        </x-jet-dialog-modal>
-    @endif
+            @endif
+        </x-slot>
+    </x-jet-dialog-modal>
 
     {{-- Reopening Request Component --}}
     @livewire('events.request-event-reopening')
