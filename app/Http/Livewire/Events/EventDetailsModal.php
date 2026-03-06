@@ -30,6 +30,16 @@ class EventDetailsModal extends Component
     }
 
     /**
+     * Reset state when modal is closed via wire:model (background click, ESC).
+     */
+    public function updatedShowModal($value): void
+    {
+        if (!$value) {
+            $this->closeModal();
+        }
+    }
+
+    /**
      * Show event details modal.
      * Accepts both array (for backward compatibility) and event ID.
      */
