@@ -78,7 +78,7 @@ class ReportsController extends Controller
         if ($reportSource === 'statistics') {
             // Statistics reports require a single worker
             if (!$workerId || $workerId === '%') {
-                abort(400, __('stats.select_specific_worker'));
+                abort(400, __('Please select a specific worker for statistics reports.'));
             }
 
             // Check if async generation is needed for downloads

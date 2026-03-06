@@ -136,7 +136,7 @@
 
             <!-- Cumplimiento de Jornada -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.workday_compliance') }}</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Workday Compliance') }}</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Punctuality Card -->
                     <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
@@ -173,7 +173,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">{{ __('stats.entry') }}</h3>
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Entry') }}</h3>
                                 <div class="flex items-baseline gap-2">
                                     <span class="text-2xl font-bold text-gray-800"
                                         title="Apariencia">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</span>
@@ -200,7 +200,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">{{ __('stats.exit') }}</h3>
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Exit') }}</h3>
                                 <div class="flex items-baseline gap-2">
                                     <span class="text-2xl font-bold text-gray-800"
                                         title="Apariencia">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</span>
@@ -227,7 +227,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">{{ __('stats.combined') }}</h3>
+                                <h3 class="text-sm font-medium text-gray-500">{{ __('Combined') }}</h3>
                                 <p class="text-2xl font-bold text-gray-800">
                                     {{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</p>
                                 <p class="text-xs text-gray-400">Puntualidad entrada y salida</p>
@@ -317,7 +317,7 @@
 
             <!-- Horas y Registros -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.hours_and_records') }}</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Hours & Records') }}</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Scheduled Hours Card -->
                     <div class="bg-white p-6 rounded-lg shadow-lg h-36 flex flex-col justify-between">
@@ -417,7 +417,7 @@
             <!-- Authorizable Events Section -->
             @if (!empty($dashboardData['authorizable_events']) && count($dashboardData['authorizable_events']) > 0)
                 <div class="mt-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('stats.authorizable_events') }}
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">{{ __('Authorizable Events') }}
                         ({{ now()->year }})</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         @foreach ($dashboardData['authorizable_events'] as $authEvent)
@@ -435,7 +435,7 @@
                                         <h3 class="text-sm font-medium text-gray-500">{{ $authEvent['description'] }}
                                         </h3>
                                         <p class="text-2xl font-bold text-gray-800">{{ $authEvent['days'] }}</p>
-                                        <p class="text-xs text-gray-400">{{ __('stats.days_in') }}
+                                        <p class="text-xs text-gray-400">{{ __('days in') }}
                                             {{ now()->year }}</p>
                                     </div>
                                 </div>

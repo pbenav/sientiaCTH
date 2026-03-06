@@ -433,7 +433,7 @@
     @endif
 
     {{-- KPIs: Workday Compliance --}}
-    <div class="section-title page-break-before">{{ __('stats.workday_compliance') }}</div>
+    <div class="section-title page-break-before">{{ __('Workday Compliance') }}</div>
     <div class="kpi-grid">
         <div class="kpi-card">
             <div class="kpi-card-header">
@@ -454,7 +454,7 @@
             <div class="kpi-card-header">
                 <div class="kpi-icon blue">→</div>
                 <div>
-                    <div class="kpi-title">{{ __('stats.entry') }}</div>
+                    <div class="kpi-title">{{ __('Entry') }}</div>
                     <div style="display: flex; gap: 8px; align-items: baseline;">
                         <span class="kpi-value">{{ $dashboardData['punctuality_entry_pct'] ?? '0' }}%</span>
                         <span class="kpi-value"
@@ -472,7 +472,7 @@
             <div class="kpi-card-header">
                 <div class="kpi-icon green">←</div>
                 <div>
-                    <div class="kpi-title">{{ __('stats.exit') }}</div>
+                    <div class="kpi-title">{{ __('Exit') }}</div>
                     <div style="display: flex; gap: 8px; align-items: baseline;">
                         <span class="kpi-value">{{ $dashboardData['punctuality_exit_pct'] ?? '0' }}%</span>
                         <span class="kpi-value"
@@ -490,7 +490,7 @@
             <div class="kpi-card-header">
                 <div class="kpi-icon indigo">✓</div>
                 <div>
-                    <div class="kpi-title">{{ __('stats.combined') }}</div>
+                    <div class="kpi-title">{{ __('Combined') }}</div>
                     <div class="kpi-value">{{ $dashboardData['punctuality_combined_pct'] ?? '0' }}%</div>
                     <div class="kpi-subtitle">Puntualidad entrada y salida</div>
                 </div>
@@ -530,7 +530,7 @@
     </div>
 
     {{-- KPIs: Hours and Records --}}
-    <div class="section-title">{{ __('stats.hours_and_records') }}</div>
+    <div class="section-title">{{ __('Hours & Records') }}</div>
     <div class="kpi-grid">
         <div class="kpi-card">
             <div class="kpi-card-header">
@@ -591,7 +591,7 @@
 
     {{-- Authorizable Events --}}
     @if (!empty($dashboardData['authorizable_events']) && count($dashboardData['authorizable_events']) > 0)
-        <div class="section-title">{{ __('stats.authorizable_events') }} ({{ now()->year }})</div>
+        <div class="section-title">{{ __('Authorizable Events') }} ({{ now()->year }})</div>
         <div class="kpi-grid">
             @foreach ($dashboardData['authorizable_events'] as $authEvent)
                 <div class="kpi-card">
@@ -601,7 +601,7 @@
                         <div>
                             <div class="kpi-title">{{ $authEvent['description'] }}</div>
                             <div class="kpi-value">{{ $authEvent['days'] }}</div>
-                            <div class="kpi-subtitle">{{ __('stats.days_in') }} {{ now()->year }}</div>
+                            <div class="kpi-subtitle">{{ __('days in') }} {{ now()->year }}</div>
                         </div>
                     </div>
                 </div>

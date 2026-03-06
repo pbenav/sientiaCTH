@@ -1051,5 +1051,15 @@
   "Language": "Idioma",
   "Note": "Nota",
   "The bars for": "Las barras de",
-  "represent full-day events. Their bar height is symbolic (equivalent to 1 workday) and does not reflect actual hours worked.": "representan eventos de día completo. Su altura en la gráfica es simbólica (equivale a 1 jornada) y no refleja horas trabajadas reales."
+  "represent full-day events. Their bar height is symbolic (equivalent to 1 workday) and does not reflect actual hours worked.": "representan eventos de día completo. Su altura en la gráfica es simbólica (equivale a 1 jornada) y no refleja horas trabajadas reales.",
+  "Workday Compliance": "Cumplimiento de jornada",
+  "Entry": "Entrada",
+  "Exit": "Salida",
+  "Combined": "Combinado",
+  "Backdate entry": "Backdate entrada",
+  "Backdate exit": "Backdate salida",
+  "Authorizable Events": "Eventos Autorizables",
+  "events in": "eventos en",
+  "days in": "días en",
+  "Hours & Records": "Horas y Registros"
 }

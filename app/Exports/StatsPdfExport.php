@@ -257,7 +257,7 @@ class StatsPdfExport
             ->showBackground()
             ->setOption('displayHeaderFooter', true)
             ->setOption('headerTemplate', '<div style="font-size: 7pt; width: 100%; color: #9CA3AF; padding-bottom: 5px; border-bottom: 1px solid #E5E7EB; margin-left: 20px; margin-right: 20px; font-family: sans-serif; display: flex; justify-content: space-between;">' . 
-                '<span>' . trans('stats.Statistics Report') . ' - ' . $this->team->name . ' - ' . $browsedUserModel->name . ' ' . $browsedUserModel->family_name1 . '</span>' .
+                '<span>' . __('Statistics Report') . ' - ' . $this->team->name . ' - ' . $browsedUserModel->name . ' ' . $browsedUserModel->family_name1 . '</span>' .
                 '<span style="text-align: right;">' . trans('reports.Generated on') . ': ' . now()->format('d/m/Y H:i') . '</span>' .
                 '</div>')
             ->setOption('footerTemplate', '<div style="font-size: 8pt; text-align: center; width: 100%; color: #9CA3AF; padding-top: 5px;">' . 

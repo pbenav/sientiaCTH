@@ -204,7 +204,7 @@ class ReportsComponent extends Component
 
             // Ensure a single worker is selected (not "All")
             if (!$this->worker || $this->worker === '%') {
-                $this->addError('worker', __('stats.select_specific_worker'));
+                $this->addError('worker', __('Please select a specific worker for statistics reports.'));
                 return;
             }
 
