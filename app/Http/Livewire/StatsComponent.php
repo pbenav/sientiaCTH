@@ -56,6 +56,8 @@ class StatsComponent extends Component
     public $paso = null;
     public int $totalDays = 0;
     public array $dashboardData = [];
+    public bool $hasAllDayEvents = false;
+    public array $allDayEventTypes = [];
 
     public function mount()
     {
@@ -156,7 +158,31 @@ class StatsComponent extends Component
 
 
 
-// Process each event. Full‑day events (00:00 → 00:00 next day) are counted only on the start day
+        // Determine symbolic height for all-day events:
+        // Use the team's average scheduled hours per day (or 8h default) so bars are comparable.
+        $scheduledHoursPerDay = 8.0;
+        if ($scheduleMeta && $scheduleMeta->meta_value) {
+            $schedule = json_decode($scheduleMeta->meta_value, true);
+            if (!empty($schedule)) {
+                $dailyMinutes = 0;
+                foreach ($schedule as $slot) {
+                    try {
+                        $slotStart = Carbon::createFromFormat('H:i', $slot['start']);
+                        $slotEnd = Carbon::createFromFormat('H:i', $slot['end']);
+                        if ($slotEnd->lt($slotStart)) $slotEnd->addDay();
+                        $dailyMinutes += $slotEnd->diffInMinutes($slotStart);
+                    } catch (\Exception $e) {}
+                }
+                if ($dailyMinutes > 0) {
+                    $scheduledHoursPerDay = round($dailyMinutes / 60, 2);
+                }
+            }
+        }
+
+        $this->hasAllDayEvents = false;
+        $this->allDayEventTypes = [];
+
+// Process each event. Full-day events (00:00 → 00:00 next day) are counted only on the start day
         foreach ($events as $event) {
             if (!$event->end || !$event->eventType) continue;
 
@@ -185,16 +211,19 @@ class StatsComponent extends Component
                 // Special handling for all-day events
                 if ($event->eventType->is_all_day) {
                      // If the current day starts at or after the end time, skip it.
-                     // This handles events ending at 00:00:00 (don't count that day)
                      if ($date->gte($end_date)) {
                          continue;
                      }
 
-                     
-                     // Force 24 hours for all-day events (rounding to full day)
-                     $hours_for_day = 24;
+                     // Use a symbolic height equal to one scheduled workday (not 24h)
+                     // so bars remain proportional to timed events on the same chart.
+                     $hours_for_day = $scheduledHoursPerDay;
                      $processedEvents[$dayKey][$event->eventType->name] = ($processedEvents[$dayKey][$event->eventType->name] ?? 0) + $hours_for_day;
                      $daysWithEvents[$dayKey] = $date;
+
+                     // Track that at least one all-day event is present
+                     $this->hasAllDayEvents = true;
+                     $this->allDayEventTypes[$event->eventType->name] = $event->eventType->name;
                      continue;
                 }
                 
@@ -313,6 +342,8 @@ class StatsComponent extends Component
                 'scheduledDays' => $scheduledDays,
                 'dashboardData' => $this->dashboardData,
                 'totalHoursFmt' => floor($this->totalHours) . 'h ' . sprintf('%02d', round(($this->totalHours - floor($this->totalHours)) * 60)) . 'm',
+                'hasAllDayEvents' => $this->hasAllDayEvents,
+                'allDayEventTypes' => $this->allDayEventTypes,
             ]);
     }
 }

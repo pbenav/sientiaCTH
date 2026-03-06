@@ -114,7 +114,25 @@
                 @endif
             </div>
 
-            <!-- KPIs Section -->
+            {{-- Info note for all-day events (Vacaciones, Asuntos Propios, etc.) --}}
+            @if ($hasAllDayEvents)
+                <div
+                    class="flex items-start gap-3 px-4 py-3 mt-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                    <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>
+                        <strong>{{ __('Note') }}:</strong>
+                        {{ __('The bars for') }}
+                        <strong>{{ implode(', ', $allDayEventTypes) }}</strong>
+                        {{ __('stats.all_day_events_note') }}
+                    </span>
+                </div>
+            @endif
+
+            {{-- KPIs Section --}}
 
             <!-- Cumplimiento de Jornada -->
             <div class="mt-6">
