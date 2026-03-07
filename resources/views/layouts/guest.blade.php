@@ -32,6 +32,8 @@
                 <div class="mb-2 md:mb-0">
                     <span class="font-bold">🄯 {{ date('Y') }}</span>
                     <span class="mx-1">|</span>
+                    <span>v{{ config('app.version') }}</span>
+                    <span class="mx-1">|</span>
                     {{ __('Developed by') }}:
                     <span class="font-semibold text-gray-700">Sientia::Soluciones Informáticas,
                         {{ __('Technology and Artificial Intelligence') }}</span>
