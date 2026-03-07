@@ -158,6 +158,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 Route::prefix('mobile')->name('mobile.')->group(function () {
     // Catch-all route for Flutter Web app
     Route::get('{any?}', function () {
-        return file_get_contents(public_path('mobile/index.html'));
+        $path = public_path('mobile/index.html');
+        if (file_exists($path)) {
+            return file_get_contents($path);
+        }
+        return response('Mobile Web App is being prepared. Please check back later.', 503);
     })->where('any', '.*')->name('home');
 });
