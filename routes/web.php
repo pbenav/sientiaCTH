@@ -159,5 +159,5 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     // Catch-all route for Flutter Web app
     Route::get('{any?}', function () {
         return file_get_contents(public_path('mobile/index.html'));
-    })->where('any', '.*');
+    })->where('any', '.*')->name('home');
 });
