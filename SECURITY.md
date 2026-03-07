@@ -21,7 +21,7 @@ La seguridad de CTH es una prioridad. Si descubres una vulnerabilidad de segurid
 
 ### ✅ Por favor, haz lo siguiente:
 
-1. **Contacta de forma privada** enviando un email a: **[tu-email-de-seguridad]**
+1. **Contacta de forma privada** enviando un email a: **[pbenavides@sientia.com]**
    
 2. **Incluye la siguiente información**:
    - Descripción detallada de la vulnerabilidad

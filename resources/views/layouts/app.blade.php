@@ -108,7 +108,7 @@
                         </svg>
                         {{ __('Support on Patreon') }}
                     </a>
-                    <span class="text-gray-400">Ver. {{ \App\Models\AppSettings::get('app_version', '0.1.1') }}</span>
+                    <span class="text-gray-400">Ver. 0.1.1</span>
                 </div>
             </div>
         </div>

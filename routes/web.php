@@ -156,19 +156,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 |--------------------------------------------------------------------------
 */
 Route::prefix('mobile')->name('mobile.')->group(function () {
-    // Authentication routes (no middleware)
-    Route::get('/auth', [App\Http\Controllers\Mobile\MobileWebController::class, 'showAuth'])->name('auth');
-    Route::post('/auth/login', [App\Http\Controllers\Mobile\MobileWebController::class, 'login'])->name('auth.login');
-    
-    // Protected mobile routes
-    Route::middleware(['mobile.auth'])->group(function () {
-        Route::get('/', [App\Http\Controllers\Mobile\MobileWebController::class, 'home'])->name('home');
-        Route::get('/home', [App\Http\Controllers\Mobile\MobileWebController::class, 'home'])->name('home.alt');
-        Route::get('/history', [App\Http\Controllers\Mobile\MobileWebController::class, 'history'])->name('history');
-        Route::get('/schedule', [App\Http\Controllers\Mobile\MobileWebController::class, 'schedule'])->name('schedule');
-        Route::get('/profile', [App\Http\Controllers\Mobile\MobileWebController::class, 'profile'])->name('profile');
-        Route::get('/reports', [App\Http\Controllers\Mobile\MobileWebController::class, 'reports'])->name('reports');
-        Route::post('/logout', [App\Http\Controllers\Mobile\MobileWebController::class, 'logout'])->name('logout');
-    });
-
+    // Catch-all route for Flutter Web app
+    Route::get('{any?}', function () {
+        return file_get_contents(public_path('mobile/index.html'));
+    })->where('any', '.*');
 });
