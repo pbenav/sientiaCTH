@@ -685,6 +685,8 @@
   "The date range cannot exceed :months months.": "El rango de fechas no puede exceder los :months meses.",
   "The date range cannot exceed the maximum allowed (:max months).": "El rango de fechas no puede exceder el máximo permitido (:max meses).",
   "The date range cannot exceed :months months for preview.": "El rango de fechas no puede exceder los :months meses para la vista previa.",
+  "Support Project": "Apoyar el Proyecto",
+  "Support on Patreon": "Apoyar en Patreon",
   "This report will be generated asynchronously and sent to your inbox.": "Este informe se generará de forma asíncrona y se enviará a tu bandeja de entrada.",
   "Please wait, the report may take a few minutes...": "Por favor espera, el informe puede tardar algunos minutos...",
   "Your report is ready": "Tu informe está listo",

@@ -56,5 +56,7 @@
   "Documentation": "Documentation",
   "The async threshold must be less than the max report limit.": "The async threshold must be less than the max report limit.",
   "The end date and time must be after the start date and time.": "The end date and time must be after the start date and time.",
-  "Language": "Language"
+  "Language": "Language",
+  "Support Project": "Support Project",
+  "Support on Patreon": "Support on Patreon"
 }

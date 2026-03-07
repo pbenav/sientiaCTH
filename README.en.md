@@ -245,6 +245,16 @@ The only condition is that you include the copyright notice and MIT license in a
 
 ---
 
+## 💖 Support the Project
+
+If you find this project useful and would like to support its maintenance and continuous development, consider making a donation through Patreon:
+
+👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+
+Any support is greatly appreciated and helps CTH stay free and open source for everyone.
+
+---
+
 ## 🔒 Security
 
 If you discover any security vulnerability, please **DO NOT** publish it in GitHub Issues. Instead, contact the development team directly so it can be addressed responsibly.

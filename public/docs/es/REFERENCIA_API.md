@@ -266,3 +266,9 @@ CTH implementa un sistema de permisos granular con los siguientes roles:
 - `events.create.team`: Crear eventos para otros miembros (Admin)
 
 **Nota**: La API móvil valida permisos automáticamente según el rol del usuario en el contexto del equipo activo.
+
+---
+
+## 💖 Apoya el Proyecto
+
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

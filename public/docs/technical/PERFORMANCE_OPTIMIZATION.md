@@ -375,3 +375,11 @@ La aplicación ahora es significativamente más rápida y escalable, preparada p
 
 **Última actualización:** 10 de enero de 2026  
 **Versión del documento:** 1.0.0
+
+---
+
+## 💖 Soporte al Proyecto
+
+Si encuentras útiles estas optimizaciones y quieres apoyar el desarrollo de CTH:
+
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

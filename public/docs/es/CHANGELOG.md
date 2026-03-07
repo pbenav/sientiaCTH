@@ -314,3 +314,9 @@ Este documento recoge los hitos más importantes en la evolución de **CTH (Cont
 **Versión actual**: 1.0.0  
 **Desarrollado por**: pbenav  
 **Licencia**: Propietaria
+
+---
+
+## 💖 Apoya el Proyecto
+
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

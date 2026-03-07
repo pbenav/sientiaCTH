@@ -314,3 +314,9 @@ This document collects the most important milestones in the evolution of **CTH (
 **Current version**: 1.0.0  
 **Developed by**: pbenav  
 **License**: Proprietary
+
+---
+
+## 💖 Support the Project
+
+👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

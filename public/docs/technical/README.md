@@ -42,3 +42,9 @@ These documents are intended for:
 ---
 
 **Note**: This technical documentation is version-specific and may not be translated to all languages. English versions are authoritative for technical specifications.
+
+---
+
+## 💖 Support / Support
+
+👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

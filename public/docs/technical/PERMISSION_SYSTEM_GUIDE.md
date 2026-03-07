@@ -302,3 +302,9 @@ php artisan migrate
 php artisan permissions:update --force
 php artisan optimize
 ```
+
+---
+
+## 💖 Apoya el Proyecto
+
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

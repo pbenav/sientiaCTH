@@ -69,6 +69,9 @@ When creating new PHP files, use the following standard header:
 
 For more details, see the [LICENSE](../../../LICENSE) file in the project root.
 
+> [!TIP]
+> **Enjoying the project?** Consider supporting it on [Patreon](https://www.patreon.com/cw/CTH_ControlHorario) to ensure its continued development.
+
 ---
 
 ## 2. System Architecture
@@ -224,6 +227,15 @@ npm run build
 
 ### Logs
 The system uses Laravel's **Log** to record errors and critical events in `storage/logs/laravel.log`.
+
+---
+---
+
+## 💖 Support the Development
+
+If CTH helps you in your workflow or your company, consider supporting us on Patreon:
+
+👉 **[CTH on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
 
 ---
 *Developer Manual - Version 1.0*

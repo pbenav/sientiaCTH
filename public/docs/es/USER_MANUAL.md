@@ -240,4 +240,15 @@ Si experimentas problemas con el **Dashboard** o el sistema **SmartClockIn**, in
 ---
 *Manual actualizado: Febrero 2026*
 *Versión: 1.0.1*
+---
+
+## 💖 Apoya el Proyecto
+
+Si este proyecto te resulta útil y te gustaría apoyar su mantenimiento y desarrollo continuo, considera realizar una donación a través de Patreon:
+
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+
+Cualquier apoyo es enormemente agradecido y ayuda a que CTH siga siendo gratuito y de código abierto para todos.
+
+---
 *© 2025 CTH - Control de Tiempo y Horarios*

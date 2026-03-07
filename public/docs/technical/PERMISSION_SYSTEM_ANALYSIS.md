@@ -842,3 +842,9 @@ Con el sistema de cache y índices adecuados:
 **Autor**: GitHub Copilot  
 **Versión**: 1.0  
 **Estado**: Propuesta para Revisión
+
+---
+
+## 💖 Apoya el Proyecto
+
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**

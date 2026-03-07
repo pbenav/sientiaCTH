@@ -69,6 +69,9 @@ Al crear nuevos archivos PHP, utiliza el siguiente encabezado estándar:
 
 Para más detalles, consulta el archivo [LICENSE](../../../LICENSE) en la raíz del proyecto.
 
+> [!TIP]
+> **¿Te gusta el proyecto?** Considera apoyarlo en [Patreon](https://www.patreon.com/cw/CTH_ControlHorario) para asegurar su desarrollo continuo.
+
 ---
 
 ## 2. Arquitectura del Sistema
@@ -226,6 +229,15 @@ npm run build
 
 ### Logs
 El sistema utiliza el **Log** de Laravel para registrar errores y eventos críticos en `storage/logs/laravel.log`.
+
+---
+---
+
+## 💖 Apoyar el Desarrollo
+
+Si CTH te ayuda en tu flujo de trabajo o en tu empresa, considera apoyarnos en Patreon:
+
+👉 **[CTH en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
 
 ---
 *Manual del Desarrollador - Versión 1.0*
