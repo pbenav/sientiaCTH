@@ -61,5 +61,6 @@
   "about.version": "Version",
   "about.developed_by": "Developed by",
   "about.tech_ai": "Technology and Artificial Intelligence",
-  "about.support_patreon": "Support on Patreon"
+  "about.support_patreon": "Support on Patreon",
+  "about.back_to_web": "Back to Web Interface"
 }
