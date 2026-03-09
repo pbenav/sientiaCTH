@@ -110,7 +110,7 @@
                         </svg>
                         {{ __('Support on Patreon') }}
                     </a>
-                    <span class="text-gray-400">Ver. 0.1.1</span>
+                    <span class="text-gray-400">Ver. {{ \App\Models\AppSettings::get('app_version', '0.1.2') }}</span>
                 </div>
             </div>
         </div>
@@ -224,11 +224,11 @@
                 window.cachedGeoPosition = null;
 
                 // Capture geolocation on page load
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function () {
                     if (navigator.geolocation) {
                         console.log('[GPS] Requesting location on page load...');
                         navigator.geolocation.getCurrentPosition(
-                            function(position) {
+                            function (position) {
                                 window.cachedGeoPosition = {
                                     latitude: position.coords.latitude,
                                     longitude: position.coords.longitude
@@ -236,13 +236,13 @@
                                 console.log('[GPS] Location cached globally:', window.cachedGeoPosition.latitude, window
                                     .cachedGeoPosition.longitude);
                             },
-                            function(error) {
+                            function (error) {
                                 console.warn('[GPS] Initial capture failed:', error.message);
                             }, {
-                                enableHighAccuracy: true,
-                                timeout: 10000,
-                                maximumAge: 60000
-                            }
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 60000
+                        }
                         );
                     } else {
                         console.warn('[GPS] Geolocation not supported by this browser');
