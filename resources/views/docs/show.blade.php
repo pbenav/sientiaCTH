@@ -28,8 +28,7 @@
                                 @foreach ($files as $category => $categoryFiles)
                                     @if ($category !== 'root')
                                         <div class="mt-4">
-                                            <h4
-                                                class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            <h4 class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                                 {{ ucfirst($category) }}
                                             </h4>
                                             <div class="mt-2 space-y-1">
@@ -68,6 +67,9 @@
                                 </svg>
                                 {{ __('Android APK') }}
                             </a>
+                            <div class="mt-1 text-[9px] text-gray-400 font-mono break-all leading-tight">
+                                MD5: 15e264d1f572d6bb3ed7e59ce154a51c
+                            </div>
                             <p class="text-[10px] text-gray-400 mt-1">
                                 Version: {{ config('app.version') }}
                             </p>
