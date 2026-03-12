@@ -1,5 +1,8 @@
 <x-guest-layout>
-    <x-jet-authentication-card>
+    <div class="flex flex-col justify-center py-4 min-h-screen bg-gray-100 relative items-center dark:bg-gray-900 sm:pt-0"
+        style="background-image: url('{{ config('view.login_background_image') }}'); background-repeat: no-repeat; background-size: cover; background-position: center;">
+        
+        <x-jet-authentication-card>
         <x-slot name="logo">
             <x-jet-authentication-card-logo />
         </x-slot>
@@ -52,4 +55,5 @@
             </div>
         </form>
     </x-jet-authentication-card>
+    </div>
 </x-guest-layout>

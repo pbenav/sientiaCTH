@@ -1065,5 +1065,16 @@
   "days in": "días en",
   "Hours & Records": "Horas y Registros",
   "Developed by": "Desarrollado por",
-  "Technology and Artificial Intelligence": "Tecnología e Inteligencia Artificial"
+  "Technology and Artificial Intelligence": "Tecnología e Inteligencia Artificial",
+  "Global Settings": "Ajustes Globales",
+  "Global Application Settings": "Ajustes Globales de la Aplicación",
+  "Configure global parameters for the application, such as the background image for login and home pages.": "Configura parámetros globales de la aplicación, como la imagen de fondo para el inicio y el login.",
+  "Current Background Image": "Imagen de Fondo Actual",
+  "Upload New Background": "Subir Nuevo Fondo",
+  "Recommended size: 1920x1080px. Format: JPG, PNG. Max: 2MB.": "Tamaño recomendado: 1920x1080px. Formato: JPG, PNG. Máx: 2MB.",
+  "Settings updated successfully.": "Ajustes actualizados correctamente.",
+  "Error updating settings: :error": "Error al actualizar los ajustes: :error",
+  "Uploading...": "Subiendo...",
+  "Preview": "Vista previa",
+  "Save Settings": "Guardar Ajustes"
 }

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 // Landing page — shown to all (auth users see a CTA to their dashboard)
 Route::get('/', function () {
     return view('welcome');
-})->name('home');
+})->name('front');
 
 Route::get('/about', function () {
     return view('landing');
@@ -135,6 +135,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         }
         return view('admin.mail-settings');
     })->name('mail-settings');
+
+    // Global App Settings
+    Route::get('/settings', function () {
+        if (!auth()->user() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+        return view('admin.app-settings');
+    })->name('settings');
 
     // Team Administration
     Route::get('/teams', [App\Http\Controllers\Admin\TeamController::class, 'index'])->name('teams.index');

@@ -48,6 +48,9 @@
                         <x-jet-nav-link href="{{ route('admin.teams.index') }}" :active="request()->routeIs('admin.teams.*')">
                             {{ __('Team Administration') }}
                         </x-jet-nav-link>
+                        <x-jet-nav-link href="{{ route('admin.settings') }}" :active="request()->routeIs('admin.settings')">
+                            {{ __('Global Settings') }}
+                        </x-jet-nav-link>
                     @endif
                     {{-- Enlace eliminado: Servicio técnico --}}
                 </div>
@@ -262,6 +265,9 @@
             @if (Auth::user()->is_admin)
                 <x-jet-responsive-nav-link href="{{ route('admin.teams.index') }}" :active="request()->routeIs('admin.teams.*')">
                     {{ __('Team Administration') }}
+                </x-jet-responsive-nav-link>
+                <x-jet-responsive-nav-link href="{{ route('admin.settings') }}" :active="request()->routeIs('admin.settings')">
+                    {{ __('Global Settings') }}
                 </x-jet-responsive-nav-link>
             @endif
         </div>

@@ -31,39 +31,42 @@
         <!-- Main content -->
         <div class="mx-auto max-w-6xl sm:px-6 lg:px-8">
 
-            <!-- Numpad -->
-            <div class="p-4 mt-8 bg-gray-500 shadow dark:bg-gray-800 sm:rounded-lg">
-                @livewire('numpad')
-                <!-- Footer -->
-                <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
-                    <!-- Bottom links -->
-                    <div class="text-sm text-center text-gray-500 sm:text-left">
-                        <div class="flex items-center justify-center">
-                            <a href="{{ route('login') }}" class="ml-1">
-                                <i class="ml-1 fas fa-sign-in"></i>
-                                {{ __('Login') }}
-                            </a>
+                <!-- Numpad -->
+                <div class="p-4 mt-8 bg-gray-500 shadow dark:bg-gray-800 sm:rounded-lg">
+                    @livewire('numpad')
 
-                            <a href="{{ route('register') }}" class="ml-3">
-                                <i class="ml-1 fas fa-user-plus"></i>
-                                {{ __('Register') }}
-                            </a>
+                    <!-- Landing Link -->
+                    <div class="mt-6 flex justify-center">
+                        <a href="{{ route('landing') }}" class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-all flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            {{ __('Discover sientiaCTH: What is this?') }}
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="flex justify-center mt-4 sm:items-center sm:justify-between">
+                        <!-- Bottom links -->
+                        <div class="text-sm text-center text-gray-500 sm:text-left">
+                            <div class="flex items-center justify-center">
+                                <a href="{{ route('login') }}" class="ml-1">
+                                    <i class="ml-1 fas fa-sign-in"></i>
+                                    {{ __('Login') }}
+                                </a>
+
+                                <a href="{{ route('register') }}" class="ml-3">
+                                    <i class="ml-1 fas fa-user-plus"></i>
+                                    {{ __('Register') }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Versions -->
+                        <div class="ml-4 text-sm text-center text-gray-500">
+                            <a href="https://cv.sientia.com" target="_blank">©{{ config('app.name') }} v{{ env('APP_VER') }} {{-- (PHP v{{ PHP_VERSION }}) --}} </a>
                         </div>
                     </div>
-
-                    <!-- Versions -->
-                    <div class="ml-4 text-sm text-center text-gray-500">
-                        <a href="https://cv.sientia.com" target="_blank">©{{ config('app.name') }} v{{ env('APP_VER') }} {{-- (PHP v{{ PHP_VERSION }}) --}} </a>
-                    </div>
                 </div>
-            </div>
 
-        </div>
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-            <a href="{{ route('landing') }}" class="px-4 py-2 bg-black/40 backdrop-blur-md border border-white/20 rounded-full text-white text-xs font-medium hover:bg-black/60 transition-all flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Sobre sientiaCTH
-            </a>
         </div>
         <div>
             <a class="hidden"

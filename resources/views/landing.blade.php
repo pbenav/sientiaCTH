@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'sientiaCTH') }} - Control de Tiempo y Horarios</title>
+    <title>{{ config('app.name', 'sientiaCTH') }} - {{ __('sientiaCTH - Time and Schedule Control') }}</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -82,13 +82,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <span class="text-2xl font-bold tracking-tight">sientia<span class="text-blue-400">sientiaCTH</span></span>
+                <span class="text-2xl font-bold tracking-tight">sientia<span class="text-blue-400">CTH</span></span>
             </div>
             
             <div class="flex items-center gap-4">
-                <a href="{{ url('/') }}" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Reloj de Fichar</a>
+                <a href="{{ url('/') }}" class="text-sm font-medium text-slate-300 hover:text-white transition-colors">{{ __('Clock-in Pad') }}</a>
                 <a href="{{ route('login') }}" class="px-6 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all text-sm font-medium">
-                    Entrar
+                    {{ __('Log in') }}
                 </a>
             </div>
         </div>
@@ -99,25 +99,24 @@
         <div class="max-w-4xl mx-auto text-center">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium uppercase tracking-wider mb-8">
                 <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                Control de Presencia Inteligente
+                {{ __('Intelligent Attendance Control') }}
             </div>
             
             <h1 class="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight mb-6">
-                Gestión de tiempo <br/>
-                <span class="gradient-text">sin fricciones.</span>
+                {{ __('Time management') }} <br/>
+                <span class="gradient-text">{{ __('without frictions.') }}</span>
             </h1>
             
             <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
-                La solución definitiva para el control de horarios, vacaciones y presencia de tu equipo. 
-                Simple, potente y diseñado para equipos modernos.
+                {{ __('The ultimate solution for time tracking, vacations and team presence. Simple, powerful and designed for modern teams.') }}
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a href="{{ url('/') }}" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-lg shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-1">
-                    Ir al Reloj de Fichar
+                    {{ __('Go to Clock-in Pad') }}
                 </a>
                 <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-effect hover:bg-white/10 text-white font-medium transition-all duration-300">
-                    Panel de Administración
+                    {{ __('Admin Panel') }}
                 </a>
             </div>
         </div>
@@ -131,22 +130,22 @@
                     <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-6 text-blue-400">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">Fichaje Rápido</h3>
-                    <p class="text-slate-400">Interfaz de teclado numérico optimizada para terminales a pie de calle o tablets.</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('Quick Clock-in') }}</h3>
+                    <p class="text-slate-400">{{ __('Numpad interface optimized for street-level terminals or tablets.') }}</p>
                 </div>
                 <div class="glass-effect p-8 rounded-2xl">
                     <div class="w-12 h-12 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-6 text-indigo-400">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">Informes de Jornada</h3>
-                    <p class="text-slate-400">Generación automática de registros y exportaciones para cumplimiento legal.</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('Workday Reports') }}</h3>
+                    <p class="text-slate-400">{{ __('Automatic generation of records and exports for legal compliance.') }}</p>
                 </div>
                 <div class="glass-effect p-8 rounded-2xl">
                     <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">Gestión de Ausencias</h3>
-                    <p class="text-slate-400">Control total sobre vacaciones, bajas médicas y permisos personalizados.</p>
+                    <h3 class="text-xl font-bold mb-3">{{ __('Absence Management') }}</h3>
+                    <p class="text-slate-400">{{ __('Full control over vacations, sick leaves and custom permits.') }}</p>
                 </div>
             </div>
         </div>
@@ -158,9 +157,9 @@
                 © {{ date('Y') }} sientiaCTH. Todos los derechos reservados.
             </div>
             <div class="flex gap-8 text-slate-400 text-sm">
-                <a href="#" class="hover:text-white transition-colors">Privacidad</a>
-                <a href="#" class="hover:text-white transition-colors">Términos</a>
-                <a href="https://cv.sientia.com" class="hover:text-white transition-colors">Contacto</a>
+                <a href="#" class="hover:text-white transition-colors">{{ __('Privacy') }}</a>
+                <a href="#" class="hover:text-white transition-colors">{{ __('Terms') }}</a>
+                <a href="https://cv.sientia.com" class="hover:text-white transition-colors">{{ __('Contact') }}</a>
             </div>
         </div>
     </footer>
