@@ -18,6 +18,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/set-locale/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'es'])) {
+        session()->put('locale', $locale);
+        if (auth()->check()) {
+            auth()->user()->update(['locale' => $locale]);
+        }
+    }
+    return back();
+})->name('set-locale');
+
 // Landing page — shown to all (auth users see a CTA to their dashboard)
 Route::get('/', function () {
     return view('welcome');

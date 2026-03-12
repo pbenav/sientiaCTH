@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'sientiaCTH :: Control Horario'),
+    'name' => env('APP_NAME', 'sientiaCTH'),
 
     'version' => env('APP_VER', '1.0.2'),
 
