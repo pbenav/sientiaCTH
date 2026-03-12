@@ -122,7 +122,7 @@ class StatsPdfExport
         $mpdf->SetFooter([
             'odd' => [
                 'L' => [
-                    'content' => trans('reports.CTH - Time and Schedule Control'),
+                    'content' => trans('reports.sientiaCTH - Time and Schedule Control'),
                     'font-size' => 8,
                     'font-style' => 'R',
                     'color' => '#9CA3AF'
@@ -200,7 +200,7 @@ class StatsPdfExport
             'toDate' => $this->toDate,
         ])->render();
 
-        $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
+        $footerText = trans('reports.sientiaCTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
         
         // Detect Chromium executable path automatically (same logic as EventsPdfExport)
         $chromePath = $this->detectChromePath();

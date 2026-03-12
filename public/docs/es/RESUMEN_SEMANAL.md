@@ -1,6 +1,6 @@
 # 📅 Resumen de Mejoras y Nuevas Funcionalidades (Semana del 6-12 Diciembre)
 
-Este documento resume el trabajo realizado en la última semana para estabilizar, corregir y mejorar la plataforma CTH.
+Este documento resume el trabajo realizado en la última semana para estabilizar, corregir y mejorar la plataforma sientiaCTH.
 
 ---
 

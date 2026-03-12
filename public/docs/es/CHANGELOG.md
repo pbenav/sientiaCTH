@@ -1,8 +1,8 @@
-# 📜 Registro de Cambios - CTH
+# 📜 Registro de Cambios - sientiaCTH
 
 ## Resumen Histórico
 
-Este documento recoge los hitos más importantes en la evolución de **CTH (Control de Tiempo y Horarios)**, desde su creación en mayo de 2022 hasta la actualidad.
+Este documento recoge los hitos más importantes en la evolución de **sientiaCTH (Control de Tiempo y Horarios)**, desde su creación en mayo de 2022 hasta la actualidad.
 
 ---
 
@@ -319,4 +319,4 @@ Este documento recoge los hitos más importantes en la evolución de **CTH (Cont
 
 ## 💖 Apoya el Proyecto
 
-👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

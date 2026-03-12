@@ -23,7 +23,7 @@ services:
       - DB_PASSWORD=passwd
       - DB_DATABASE=database
     volumes:
-      - /home/path/to/raid/docker/cth:/app
+      - /home/path/to/raid/docker/sientiaCTH:/app
     depends_on:
       - mariadb
         #volumes:

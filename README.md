@@ -1,13 +1,13 @@
-# CTH - Control de Tiempo y Horarios
+# sientiaCTH - Control de Tiempo y Horarios
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/pbenav/cth/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/pbenav/sientiaCTH/releases)
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)](https://php.net)
 
 [🇬🇧 English Version](README.en.md)
 
-CTH es una solución integral de código abierto para la gestión del control horario y la productividad empresarial, compuesta por una potente plataforma web (Laravel + Livewire) y una aplicación móvil multiplataforma (Flutter).
+sientiaCTH es una solución integral de código abierto para la gestión del control horario y la productividad empresarial, compuesta por una potente plataforma web (Laravel + Livewire) y una aplicación móvil multiplataforma (Flutter).
 
 ## ✨ Características Destacadas
 
@@ -82,8 +82,8 @@ La documentación detallada está disponible en el directorio `public/docs` y se
 
 1. **Clonar el repositorio**:
    ```bash
-   git clone https://github.com/pbenav/cth.git
-   cd cth
+   git clone https://github.com/pbenav/sientiaCTH.git
+   cd sientiaCTH
    ```
 
 2. **Instalar dependencias del servidor (Backend)**:
@@ -104,7 +104,7 @@ La documentación detallada está disponible en el directorio `public/docs` y se
    ```
 
 5. **Base de Datos e Inicialización**:
-   El sistema incluye una migración consolidada que crea automáticamente el administrador global (`admin@cth.local` / `password`) y el equipo de "Bienvenida":
+   El sistema incluye una migración consolidada que crea automáticamente el administrador global (`admin@sientiaCTH.local` / `password`) y el equipo de "Bienvenida":
    ```bash
    php artisan migrate --seed
    ```
@@ -118,9 +118,9 @@ La documentación detallada está disponible en el directorio `public/docs` y se
 
 ## 📱 Aplicación Móvil (Flutter)
 
-El código fuente de la aplicación móvil se encuentra en la carpeta `cth_mobile/`. Para generar el paquete de instalación:
+El código fuente de la aplicación móvil se encuentra en la carpeta `sientiaCTH_mobile/`. Para generar el paquete de instalación:
 
-1. Acceder a la carpeta: `cd cth_mobile`
+1. Acceder a la carpeta: `cd sientiaCTH_mobile`
 2. Instalar dependencias: `flutter pub get`
 3. Compilar el paquete (APK): `flutter build apk`
 
@@ -128,7 +128,7 @@ El código fuente de la aplicación móvil se encuentra en la carpeta `cth_mobil
 
 ## 🔒 Seguridad
 
-CTH implementa múltiples capas de seguridad:
+sientiaCTH implementa múltiples capas de seguridad:
 
 - **Autenticación robusta**: Laravel Sanctum con soporte 2FA opcional
 - **Protección CSRF**: En todos los formularios
@@ -193,8 +193,8 @@ Para ver el historial completo de cambios, consulta el [CHANGELOG](public/docs/e
 ## 📞 Soporte
 
 - **Documentación**: Revisa los manuales en `public/docs/`
-- **Issues**: Reporta bugs o solicita features en [GitHub Issues](https://github.com/pbenav/cth/issues)
-- **Discusiones**: Únete a las [Discussions](https://github.com/pbenav/cth/discussions) para preguntas generales
+- **Issues**: Reporta bugs o solicita features en [GitHub Issues](https://github.com/pbenav/sientiaCTH/issues)
+- **Discusiones**: Únete a las [Discussions](https://github.com/pbenav/sientiaCTH/discussions) para preguntas generales
 
 ---
 
@@ -204,7 +204,7 @@ Para ver el historial completo de cambios, consulta el [CHANGELOG](public/docs/e
 
 ## 📄 Licencia
 
-CTH es **software libre y gratuito** distribuido bajo la [Licencia MIT](LICENSE).
+sientiaCTH es **software libre y gratuito** distribuido bajo la [Licencia MIT](LICENSE).
 
 Esto significa que puedes:
 - ✅ **Usar** el software para cualquier propósito (personal o comercial)
@@ -223,9 +223,9 @@ La única condición es que incluyas el aviso de copyright y la licencia MIT en 
 
 Si este proyecto te resulta útil y te gustaría apoyar su mantenimiento y desarrollo continuo, considera realizar una donación a través de Patreon:
 
-👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**
 
-Cualquier apoyo es enormemente agradecido y ayuda a que CTH siga siendo gratuito y de código abierto para todos.
+Cualquier apoyo es enormemente agradecido y ayuda a que sientiaCTH siga siendo gratuito y de código abierto para todos.
 
 ---
 
@@ -235,4 +235,4 @@ Si descubres alguna vulnerabilidad de seguridad, por favor **NO** la publiques e
 
 ---
 
-*© 2022-2026 pbenav - CTH es software libre bajo licencia MIT*
+*© 2022-2026 pbenav - sientiaCTH es software libre bajo licencia MIT*

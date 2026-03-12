@@ -1,3 +1,3 @@
 <a href="/">
-    <img src={{ asset('images/cth-logo.png') }}>
+    <img src={{ asset('images/sientiaCTH-logo.png') }}>
 </a>

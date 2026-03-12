@@ -10,7 +10,7 @@
                     </a>
                     <!-- App title for mobile -->
                     <span class="sm:hidden ml-3 text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">
-                        CTH - Control Horario
+                        sientiaCTH - Control Horario
                     </span>
                 </div>
 

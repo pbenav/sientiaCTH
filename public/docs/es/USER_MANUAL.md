@@ -1,6 +1,6 @@
-# Manual de Usuario - CTH (Control de Tiempo y Horarios)
+# Manual de Usuario - sientiaCTH (Control de Tiempo y Horarios)
 
-Bienvenido al manual de usuario de CTH, tu sistema integral de control de tiempo y horarios. Este manual te guiará paso a paso para aprovechar al máximo todas las funcionalidades de la aplicación.
+Bienvenido al manual de usuario de sientiaCTH, tu sistema integral de control de tiempo y horarios. Este manual te guiará paso a paso para aprovechar al máximo todas las funcionalidades de la aplicación.
 
 ## 📋 Tabla de Contenidos
 
@@ -20,9 +20,9 @@ Bienvenido al manual de usuario de CTH, tu sistema integral de control de tiempo
 
 ## 1. Introducción y Acceso
 
-### ¿Qué es CTH?
+### ¿Qué es sientiaCTH?
 
-CTH (Control de Tiempo y Horarios) es una aplicación web diseñada para gestionar el tiempo de trabajo, fichajes, horarios y estadísticas de productividad de forma intuitiva y eficiente.
+sientiaCTH (Control de Tiempo y Horarios) es una aplicación web diseñada para gestionar el tiempo de trabajo, fichajes, horarios y estadísticas de productividad de forma intuitiva y eficiente.
 
 ### Características Principales
 
@@ -47,7 +47,7 @@ CTH (Control de Tiempo y Horarios) es una aplicación web diseñada para gestion
    - Código de usuario (proporcionado por tu administrador)
 
 ![Pantalla de Registro](images/registro-usuario.png)
-*Caption: Interfaz de registro para nuevos usuarios en el sistema CTH.*
+*Caption: Interfaz de registro para nuevos usuarios en el sistema sientiaCTH.*
 
 #### Acceso Regular
 1. **Introduce tu correo electrónico**.
@@ -79,7 +79,7 @@ El **Dashboard** es tu centro de control principal donde puedes ver toda la info
 ### Elementos del Dashboard
 
 #### A. Barra de Navegación Superior
-- **Logo CTH**: Regresa al Dashboard desde cualquier página.
+- **Logo sientiaCTH**: Regresa al Dashboard desde cualquier página.
 - **Menú Principal**: Acceso rápido a todas las secciones.
 - **Notificaciones**: Alertas y mensajes importantes (icono de campana).
 - **Perfil de Usuario**: Configuración personal y cambio de idioma (avatar).
@@ -105,7 +105,7 @@ El Dashboard incluye visualizaciones como el **Pie chart** (gráfico de sectores
 ### Tipos de Fichaje Disponibles
 
 #### A. SmartClockIn (Fichaje Inteligente)
-El **SmartClockIn** es el sistema avanzado de CTH que detecta automáticamente cuándo debes realizar un fichaje.
+El **SmartClockIn** es el sistema avanzado de sientiaCTH que detecta automáticamente cuándo debes realizar un fichaje.
 
 **¿Cómo funciona?**
 1. **Detección**: El sistema analiza tu horario y patrones de uso.
@@ -128,7 +128,7 @@ Para situaciones donde prefieres el control total o el sistema automático no es
 Si intentas realizar un fichaje fuera del margen de tiempo permitido por tu horario, el sistema te permitirá realizar un **Fichaje Excepcional**. Recibirás un enlace por correo electrónico para validar esta acción si es necesario.
 
 #### D. Sistema de Pausas (Pause/Resume)
-CTH permite pausar tu jornada laboral de forma sencilla.
+sientiaCTH permite pausar tu jornada laboral de forma sencilla.
 
 - **Pausar (Pause)**: Detiene el contador de tiempo productivo. Útil para citas médicas o gestiones personales.
 - **Reanudar (Resume)**: Continúa la jornada desde donde se dejó.
@@ -141,7 +141,7 @@ CTH permite pausar tu jornada laboral de forma sencilla.
 ## 4. Gestión de Eventos
 
 ### ¿Qué es un Evento?
-En CTH, cada registro de tiempo (una entrada, una salida, una pausa) se denomina **Evento**.
+En sientiaCTH, cada registro de tiempo (una entrada, una salida, una pausa) se denomina **Evento**.
 
 ### Historial de Eventos
 Puedes consultar todos tus registros en la sección de Historial. Aquí verás detalles como la duración, el tipo de evento y las observaciones.
@@ -154,7 +154,7 @@ Puedes consultar todos tus registros en la sección de Historial. Aquí verás d
 ## 5. Control de Duración de Jornada
 
 ### Validación Automática
-CTH monitoriza continuamente la duración total de tu jornada laboral diaria. El sistema:
+sientiaCTH monitoriza continuamente la duración total de tu jornada laboral diaria. El sistema:
 1. **Calcula** el total de minutos trabajados en el día.
 2. **Compara** con el límite máximo establecido para tu turno.
 3. **Bloquea** extensiones de jornada que excedan el límite legal o configurado.
@@ -246,9 +246,9 @@ Si experimentas problemas con el **Dashboard** o el sistema **SmartClockIn**, in
 
 Si este proyecto te resulta útil y te gustaría apoyar su mantenimiento y desarrollo continuo, considera realizar una donación a través de Patreon:
 
-👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**
 
-Cualquier apoyo es enormemente agradecido y ayuda a que CTH siga siendo gratuito y de código abierto para todos.
+Cualquier apoyo es enormemente agradecido y ayuda a que sientiaCTH siga siendo gratuito y de código abierto para todos.
 
 ---
-*© 2025 CTH - Control de Tiempo y Horarios*
+*© 2025 sientiaCTH - Control de Tiempo y Horarios*

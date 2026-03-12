@@ -59,6 +59,12 @@
             </div>
 
         </div>
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+            <a href="{{ route('landing') }}" class="px-4 py-2 bg-black/40 backdrop-blur-md border border-white/20 rounded-full text-white text-xs font-medium hover:bg-black/60 transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Sobre sientiaCTH
+            </a>
+        </div>
         <div>
             <a class="hidden"
                 href="https://www.freepik.es/foto-gratis/mujer-joven-emocionada-gran-reloj-mano-esperando-fiesta-cumpleanos-comienza-pie-pared-decorada-retrato-primer-plano-nina-alegre-regocija-al-final-jornada-laboral_10214113.htm#query=jornada%20laboral&position=0&from_view=search">Imagen

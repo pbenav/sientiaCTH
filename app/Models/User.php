@@ -25,7 +25,7 @@ use Laravel\Sanctum\HasApiTokens;
 /**
  * User Model
  * 
- * Represents a user of the CTH application with authentication,
+ * Represents a user of the sientiaCTH application with authentication,
  * team membership, time tracking, and permission management.
  *
  * @property int $id

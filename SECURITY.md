@@ -2,7 +2,7 @@
 
 ## Versiones Soportadas
 
-Las siguientes versiones de CTH reciben actualizaciones de seguridad:
+Las siguientes versiones de sientiaCTH reciben actualizaciones de seguridad:
 
 | Versión | Soportada          |
 | ------- | ------------------ |
@@ -11,7 +11,7 @@ Las siguientes versiones de CTH reciben actualizaciones de seguridad:
 
 ## Reportar una Vulnerabilidad
 
-La seguridad de CTH es una prioridad. Si descubres una vulnerabilidad de seguridad, por favor ayúdanos a proteger a los usuarios siguiendo estos pasos:
+La seguridad de sientiaCTH es una prioridad. Si descubres una vulnerabilidad de seguridad, por favor ayúdanos a proteger a los usuarios siguiendo estos pasos:
 
 ### 🔒 NO hagas lo siguiente:
 
@@ -26,7 +26,7 @@ La seguridad de CTH es una prioridad. Si descubres una vulnerabilidad de segurid
 2. **Incluye la siguiente información**:
    - Descripción detallada de la vulnerabilidad
    - Pasos para reproducirla
-   - Versión afectada de CTH
+   - Versión afectada de sientiaCTH
    - Impacto potencial
    - Cualquier mitigación temporal que sugieras
    - Tu información de contacto (para dar seguimiento)
@@ -48,7 +48,7 @@ La seguridad de CTH es una prioridad. Si descubres una vulnerabilidad de segurid
 
 ## Recompensas
 
-Aunque CTH es un proyecto de código abierto sin fines de lucro, reconocemos públicamente las contribuciones de seguridad:
+Aunque sientiaCTH es un proyecto de código abierto sin fines de lucro, reconocemos públicamente las contribuciones de seguridad:
 
 - Mención en las notas de la versión
 - Crédito en el archivo SECURITY.md
@@ -56,7 +56,7 @@ Aunque CTH es un proyecto de código abierto sin fines de lucro, reconocemos pú
 
 ## Prácticas de Seguridad Implementadas
 
-CTH implementa múltiples capas de seguridad:
+sientiaCTH implementa múltiples capas de seguridad:
 
 ### Autenticación y Autorización
 - Laravel Sanctum para API tokens seguros
@@ -126,7 +126,7 @@ php artisan migrate
 ## Buenas Prácticas para Usuarios
 
 1. **Mantén actualizado**: Instala actualizaciones de seguridad inmediatamente
-2. **Usa HTTPS**: Nunca ejecutes CTH sobre HTTP en producción
+2. **Usa HTTPS**: Nunca ejecutes sientiaCTH sobre HTTP en producción
 3. **Contraseñas fuertes**: Requiere contraseñas seguras para todos los usuarios
 4. **Backups regulares**: Realiza copias de seguridad de la base de datos
 5. **Limita accesos**: Usa el sistema de permisos granular

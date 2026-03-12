@@ -1,4 +1,4 @@
-# 📡 CTH Mobile API Reference v1
+# 📡 sientiaCTH Mobile API Reference v1
 
 **Version**: 1.0  
 **Base URL**: `/api/v1`  
@@ -20,7 +20,7 @@
 
 ## 🎯 Introduction
 
-This API provides the necessary endpoints for the CTH mobile application to interact with the backend.  
+This API provides the necessary endpoints for the sientiaCTH mobile application to interact with the backend.  
 Starting from **November 2025**, the API has been refactored to use cleaner URLs, removing the `/mobile` prefix.  
 Legacy prefixed routes (`/api/v1/mobile/...`) are still supported for backward compatibility but are deprecated.
 
@@ -251,7 +251,7 @@ Retrieves public information about a worker by their code.
 
 ### System Roles
 
-CTH implements a granular permission system with the following roles:
+sientiaCTH implements a granular permission system with the following roles:
 
 - **Administrator**: Full team control and configuration
 - **Editor**: User permissions + announcement management
@@ -271,4 +271,4 @@ CTH implements a granular permission system with the following roles:
 
 ## 💖 Support the Project
 
-👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Support on Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

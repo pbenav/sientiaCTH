@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 📚 {{ $title }}
-                <img src="{{ asset('images/cth-logo.png') }}" alt="CTH Logo" class="mx-auto my-4 max-w-[200px]" />
+                <img src="{{ asset('images/sientiaCTH-logo.png') }}" alt="sientiaCTH Logo" class="mx-auto my-4 max-w-[200px]" />
             </h2>
             <a href="{{ route('docs.index') }}" class="text-sm text-blue-600 hover:text-blue-800">
                 ← {{ __('Back to Documentation Index') }}
@@ -59,7 +59,7 @@
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                                 {{ __('Download App') }}
                             </p>
-                            <a href="{{ asset('descargas/cth-mobile.apk') }}"
+                            <a href="{{ asset('descargas/sientiaCTH-mobile.apk') }}"
                                 class="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full justify-center mb-2">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -80,7 +80,7 @@
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
                                 {{ __('Support Project') }}
                             </p>
-                            <a href="https://www.patreon.com/cw/CTH_ControlHorario" target="_blank"
+                            <a href="https://www.patreon.com/cw/sientiaCTH_ControlHorario" target="_blank"
                                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors duration-200">
                                 <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path

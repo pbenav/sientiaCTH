@@ -1,6 +1,6 @@
 # Guía de Contribución
 
-¡Gracias por tu interés en contribuir a CTH! Este documento proporciona pautas para contribuir al proyecto.
+¡Gracias por tu interés en contribuir a sientiaCTH! Este documento proporciona pautas para contribuir al proyecto.
 
 ## 📋 Código de Conducta
 
@@ -154,8 +154,8 @@ Si tienes preguntas sobre cómo contribuir, puedes:
 
 ## 🙏 Agradecimientos
 
-¡Toda contribución es valiosa! Ya sea reportando bugs, sugiriendo mejoras, mejorando la documentación o contribuyendo código, tu ayuda hace que CTH sea mejor para todos.
+¡Toda contribución es valiosa! Ya sea reportando bugs, sugiriendo mejoras, mejorando la documentación o contribuyendo código, tu ayuda hace que sientiaCTH sea mejor para todos.
 
 ---
 
-**¡Gracias por contribuir a CTH!** 🎉
+**¡Gracias por contribuir a sientiaCTH!** 🎉

@@ -135,7 +135,7 @@
     </div>
 
     <div class="footer">
-        CTH - Control de Tiempo y Horarios | {{ __('Page') }} <span class="page-number"></span>
+        sientiaCTH - Control de Tiempo y Horarios | {{ __('Page') }} <span class="page-number"></span>
     </div>
     
     <script type="text/php">

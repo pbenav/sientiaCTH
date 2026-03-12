@@ -1,4 +1,4 @@
-# Análisis: Sistema de Permisos Granulares para CTH
+# Análisis: Sistema de Permisos Granulares para sientiaCTH
 
 ## 📋 Índice
 1. [Situación Actual](#situación-actual)
@@ -847,4 +847,4 @@ Con el sistema de cache y índices adecuados:
 
 ## 💖 Apoya el Proyecto
 
-👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

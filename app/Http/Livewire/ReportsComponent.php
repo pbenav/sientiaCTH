@@ -209,7 +209,7 @@ class ReportsComponent extends Component
             }
 
             $ext = 'pdf';
-            $fn = 'cth_estadisticas_' . date('YmdHis') . '.' . $ext;
+            $fn = 'sientiaCTH_estadisticas_' . date('YmdHis') . '.' . $ext;
 
             $exporter = new \App\Exports\StatsPdfExport(
                 $this->user->id,
@@ -250,7 +250,7 @@ class ReportsComponent extends Component
             $history = $query->orderBy('created_at', 'desc')->get();
 
             $ext = strtoLower($this->rtype);
-            $fn = 'cth_auditoria_' . date('YmdHis'). '.' . $ext;
+            $fn = 'sientiaCTH_auditoria_' . date('YmdHis'). '.' . $ext;
 
             // For now, History only supports Excel/CSV, not PDF preview yet unless we implement it
             // But the user asked for "todo tipo de informes".
@@ -317,7 +317,7 @@ class ReportsComponent extends Component
         $events = $query->get();
 
         $ext = strtoLower($this->rtype);
-        $fn = 'cth_informe_' . date('YmdHis'). '.' . $ext;
+        $fn = 'sientiaCTH_informe_' . date('YmdHis'). '.' . $ext;
 
         if ($this->rtype === 'PDF') {
             // Determine Work Center

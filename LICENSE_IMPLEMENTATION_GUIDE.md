@@ -1,6 +1,6 @@
-# Guía de Implementación de Licencia MIT en CTH
+# Guía de Implementación de Licencia MIT en sientiaCTH
 
-Este documento describe los pasos completados para cambiar CTH de una licencia propietaria a la **Licencia MIT**, convirtiéndolo en software libre y gratuito.
+Este documento describe los pasos completados para cambiar sientiaCTH de una licencia propietaria a la **Licencia MIT**, convirtiéndolo en software libre y gratuito.
 
 ## 📋 Cambios Realizados
 
@@ -86,16 +86,16 @@ Se ha creado una plantilla estándar para docblocks PHP que debe ser añadida a 
 <?php
 
 /**
- * CTH - Control de Tiempo y Horarios
+ * sientiaCTH - Control de Tiempo y Horarios
  * 
- * Este archivo es parte de CTH, una plataforma integral de gestión
+ * Este archivo es parte de sientiaCTH, una plataforma integral de gestión
  * de tiempo y control horario empresarial.
  * 
- * @package     CTH
+ * @package     sientiaCTH
  * @author      pbenav
  * @copyright   2022-2026 pbenav
  * @license     MIT License
- * @link        https://github.com/pbenav/cth
+ * @link        https://github.com/pbenav/sientiaCTH
  * @since       Version 1.0.0
  */
 ```
@@ -160,13 +160,13 @@ Para aplicar el docblock estándar a archivos existentes, puedes usar este scrip
 DOCBLOCK='<?php
 
 /**
- * CTH - Control de Tiempo y Horarios
+ * sientiaCTH - Control de Tiempo y Horarios
  * 
- * @package     CTH
+ * @package     sientiaCTH
  * @author      pbenav
  * @copyright   2022-2026 pbenav
  * @license     MIT License
- * @link        https://github.com/pbenav/cth
+ * @link        https://github.com/pbenav/sientiaCTH
  * @since       Version 1.0.0
  */
 
@@ -225,10 +225,10 @@ Todos los comandos deberían devolver resultados positivos.
 ## 📞 Contacto
 
 Para preguntas sobre la licencia o contribuciones:
-- GitHub: https://github.com/pbenav/cth
-- Issues: https://github.com/pbenav/cth/issues
+- GitHub: https://github.com/pbenav/sientiaCTH
+- Issues: https://github.com/pbenav/sientiaCTH/issues
 
 ---
 
 *Documento creado el 3 de enero de 2026*
-*© 2022-2026 pbenav - CTH es software libre bajo licencia MIT*
+*© 2022-2026 pbenav - sientiaCTH es software libre bajo licencia MIT*

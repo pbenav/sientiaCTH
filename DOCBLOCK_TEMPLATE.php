@@ -1,16 +1,16 @@
 <?php
 
 /**
- * CTH - Control de Tiempo y Horarios
+ * sientiaCTH - Control de Tiempo y Horarios
  * 
- * Este archivo es parte de CTH (Control de Tiempo y Horarios), una plataforma
+ * Este archivo es parte de sientiaCTH (Control de Tiempo y Horarios), una plataforma
  * integral de gestión de tiempo y control horario empresarial.
  * 
- * @package     CTH
+ * @package     sientiaCTH
  * @author      pbenav
  * @copyright   2022-2026 pbenav
  * @license     MIT License - https://opensource.org/licenses/MIT
- * @link        https://github.com/pbenav/cth
+ * @link        https://github.com/pbenav/sientiaCTH
  * @since       Version 1.0.0
  * 
  * LICENCIA MIT

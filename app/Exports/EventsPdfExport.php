@@ -125,12 +125,12 @@ class EventsPdfExport
             'margin_bottom' => 20,
         ]);
 
-        $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page') . ' {PAGENO} ' . trans('reports.of') . ' {nbpg}';
+        $footerText = trans('reports.sientiaCTH - Time and Schedule Control') . ' | ' . trans('reports.Page') . ' {PAGENO} ' . trans('reports.of') . ' {nbpg}';
         
         $mpdf->SetFooter([
             'odd' => [
                 'L' => [
-                    'content' => trans('reports.CTH - Time and Schedule Control'),
+                    'content' => trans('reports.sientiaCTH - Time and Schedule Control'),
                     'font-size' => 8,
                     'font-style' => 'R',
                     'color' => '#9CA3AF'
@@ -218,7 +218,7 @@ class EventsPdfExport
             'groupEquivalentDays' => $groupEquivalentDays,
         ])->render();
 
-        $footerText = trans('reports.CTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
+        $footerText = trans('reports.sientiaCTH - Time and Schedule Control') . ' | ' . trans('reports.Page');
         
         // Detectar la ruta del ejecutable de Chromium automáticamente
         $chromePath = null;

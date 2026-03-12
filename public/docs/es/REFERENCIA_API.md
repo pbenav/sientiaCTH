@@ -1,4 +1,4 @@
-# 📡 Referencia de API Móvil CTH v1
+# 📡 Referencia de API Móvil sientiaCTH v1
 
 **Versión**: 1.0  
 **URL Base**: `/api/v1`  
@@ -20,7 +20,7 @@
 
 ## 🎯 Introducción
 
-Esta API proporciona los endpoints necesarios para que la aplicación móvil CTH interactúe con el backend.  
+Esta API proporciona los endpoints necesarios para que la aplicación móvil sientiaCTH interactúe con el backend.  
 A partir de **Noviembre 2025**, la API ha sido refactorizada para usar URLs más limpias, eliminando el prefijo `/mobile`.  
 Las rutas antiguas con prefijo (`/api/v1/mobile/...`) siguen siendo soportadas por compatibilidad pero están obsoletas.
 
@@ -251,7 +251,7 @@ Obtiene información pública sobre un trabajador mediante su código.
 
 ### Roles del Sistema
 
-CTH implementa un sistema de permisos granular con los siguientes roles:
+sientiaCTH implementa un sistema de permisos granular con los siguientes roles:
 
 - **Administrador**: Control total del equipo y configuración
 - **Editor**: Permisos de usuario + gestión de anuncios
@@ -271,4 +271,4 @@ CTH implementa un sistema de permisos granular con los siguientes roles:
 
 ## 💖 Apoya el Proyecto
 
-👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

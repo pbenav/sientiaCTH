@@ -21,7 +21,7 @@
             <div class="flex flex-col items-center mb-4 sm:mb-6">
                 {{-- Logo --}}
                 <div class="mb-3 sm:mb-4">
-                    <img src="{{ asset('images/cth-logo.png') }}" 
+                    <img src="{{ asset('images/sientiaCTH-logo.png') }}" 
                          alt="{{ config('app.name') }}" 
                          class="w-16 sm:w-20 md:w-24 aspect-square object-contain">
                 </div>

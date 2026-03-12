@@ -1,6 +1,6 @@
 # Technical Documentation
 
-This directory contains technical documentation for developers working on CTH internals.
+This directory contains technical documentation for developers working on sientiaCTH internals.
 
 ## 📚 Available Documents
 
@@ -28,7 +28,7 @@ This directory contains technical documentation for developers working on CTH in
 ## 🎯 Audience
 
 These documents are intended for:
-- Core developers working on CTH
+- Core developers working on sientiaCTH
 - Contributors implementing new features
 - Developers debugging permission-related issues
 - Performance engineers optimizing the system
@@ -47,4 +47,4 @@ These documents are intended for:
 
 ## 💖 Support / Support
 
-👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Support on Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

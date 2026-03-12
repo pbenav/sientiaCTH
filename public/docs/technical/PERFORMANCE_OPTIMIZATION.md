@@ -1,4 +1,4 @@
-# Performance Optimization Report - CTH v1.0
+# Performance Optimization Report - sientiaCTH v1.0
 
 **Fecha:** 10 de enero de 2026  
 **Versión:** 1.0.0  
@@ -6,7 +6,7 @@
 
 ## 📊 Resumen Ejecutivo
 
-Este documento detalla las optimizaciones de rendimiento implementadas en la versión 1.0 de CTH (Control de Trabajo Horario). Las mejoras se centran en:
+Este documento detalla las optimizaciones de rendimiento implementadas en la versión 1.0 de sientiaCTH (Control de Trabajo Horario). Las mejoras se centran en:
 
 1. **Índices de Base de Datos** - 8 índices estratégicos
 2. **Query Scopes** - 6 nuevos scopes para queries optimizados
@@ -380,6 +380,6 @@ La aplicación ahora es significativamente más rápida y escalable, preparada p
 
 ## 💖 Soporte al Proyecto
 
-Si encuentras útiles estas optimizaciones y quieres apoyar el desarrollo de CTH:
+Si encuentras útiles estas optimizaciones y quieres apoyar el desarrollo de sientiaCTH:
 
-👉 **[Apoyar en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Apoyar en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

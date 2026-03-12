@@ -17,7 +17,7 @@
   "app.slogan": "Time & Attendance System",
   "loading.cargando": "Loading...",
   "app.built_date": "Built: :date",
-  "app.title": "CTH Clock",
+  "app.title": "sientiaCTH Clock",
   "clock.no_user": "User code not available. Please identify yourself.",
   "clock.loading_error": "Error loading status: :error",
   "clock.fichaje_error": "Clock error: :error",

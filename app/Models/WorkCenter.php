@@ -94,8 +94,8 @@ class WorkCenter extends Model
             $random = bin2hex(random_bytes(8)); // 16 chars hex
             $workCenterHash = substr(hash('sha256', $this->id . $this->code . $this->team_id), 0, 8);
             
-            // Formato: CTH-{timestamp}-{workCenterHash}-{random}
-            $nfcId = sprintf('CTH-%08X-%s-%s', $timestamp, $workCenterHash, $random);
+            // Formato: sientiaCTH-{timestamp}-{workCenterHash}-{random}
+            $nfcId = sprintf('sientiaCTH-%08X-%s-%s', $timestamp, $workCenterHash, $random);
             
             // Verificar que sea único (muy improbable que no lo sea, pero por seguridad)
             $exists = self::where('nfc_tag_id', $nfcId)->exists();
@@ -261,7 +261,7 @@ class WorkCenter extends Model
 
         // Generar un ID temporal que no colisione con los existentes
         do {
-            $tempNfcId = sprintf('CTH-TEMP-%s-%s', substr(hash('sha256', uniqid()), 0, 8), bin2hex(random_bytes(4)));
+            $tempNfcId = sprintf('sientiaCTH-TEMP-%s-%s', substr(hash('sha256', uniqid()), 0, 8), bin2hex(random_bytes(4)));
             $exists = self::where('nfc_tag_id', $tempNfcId)->exists();
         } while ($exists);
         $tempPayload = $this->generateNFCPayload($tempNfcId);

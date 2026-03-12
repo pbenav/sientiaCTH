@@ -17,7 +17,7 @@
   "app.slogan": "Sistema de Control de Tiempo y Horarios",
   "loading.cargando": "Cargando...",
   "app.built_date": "Compilado: :date",
-  "app.title": "CTH Fichaje",
+  "app.title": "sientiaCTH Fichaje",
   "clock.no_user": "Código de usuario no disponible. Por favor, identifícate.",
   "clock.loading_error": "Error cargando estado: :error",
   "clock.fichaje_error": "Error en fichaje: :error",

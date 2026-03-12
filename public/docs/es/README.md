@@ -1,6 +1,6 @@
-# Repositorio de Documentación - CTH
+# Repositorio de Documentación - sientiaCTH
 
-Bienvenido al repositorio de documentación de CTH. Aquí encontrarás toda la información necesaria para utilizar y desarrollar sobre la plataforma.
+Bienvenido al repositorio de documentación de sientiaCTH. Aquí encontrarás toda la información necesaria para utilizar y desarrollar sobre la plataforma.
 
 ## 📖 Manuales Disponibles
 
@@ -10,7 +10,7 @@ Bienvenido al repositorio de documentación de CTH. Aquí encontrarás toda la i
 
 ## 🚀 Acceso Rápido
 
-Si es tu primera vez utilizando CTH, te recomendamos empezar por la sección de [Introducción y Acceso](USER_MANUAL.md#1-introducción-y-acceso) del Manual de Usuario.
+Si es tu primera vez utilizando sientiaCTH, te recomendamos empezar por la sección de [Introducción y Acceso](USER_MANUAL.md#1-introducción-y-acceso) del Manual de Usuario.
 
 ---
-*© 2025 CTH - Control de Tiempo y Horarios*
+*© 2025 sientiaCTH - Control de Tiempo y Horarios*

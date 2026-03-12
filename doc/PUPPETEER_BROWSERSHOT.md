@@ -38,7 +38,7 @@ node_modules/puppeteer/node_modules/puppeteer/.local-chromium/chrome/linux-XXX/c
 En servidores nuevos, simplemente ejecuta:
 
 ```bash
-cd /home/pablo/cth
+cd /home/pablo/sientiaCTH
 npm install
 ```
 
@@ -105,7 +105,7 @@ DB::table('teams')->update(['pdf_engine' => 'mpdf']);
 ## Estructura de Archivos
 
 ```
-/home/pablo/cth/
+/home/pablo/sientiaCTH/
 ├── .puppeteerrc.cjs              ← Configuración de Puppeteer
 ├── node_modules/
 │   └── puppeteer/

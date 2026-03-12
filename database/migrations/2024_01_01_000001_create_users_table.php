@@ -132,7 +132,7 @@ return new class extends Migration
                 'id' => 1,
                 'user_code' => 'ADMIN',
                 'name' => 'Administrador',
-                'email' => 'admin@cth.local',
+                'email' => 'admin@sientiaCTH.local',
                 'is_admin' => true,
                 'locale' => 'es',
                 'email_verified_at' => now(),

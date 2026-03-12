@@ -1,6 +1,6 @@
-# Manual del Desarrollador - CTH (Control de Tiempo y Horarios)
+# Manual del Desarrollador - sientiaCTH (Control de Tiempo y Horarios)
 
-Este documento proporciona una guía técnica detallada para desarrolladores que deseen mantener o extender el sistema CTH.
+Este documento proporciona una guía técnica detallada para desarrolladores que deseen mantener o extender el sistema sientiaCTH.
 
 ## 📋 Tabla de Contenidos
 
@@ -22,7 +22,7 @@ Este documento proporciona una guía técnica detallada para desarrolladores que
 
 ### Software Libre bajo Licencia MIT
 
-CTH (Control de Tiempo y Horarios) es **software libre y gratuito** distribuido bajo la [Licencia MIT](../../../LICENSE).
+sientiaCTH (Control de Tiempo y Horarios) es **software libre y gratuito** distribuido bajo la [Licencia MIT](../../../LICENSE).
 
 **Copyright © 2022-2026 pbenav**
 
@@ -53,16 +53,16 @@ Al crear nuevos archivos PHP, utiliza el siguiente encabezado estándar:
 <?php
 
 /**
- * CTH - Control de Tiempo y Horarios
+ * sientiaCTH - Control de Tiempo y Horarios
  * 
- * Este archivo es parte de CTH, una plataforma integral de gestión
+ * Este archivo es parte de sientiaCTH, una plataforma integral de gestión
  * de tiempo y control horario empresarial.
  * 
- * @package     CTH
+ * @package     sientiaCTH
  * @author      pbenav
  * @copyright   2022-2026 pbenav
  * @license     MIT License
- * @link        https://github.com/pbenav/cth
+ * @link        https://github.com/pbenav/sientiaCTH
  * @since       Version 1.0.0
  */
 ```
@@ -70,16 +70,16 @@ Al crear nuevos archivos PHP, utiliza el siguiente encabezado estándar:
 Para más detalles, consulta el archivo [LICENSE](../../../LICENSE) en la raíz del proyecto.
 
 > [!TIP]
-> **¿Te gusta el proyecto?** Considera apoyarlo en [Patreon](https://www.patreon.com/cw/CTH_ControlHorario) para asegurar su desarrollo continuo.
+> **¿Te gusta el proyecto?** Considera apoyarlo en [Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario) para asegurar su desarrollo continuo.
 
 ---
 
 ## 2. Arquitectura del Sistema
 
-CTH sigue una arquitectura monolítica modular basada en el framework Laravel. El sistema está diseñado para ser escalable y fácil de mantener, utilizando patrones de diseño como **Service Pattern** y **Repository Pattern** (donde aplica).
+sientiaCTH sigue una arquitectura monolítica modular basada en el framework Laravel. El sistema está diseñado para ser escalable y fácil de mantener, utilizando patrones de diseño como **Service Pattern** y **Repository Pattern** (donde aplica).
 
 ### Flujo de Datos
-El flujo típico de una **Request** en CTH es:
+El flujo típico de una **Request** en sientiaCTH es:
 1. **Route**: Define el **Endpoint**.
 2. **Middleware**: Gestiona la **Auth** y el **Locale**.
 3. **Controller / Livewire Component**: Gestiona la lógica de presentación.
@@ -126,7 +126,7 @@ El **Schema** se mantiene mediante **Migrations** para asegurar la consistencia 
 **Idempotencia**: Todas las migraciones deben ser diseñadas para ser ejecutadas múltiples veces sin fallar. Se recomienda el uso de `Schema::hasColumn()` y `Schema::hasTable()` para asegurar la compatibilidad con bases de datos que ya han sido modificadas manualmente o por actualizaciones parciales.
 
 ![Diagrama de Base de Datos](images/db-schema.png)
-*Caption: Diagrama entidad-relación simplificado del sistema CTH.*
+*Caption: Diagrama entidad-relación simplificado del sistema sientiaCTH.*
 
 ---
 
@@ -175,8 +175,8 @@ Se utiliza **Laravel Sanctum** para la gestión de **Tokens** de API. Cada usuar
 Se han desarrollado comandos personalizados para facilitar el mantenimiento:
 
 ### Comandos de Instalación y Configuración
-- `php artisan cth:install`: Configuración inicial del sistema
-- `php artisan cth:sync-holidays`: Importación de días festivos desde APIs externas
+- `php artisan sientiaCTH:install`: Configuración inicial del sistema
+- `php artisan sientiaCTH:sync-holidays`: Importación de días festivos desde APIs externas
 
 ### Comandos de Base de Datos
 - `php artisan db:verify-schema`: Verifica la integridad del esquema de base de datos
@@ -235,10 +235,10 @@ El sistema utiliza el **Log** de Laravel para registrar errores y eventos críti
 
 ## 💖 Apoyar el Desarrollo
 
-Si CTH te ayuda en tu flujo de trabajo o en tu empresa, considera apoyarnos en Patreon:
+Si sientiaCTH te ayuda en tu flujo de trabajo o en tu empresa, considera apoyarnos en Patreon:
 
-👉 **[CTH en Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[sientiaCTH en Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**
 
 ---
 *Manual del Desarrollador - Versión 1.0*
-*© 2025 CTH Team*
+*© 2025 sientiaCTH Team*

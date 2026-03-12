@@ -1,8 +1,8 @@
-# 📜 Changelog - CTH
+# 📜 Changelog - sientiaCTH
 
 ## Historical Summary
 
-This document collects the most important milestones in the evolution of **CTH (Time & Schedule Control)**, from its creation in May 2022 to the present.
+This document collects the most important milestones in the evolution of **sientiaCTH (Time & Schedule Control)**, from its creation in May 2022 to the present.
 
 ---
 
@@ -319,4 +319,4 @@ This document collects the most important milestones in the evolution of **CTH (
 
 ## 💖 Support the Project
 
-👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Support on Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**

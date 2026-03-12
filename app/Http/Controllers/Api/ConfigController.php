@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
  * Config Controller (Flutter API)
  * 
  * Provides dynamic server configuration endpoints for Flutter mobile app.
- * Allows the app to automatically adapt to different CTH server installations
+ * Allows the app to automatically adapt to different sientiaCTH server installations
  * with version detection, feature flags, and endpoint discovery.
  * 
  * @version 1.0.0
@@ -24,7 +24,7 @@ class ConfigController extends Controller
      * Get server configuration for Flutter app
      * 
      * Returns essential server information that allows the Flutter app
-     * to configure itself for this specific CTH installation
+     * to configure itself for this specific sientiaCTH installation
      * 
      * @return \Illuminate\Http\JsonResponse
      */
@@ -32,7 +32,7 @@ class ConfigController extends Controller
     {
         $config = [
             'server_info' => [
-                'name' => config('app.name', 'CTH - Control de Tiempo y Horarios'),
+                'name' => config('app.name', 'sientiaCTH - Control de Tiempo y Horarios'),
                 'version' => '0.0.1',
                 'api_version' => 'v1',
                 'timezone' => config('app.timezone', 'UTC'),
@@ -236,7 +236,7 @@ class ConfigController extends Controller
     {
         return response()->json([
             'success' => true,
-            'message' => 'CTH API is online and ready',
+            'message' => 'sientiaCTH API is online and ready',
             'server_time' => now()->toISOString(),
             'api_version' => 'v1',
             'status' => 'healthy'

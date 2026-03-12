@@ -208,7 +208,7 @@
                             a.href = blobUrl;
 
                             // Extract filename from Content-Disposition header if available
-                            let filename = 'cth_informe_' + new Date().getTime() + '.pdf';
+                            let filename = 'sientiaCTH_informe_' + new Date().getTime() + '.pdf';
                             const disposition = response.headers.get('content-disposition');
                             if (disposition && disposition.indexOf('filename=') !== -1) {
                                 const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
@@ -228,7 +228,7 @@
                                         'HTML': 'html'
                                     };
                                     const ext = exts[format] || 'pdf';
-                                    filename = 'cth_informe_' + new Date().getTime() + '.' + ext;
+                                    filename = 'sientiaCTH_informe_' + new Date().getTime() + '.' + ext;
                                 }
                             }
                             a.download = filename;

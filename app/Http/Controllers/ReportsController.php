@@ -120,7 +120,7 @@ class ReportsController extends Controller
                 
                 $pdf = $exporter->generate();
 
-                $fn = 'cth_estadisticas_' . date('YmdHis') . '.pdf';
+                $fn = 'sientiaCTH_estadisticas_' . date('YmdHis') . '.pdf';
 
                 return response($pdf, 200, [
                     'Content-Type' => 'application/pdf',
@@ -149,7 +149,7 @@ class ReportsController extends Controller
                 $exporter = new \App\Exports\EventsHistoryPdfExport($history, $fromDate, $toDate);
                 $pdf = $exporter->generate();
 
-                $fn = 'cth_auditoria_' . date('YmdHis') . '.pdf';
+                $fn = 'sientiaCTH_auditoria_' . date('YmdHis') . '.pdf';
 
                 return response($pdf, 200, [
                     'Content-Type' => 'application/pdf',
@@ -237,7 +237,7 @@ class ReportsController extends Controller
         $exporter = new \App\Exports\EventsPdfExport($events, $team, $workCenter, $fromDate, $toDate, $groupBy, $orderBy);
         $pdf = $exporter->generate();
 
-        $fn = 'cth_informe_' . date('YmdHis') . '.pdf';
+        $fn = 'sientiaCTH_informe_' . date('YmdHis') . '.pdf';
         
         $download = $request->input('download', false);
         $disposition = $download ? 'attachment' : 'inline';
@@ -278,7 +278,7 @@ class ReportsController extends Controller
             }
 
             $history = $query->orderBy('created_at', 'desc')->get();
-            $fn = 'cth_auditoria_' . date('YmdHis') . '.xlsx';
+            $fn = 'sientiaCTH_auditoria_' . date('YmdHis') . '.xlsx';
 
             return Excel::download(new EventsHistoryExport($history), $fn);
         }
@@ -324,7 +324,7 @@ class ReportsController extends Controller
         ];
         
         $ext = $extensions[$rtype] ?? 'xlsx';
-        $fn = 'cth_informe_' . date('YmdHis') . '.' . $ext;
+        $fn = 'sientiaCTH_informe_' . date('YmdHis') . '.' . $ext;
 
         $types = [
             'XLSX' => \Maatwebsite\Excel\Excel::XLSX,

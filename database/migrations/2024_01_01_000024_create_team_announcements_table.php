@@ -40,13 +40,13 @@ return new class extends Migration
 
     private function ensureWelcomeAnnouncement(): void
     {
-        if (DB::table('team_announcements')->where('title', '¡Bienvenido a CTH!')->doesntExist()) {
+        if (DB::table('team_announcements')->where('title', '¡Bienvenido a sientiaCTH!')->doesntExist()) {
             DB::table('team_announcements')->insert([
                 'team_id' => 1,
-                'title' => '¡Bienvenido a CTH!',
-                'content' => '<h2>¡Hola! Bienvenido a CTH (Control de Tiempo y Horarios)</h2>
+                'title' => '¡Bienvenido a sientiaCTH!',
+                'content' => '<h2>¡Hola! Bienvenido a sientiaCTH (Control de Tiempo y Horarios)</h2>
                              <p>Esta aplicación ha sido diseñada para facilitar la gestión del tiempo laboral, permitiendo un registro preciso y transparente de la jornada de trabajo.</p>
-                             <p><strong>¿Qué es CTH?</strong> Es una solución integral que combina una plataforma web avanzada con una aplicación móvil intuitiva, permitiendo fichajes mediante SmartClockIn, gestión de pausas, vacaciones y mucho más.</p>
+                             <p><strong>¿Qué es sientiaCTH?</strong> Es una solución integral que combina una plataforma web avanzada con una aplicación móvil intuitiva, permitiendo fichajes mediante SmartClockIn, gestión de pausas, vacaciones y mucho más.</p>
                              <p><strong>¿Quién ha hecho esto?</strong> Este sistema ha sido desarrollado íntegramente por <strong>Sientia</strong>, con el objetivo de modernizar y simplificar el control horario empresarial.</p>
                              <p>Esperamos que esta herramienta te sea de gran utilidad. ¡Empecemos a trabajar!</p>',
                 'format' => 'html',

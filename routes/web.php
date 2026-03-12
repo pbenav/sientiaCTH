@@ -18,14 +18,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Landing page - NumPad for unauthenticated users
+// Landing page — shown to all (auth users see a CTA to their dashboard)
 Route::get('/', function () {
-    // Unauthenticated users see NumPad, authenticated users go to Start menu
-    if (auth()->check()) {
-        return redirect()->route('inicio');
-    }
-    return view('welcome'); // NumPad only
-})->name('front');
+    return view('welcome');
+})->name('home');
+
+Route::get('/about', function () {
+    return view('landing');
+})->name('landing');
 
 // Route to Presentation_TFG.svg
 Route::get('/pres', function () {

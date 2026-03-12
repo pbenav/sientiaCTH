@@ -8,7 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Initial Database Schema for CTH v1.0
+ * Initial Database Schema for sientiaCTH v1.0
  * 
  * This migration consolidates all previous migrations into a single, optimized schema.
  * It includes all core tables, optimized indexes for performance, and proper foreign key constraints.
@@ -510,7 +510,7 @@ return new class extends Migration
                 'id' => 1,
                 'user_code' => 'ADMIN',
                 'name' => 'Administrador',
-                'email' => 'admin@cth.local',
+                'email' => 'admin@sientiaCTH.local',
                 'is_admin' => true,
                 'current_team_id' => 1, // Assign to Welcome team
                 'email_verified_at' => now(),
@@ -625,13 +625,13 @@ return new class extends Migration
         }
 
         // Create Welcome Announcement
-        if (\DB::table('team_announcements')->where('title', '¡Bienvenido a CTH!')->doesntExist()) {
+        if (\DB::table('team_announcements')->where('title', '¡Bienvenido a sientiaCTH!')->doesntExist()) {
             \DB::table('team_announcements')->insert([
                 'team_id' => 1,
-                'title' => '¡Bienvenido a CTH!',
-                'content' => '<h2>¡Hola! Bienvenido a CTH (Control de Tiempo y Horarios)</h2>
+                'title' => '¡Bienvenido a sientiaCTH!',
+                'content' => '<h2>¡Hola! Bienvenido a sientiaCTH (Control de Tiempo y Horarios)</h2>
                              <p>Esta aplicación ha sido diseñada para facilitar la gestión del tiempo laboral, permitiendo un registro preciso y transparente de la jornada de trabajo.</p>
-                             <p><strong>¿Qué es CTH?</strong> Es una solución integral que combina una plataforma web avanzada con una aplicación móvil intuitiva, permitiendo fichajes mediante SmartClockIn, gestión de pausas, vacaciones y mucho más.</p>
+                             <p><strong>¿Qué es sientiaCTH?</strong> Es una solución integral que combina una plataforma web avanzada con una aplicación móvil intuitiva, permitiendo fichajes mediante SmartClockIn, gestión de pausas, vacaciones y mucho más.</p>
                              <p><strong>¿Quién ha hecho esto?</strong> Este sistema ha sido desarrollado íntegramente por <strong>pbenav</strong>, con el objetivo de modernizar y simplificar el control horario empresarial.</p>
                              <p>Esperamos que esta herramienta te sea de gran utilidad. ¡Empecemos a trabajar!</p>',
                 'format' => 'html',

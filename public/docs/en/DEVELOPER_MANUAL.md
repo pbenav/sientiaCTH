@@ -1,6 +1,6 @@
-# Developer Manual - CTH (Time and Schedule Control)
+# Developer Manual - sientiaCTH (Time and Schedule Control)
 
-This document provides a detailed technical guide for developers who wish to maintain or extend the CTH system.
+This document provides a detailed technical guide for developers who wish to maintain or extend the sientiaCTH system.
 
 ## 📋 Table of Contents
 
@@ -22,7 +22,7 @@ This document provides a detailed technical guide for developers who wish to mai
 
 ### Free Software under MIT License
 
-CTH (Time and Schedule Control) is **free and open-source software** distributed under the [MIT License](../../../LICENSE).
+sientiaCTH (Time and Schedule Control) is **free and open-source software** distributed under the [MIT License](../../../LICENSE).
 
 **Copyright © 2022-2026 pbenav**
 
@@ -53,16 +53,16 @@ When creating new PHP files, use the following standard header:
 <?php
 
 /**
- * CTH - Time and Schedule Control
+ * sientiaCTH - Time and Schedule Control
  * 
- * This file is part of CTH, a comprehensive time and
+ * This file is part of sientiaCTH, a comprehensive time and
  * work schedule management platform.
  * 
- * @package     CTH
+ * @package     sientiaCTH
  * @author      pbenav
  * @copyright   2022-2026 pbenav
  * @license     MIT License
- * @link        https://github.com/pbenav/cth
+ * @link        https://github.com/pbenav/sientiaCTH
  * @since       Version 1.0.0
  */
 ```
@@ -70,16 +70,16 @@ When creating new PHP files, use the following standard header:
 For more details, see the [LICENSE](../../../LICENSE) file in the project root.
 
 > [!TIP]
-> **Enjoying the project?** Consider supporting it on [Patreon](https://www.patreon.com/cw/CTH_ControlHorario) to ensure its continued development.
+> **Enjoying the project?** Consider supporting it on [Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario) to ensure its continued development.
 
 ---
 
 ## 2. System Architecture
 
-CTH follows a modular monolithic architecture based on the Laravel framework. The system is designed to be scalable and easy to maintain, using design patterns such as the **Service Pattern** and **Repository Pattern** (where applicable).
+sientiaCTH follows a modular monolithic architecture based on the Laravel framework. The system is designed to be scalable and easy to maintain, using design patterns such as the **Service Pattern** and **Repository Pattern** (where applicable).
 
 ### Data Flow
-The typical flow of a **Request** in CTH is:
+The typical flow of a **Request** in sientiaCTH is:
 1. **Route**: Defines the **Endpoint**.
 2. **Middleware**: Manages **Auth** and **Locale**.
 3. **Controller / Livewire Component**: Manages presentation logic.
@@ -124,7 +124,7 @@ The **Schema** is maintained through **Migrations** to ensure consistency betwee
 **Idempotency**: All migrations must be designed to be run multiple times without failing. Using `Schema::hasColumn()` and `Schema::hasTable()` is recommended to ensure compatibility with databases that have already been manually modified or through partial updates.
 
 ![Database Diagram](images/db-schema.png)
-*Caption: Simplified entity-relationship diagram of the CTH system.*
+*Caption: Simplified entity-relationship diagram of the sientiaCTH system.*
 
 ---
 
@@ -173,8 +173,8 @@ The mobile application communicates with the backend via a **REST API**.
 Custom commands have been developed to facilitate maintenance:
 
 ### Installation and Configuration Commands
-- `php artisan cth:install`: Initial system configuration
-- `php artisan cth:sync-holidays`: Holiday import from external APIs
+- `php artisan sientiaCTH:install`: Initial system configuration
+- `php artisan sientiaCTH:sync-holidays`: Holiday import from external APIs
 
 ### Database Commands
 - `php artisan db:verify-schema`: Verifies database schema integrity
@@ -233,10 +233,10 @@ The system uses Laravel's **Log** to record errors and critical events in `stora
 
 ## 💖 Support the Development
 
-If CTH helps you in your workflow or your company, consider supporting us on Patreon:
+If sientiaCTH helps you in your workflow or your company, consider supporting us on Patreon:
 
-👉 **[CTH on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[sientiaCTH on Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**
 
 ---
 *Developer Manual - Version 1.0*
-*© 2025 CTH Team*
+*© 2025 sientiaCTH Team*

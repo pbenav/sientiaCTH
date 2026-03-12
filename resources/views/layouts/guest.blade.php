@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'CTH :: Control Horario') }}</title>
+    <title>{{ config('app.name', 'sientiaCTH :: Control Horario') }}</title>
 
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
@@ -39,7 +39,7 @@
                         {{ __('Technology and Artificial Intelligence') }}</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="https://www.patreon.com/cw/CTH_ControlHorario" target="_blank"
+                    <a href="https://www.patreon.com/cw/sientiaCTH_ControlHorario" target="_blank"
                         class="text-orange-500 hover:text-orange-600 font-medium transition-colors flex items-center">
                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                             <path

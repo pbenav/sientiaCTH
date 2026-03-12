@@ -1,6 +1,6 @@
-# User Manual - CTH (Time and Schedule Control)
+# User Manual - sientiaCTH (Time and Schedule Control)
 
-Welcome to the CTH user manual, your comprehensive time and schedule control system. This manual will guide you step by step to make the most of all application features.
+Welcome to the sientiaCTH user manual, your comprehensive time and schedule control system. This manual will guide you step by step to make the most of all application features.
 
 ## 📋 Table of Contents
 
@@ -20,9 +20,9 @@ Welcome to the CTH user manual, your comprehensive time and schedule control sys
 
 ## 1. Introduction and Access
 
-### What is CTH?
+### What is sientiaCTH?
 
-CTH (Time and Schedule Control) is a web application designed to manage work time, clock-ins, schedules, and productivity statistics in an intuitive and efficient way.
+sientiaCTH (Time and Schedule Control) is a web application designed to manage work time, clock-ins, schedules, and productivity statistics in an intuitive and efficient way.
 
 ### Main Features
 
@@ -48,7 +48,7 @@ CTH (Time and Schedule Control) is a web application designed to manage work tim
    - User code (provided by your administrator)
 
 ![Registration Screen](images/registro-usuario.png)
-*Caption: Registration interface for new users in the CTH system.*
+*Caption: Registration interface for new users in the sientiaCTH system.*
 
 #### Regular Access
 1. **Enter your email address**.
@@ -80,7 +80,7 @@ The **Dashboard** is your main control center where you can see all relevant inf
 ### Dashboard Elements
 
 #### A. Top Navigation Bar
-- **CTH Logo**: Return to Dashboard from any page.
+- **sientiaCTH Logo**: Return to Dashboard from any page.
 - **Main Menu**: Quick access to all sections.
 - **Notifications**: Important alerts and messages (bell icon).
 - **User Profile**: Personal settings and language change (avatar).
@@ -106,7 +106,7 @@ The Dashboard includes visualizations such as the **Pie chart** for time distrib
 ### Available Clock-In Types
 
 #### A. SmartClockIn (Intelligent Clock-In)
-**SmartClockIn** is CTH's advanced system that automatically detects when you should perform a clock-in.
+**SmartClockIn** is sientiaCTH's advanced system that automatically detects when you should perform a clock-in.
 
 **How does it work?**
 1. **Detection**: The system analyzes your schedule and usage patterns.
@@ -129,7 +129,7 @@ For situations where you prefer full control or the automatic system is not appl
 If you attempt to clock in outside the allowed time margin of your schedule, the system will allow an **Exceptional Clock-In**. You will receive a link via email to validate this action if necessary.
 
 #### D. Pause System (Pause/Resume)
-CTH allows you to pause your workday easily.
+sientiaCTH allows you to pause your workday easily.
 
 - **Pause**: Stops the productive time counter. Useful for medical appointments or personal errands.
 - **Resume**: Continues the workday from where it was left.
@@ -142,7 +142,7 @@ CTH allows you to pause your workday easily.
 ## 4. Event Management
 
 ### What is an Event?
-In CTH, each time record (an entry, an exit, a pause) is called an **Event**.
+In sientiaCTH, each time record (an entry, an exit, a pause) is called an **Event**.
 
 ### Event History
 You can check all your records in the History section. Here you will see details such as duration, event type, and observations.
@@ -155,7 +155,7 @@ You can check all your records in the History section. Here you will see details
 ## 5. Workday Duration Control
 
 ### Automatic Validation
-CTH continuously monitors the total duration of your daily workday. The system:
+sientiaCTH continuously monitors the total duration of your daily workday. The system:
 1. **Calculates** total minutes worked in the day.
 2. **Compares** with the maximum limit established for your shift.
 3. **Blocks** workday extensions that exceed the legal or configured limit.
@@ -247,9 +247,9 @@ If you experience issues with the **Dashboard** or the **SmartClockIn** system, 
 
 If you find this project useful and would like to support its maintenance and continuous development, consider making a donation through Patreon:
 
-👉 **[Support on Patreon](https://www.patreon.com/cw/CTH_ControlHorario)**
+👉 **[Support on Patreon](https://www.patreon.com/cw/sientiaCTH_ControlHorario)**
 
-Any support is greatly appreciated and helps CTH stay free and open source for everyone.
+Any support is greatly appreciated and helps sientiaCTH stay free and open source for everyone.
 
 ---
-*© 2025 CTH - Time and Schedule Control*
+*© 2025 sientiaCTH - Time and Schedule Control*

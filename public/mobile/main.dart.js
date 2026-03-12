@@ -8601,7 +8601,7 @@ s=1
 break}s=4
 return A.k(A.nR(),$async$ux)
 case 4:p=b
-q=A.aJ6(p==null?"https://cth.sientia.com":p)
+q=A.aJ6(p==null?"https://sientiaCTH.sientia.com":p)
 s=1
 break
 case 1:return A.x(q,r)}})
@@ -8821,7 +8821,7 @@ e=J.an(f)
 d=e.h(f,"server_info")
 c=J.an(d)
 b=c.h(d,"name")
-if(b==null)b="CTH Server"
+if(b==null)b="sientiaCTH Server"
 c.h(d,"version")
 c.h(d,"api_version")
 c.h(d,"timezone")
@@ -8885,7 +8885,7 @@ break
 s=9
 break
 case 10:if(l.b===404){a2.$1("\u274c Error 404: Endpoint no encontrado en "+A.l(m))
-g=A.a3o("Servidor encontrado pero endpoint no disponible.\nURL intentada: "+A.l(m)+"\nVerifica que sea un servidor CTH v\xe1lido.",404)
+g=A.a3o("Servidor encontrado pero endpoint no disponible.\nURL intentada: "+A.l(m)+"\nVerifica que sea un servidor sientiaCTH v\xe1lido.",404)
 throw A.e(g)}else if(l.b===500){a2.$1("\u274c Error 500: Error interno del servidor en "+A.l(m))
 g=A.a3o("Error interno del servidor en "+A.l(m)+".\nContacta al administrador.",500)
 throw A.e(g)}else{a2.$1("\u274c Error HTTP "+l.b+": "+l.c)
@@ -29609,7 +29609,7 @@ s=1
 break}s=4
 return A.k(A.nR(),$async$O2)
 case 4:p=b
-q=A.aK5(p==null?"https://cth.sientia.com":p)
+q=A.aK5(p==null?"https://sientiaCTH.sientia.com":p)
 s=1
 break
 case 1:return A.x(q,r)}})
@@ -46317,7 +46317,7 @@ s.a=A.kl(r,":"+a,b)},
 $S:78}
 A.M_.prototype={
 J(a){var s=A.wY(null,null,B.k,new A.ms(A.a6([50,A.bb(B.d.aN(25.5),B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),100,A.bb(51,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),200,A.bb(B.d.aN(76.5),B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),300,A.bb(102,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),400,A.bb(B.d.aN(127.5),B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),500,B.k,600,A.bb(B.d.aN(178.5),B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),700,A.bb(204,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),800,A.bb(B.d.aN(229.5),B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),900,B.k],t.S,t.G),1,0.09803921568627451,0.4627450980392157,0.8235294117647058,B.e),!0)
-return new A.C0(A.a6(["/",new A.a4K(),"/login",new A.a4L(),"/clock",new A.a4M(),"/profile",new A.a4N(),"/settings",new A.a4O(),"setup_server",new A.a4P(),"setup_worker",new A.a4Q()],t.N,t.Ab),"/",new A.a4R(),"CTH Mobile",s,!1,null)}}
+return new A.C0(A.a6(["/",new A.a4K(),"/login",new A.a4L(),"/clock",new A.a4M(),"/profile",new A.a4N(),"/settings",new A.a4O(),"setup_server",new A.a4P(),"setup_worker",new A.a4Q()],t.N,t.Ab),"/",new A.a4R(),"sientiaCTH Mobile",s,!1,null)}}
 A.a4K.prototype={
 $1(a){return new A.t7(null)},
 $S:252}
@@ -46725,7 +46725,7 @@ break
 case 5:return A.x(null,r)
 case 1:return A.w(p.at(-1),r)}})
 return A.y($async$yU,r)},
-J(a){var s=null,r=$.bQ(),q=A.u7(s,B.k,s,B.h,A.a4(r.aD("about.title",s),s,s,s,s,s,s,s)),p=A.qL("assets/images/cth-logo.png",new A.a3p(),s,100,100),o=A.a4(r.aD("about.version",s)+": 0.1.2",s,s,s,A.bq(s,s,B.as,s,s,s,s,s,s,s,s,16,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),n=A.bl(16),m=t.p
+J(a){var s=null,r=$.bQ(),q=A.u7(s,B.k,s,B.h,A.a4(r.aD("about.title",s),s,s,s,s,s,s,s)),p=A.qL("assets/images/sientiaCTH-logo.png",new A.a3p(),s,100,100),o=A.a4(r.aD("about.version",s)+": 0.1.2",s,s,s,A.bq(s,s,B.as,s,s,s,s,s,s,s,s,16,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),n=A.bl(16),m=t.p
 m=A.b([B.pB,p,B.pB,B.afK,o,B.Kr,A.kv(new A.aX(B.b0,A.bG(A.b([B.age,B.bM,A.a4(r.aD("about.developed_by",s),s,s,s,A.bq(s,s,B.as,s,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),B.agi,A.a4(r.aD("about.tech_ai",s),s,s,s,A.bq(s,s,B.as,s,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),B.c8,s,s)],m),B.u,B.o,B.p,0,B.B),s),4,s,B.Ph,new A.bS(n,B.t)),B.Kr,A.a4(r.aD("about.support_title",s),s,s,s,B.aci,s,s,s),B.a8,A.aF4(B.Si,A.a4(r.aD("about.support_patreon",s),s,s,s,s,s,s,s),new A.a3q(this,a),A.kF(s,s,B.ry,s,s,s,s,s,s,B.h,s,B.a9V,s,s,new A.bS(A.bl(30),B.t),s,s,s,s,s))],m)
 m.push(B.aaf)
 m.push(A.a4("Build: 2026-03-07 13:30",s,s,s,A.bq(s,s,B.hc,s,s,s,s,s,s,s,s,11,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s))
@@ -46735,7 +46735,7 @@ A.a3p.prototype={
 $3(a,b,c){return B.SE},
 $S:352}
 A.a3q.prototype={
-$0(){return this.a.yU(this.b,"https://www.patreon.com/cw/CTH_ControlHorario")},
+$0(){return this.a.yU(this.b,"https://www.patreon.com/cw/sientiaCTH_ControlHorario")},
 $S:0}
 A.q3.prototype={
 ah(){return new A.FR()}}
@@ -47419,7 +47419,7 @@ break
 case 6:case 1:return A.x(q,r)
 case 2:return A.w(o.at(-1),r)}})
 return A.y($async$ov,r)},
-J(a){var s,r,q,p,o,n,m,l,k,j=this,i=null,h=A.jP(A.qL("assets/images/cth-logo.png",i,B.e_,28,28),0.8),g=$.bQ(),f=t.p
+J(a){var s,r,q,p,o,n,m,l,k,j=this,i=null,h=A.jP(A.qL("assets/images/sientiaCTH-logo.png",i,B.e_,28,28),0.8),g=$.bQ(),f=t.p
 h=A.bJ(A.b([h,B.b8,A.a4(g.aD("app.title",i),i,i,i,i,i,i,i)],f),B.u,B.o,B.p,0,i)
 h=A.u7(A.b([A.hi(i,i,B.nY,i,i,j.e?i:j.gag0(),i,i,i),A.hi(i,i,B.Sl,i,i,new A.arN(j,a),i,i,i),A.hi(i,i,B.Sr,i,i,new A.arO(a),i,i,i),A.hi(i,i,B.Su,i,i,new A.arP(j),i,i,i)],f),B.k,0,B.h,h)
 s=B.d.aN(25.5)
@@ -47905,7 +47905,7 @@ if(!l.ap(0,m))l.m(0,m,A.b([],q))
 l.h(0,m).push(o)}}return l},
 J(a){var s,r,q,p=this,o=null
 if(!p.x)return B.p8
-s=A.jP(A.qL("assets/images/cth-logo.png",o,B.e_,28,28),0.8)
+s=A.jP(A.qL("assets/images/sientiaCTH-logo.png",o,B.e_,28,28),0.8)
 r=$.bQ()
 q=t.p
 return A.mO(A.u7(o,B.k,o,B.h,A.bJ(A.b([s,B.b8,A.a4(r.aD("history.title",o),o,o,o,o,o,o,o)],q),B.u,B.o,B.p,0,o)),A.bG(A.b([A.bM(o,A.oX(A.bJ(A.b([p.Ex(B.tz,r.aD("history.filter.today",o)),B.bf,p.Ex(B.RE,r.aD("history.filter.week",o)),B.bf,p.Ex(B.RF,r.aD("history.filter.month",o))],q),B.u,B.o,B.p,0,o),o,o,o,B.b5),B.r,o,o,o,o,o,o,B.b0,o,o,o),A.ca(p.a7h(),1)],q),B.u,B.o,B.p,0,B.B),o)},
@@ -48186,7 +48186,7 @@ default:return B.bZ}},
 J(a){var s,r,q,p,o,n,m,l,k,j,i,h,g=this,f=null
 if(g.CW)return A.mO(A.u7(f,B.k,f,B.h,B.L4),B.eR,f)
 s=t.p
-r=A.u7(f,B.k,f,B.h,A.bJ(A.b([A.jP(A.qL("assets/images/cth-logo.png",f,B.e_,28,28),0.8),B.b8,B.L4],s),B.u,B.o,B.p,0,f))
+r=A.u7(f,B.k,f,B.h,A.bJ(A.b([A.jP(A.qL("assets/images/sientiaCTH-logo.png",f,B.e_,28,28),0.8),B.b8,B.L4],s),B.u,B.o,B.p,0,f))
 q=A.tc(!1,g.f,B.Td,!1,f,f,f,1,!1,f,f,f,f,f,f,B.aw,f,new A.ax3())
 p=A.tc(!1,g.r,B.Tf,!1,f,f,f,1,!1,f,f,f,f,f,f,B.aw,f,f)
 o=A.tc(!1,g.w,B.Te,!1,f,f,f,1,!1,f,f,f,f,f,f,B.aw,f,f)
@@ -48474,7 +48474,7 @@ if(p!=null)q.K(new A.az9(q,p,a,o,b))
 return A.x(null,r)}})
 return A.y($async$tX,r)},
 al7(a,b){this.K(new A.azj(this,a,b))},
-J(a){var s,r,q=this,p=null,o=t.p,n=A.bJ(A.b([A.jP(A.qL("assets/images/cth-logo.png",p,B.e_,28,28),0.8),B.b8,A.a4($.bQ().aD("schedule.title",p),p,p,p,p,p,p,p)],o),B.u,B.o,B.p,0,p),m=A.b([],o)
+J(a){var s,r,q=this,p=null,o=t.p,n=A.bJ(A.b([A.jP(A.qL("assets/images/sientiaCTH-logo.png",p,B.e_,28,28),0.8),B.b8,A.a4($.bQ().aD("schedule.title",p),p,p,p,p,p,p,p)],o),B.u,B.o,B.p,0,p),m=A.b([],o)
 if(!q.d&&q.w!=null)if(q.f){s=q.e
 r=A.hi(p,p,B.tM,p,p,s?p:q.ga7N(),p,p,p)
 B.b.R(m,A.b([r,A.hi(p,p,B.SB,p,p,s?p:q.gajd(),p,p,p)],o))}else m.push(A.hi(p,p,B.SL,p,p,q.gajr(),p,p,p))
@@ -48672,7 +48672,7 @@ break
 case 7:return A.x(null,r)
 case 1:return A.w(p.at(-1),r)}})
 return A.y($async$qB,r)},
-J(a){var s,r,q,p=this,o=null,n=t.p,m=A.u7(o,B.k,o,B.h,A.bJ(A.b([A.jP(A.qL("assets/images/cth-logo.png",o,B.e_,28,28),0.8),B.b8,B.ag8],n),B.u,B.o,B.p,0,o)),l=B.d.aN(25.5),k=A.b([A.bb(l,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),B.h],t.t_),j=A.bl(16)
+J(a){var s,r,q,p=this,o=null,n=t.p,m=A.u7(o,B.k,o,B.h,A.bJ(A.b([A.jP(A.qL("assets/images/sientiaCTH-logo.png",o,B.e_,28,28),0.8),B.b8,B.ag8],n),B.u,B.o,B.p,0,o)),l=B.d.aN(25.5),k=A.b([A.bb(l,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),B.h],t.t_),j=A.bl(16)
 j=A.kv(new A.aX(B.b0,A.bG(A.b([A.bJ(A.b([A.bM(o,B.SM,B.r,o,o,new A.bu(A.bb(l,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),o,o,A.bl(8),o,o,B.N),o,o,o,B.cl,o,o,o),B.b8,B.ag4],n),B.u,B.o,B.p,0,o),B.a8,A.tc(!1,p.d,A.BA(o,B.ew,o,o,o,o,o,o,!0,o,o,o,o,o,p.f,o,o,o,o,o,o,o,o,o,2,o,"Introduce el dominio base del servidor",o,o,o,o,"https://mi-servidor.com",o,o,o,o,o,o,o,o,"URL del servidor",!0,!0,o,B.Ss,o,o,o,o,o,o,o,o,o,o,o,o),!1,o,o,B.pJ,1,!1,o,o,o,o,o,o,B.aw,o,o)],n),B.Z,B.o,B.p,0,B.B),o),4,o,o,new A.bS(j,B.t))
 s=A.bl(16)
 s=A.kv(new A.aX(B.b0,A.bG(A.b([A.bJ(A.b([A.bM(o,B.SN,B.r,o,o,new A.bu(A.bb(l,B.k.F()>>>16&255,B.k.F()>>>8&255,B.k.F()&255),o,o,A.bl(8),o,o,B.N),o,o,o,B.cl,o,o,o),B.b8,B.ag9],n),B.u,B.o,B.p,0,o),B.a8,A.aMg(B.k,new A.azK(p),B.agf,B.afH,p.r)],n),B.Z,B.o,B.p,0,B.B),o),4,o,o,new A.bS(s,B.t))
@@ -48735,7 +48735,7 @@ A.t0.prototype={
 ah(){return new A.ID(new A.bI(null,t.am),new A.fV(B.cu,$.au()))}}
 A.ID.prototype={
 aw(){this.aO()
-this.e.sci(0,"https://cth.sientia.com")},
+this.e.sci(0,"https://sientiaCTH.sientia.com")},
 l(){var s=this.e
 s.a0$=$.au()
 s.Y$=0
@@ -48796,7 +48796,7 @@ h=A.bJ(A.b([i,g,A.bM(k,A.em(A.a4("2",k,k,k,A.bq(k,k,A.bb(s,B.h.F()>>>16&255,B.h.
 g=A.a4("Paso 1 de 2: Configurar servidor",k,k,k,A.bq(k,k,A.bb(B.d.aN(229.5),B.h.F()>>>16&255,B.h.F()>>>8&255,B.h.F()&255),k,k,k,k,k,k,k,k,16,k,k,k,k,k,!0,k,k,k,k,k,k,k,k),k,k,k)
 i=A.bl(16)
 q=A.b([new A.bB(0,B.a_,A.bb(B.d.aN(25.5),B.q.F()>>>16&255,B.q.F()>>>8&255,B.q.F()&255),B.hY,10)],t.V)
-p=A.b([B.aga,B.bM,A.a4("Introduce la URL del servidor CTH al que te quieres conectar.",k,k,k,A.bq(k,k,B.as,k,k,k,k,k,k,k,k,14,k,k,k,k,k,!0,k,k,k,k,k,k,k,k),k,k,k),B.dK,A.tc(!1,l.e,A.BA(k,new A.eU(4,A.bl(12),B.iE),k,k,k,k,k,k,!0,k,k,k,k,k,k,B.eU,!0,k,k,k,k,k,k,k,k,k,k,k,k,k,k,"https://tu-servidor.com",k,k,k,k,k,k,k,k,"URL del servidor",!0,!0,k,B.So,k,k,k,k,k,k,k,k,k,k,k,k),!1,k,k,B.pJ,1,!1,k,k,new A.azR(l),k,k,k,B.aw,B.im,l.gamd())],r)
+p=A.b([B.aga,B.bM,A.a4("Introduce la URL del servidor sientiaCTH al que te quieres conectar.",k,k,k,A.bq(k,k,B.as,k,k,k,k,k,k,k,k,14,k,k,k,k,k,!0,k,k,k,k,k,k,k,k),k,k,k),B.dK,A.tc(!1,l.e,A.BA(k,new A.eU(4,A.bl(12),B.iE),k,k,k,k,k,k,!0,k,k,k,k,k,k,B.eU,!0,k,k,k,k,k,k,k,k,k,k,k,k,k,k,"https://tu-servidor.com",k,k,k,k,k,k,k,k,"URL del servidor",!0,!0,k,B.So,k,k,k,k,k,k,k,k,k,k,k,k),!1,k,k,B.pJ,1,!1,k,k,new A.azR(l),k,k,k,B.aw,B.im,l.gamd())],r)
 o=l.r
 if(o!=null){n=A.bl(8)
 m=A.h7(B.ms,1)
@@ -48804,7 +48804,7 @@ B.b.R(p,A.b([B.a8,A.bM(k,A.bJ(A.b([A.dN(B.nT,B.mB,k,20),B.bf,A.ca(A.a4(o,k,k,k,A
 o=l.f?k:l.gakM()
 n=A.kF(k,k,B.k,k,k,k,k,k,k,B.h,k,k,k,k,new A.bS(A.bl(12),B.t),k,k,k,k,k)
 p.push(A.d2(A.kE(!1,l.f?B.fH:B.agd,k,k,k,k,k,k,o,k,n),56,1/0))
-return A.mO(k,A.iX(B.cy,A.b([A.bM(k,A.jY(!0,new A.aX(B.eb,A.bG(A.b([h,B.dL,B.L5,B.bM,g,B.pC,A.ca(A.bM(k,A.a9z(k,A.bG(p,B.Z,B.o,B.p,0,B.B),l.d),B.r,k,k,new A.bu(B.h,k,k,i,q,k,B.N),k,k,k,B.eb,k,k,1/0),1),B.a8,A.a4("Esta configuraci\xf3n se guardar\xe1 para futuras conexiones.",k,k,k,A.bq(k,k,A.bb(s,B.h.F()>>>16&255,B.h.F()>>>8&255,B.h.F()&255),k,k,k,k,k,k,k,k,12,k,k,k,k,k,!0,k,k,k,k,k,k,k,k),B.c8,k,k)],r),B.u,B.o,B.p,0,B.B),k),B.an,!0),B.r,k,k,new A.bu(k,k,k,k,k,new A.kV(B.dk,B.dX,B.cV,j,k,k),B.N),k,k,k,k,k,k,k),A.vY(k,A.jY(!0,A.jP(A.qL("assets/images/cth-logo.png",k,B.e_,28,28),0.6),B.an,!0),k,k,k,16,16,k)],r),B.O,B.bT,k),k)}}
+return A.mO(k,A.iX(B.cy,A.b([A.bM(k,A.jY(!0,new A.aX(B.eb,A.bG(A.b([h,B.dL,B.L5,B.bM,g,B.pC,A.ca(A.bM(k,A.a9z(k,A.bG(p,B.Z,B.o,B.p,0,B.B),l.d),B.r,k,k,new A.bu(B.h,k,k,i,q,k,B.N),k,k,k,B.eb,k,k,1/0),1),B.a8,A.a4("Esta configuraci\xf3n se guardar\xe1 para futuras conexiones.",k,k,k,A.bq(k,k,A.bb(s,B.h.F()>>>16&255,B.h.F()>>>8&255,B.h.F()&255),k,k,k,k,k,k,k,k,12,k,k,k,k,k,!0,k,k,k,k,k,k,k,k),B.c8,k,k)],r),B.u,B.o,B.p,0,B.B),k),B.an,!0),B.r,k,k,new A.bu(k,k,k,k,k,new A.kV(B.dk,B.dX,B.cV,j,k,k),B.N),k,k,k,k,k,k,k),A.vY(k,A.jY(!0,A.jP(A.qL("assets/images/sientiaCTH-logo.png",k,B.e_,28,28),0.6),B.an,!0),k,k,k,16,16,k)],r),B.O,B.bT,k),k)}}
 A.azM.prototype={
 $0(){var s=this.a
 s.f=!0
@@ -48910,7 +48910,7 @@ q=A.kF(n,n,B.kS,n,n,n,n,n,n,B.h,n,n,n,n,new A.bS(A.bl(12),B.t),n,n,n,n,n)
 B.b.R(g,A.b([s,B.dK,A.d2(A.kE(!1,o.f?B.fH:B.afS,n,n,n,n,n,n,r,n,q),56,1/0)],l))}s=o.r
 if(s!=null){r=A.bl(8)
 q=A.h7(B.ms,1)
-B.b.R(g,A.b([B.a8,A.bM(n,A.bJ(A.b([A.dN(B.nT,B.mB,n,20),B.bf,A.ca(A.a4(s,n,n,n,A.bq(n,n,B.c_,n,n,n,n,n,n,n,n,14,n,n,n,n,n,!0,n,n,n,n,n,n,n,n),n,n,n),1)],l),B.u,B.o,B.p,0,n),B.r,n,n,new A.bu(B.mE,n,q,r,n,n,B.N),n,n,n,B.ck,n,n,n)],l))}return A.mO(n,A.iX(B.cy,A.b([A.bM(n,A.jY(!0,new A.aX(B.eb,A.bG(A.b([k,B.dL,B.L5,B.bM,j,B.pC,A.ca(A.bM(n,A.oX(A.bG(g,B.Z,B.o,B.p,0,B.B),n,n,n,B.aq),B.r,n,n,new A.bu(B.h,n,n,i,h,n,B.N),n,n,n,B.eb,n,n,1/0),1),B.a8,A.a4("Estos datos se guardar\xe1n localmente para uso offline.",n,n,n,A.bq(n,n,A.bb(B.d.aN(178.5),B.h.F()>>>16&255,B.h.F()>>>8&255,B.h.F()&255),n,n,n,n,n,n,n,n,12,n,n,n,n,n,!0,n,n,n,n,n,n,n,n),B.c8,n,n)],l),B.u,B.o,B.p,0,B.B),n),B.an,!0),B.r,n,n,new A.bu(n,n,n,n,n,new A.kV(B.dk,B.dX,B.cV,m,n,n),B.N),n,n,n,n,n,n,n),A.vY(n,A.jY(!0,A.jP(A.qL("assets/images/cth-logo.png",n,B.e_,28,28),0.6),B.an,!0),n,n,n,16,16,n)],l),B.O,B.bT,n),n)},
+B.b.R(g,A.b([B.a8,A.bM(n,A.bJ(A.b([A.dN(B.nT,B.mB,n,20),B.bf,A.ca(A.a4(s,n,n,n,A.bq(n,n,B.c_,n,n,n,n,n,n,n,n,14,n,n,n,n,n,!0,n,n,n,n,n,n,n,n),n,n,n),1)],l),B.u,B.o,B.p,0,n),B.r,n,n,new A.bu(B.mE,n,q,r,n,n,B.N),n,n,n,B.ck,n,n,n)],l))}return A.mO(n,A.iX(B.cy,A.b([A.bM(n,A.jY(!0,new A.aX(B.eb,A.bG(A.b([k,B.dL,B.L5,B.bM,j,B.pC,A.ca(A.bM(n,A.oX(A.bG(g,B.Z,B.o,B.p,0,B.B),n,n,n,B.aq),B.r,n,n,new A.bu(B.h,n,n,i,h,n,B.N),n,n,n,B.eb,n,n,1/0),1),B.a8,A.a4("Estos datos se guardar\xe1n localmente para uso offline.",n,n,n,A.bq(n,n,A.bb(B.d.aN(178.5),B.h.F()>>>16&255,B.h.F()>>>8&255,B.h.F()&255),n,n,n,n,n,n,n,n,12,n,n,n,n,n,!0,n,n,n,n,n,n,n,n),B.c8,n,n)],l),B.u,B.o,B.p,0,B.B),n),B.an,!0),B.r,n,n,new A.bu(n,n,n,n,n,new A.kV(B.dk,B.dX,B.cV,m,n,n),B.N),n,n,n,n,n,n,n),A.vY(n,A.jY(!0,A.jP(A.qL("assets/images/sientiaCTH-logo.png",n,B.e_,28,28),0.6),B.an,!0),n,n,n,16,16,n)],l),B.O,B.bT,n),n)},
 y9(a,b){var s=null
 return new A.aX(B.Ra,A.bJ(A.b([A.d2(A.a4(a+":",s,s,s,B.aeD,s,s,s),s,120),A.ca(A.a4(b,s,s,s,A.bq(s,s,B.bZ,s,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s,s,s),s,s,s),1)],t.p),B.Z,B.o,B.p,0,s),s)}}
 A.azW.prototype={
@@ -106267,7 +106267,7 @@ B.afI=new A.bD("Informaci\xf3n Personal",null,B.ip,null,null,null,null,null,null
 B.ae2=new A.o(!0,null,null,null,null,null,null,B.ef,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.afJ=new A.bD("\xdaltima actualizaci\xf3n",null,B.ae2,null,null,null,null,null,null,null)
 B.adH=new A.o(!0,B.k,null,null,null,null,24,B.ae,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.afK=new A.bD("CTH Mobile",null,B.adH,null,null,null,null,null,null,null)
+B.afK=new A.bD("sientiaCTH Mobile",null,B.adH,null,null,null,null,null,null,null)
 B.afL=new A.bD("Horarios recibidos",null,B.ip,null,null,null,null,null,null,null)
 B.pL=new A.o(!0,B.es,null,null,null,null,12,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.afM=new A.bD("Inicio",null,B.pL,null,null,null,null,null,null,null)
@@ -106312,7 +106312,7 @@ B.agn=new A.bD("Actualizar",null,null,null,null,null,null,null,null,null)
 B.ac6=new A.o(!0,B.h,null,null,null,null,28,B.ae,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.L5=new A.bD("Configuraci\xf3n Inicial",null,B.ac6,null,null,null,null,null,null,null)
 B.adN=new A.o(!0,B.h,null,null,null,null,32,B.ae,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.ago=new A.bD("CTH Mobile",null,B.adN,null,null,null,null,null,null,null)
+B.ago=new A.bD("sientiaCTH Mobile",null,B.adN,null,null,null,null,null,null,null)
 B.akj=new A.anP(0,"system")
 B.a6g=new A.i(0.056,0.024)
 B.a6u=new A.i(0.108,0.3085)
