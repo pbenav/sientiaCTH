@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/pbenav/sientiaCTH/releases)
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)](https://php.net)
 
 [🇬🇧 English Version](README.en.md)
@@ -204,15 +204,12 @@ Para ver el historial completo de cambios, consulta el [CHANGELOG](public/docs/e
 
 ## 📄 Licencia
 
-sientiaCTH es **software libre y gratuito** distribuido bajo la [Licencia MIT](LICENSE).
+sientiaCTH es **software libre y gratuito** distribuido bajo la [Licencia GNU AGPL v3](LICENSE) (Affero General Public License).
 
-Esto significa que puedes:
-- ✅ **Usar** el software para cualquier propósito (personal o comercial)
-- ✅ **Modificar** el código según tus necesidades
-- ✅ **Distribuir** copias del software
-- ✅ **Sublicenciar** y vender copias del software modificado
-
-La única condición es que incluyas el aviso de copyright y la licencia MIT en todas las copias o porciones sustanciales del software.
+Esto garantiza que el software seguirá siendo libre para todos sus usuarios. Bajo esta licencia puedes:
+- ✅ **Usar**, copiar y distribuir el software de forma gratuita.
+- ✅ **Modificar** el código fuente para adaptarlo a tus necesidades.
+- ✅ **SaaS**: Si permites que otros interactúen con el software a través de una red, debes poner a disposición de los usuarios el código fuente completo bajo esta misma licencia.
 
 **Autor**: pbenav (2022-2026)  
 **Licencia completa**: Ver archivo [LICENSE](LICENSE)
@@ -235,4 +232,4 @@ Si descubres alguna vulnerabilidad de seguridad, por favor **NO** la publiques e
 
 ---
 
-*© 2022-2026 pbenav - sientiaCTH es software libre bajo licencia MIT*
+*© 2022-2026 pbenav - sientiaCTH es software libre bajo licencia GNU AGPL v3*

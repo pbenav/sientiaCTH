@@ -9,20 +9,21 @@
  * @package     sientiaCTH
  * @author      pbenav
  * @copyright   2022-2026 pbenav
- * @license     MIT License - https://opensource.org/licenses/MIT
+ * @license     GNU AGPL v3 - https://www.gnu.org/licenses/agpl-3.0.txt
  * @link        https://github.com/pbenav/sientiaCTH
  * @since       Version 1.0.0
  * 
- * LICENCIA MIT
+ * LICENCIA GNU AGPL v3
  * 
- * Se concede permiso, de forma gratuita, a cualquier persona que obtenga una copia
- * de este software y archivos de documentación asociados (el "Software"), para 
- * tratar el Software sin restricciones, incluidos, entre otros, los derechos de 
- * uso, copia, modificación, fusión, publicación, distribución, sublicencia y/o 
- * venta de copias del Software.
+ * Este programa es software libre: puedes redistribuirlo y/o modificarlo bajo los 
+ * términos de la Licencia Pública General Affero de GNU tal como ha sido publicada 
+ * por la Free Software Foundation, ya sea la versión 3 de la Licencia, o (a tu 
+ * elección) cualquier versión posterior.
  * 
- * El aviso de copyright anterior y este aviso de permiso se incluirán en todas
- * las copias o partes sustanciales del Software.
+ * Este programa se distribuye con la esperanza de que sea útil, pero SIN NINGUNA 
+ * GARANTÍA; ni siquiera la garantía implícita de COMERCIABILIDAD o ADECUACIÓN 
+ * PARA UN PROPÓSITO PARTICULAR. 
  * 
- * EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO.
+ * Deberías haber recibido una copia de la Licencia Pública General Affero de GNU 
+ * junto con este programa. Si no, consulta <https://www.gnu.org/licenses/>.
  */
