@@ -17,9 +17,9 @@ return [
 
     'name' => env('APP_NAME', 'sientiaCTH'),
 
-    'version' => env('APP_VER', '1.1.0'),
+    'version' => env('APP_VER', '1.1.1'),
 
-    'app_version' => env('APP_VER', '1.1.0'),
+    'app_version' => env('APP_VER', '1.1.1'),
 
     /*
     |--------------------------------------------------------------------------
