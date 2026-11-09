@@ -307,11 +307,81 @@ class User extends Authenticatable
      */
     public function isTeamAdmin(?\App\Models\Team $team = null): bool
     {
+        if ($this->is_admin) {
+            return true;
+        }
+
         $team = $team ?: $this->currentTeam;
         if (!$team) {
             return false;
         }
         return $this->hasTeamRole($team, 'admin');
+    }
+
+    /**
+     * Check if the user is a global admin or an administrator in at least one team.
+     *
+     * @return bool
+     */
+    public function isAnyTeamAdmin(): bool
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        if ($this->ownedTeams()->exists()) {
+            return true;
+        }
+
+        return $this->teams()->where('team_user.role', 'admin')->exists();
+    }
+
+    /**
+     * Get the list of team IDs that this user can administer.
+     *
+     * @return array
+     */
+    public function administeredTeamIds(): array
+    {
+        if ($this->is_admin) {
+            return \App\Models\Team::pluck('id')->toArray();
+        }
+
+        $ownedTeamIds = $this->ownedTeams()->pluck('id')->toArray();
+        $memberAdminTeamIds = $this->teams()->where('team_user.role', 'admin')->pluck('teams.id')->toArray();
+
+        return array_values(array_unique(array_merge($ownedTeamIds, $memberAdminTeamIds)));
+    }
+
+    /**
+     * Get query builder of teams that this user can administer.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function administeredTeams()
+    {
+        if ($this->is_admin) {
+            return \App\Models\Team::query();
+        }
+
+        $teamIds = $this->administeredTeamIds();
+        return \App\Models\Team::whereIn('id', $teamIds);
+    }
+
+    /**
+     * Determine if the user can administer a specific team.
+     *
+     * @param \App\Models\Team|int $team
+     * @return bool
+     */
+    public function canAdministerTeam($team): bool
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        $teamId = $team instanceof \App\Models\Team ? $team->id : (int) $team;
+        return in_array($teamId, $this->administeredTeamIds(), true);
     }
 
     /**

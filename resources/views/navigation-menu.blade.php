@@ -44,10 +44,15 @@
                             {{ __('Announcements') }}
                         </x-nav-link>
                     @endcan
-                    @if (Auth::user()->is_admin)
+                    @if (Auth::user()->is_admin || Auth::user()->isAnyTeamAdmin())
                         <x-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
-                            {{ __('Global Dashboard') }}
+                            {{ Auth::user()->is_admin ? __('Global Dashboard') : __('Administración') }}
                         </x-nav-link>
+                        <x-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.*')">
+                            {{ __('Gestión de Usuarios') }}
+                        </x-nav-link>
+                    @endif
+                    @if (Auth::user()->is_admin)
                         <x-nav-link href="{{ route('admin.teams.index') }}" :active="request()->routeIs('admin.teams.*')">
                             {{ __('Team Administration') }}
                         </x-nav-link>
@@ -307,10 +312,15 @@
                                 {{ __('Announcements') }}
                             </x-responsive-nav-link>
                         @endcan
-                        @if (Auth::user()->is_admin)
+                        @if (Auth::user()->is_admin || Auth::user()->isAnyTeamAdmin())
                             <x-responsive-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
-                                {{ __('Global Dashboard') }}
+                                {{ Auth::user()->is_admin ? __('Global Dashboard') : __('Administración') }}
                             </x-responsive-nav-link>
+                            <x-responsive-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.*')">
+                                {{ __('Gestión de Usuarios') }}
+                            </x-responsive-nav-link>
+                        @endif
+                        @if (Auth::user()->is_admin)
                             <x-responsive-nav-link href="{{ route('admin.teams.index') }}" :active="request()->routeIs('admin.teams.*')">
                                 {{ __('Team Administration') }}
                             </x-responsive-nav-link>

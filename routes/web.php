@@ -143,44 +143,50 @@ Route::middleware([
     Route::post('/impersonate/leave', [App\Http\Controllers\ImpersonateController::class, 'leave'])->name('impersonate.leave');
 });
 
-// Admin routes - Only accessible to global administrators
-Route::middleware(['auth', 'verified', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+// Admin routes - Accessible to global administrators and team administrators
+Route::middleware(['auth', 'verified', 'admin_or_team_admin'])->prefix('admin')->name('admin.')->group(function () {
     // Admin Dashboard
     Route::get('/dashboard', \App\Livewire\Admin\AdminDashboardComponent::class)->name('dashboard');
 
-    // Mail Settings
-    Route::get('/mail-settings', function () {
-        return view('admin.mail-settings');
-    })->name('mail-settings');
+    // User Management (Scoped for team admins, global for is_admin)
+    Route::get('/users', \App\Livewire\Admin\UserManagementComponent::class)->name('users.index');
 
-    // Global App Settings
-    Route::get('/settings', function () {
-        return view('admin.app-settings');
-    })->name('settings');
+    // Global Admin Only Routes
+    Route::middleware(['is_admin'])->group(function () {
+        // Mail Settings
+        Route::get('/mail-settings', function () {
+            return view('admin.mail-settings');
+        })->name('mail-settings');
 
-    // SBOM Download
-    Route::get('/sbom', function () {
-        $path = base_path('sbom.json');
-        if (!file_exists($path)) {
-            abort(404, 'SBOM not generated yet.');
-        }
-        return response()->download($path, 'sbom.json', [
-            'Content-Type' => 'application/json',
-        ]);
-    })->name('sbom.download');
+        // Global App Settings
+        Route::get('/settings', function () {
+            return view('admin.app-settings');
+        })->name('settings');
 
-    // Team Administration
-    Route::get('/teams', [App\Http\Controllers\Admin\TeamController::class, 'index'])->name('teams.index');
-    Route::get('/teams/{team}/edit', [App\Http\Controllers\Admin\TeamController::class, 'edit'])->name('teams.edit');
-    Route::put('/teams/{team}', [App\Http\Controllers\Admin\TeamController::class, 'update'])->name('teams.update');
-    Route::delete('/teams/{team}', [App\Http\Controllers\Admin\TeamController::class, 'destroy'])->name('teams.destroy');
-    Route::post('/teams/{team}/members', [App\Http\Controllers\Admin\TeamController::class, 'addMember'])->name('teams.add-member');
-    Route::put('/teams/{team}/members/{user}/role', [App\Http\Controllers\Admin\TeamController::class, 'updateMemberRole'])->name('teams.update-member-role');
-    Route::delete('/teams/{team}/members/{user}', [App\Http\Controllers\Admin\TeamController::class, 'removeMember'])->name('teams.remove-member');
-    Route::post('/teams/{team}/members/{user}/transfer', [App\Http\Controllers\Admin\TeamController::class, 'transferUser'])->name('teams.transfer-user');
-    Route::put('/teams/{team}/transfer-ownership', [App\Http\Controllers\Admin\TeamController::class, 'transferOwnership'])->name('teams.transfer-ownership');
-    Route::put('/teams/{team}/assign-owner', [App\Http\Controllers\Admin\TeamController::class, 'assignOwner'])->name('teams.assign-owner');
-    Route::post('/teams/{team}/invitations/{invitation}/accept', [App\Http\Controllers\TeamInvitationController::class, 'accept'])->name('teams.accept-invitation');
+        // SBOM Download
+        Route::get('/sbom', function () {
+            $path = base_path('sbom.json');
+            if (!file_exists($path)) {
+                abort(404, 'SBOM not generated yet.');
+            }
+            return response()->download($path, 'sbom.json', [
+                'Content-Type' => 'application/json',
+            ]);
+        })->name('sbom.download');
+
+        // Team Administration
+        Route::get('/teams', [App\Http\Controllers\Admin\TeamController::class, 'index'])->name('teams.index');
+        Route::get('/teams/{team}/edit', [App\Http\Controllers\Admin\TeamController::class, 'edit'])->name('teams.edit');
+        Route::put('/teams/{team}', [App\Http\Controllers\Admin\TeamController::class, 'update'])->name('teams.update');
+        Route::delete('/teams/{team}', [App\Http\Controllers\Admin\TeamController::class, 'destroy'])->name('teams.destroy');
+        Route::post('/teams/{team}/members', [App\Http\Controllers\Admin\TeamController::class, 'addMember'])->name('teams.add-member');
+        Route::put('/teams/{team}/members/{user}/role', [App\Http\Controllers\Admin\TeamController::class, 'updateMemberRole'])->name('teams.update-member-role');
+        Route::delete('/teams/{team}/members/{user}', [App\Http\Controllers\Admin\TeamController::class, 'removeMember'])->name('teams.remove-member');
+        Route::post('/teams/{team}/members/{user}/transfer', [App\Http\Controllers\Admin\TeamController::class, 'transferUser'])->name('teams.transfer-user');
+        Route::put('/teams/{team}/transfer-ownership', [App\Http\Controllers\Admin\TeamController::class, 'transferOwnership'])->name('teams.transfer-ownership');
+        Route::put('/teams/{team}/assign-owner', [App\Http\Controllers\Admin\TeamController::class, 'assignOwner'])->name('teams.assign-owner');
+        Route::post('/teams/{team}/invitations/{invitation}/accept', [App\Http\Controllers\TeamInvitationController::class, 'accept'])->name('teams.accept-invitation');
+    });
 });
 
 /*

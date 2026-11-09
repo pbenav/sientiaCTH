@@ -71,6 +71,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'isTeamAdmin' => \App\Http\Middleware\IsTeamAdmin::class,
         'is_admin' => \App\Http\Middleware\IsAdmin::class,
+        'admin_or_team_admin' => \App\Http\Middleware\EnsureAdminOrTeamAdmin::class,
         'mobile.auth' => \App\Http\Middleware\MobileAuthMiddleware::class,
     ];
 }
