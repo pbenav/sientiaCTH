@@ -85,10 +85,16 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($user) {
-            // Auto-generate user_code if not provided
+            // Auto-generate user_code if not provided, safely preventing collisions
             if (empty($user->user_code)) {
-                $nextId = (int) User::max('id') + 1;
-                $user->user_code = 'USR' . str_pad((string) $nextId, 6, '0', STR_PAD_LEFT);
+                $maxId = (int) \Illuminate\Support\Facades\DB::table('users')->max('id');
+                $candidateId = $maxId + 1;
+                $code = 'USR' . str_pad((string) $candidateId, 6, '0', STR_PAD_LEFT);
+                while (\Illuminate\Support\Facades\DB::table('users')->where('user_code', $code)->exists()) {
+                    $candidateId++;
+                    $code = 'USR' . str_pad((string) $candidateId, 6, '0', STR_PAD_LEFT);
+                }
+                $user->user_code = $code;
             }
         });
 
@@ -517,19 +523,21 @@ class User extends Authenticatable
             throw new \InvalidArgumentException('Cannot transfer user to a team they own.');
         }
 
-        // Remove from all current team memberships (not owned teams)
-        $this->teams()->detach();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($targetTeam, $role) {
+            // Remove from all current team memberships (not owned teams)
+            $this->teams()->detach();
 
-        // Add to target team
-        $targetTeam->users()->attach($this->id, ['role' => $role]);
+            // Add to target team
+            $targetTeam->users()->attach($this->id, ['role' => $role]);
 
-        // Update current team
-        $this->forceFill([
-            'current_team_id' => $targetTeam->id,
-        ])->save();
+            // Update current team
+            $this->forceFill([
+                'current_team_id' => $targetTeam->id,
+            ])->save();
 
-        // Migrate user's events to the target team
-        $this->events()->update(['team_id' => $targetTeam->id]);
+            // Migrate user's events to the target team
+            $this->events()->update(['team_id' => $targetTeam->id]);
+        });
     }
 
     /**

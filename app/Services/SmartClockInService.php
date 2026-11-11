@@ -233,6 +233,16 @@ class SmartClockInService
         // Check for open events
         $openEvent = $this->getOpenEvent($user, $workdayEventType);
         
+        // If an open event exists but its start date was before today (in the user's timezone),
+        // it cannot be considered an ongoing workday shift for today.
+        // It indicates an unclosed shift from a previous date that requires closing/grace closing.
+        if ($openEvent) {
+            $openEventStart = $this->utcToTeamTimezone($openEvent->start, $teamTimezone);
+            if (!$openEventStart->isSameDay($now)) {
+                $openEvent = null;
+            }
+        }
+        
         // Check for active pause (safely handle if pause type doesn't exist)
         $pauseEventType = null;
         $activePause = null;

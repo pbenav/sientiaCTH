@@ -272,7 +272,6 @@ class Event extends Model
             return false;
         }
         
-        error_log('Confirm...');
         if ($this->is_open === true) {
             $this->is_open = false;
             $this->save();

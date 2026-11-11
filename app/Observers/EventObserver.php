@@ -26,15 +26,8 @@ class EventObserver
         // Note: SmartClockInService handles is_open logic, but we need to be careful not to block clock-ins.
         
         // Only validate if we have a user and it's a workday event
-        $user = $event->user;
-        if (!$user && $event->user_id) {
-            $user = User::find($event->user_id);
-        }
-
-        $eventType = $event->eventType;
-        if (!$eventType && $event->event_type_id) {
-            $eventType = EventType::find($event->event_type_id);
-        }
+        $user = $event->relationLoaded('user') ? $event->user : ($event->user_id ? User::find($event->user_id) : null);
+        $eventType = $event->relationLoaded('eventType') ? $event->eventType : ($event->event_type_id ? EventType::find($event->event_type_id) : null);
 
         if (!$user || !$eventType || !$eventType->is_workday_type || $event->is_exceptional) {
             return;

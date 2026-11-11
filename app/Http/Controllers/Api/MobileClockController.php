@@ -547,8 +547,6 @@ class MobileClockController extends Controller
 
             $todayStats = $this->getTodayStats($user) ?? [];
 
-            $todayStats = $this->getTodayStats($user) ?? [];
-
             // Use the message from the service, which already handles force_clock_in_delay logic
             $message = $clockAction['message'] ?? null;
             
@@ -847,7 +845,9 @@ class MobileClockController extends Controller
             // Restrict teams to those the user is specifically assigned to or included in
             // (Owned or Member). We allow personal teams because primary work teams 
             // can be marked as personal in this database.
-            $allTeams = $user->ownedTeams->merge($user->teams)
+            $ownedTeams = $user->ownedTeams()->with('workCenters')->get();
+            $memberTeams = $user->teams()->with('workCenters')->get();
+            $allTeams = $ownedTeams->merge($memberTeams)
                 ->filter(function ($team) {
                     return $team->name !== Team::WELCOME_TEAM_NAME;
                 })
@@ -857,10 +857,7 @@ class MobileClockController extends Controller
             $workCenters = collect();
 
             foreach ($allTeams as $team) {
-                // Ensure work centers are loaded
-                $teamWorkCenters = $team->workCenters;
-                
-                foreach ($teamWorkCenters as $workCenter) {
+                foreach ($team->workCenters as $workCenter) {
                     $workCenters->push([
                         'id' => $workCenter->id,
                         'name' => $workCenter->name,
@@ -907,24 +904,26 @@ class MobileClockController extends Controller
                 }
             }
 
-            // Fetch holidays for the user's current team and current year
+            // Fetch holidays for the user's current team and current year (cached for 1 day)
             $currentYear = now()->year;
             $teamId = $user->current_team_id;
             
-            $holidays = Holiday::where('team_id', $teamId)
-                ->whereYear('date', $currentYear)
-                ->orderBy('date')
-                ->get()
-                ->map(function ($holiday) {
-                    return [
-                        'id' => $holiday->id,
-                        'name' => $holiday->name,
-                        'date' => $holiday->date->format('Y-m-d'),
-                        'type' => $holiday->type ?? 'national'
-                    ];
-                })
-                ->values()
-                ->all();
+            $holidays = \Illuminate\Support\Facades\Cache::remember("team_{$teamId}_holidays_{$currentYear}", now()->addDay(), function () use ($teamId, $currentYear) {
+                return Holiday::where('team_id', $teamId)
+                    ->whereYear('date', $currentYear)
+                    ->orderBy('date')
+                    ->get()
+                    ->map(function ($holiday) {
+                        return [
+                            'id' => $holiday->id,
+                            'name' => $holiday->name,
+                            'date' => $holiday->date->format('Y-m-d'),
+                            'type' => $holiday->type ?? 'national'
+                        ];
+                    })
+                    ->values()
+                    ->all();
+            });
 
             return response()->json([
                 'success' => true,
@@ -968,35 +967,30 @@ class MobileClockController extends Controller
                 ->with('eventType')
                 ->get();
 
-            $totalEntries = $events->where('eventType.is_workday_type', true)->where('type', 'start')->count();
-            $totalExits = $events->where('eventType.is_workday_type', true)->where('type', 'end')->count();
-
-            // Calcular segundos trabajados (sumar intervalos entre start/end laborales)
+            $totalEntries = 0;
+            $totalExits = 0;
             $workedSeconds = 0;
-            $startTime = null;
-            foreach ($events as $event) {
-                if ($event->eventType && $event->eventType->is_workday_type) {
-                    if ($event->type === 'start') {
-                        $startTime = Carbon::parse($event->start);
-                    } elseif ($event->type === 'end' && $startTime) {
-                        $endTime = Carbon::parse($event->start);
-                        $workedSeconds += $startTime->diffInSeconds($endTime);
-                        $startTime = null;
-                    }
-                }
-            }
-
-            // Calcular segundos de pausa (sumar intervalos entre start/end de pausas)
             $pauseSeconds = 0;
-            $pauseStart = null;
+
             foreach ($events as $event) {
-                if ($event->eventType && $event->eventType->is_pause_type) {
-                    if ($event->type === 'start') {
-                        $pauseStart = Carbon::parse($event->start);
-                    } elseif ($event->type === 'end' && $pauseStart) {
-                        $pauseEnd = Carbon::parse($event->start);
-                        $pauseSeconds += $pauseStart->diffInSeconds($pauseEnd);
-                        $pauseStart = null;
+                if (!$event->eventType) {
+                    continue;
+                }
+
+                $eventStart = $event->start ? Carbon::parse($event->start) : null;
+                $eventEnd = $event->end ? Carbon::parse($event->end) : ($event->is_open ? now() : null);
+
+                if ($event->eventType->is_workday_type) {
+                    $totalEntries++;
+                    if ($event->end || !$event->is_open) {
+                        $totalExits++;
+                    }
+                    if ($eventStart && $eventEnd) {
+                        $workedSeconds += max(0, $eventStart->diffInSeconds($eventEnd));
+                    }
+                } elseif ($event->eventType->is_pause_type) {
+                    if ($eventStart && $eventEnd) {
+                        $pauseSeconds += max(0, $eventStart->diffInSeconds($eventEnd));
                     }
                 }
             }
@@ -1022,7 +1016,7 @@ class MobileClockController extends Controller
                 'worked_hours' => '0:00',
                 'total_entries' => 0,
                 'total_exits' => 0,
-                'current_status' => 'unknown'
+                'current_status' => 'idle'
             ];
         }
     }
